@@ -148,45 +148,17 @@ class TASServer : public Server
 
   protected:
 
-    //! @brief Struct used internally by the TASServer class to calculate ping roundtimes.
-    struct TASPingListItem {
-      int id;
-      wxLongLong t;
-    };
-
-	PingThread* m_ping_thread;
     CRC m_crc;
-
-	IServerEvents* m_se;
     double m_ser_ver;
 
-    wxString m_last_denied;
-    bool m_connected;
-    bool m_online;
+
     bool m_debug_dont_catch;
     bool m_id_transmission;
     bool m_redirecting;
     wxString m_buffer;
     time_t m_last_udp_ping;
     time_t m_last_net_packet;
-	MutexWrapper<unsigned int> m_last_id;
-	unsigned int& GetLastID()
-	{
-		ScopedLocker<unsigned int> l_last_id(m_last_id);
-		return l_last_id.Get();
-	}
 
-	typedef std::list<TASPingListItem> PingList;
-	MutexWrapper<PingList> m_pinglist;
-
-	PingList& GetPingList()
-	{
-		ScopedLocker<PingList> l_pinglist(m_pinglist);
-		return l_pinglist.Get();
-	}
-
-    unsigned long m_udp_private_port;
-    unsigned long m_nat_helper_port;
 
     int m_battle_id;
 
@@ -210,8 +182,6 @@ class TASServer : public Server
 		void FillAliasMap();
 
     wxString m_current_chan_name_mutelist;
-
-    wxArrayString m_relay_host_manager_list;
 };
 
 #endif // SPRINGLOBBY_HEADERGUARD_TASSERVER_H
@@ -232,4 +202,3 @@ class TASServer : public Server
     You should have received a copy of the GNU General Public License
     along with SpringLobby.  If not, see <http://www.gnu.org/licenses/>.
 **/
-

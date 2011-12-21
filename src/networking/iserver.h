@@ -23,22 +23,23 @@ class iServer : public ChannelList, public UserList, public BattleList
 	virtual void Logout() = 0;
 	virtual bool IsOnline()  const = 0;
 
-	virtual void Update( int mselapsed ) = 0;
+	virtual void TimerUpdate();
 
 	virtual void JoinChannel( const std::string& channel, const std::string& key ) = 0;
-	virtual void PartChannel( const std::string& channel ) = 0;
+	virtual void PartChannel( Channel* channel ) = 0;
 
-	virtual void DoActionChannel( const std::string& channel, const std::string& msg ) = 0;
-	virtual void SayChannel( const std::string& channel, const std::string& msg ) = 0;
+	virtual void DoActionChannel( const Channel* channel, const std::string& msg ) = 0;
+	virtual void SayChannel( const Channel* channel, const std::string& msg ) = 0;
 
-	virtual void SayPrivate( const std::string& nick, const std::string& msg ) = 0;
-	virtual void DoActionPrivate( const std::string& nick, const std::string& msg ) = 0;
+	virtual void SayPrivate( const User* user, const std::string& msg ) = 0;
+	virtual void DoActionPrivate( const User* user, const std::string& msg ) = 0;
 
-	virtual void SayBattle( int battleid, const std::string& msg ) = 0;
-	virtual void DoActionBattle( int battleid, const std::string& msg ) = 0;
+	virtual void SayBattle( const Battle* battle, const std::string& msg ) = 0;
+	virtual void DoActionBattle( const Battle* battle, const std::string& msg ) = 0;
 
-	virtual void Ring( const std::string& nick ) = 0;
+	virtual void Ring( const User* user ) = 0;
 
+	// these need to not use specific classes since they can be nonexistent/offline
 	virtual void ModeratorSetChannelTopic( const std::string& channel, const std::string& topic ) = 0;
 	virtual void ModeratorSetChannelKey( const std::string& channel, const std::string& key ) = 0;
 	virtual void ModeratorMute( const std::string& channel, const std::string& nick, int duration, bool byip ) = 0;
@@ -55,22 +56,22 @@ class iServer : public ChannelList, public UserList, public BattleList
 	virtual void AdminChangeAccountAccess( const std::string& nick, const std::string& accesscode ) = 0;
 	virtual void AdminSetBotMode( const std::string& nick, bool isbot ) = 0;
 
-	virtual void HostBattle( BattleOptions bo, const std::string& password = "" ) = 0;
-	virtual void JoinBattle( const int& battleid, const std::string& password = "" ) = 0;
-	virtual void LeaveBattle( const int& battleid ) = 0;
+	virtual void HostBattle( BattleOptions bo ) = 0;
+	virtual void JoinBattle( const Battle* battle, const std::string& password = "" ) = 0;
+	virtual void LeaveBattle( const Battle* battle ) = 0;
 	virtual void StartHostedBattle() = 0;
 
-	virtual void ForceSide( int battleid, User& user, int side ) = 0;
-	virtual void ForceTeam( int battleid, User& user, int team ) = 0;
-	virtual void ForceAlly( int battleid, User& user, int ally ) = 0;
-	virtual void ForceColour( int battleid, User& user, int r, int g, int b ) = 0;
-	virtual void ForceSpectator( int battleid, User& user, bool spectator ) = 0;
-	virtual void BattleKickPlayer( int battleid, User& user ) = 0;
-	virtual void SetHandicap( int battleid, User& user, int handicap) = 0;
+	virtual void ForceSide( const Battle* battle, const User* user, int side ) = 0;
+	virtual void ForceTeam( const Battle* battle, const User* user, int team ) = 0;
+	virtual void ForceAlly( const Battle* battle, const User* user, int ally ) = 0;
+	virtual void ForceColour( const Battle* battle, const User* user, int r, int g, int b ) = 0;
+	virtual void ForceSpectator( const Battle* battle, const User* user, bool spectator ) = 0;
+	virtual void BattleKickPlayer( const Battle* battle, const User* user ) = 0;
+	virtual void SetHandicap( const Battle* battle, const User* user, int handicap) = 0;
 
-	virtual void AddBot( int battleid, const std::string& nick, UserBattleStatus& status ) = 0;
-	virtual void RemoveBot( int battleid, User& user ) = 0;
-	virtual void UpdateBot( int battleid, User& user, UserBattleStatus& status ) = 0;
+	virtual void AddBot( const Battle* battle, const std::string& nick, UserBattleStatus& status ) = 0;
+	virtual void RemoveBot( const Battle* battle, const User* user ) = 0;
+	virtual void UpdateBot( const Battle* battle, const User* user, UserBattleStatus& status ) = 0;
 
 	virtual void SendHostInfo( HostInfo update ) = 0;
 	virtual void SendHostInfo( const std::string& Tag ) = 0;
@@ -89,22 +90,17 @@ class iServer : public ChannelList, public UserList, public BattleList
 	virtual void SetKeepaliveInterval( int seconds ) { m_keepalive = seconds; }
 	virtual int GetKeepaliveInterval() { return m_keepalive; }
 
-	virtual void SetUsername( const std::string& username ) { m_user = username; }
-	virtual void SetPassword( const std::string& password ) { m_pass = password; }
 	virtual bool IsPasswordHash( const std::string& pass ) const = 0;
 	virtual std::string GetPasswordHash( const std::string& pass ) const = 0;
 
 	std::string GetRequiredSpring() const { return m_min_required_spring_ver; }
-
 	void SetRequiredSpring( const std::string& version ) { m_min_required_spring_ver = version; }
 
 	virtual void OnConnected( Socket* sock ) = 0;
 	virtual void OnDisconnected( Socket* sock ) = 0;
 	virtual void OnDataReceived( Socket* sock ) = 0;
 
-	virtual const User& GetMe() const = 0;
-
-	virtual void SendScriptToProxy( const std::string& script ) = 0;
+	virtual const User* GetMe() const {return m_me;}
 
 	virtual void SendScriptToClients( const std::string& script ) = 0;
 
@@ -114,22 +110,50 @@ class iServer : public ChannelList, public UserList, public BattleList
 
 	virtual void RequestSpringUpdate();
 
-	virtual void SetRelayIngamePassword( const User& user ) = 0;
-
+	virtual void SetRelayIngamePassword( const const User* user ) = 0;
 	virtual StringVector GetRelayHostList();
+	User* AcquireRelayhost();
+	virtual void SendScriptToProxy( const std::string& script ) = 0;
+
+	void SetPrivateUdpPort(int port) {m_udp_private_port = port;}
+	std::string GenerateScriptPassword();
 
   protected:
+	//! @brief map used internally by the iServer class to calculate ping roundtimes.
+	typedef std::map<int, long long> PingList;
+
 	Socket* m_sock;
 	int m_keepalive; //! in seconds
 	int m_ping_timeout; //! in seconds
-	std::string m_user;
-	std::string m_pass;
+	User* m_me;
 	std::string m_server_name;
-	bool m_pass_hash;
 	std::string m_min_required_spring_ver;
+	std::string m_last_denied_connection_reason;
+	PingThread m_ping_thread;
+    bool m_connected;
+    bool m_online;
+    unsigned long m_udp_private_port;
+    unsigned long m_nat_helper_port;
 
-	int m_relay_host_bot_id;
-	int m_relay_host_manager_id;
+	MutexWrapper<unsigned int> m_last_ping_id;
+	unsigned int GetLastPingID()
+	{
+		ScopedLocker<unsigned int> l_last_ping_id(m_last_ping_id);
+		return l_last_id.Get();
+	}
+	MutexWrapper<PingList> m_pinglist;
+	PingList& GetPingList()
+	{
+		ScopedLocker<PingList> l_pinglist(m_pinglist);
+		return l_pinglist.Get();
+	}
+
+	IServerEvents m_se;
+
+	Battle* m_current_battle;
+
+	User* m_relay_host_bot;
+	User* m_relay_host_manager;
 
 	StringVector m_relay_host_manager_list;
 
