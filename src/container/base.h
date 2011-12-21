@@ -35,4 +35,6 @@ private:
 
 } //namespace LSL
 
+#include "base.cc"
+
 #endif // #ifndef LIBSPRINGLOBBY_HEADERGUARD_CONTAINERBASE_H

@@ -4,7 +4,8 @@ int main(int, char**)
 {
     using namespace LSL;
     UserList userlist;
-    UserList::PointerType p( new UserList::ItemType() );
+    UserList::ItemType* k = new UserList::ItemType();
+    UserList::PointerType p( k );
     userlist.Add( p );
 //    userlist.Remove
 	return 0;

@@ -6,7 +6,6 @@ INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
 SET(libSpringLobbySrc 
 	src/libspringlobby.cpp
-	src/container/base.cpp
 	src/container/userlist.cpp
 	src/user/user.cpp)
 
@@ -16,7 +15,7 @@ SET(basic_testSrc
 FILE( GLOB RECURSE header "src/*.h" )
 FILE( GLOB header2 "src/*/*.h" )
 
-#grep -lR cpp\"$ src/* | sed -e "s/\.h/\.cpp/g"
+#grep -lR cc\"$ src/* | sed -e "s/\.h/\.cc/g"
 SET( templatesources
 	""
 )
