@@ -84,7 +84,7 @@ cmake_policy(SET CMP0004 OLD)
 #ignore warnings about macosx app bundle output dir
 cmake_policy(SET CMP0006 OLD)
 
-ADD_LIBRARY(libSpringLobby ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE})
+ADD_LIBRARY(libSpringLobby STATIC ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE})
 ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
 
 #only enable if debugging is necessary
@@ -103,7 +103,9 @@ IF (WIN32)
     install(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
 	install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/locale DESTINATION .)
 ELSE (WIN32)
-    install(TARGETS libSpringLobby LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+    install(TARGETS libSpringLobby 
+		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib 
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
     install(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/libSpringLobby )
 ENDIF (WIN32)
 
