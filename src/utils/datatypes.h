@@ -1,5 +1,5 @@
 class User;
 
-typedef StringMap std::map< std::string, std::string>;
-typedef StringVector std::vector< std::string >;
-typedef UserVector std::vector< User* >;
+typedef std::map< std::string, std::string> StringMap;
+typedef std::vector< std::string > StringVector;
+typedef std::vector< User* > UserVector;
