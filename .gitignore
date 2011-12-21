@@ -1,0 +1,14 @@
+build-*
+build
+*~
+.cproject
+.project
+*.suo
+*.ncb
+*.o
+Makefile
+*.diff
+config.h
+doc/html/
+CMakeLists.txt.user*
+*kate-swp
