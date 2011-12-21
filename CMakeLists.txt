@@ -1,4 +1,4 @@
-PROJECT(liblobby)
+PROJECT(libSpringLobby)
 
 #set minimum cmake version
 cmake_minimum_required(VERSION 2.6)
@@ -70,9 +70,6 @@ IF(WIN32)
 	ENDIF(MINGW OR CMAKE_CROSSCOMPILING)
 
 	SET(libSpringLobbySrc ${libSpringLobbySrc} src/libSpringLobby.rc)
-ELSE(WIN32)
-	# If we don't build for windows, include some source code checks as pre-build step.
-    ADD_CUSTOM_TARGET(test_susynclib ALL COMMAND tools/test-susynclib.awk src/springunitsynclib.cpp WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 ENDIF(WIN32)
 
 
@@ -87,13 +84,8 @@ cmake_policy(SET CMP0004 OLD)
 #ignore warnings about macosx app bundle output dir
 cmake_policy(SET CMP0006 OLD)
 
-ADD_LIBRARY(libSpringLobby WIN32 MACOSX_BUNDLE ${header} ${libSpringLobbySrc} ${SettingsSrc} ${SLSharedWithSettings} ${libSpringLobby_RC_FILE})
-ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE  )
-#the updater needs to be build for windows only
-IF(WIN32)
-       ADD_EXECUTABLE(libSpringLobby_updater WIN32 MACOSX_BUNDLE ${updaterSrc} ${SLSharedWithSettings} ${updater_RC_FILE} )
-       TARGET_LINK_LIBRARIES(libSpringLobby_updater ${wxWidgets_LIBRARIES} )
-ENDIF(WIN32)
+ADD_LIBRARY(libSpringLobby ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE})
+ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
 
 #only enable if debugging is necessary
 #ADD_EXECUTABLE(versiontest WIN32 MACOSX_BUNDLE src/versiontest.cpp )
@@ -107,16 +99,12 @@ IF(MINGW)
 ENDIF(MINGW)
 
 IF (WIN32)
-    install(TARGETS libSpringLobby libSpringLobby_updater springsettings RUNTIME DESTINATION .)
+    install(TARGETS libSpringLobby LIBRARY DESTINATION .)
     install(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
 	install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/locale DESTINATION .)
 ELSE (WIN32)
-    install(TARGETS libSpringLobby springsettings RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
+    install(TARGETS libSpringLobby LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
     install(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/libSpringLobby )
-    install(FILES src/images/libSpringLobby.svg DESTINATION
-	    ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps)
-    install(FILES src/libSpringLobby.desktop DESTINATION
-	    ${CMAKE_INSTALL_PREFIX}/share/applications)
 ENDIF (WIN32)
 
 INCLUDE(cmake/compat_flags.cmake)
@@ -143,7 +131,5 @@ add_custom_target( version
 				${libSpringLobby_SOURCE_DIR}/tools/regen_config_header.sh ${libSpringLobby_SOURCE_DIR}/cmake/config.h ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h
 				)
 add_dependencies( distcheck dist )
-add_dependencies( libSpringLobby alure )
 add_dependencies( libSpringLobby version )
-#add_dependencies( versiontest version )
 

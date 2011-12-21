@@ -5,7 +5,10 @@
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
 SET(libSpringLobbySrc 
-	src/libSpringLobby.cpp )
+	src/libspringlobby.cpp )
+
+SET(basic_testSrc
+	test/basic.cpp )
 	
 FILE( GLOB RECURSE header "src/*.h" )
 FILE( GLOB header2 "src/*/*.h" )
