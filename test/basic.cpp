@@ -1,12 +1,19 @@
 #include <container/userlist.h>
+#include <container/battlelist.h>
+#include <container/channellist.h>
+
+#define TESTLIST(name) \
+    { name instance; \
+    name :: ItemType* k = new name :: ItemType();  \
+    name :: PointerType p( k ); \
+    instance.Add( p ); }
 
 int main(int, char**)
 {
     using namespace LSL;
-    UserList userlist;
-    UserList::ItemType* k = new UserList::ItemType();
-    UserList::PointerType p( k );
-    userlist.Add( p );
-//    userlist.Remove
+    TESTLIST(UserList)
+    TESTLIST(BattleList)
+    TESTLIST(ChannelList)
+
 	return 0;
 }

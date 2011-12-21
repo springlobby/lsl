@@ -6,10 +6,8 @@
 
 namespace LSL {
 
-class UserList : public ContainerBase< User, std::string >
+class UserList : public ContainerBase< User >
 {
-    typedef ContainerBase< User, std::string >
-        BaseType;
 };
 
 } // namespace LSL

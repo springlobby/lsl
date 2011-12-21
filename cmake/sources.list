@@ -7,7 +7,10 @@ INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 SET(libSpringLobbySrc 
 	src/libspringlobby.cpp
 	src/container/userlist.cpp
-	src/user/user.cpp)
+	src/container/channellist.cpp
+	src/container/battlelist.cpp
+	src/user/user.cpp
+	src/channel.cpp)
 
 SET(basic_testSrc
 	test/basic.cpp )

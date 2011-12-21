@@ -1,45 +1,53 @@
+#include <boost/format.hpp>
 
 namespace LSL {
 
-template < class T , class I >
-ContainerBase<T,I>::ContainerBase()
+template < class T >
+ContainerBase<T>::ContainerBase()
 {
 }
 
-template < class T , class I >
-void ContainerBase<T,I>::Add( PointerType item )
+template < class T >
+void ContainerBase<T>::Add( PointerType item )
 {
-
+    map_[item->index()] = item;
 }
 
-template < class T , class I >
-void ContainerBase<T,I>::Remove( const IndexType& index )
+template < class T >
+void ContainerBase<T>::Remove( const IndexType& index )
 {
-    typename ContainerBase<T,I>::MapType::iterator
+    typename ContainerBase<T>::MapType::iterator
         it = map_.find( index );
     const bool found = it != map_.end();
     if ( found )
         map_.erase( it );
 }
 
-template < class T , class I >
-typename ContainerBase<T,I>::PointerType ContainerBase<T,I>::Get( const IndexType& index ) const
+template < class T >
+typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const IndexType& index ) const
 {
-    typename ContainerBase<T,I>::MapType::iterator
+    typename ContainerBase<T>::MapType::iterator
         it = map_.find( index );
-
+    if ( it == map_.end() )
+        throw MissingItemException( index );
+    return *it;
 }
 
-template < class T , class I >
-bool ContainerBase<T,I>::Exists( const IndexType& index ) const
+template < class T >
+bool ContainerBase<T>::Exists( const IndexType& index ) const
 {
     return map_.find( index ) != map_.end();
 }
 
-template < class T , class I >
-typename ContainerBase<T,I>::MapType::size_type ContainerBase<T,I>::size() const
+template < class T >
+typename ContainerBase<T>::MapType::size_type ContainerBase<T>::size() const
 {
-
+    return map_.size();
 }
+
+template < class T >
+ContainerBase<T>::MissingItemException::MissingItemException( const typename ContainerBase<T>::IndexType& index )
+    :std::exception( boost::format( "No %s found in list for item %s" ) % T::className() % index )
+{}
 
 }
