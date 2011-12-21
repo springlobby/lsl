@@ -220,9 +220,9 @@ void iServer::BattleKickPlayer( const Battle* battle, const User* user )
 
 UserVector iServer::GetRelayHostList()
 {
-	if ( UserExists( "RelayHostManagerList" ) )
+	if ( m_relay_host_list )
 	{
-		SayPrivate( "RelayHostManagerList", "!listmanagers" );
+		SayPrivate( m_relay_host_list, "!listmanagers" );
 	}
 	UserVector ret;
 	for ( unsigned int i = 0; i < m_relay_host_manager_list.count(); i++ )

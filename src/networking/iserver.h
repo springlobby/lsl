@@ -155,6 +155,7 @@ class iServer : public ChannelList, public UserList, public BattleList
 
 	User* m_relay_host_bot;
 	User* m_relay_host_manager;
+	User* m_relay_host_list;
 
 	StringVector m_relay_host_manager_list;
 
