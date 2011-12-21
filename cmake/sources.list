@@ -4,8 +4,8 @@
 
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
-SET(springlobbySrc 
-	src/springlobby.cpp )
+SET(libSpringLobbySrc 
+	src/libSpringLobby.cpp )
 	
 FILE( GLOB RECURSE header "src/*.h" )
 FILE( GLOB header2 "src/*/*.h" )
@@ -21,7 +21,7 @@ set_source_files_properties(  ${header} PROPERTIES HEADER_FILE_ONLY 1 )
 find_program( CPPCHECK_BINARY NAMES cppcheck )
 IF( EXISTS ${CPPCHECK_BINARY} )
 	ADD_CUSTOM_TARGET( cppcheck )
-	FOREACH( list ${header} ${springlobbySrc} )
+	FOREACH( list ${header} ${libSpringLobbySrc} )
 		FOREACH( SOURCEFILE ${list} )
 			LIST( APPEND CHECKPATHS ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCEFILE} )
 		ENDFOREACH( SOURCEFILE )
