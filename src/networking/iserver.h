@@ -117,6 +117,7 @@ class iServer : public ChannelList, public UserList, public BattleList
 
 	void SetPrivateUdpPort(int port) {m_udp_private_port = port;}
 	std::string GenerateScriptPassword();
+	int RelayScriptSendETA( const std::string& script ); //!in seconds
 
   protected:
 	//! @brief map used internally by the iServer class to calculate ping roundtimes.

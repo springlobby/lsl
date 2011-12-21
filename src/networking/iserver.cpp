@@ -257,16 +257,20 @@ void iServer::SetRelayIngamePassword( const User* user )
 	RelayCmd( "SETINGAMEPASSWORD", user->GetNick() + " " + user->BattleStatus().scriptPassword );
 }
 
-void iServer::SendScriptToProxy( const std::string& script )
+int iServer::RelayScriptSendETA(const std::string& script)
 {
 	StringVector strings = StringTokenize( script, _T("\n") );
 	int relaylenghtprefix = 10 + 1 + m_relay_host_bot.GetNick().lenght() + 2; // SAYPRIVATE + space + botname + space + exclamation mark lenght
 	int lenght = script.lenght();
 	lenght += relaylenghtprefix + 11 + 1; // CLEANSCRIPT command size
-	lenght += strings.GetCount() * ( relaylenghtprefix + 16 + 1 ); // num lines * APPENDSCRIPTLINE + space command size ( \n is already counted in script.size)
+	lenght += strings.count() * ( relaylenghtprefix + 16 + 1 ); // num lines * APPENDSCRIPTLINE + space command size ( \n is already counted in script.size)
 	lenght += relaylenghtprefix + 9 + 1; // STARTGAME command size
-	int time = lenght / m_sock->GetSendRateLimit(); // calculate time in seconds to upload script
-	m_se->OnRelayHostDelayETA(time);
+	return lenght / m_sock->GetSendRateLimit(); // calculate time in seconds to upload script
+}
+
+void iServer::SendScriptToProxy( const std::string& script )
+{
+	StringVector strings = StringTokenize( script, _T("\n") );
 	RelayCmd( "CLEANSCRIPT" );
 	for (StringVector::iterator itor; itor != strings->end(); itor++)
 	{
