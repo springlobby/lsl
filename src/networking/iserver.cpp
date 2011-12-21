@@ -254,7 +254,7 @@ void iServer::SetRelayIngamePassword( const User* user )
 	if (!user) return;
 	if (!m_current_battle) return;
 	if ( !m_current_battle->GetInGame() ) return;
-	RelayCmd( _T("SETINGAMEPASSWORD"), user->GetNick() + " " + user->BattleStatus().scriptPassword );
+	RelayCmd( "SETINGAMEPASSWORD", user->GetNick() + " " + user->BattleStatus().scriptPassword );
 }
 
 void iServer::SendScriptToProxy( const std::string& script )
@@ -267,10 +267,10 @@ void iServer::SendScriptToProxy( const std::string& script )
 	lenght += relaylenghtprefix + 9 + 1; // STARTGAME command size
 	int time = lenght / m_sock->GetSendRateLimit(); // calculate time in seconds to upload script
 	m_se->OnRelayHostDelayETA(time);
-	RelayCmd( _T("CLEANSCRIPT") );
+	RelayCmd( "CLEANSCRIPT" );
 	for (StringVector::iterator itor; itor != strings->end(); itor++)
 	{
-		RelayCmd( _T("APPENDSCRIPTLINE"), *itor );
+		RelayCmd( "APPENDSCRIPTLINE", *itor );
 	}
-	RelayCmd( _T("STARTGAME") );
+	RelayCmd( "STARTGAME" );
 }
