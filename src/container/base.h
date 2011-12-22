@@ -4,7 +4,7 @@
 
 #include <boost/smart_ptr.hpp>
 #include <map>
-#include <exception>
+#include <stdexcept>
 
 namespace LSL {
 
@@ -19,7 +19,7 @@ public:
     typedef boost::shared_ptr< ItemType >
         PointerType;
 
-    struct MissingItemException : public std::exception {
+    struct MissingItemException : public std::out_of_range {
         MissingItemException( const IndexType& index );
     };
 
@@ -33,7 +33,8 @@ public:
     void Add( PointerType item );
     void Remove( const IndexType& index );
     //! throws MissingItemException if no item at \param index
-    PointerType Get( const IndexType& index ) const;
+    const PointerType Get( const IndexType& index ) const;
+    PointerType Get( const IndexType& index );
     bool Exists( const IndexType& index ) const;
 
     typename MapType::size_type size() const;

@@ -9,6 +9,7 @@ public:
     Channel();
 
     std::string index() const { return "dummy"; }
+    static std::string className() { return "Channel"; }
 };
 
 #endif // CHANNEL_H

@@ -11,6 +11,7 @@ public:
     IBattle() {}
 
     int index() const { return 1; }
+    static std::string className() { return "Channel"; }
 };
 
 } // namespace LSL

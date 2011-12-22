@@ -12,6 +12,7 @@ public:
     User() {}
 
     std::string index() const {return "dummy";}
+    static std::string className() { return "Channel"; }
 };
 
 } // namespace LSL
