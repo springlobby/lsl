@@ -3,7 +3,7 @@ class StringVector;
 
 class ServerEvents;
 
-class iServer : public ChannelList, public UserList, public BattleList
+class iServer(int serverEventsMode)
 {
   public:
 	friend class ServerEvents;
@@ -16,7 +16,7 @@ class iServer : public ChannelList, public UserList, public BattleList
 	virtual void AcceptAgreement() = 0;
 
 	virtual void Connect( const std::string& servername, const std::string& addr, const int port ) = 0;
-	virtual void Disconnect() = 0;
+	virtual void Disconnect(const std::string& reason) = 0;
 	virtual bool IsConnected() = 0;
 
 	virtual void Login() = 0;
@@ -126,6 +126,8 @@ class iServer : public ChannelList, public UserList, public BattleList
 	Socket* m_sock;
 	int m_keepalive; //! in seconds
 	int m_ping_timeout; //! in seconds
+	int m_server_rate_limit; //! in bytes/sec
+	int m_message_size_limit; //! in bytes
 	User* m_me;
 	std::string m_server_name;
 	std::string m_min_required_spring_ver;
@@ -133,8 +135,9 @@ class iServer : public ChannelList, public UserList, public BattleList
 	PingThread m_ping_thread;
     bool m_connected;
     bool m_online;
-    unsigned long m_udp_private_port;
-    unsigned long m_nat_helper_port;
+    int m_udp_private_port;
+    int m_nat_helper_port;
+	int m_udp_reply_timeout;
 
 	MutexWrapper<unsigned int> m_last_ping_id;
 	unsigned int GetLastPingID()

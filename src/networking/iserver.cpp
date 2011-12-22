@@ -1,23 +1,56 @@
 #include "iserver.h"
 
-iServer::iServer():
+iServer::iServer(int serverEventsMode):
 m_keepalive(15),
 m_ping_timeout(40),
+m_server_rate_limit(800),
+m_message_size_limit(1024),
 m_connected(false),
 m_online(false),
 m_me(0),
 m_last_udp_ping(0),
 m_last_net_packet(0),
 m_udp_private_port(0),
+m_udp_reply_timeout(0),
 m_current_battle(0),
+m_buffer(""),
 m_relay_host_bot(0)
 {
+	m_se = IServerEvents::getInstance( *this, IServerEvents::ServerEventsMode(serverEventsMode) );
 }
 
 
 iServer::~iServer()
 {
 	OnDisconnected();
+    delete m_se;
+}
+
+void iServer::Connect( const std::string& servername ,const std::string& addr, const int port )
+{
+	m_server_name = servername;
+    m_addr=addr;
+	m_buffer = "";
+	m_sock->Connect( addr, port );
+	m_sock->SetSendRateLimit( m_server_rate_limit );
+	m_connected = false;
+    m_online = false;
+    m_redirecting = false;
+    m_agreement = "";
+	m_crc.ResetCRC();
+	m_last_net_packet = 0;
+	std::string handle = m_sock->GetHandle();
+	if ( handle.lenght() > 0 ) m_crc.UpdateData( handle + m_addr );
+}
+
+void iServer::Disconnect(const std::string& reason)
+{
+    if (!m_connected)
+    {
+        return;
+    }
+	_Disconnect(reason);
+	m_sock->Disconnect();
 }
 
 void iServer::OnConnected(Socket* sock)
@@ -41,7 +74,7 @@ void iServer::OnDisconnected(Socket* sock)
 	GetLastPingID() = 0;
 	GetPingList().clear();
 	// delete all users, battles, channels
-	m_se.OnDisconnected( connectionwaspresent );
+	m_se->OnDisconnected( connectionwaspresent );
 }
 
 
@@ -52,10 +85,15 @@ void iServer::OnDataReceived( Socket* sock )
 	_OnDataRecieved(sock);
 }
 
-bool iServer::IsOnline() const
+bool ::IsOnline() const
 {
 	if ( !m_connected ) return false;
 	return m_online;
+}
+
+bool iServer::IsConnected()
+{
+	return (m_sock->State() == SS_Open);
 }
 
 void iServer::RequestSpringUpdate()
@@ -72,7 +110,7 @@ void iServer::TimerUpdate()
 
 	if ( ( m_last_net_packet > 0 ) && ( ( now - m_last_net_packet ) > m_ping_timeout ) )
 	{
-		m_se.OnTimeout();
+		m_se->OnTimeout();
 		Disconnect();
 		return;
 	}
@@ -82,9 +120,9 @@ void iServer::TimerUpdate()
 	// we did UdpPing(our name) , join battle anyway, but with warning message that nat failed.
 	// (if we'd receive reply from server, we'd finalize already)
 	//
-	if (m_last_udp_ping > 0 && (now - m_last_udp_ping) > udp_reply_timeout )
+	if (m_last_udp_ping > 0 && (now - m_last_udp_ping) > m_udp_reply_timeout )
 	{
-		m_se.OnNATPunchFailed();
+		m_se->OnNATPunchFailed();
 	};
 
 	// Is it time for a nat traversal PING?
@@ -112,6 +150,19 @@ void iServer::TimerUpdate()
 
 }
 
+void iServer::OnDataReceived( Socket* sock )
+{
+	std::string data = sock->Receive();
+	m_buffer += data;
+	int returnpos = m_buffer.find( "\n" );
+	while ( returnpos != -1 )
+	{
+		std::string cmd = m_buffer.Left( returnpos );
+		m_buffer = m_buffer.Mid( returnpos + 1 );
+		ExecuteCommand( cmd );
+		returnpos = m_buffer.Find( "\n" );
+	}
+}
 
 void iServer::Ping()
 {
@@ -277,4 +328,73 @@ void iServer::SendScriptToProxy( const std::string& script )
 		RelayCmd( "APPENDSCRIPTLINE", *itor );
 	}
 	RelayCmd( "STARTGAME" );
+}
+
+
+//! @brief Send udp ping.
+//! @note used for nat travelsal.
+
+unsigned int iServer::UdpPing(unsigned int src_port, const std::string &target, unsigned int target_port, const std::string &message)// full parameters version, used to ping all clients when hosting.
+{
+	return result;
+}
+
+void iServer::UdpPingTheServer(const std::string &message)
+{
+	unsigned int port = UdpPing( m_udp_private_port, m_addr, m_nat_helper_port,message);
+	if ( port>0 )
+	{
+		m_udp_private_port = port;
+		m_se->OnMyInternalUdpSourcePort( m_udp_private_port );
+	}
+}
+
+
+// copypasta from spring.cpp , to get users ordered same way as in tasclient.
+struct UserOrder
+{
+	int index;// user number for GetUser
+	int order;// user order (we'll sort by it)
+	bool operator<(UserOrder b) const  // comparison function for sorting
+	{
+		return order<b.order;
+	}
+};
+
+
+void TASServer::UdpPingAllClients()// used when hosting with nat holepunching. has some rudimentary support for fixed source ports.
+{
+	if (!m_current_battle)return;
+	if (!m_current_battle->IsFounderMe())return;
+
+	// I'm gonna mimic tasclient's behavior.
+	// It of course doesnt matter in which order pings are sent,
+	// but when doing "fixed source ports", the port must be
+	// FIRST_UDP_SOURCEPORT + index of user excluding myself
+	// so users must be reindexed in same way as in tasclient
+	// to get same source ports for pings.
+
+
+	// copypasta from spring.cpp
+	UserVector ordered_users = m_current_battle->GetUsers();
+	std::sort(ordered_users.begin(),ordered_users.end());
+
+
+	for (UserVector::iterator itor = ordered_users.begin(); itor != ordered_users.end(); itor++)
+	{
+		if (!*itor) continue;
+		UserBattleStatus status = *itor->BattleStatus();
+		std::string ip=status.ip;
+		unsigned int port=status.udpport;
+		unsigned int src_port = m_udp_private_port;
+		if ( battle->GetNatType() == NAT_Fixed_source_ports )
+		{
+			port = FIRST_UDP_SOURCEPORT + i;
+		}
+
+		if (port != 0 && ip.lenght() )
+		{
+			UdpPing(src_port, ip, port, "hai!" );
+		}
+	}
 }
