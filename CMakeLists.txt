@@ -86,14 +86,13 @@ cmake_policy(SET CMP0006 OLD)
 
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/lib/ )
 ADD_LIBRARY(libSpringLobby STATIC ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE})
+ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} )
 ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
-
-#only enable if debugging is necessary
-#ADD_EXECUTABLE(versiontest WIN32 MACOSX_BUNDLE src/versiontest.cpp )
 
 # Here the wxWidgets Libraries are added. These are set for us by the FIND Script. If you need other Libraries, you can add them here as well.
 TARGET_LINK_LIBRARIES(libSpringLobby ${SL_BOOST_LIBS} )
-TARGET_LINK_LIBRARIES(libSpringLobby_test libSpringLobby )
+TARGET_LINK_LIBRARIES(libUnitsync++ dl )
+TARGET_LINK_LIBRARIES(libSpringLobby_test libSpringLobby libUnitsync++)
 
 IF(MINGW)
 	TARGET_LINK_LIBRARIES( libSpringLobby iphlpapi )

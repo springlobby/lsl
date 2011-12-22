@@ -11,11 +11,16 @@ SET(libSpringLobbySrc
 	src/container/battlelist.cpp
 	src/user/user.cpp
 	src/channel.cpp)
+SET(libUnitsync++Src
+	src/unitsync++/c_api.cpp
+	src/unitsync++/unitsync.cpp
+	src/unitsync++/thread.cpp )
 
 SET(basic_testSrc
-	test/basic.cpp )
+	test/basic.cpp test/usync.cpp)
 	
 FILE( GLOB RECURSE header "src/*.h" )
+FILE( GLOB RECURSE usyncheader "src/unitsync++/*.h" )
 FILE( GLOB header2 "src/*/*.h" )
 
 #grep -lR cc\"$ src/* | sed -e "s/\.h/\.cc/g"
