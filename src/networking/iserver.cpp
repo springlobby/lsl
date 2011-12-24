@@ -433,13 +433,8 @@ void iServer::OnServerInitialData(const std::string& server_name, const std::str
 
 
 
-void iServer::OnNewUser( const std::string& nick, const std::string& country, int cpu, const std::string& id )
+void iServer::OnNewUser( const User* user )
 {
-	User* user = GetUser( id );
-	if ( !user ) user = AddUser( id );
-	user->SetCountry( country );
-	user->SetCpu( cpu );
-	user->SetNick( nick );
 }
 
 void iServer::OnUserStatus( const User* user, UserStatus status )
@@ -449,18 +444,6 @@ void iServer::OnUserStatus( const User* user, UserStatus status )
 	user->SetStatus( status );
 
 	//TODO: event
-
-	Battle* battle = user->GetBattle():
-	if ( battle != 0 )
-	{
-		if ( battle->GetFounder() == user )
-			if ( status.in_game != battle->GetInGame() )
-			{
-				battle->SetInGame( status.in_game );
-				if ( status.in_game ) OnBattleStarted( battle );
-				else OnBattleStopped( battle );
-			}
-		}
 }
 
 void iServer::OnBattleStarted( const Battle* battle )
@@ -520,18 +503,124 @@ void iServer::OnUserQuit( const User* user )
 {
 	if ( !user ) return;
 	Battle* battle = user->GetBattle();
-	if ( battle->GetFounder() == user )
-	UserVector battleusers = battle->GetUsers();
-	for ( UserVector::iterator itor = battleusers; i < int(userbattle->GetNumUsers()); i ++ )
+	if ( battle )
 	{
-		User& battleuser = userbattle->GetUser( i );
-		OnUserLeftBattle( battleid, battleuser.GetNick() );
+		if ( battle->GetFounder() == user )
+		{
+			OnBattleClosed( battle );
+		}
+		else OnUserLeftBattle( battle, user );
 	}
-		OnBattleClosed( battleid );
-						}
-						else OnUserLeftBattle( battleid, user.GetNick() );
-					}catch(...){}
-				}
-	//TODO: event
 	RemoveUser( user );
+	//TODO: event
+}
+
+
+void ServerEvents::OnBattleOpened( Battle* battle )
+{
+
+
+}
+
+void iServer::OnBattleMapChanged(const Battle* battle,UnitsyncMap map)
+{
+	if (!battle) return;
+	battle->SetHostMap( map.name, map.hash );
+}
+
+void iServer::OnBattleModChanged( const Battle* battle, UnitsyncMod mod )
+{
+	if (!battle) return;
+	battle->SetHostMod( mod.name, mod.hash );
+}
+
+void iServer::OnBattleMaxPlayersChanged( const Battle* battle, int maxplayers )
+{
+	if (!battle) return;
+	battle->SetMaxPlayers( maxplayers );
+}
+
+void iServer::OnBattleHostChanged( const Battle* battle, User* host, const std::string& ip, int port )
+{
+	if (!battle) return;
+	if (!user) return;
+	battle->SetFounder( user );
+	battle->SetHostIp( host );
+	battle->SetHostPort( port );
+}
+
+void iServer::OnBattleSpectatorCountUpdated(const Battle* battle,int spectators)
+{
+	if (!battle) return;
+	battle->SetNumSpectators(spectators);
+}
+
+
+void iServer::OnBattleLockUpdated(const Battle* battle,bool locked)
+{
+	if (!battle) return;
+	battle->SetLocked(locked);
+}
+
+void iServer::OnUserLeftBattle(const Battle* battle, const User* user)
+{
+	if (!user) return;
+	bool isbot = user->BattleStatus().IsBot();
+	user->BattleStatus().scriptPassword.Clear();
+	if (!battle) return;
+	battle->OnUserRemoved( user );
+	//TODO: event
+}
+
+void iServer::OnBattleClosed(const Battle* battle )
+{
+	UserVector battleusers = battle->GetUsers();
+	for ( UserVector::iterator itor = battleusers; itor != battleusers.end(); itor++ )
+	{
+		OnUserLeftBattle( battle, itor* );
+	}
+	RemoveBattle( battleid );
+	//TODO:event
+}
+
+void ServerEvents::OnBattleDisableUnit( const Battle* battle, const std::string& unitname, int count )
+{
+	if (!battle) return;
+	battle->RestrictUnit( unitname, count );
+	//TODO: event
+}
+
+void ServerEvents::OnBattleEnableUnit( int battleid, const std::string& unitname )
+{
+	if (!battle) return;
+	battle->UnrestrictUnit( unitname );
+	//TODO: event
+}
+
+void ServerEvents::OnBattleEnableAllUnits( int battleid )
+{
+	if (!battle) return;
+	battle->UnrestrictAllUnits();
+	//TODO: event
+}
+
+void OnJoinChannelSuccessful( const Channel* channel )
+{
+	if (!channel) return;
+	OnChannelJoin(channel, m_me);
+	//TODO: event
+}
+
+void OnJoinChannelFailed( const Channel* channel, const std::string& reason )
+{
+	if (!channel) return;
+	//TODO: event
+}
+
+void OnUserJoinedChannel( const Channe* channel, const User* user )
+{
+	if (!channel) return;
+	if (!user) return;
+	channel->OnChannelJoin( user );
+	//TODO: event
 }
