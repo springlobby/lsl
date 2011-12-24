@@ -1,12 +1,10 @@
 class StringMap;
 class StringVector;
 
-class ServerEvents;
 
-class iServer(int serverEventsMode)
+class iServer()
 {
   public:
-	friend class ServerEvents;
 
 	// Server interface
 
@@ -151,8 +149,6 @@ class iServer(int serverEventsMode)
 		ScopedLocker<PingList> l_pinglist(m_pinglist);
 		return l_pinglist.Get();
 	}
-
-	IServerEvents m_se;
 
 	Battle* m_current_battle;
 
