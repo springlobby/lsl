@@ -10,6 +10,9 @@ SET(libSpringLobbySrc
 	src/container/channellist.cpp
 	src/container/battlelist.cpp
 	src/user/user.cpp
+	src/networking/iserver.cpp
+	src/networking/tasserver.cpp
+	src/networking/tasserverdataformats.cpp
 	src/channel.cpp)
 SET(libUnitsync++Src
 	src/unitsync++/c_api.cpp
