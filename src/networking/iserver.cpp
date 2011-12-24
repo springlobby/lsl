@@ -16,14 +16,12 @@ m_current_battle(0),
 m_buffer(""),
 m_relay_host_bot(0)
 {
-	m_se = IiServer::getInstance( *this, IiServer::iServerMode(iServerMode) );
 }
 
 
 iServer::~iServer()
 {
 	OnDisconnected();
-    delete m_se;
 }
 
 void iServer::Connect( const std::string& servername ,const std::string& addr, const int port )
