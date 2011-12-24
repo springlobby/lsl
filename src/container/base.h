@@ -19,6 +19,7 @@ public:
     typedef boost::shared_ptr< ItemType >
         PointerType;
 
+    //! putting this here makes it inherently distinguishable on a per *List basis
     struct MissingItemException : public std::out_of_range {
         MissingItemException( const IndexType& index );
     };

@@ -120,7 +120,7 @@ struct mmOptionString : public mmOptionModel
 
 //! Holds a an option list (a vector of listItems)
 /*! Most complex of option types. A convenience method for adding new Listitems is provided,
- * as well as a wxArrayString that contains the names of the added Listitems (useful for comboboxes)
+ * as well as a StringVector that contains the names of the added Listitems (useful for comboboxes)
  */
 struct mmOptionList : public mmOptionModel
 {
@@ -141,7 +141,7 @@ struct mmOptionList : public mmOptionModel
 	//! holds a variable amount of ListItems
 	ListItemVec listitems;
 	//! for easy mapping to a combobox
-	wxArrayString cbx_choices;
+	StringVector cbx_choices;
 
 };
 

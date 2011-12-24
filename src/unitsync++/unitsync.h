@@ -45,20 +45,6 @@ private:
 public:
 	virtual ~SpringUnitSync();
 
-	enum GameFeature
-	{
-	  USYNC_Sett_Handler,
-	  USYNC_GetInfoMap,
-	  USYNC_GetDataDir,
-	  USYNC_GetSkirmishAI
-	};
-
-	enum MediaType
-	{
-	  map,
-	  mod
-	};
-
 	typedef std::map<std::string,mmOptionBool> OptionMapBool;
 	typedef std::map<std::string,mmOptionFloat> OptionMapFloat;
 	typedef std::map<std::string,mmOptionString> OptionMapString;
@@ -78,7 +64,7 @@ public:
 	typedef std::map<std::string,mmOptionSection>::const_iterator OptionMapSectionConstIter;
 
 	int GetNumMods() const;
-	wxArrayString GetModList() const;
+    StringVector GetModList() const;
 	bool ModExists( const std::string& modname ) const;
 	bool ModExists( const std::string& modname, const std::string& hash ) const;
     bool ModExistsCheckHash( const std::string& hash ) const;
@@ -88,11 +74,11 @@ public:
 	//! use m_unsorted_mod_array for real unitsync index
 	int GetModIndex( const std::string& name ) const;
     GameOptions GetModOptions( const std::string& name );
-	wxArrayString GetModDeps( const std::string& name ) const;
+    StringVector GetModDeps( const std::string& name ) const;
 
 	int GetNumMaps() const;
-	wxArrayString GetMapList() const;
-	wxArrayString GetModValidMapList( const std::string& modname ) const;
+    StringVector GetMapList() const;
+    StringVector GetModValidMapList( const std::string& modname ) const;
 	bool MapExists( const std::string& mapname ) const;
 	bool MapExists( const std::string& mapname, const std::string& hash ) const;
 
@@ -101,7 +87,7 @@ public:
     UnitSyncMap GetMapEx( const std::string& mapname );
 	UnitSyncMap GetMapEx( int index );
     GameOptions GetMapOptions( const std::string& name );
-    wxArrayString GetMapDeps( const std::string& name );
+    StringVector GetMapDeps( const std::string& name );
 
     //! function to fetch default singplayer/replay/savegame's default nick
 		std::string GetDefaultNick();
@@ -111,7 +97,7 @@ public:
 	//! use m_unsorted_map_array for real unitsync index
 	int GetMapIndex( const std::string& name ) const;
 
-    wxArrayString GetSides( const std::string& modname  );
+    StringVector GetSides( const std::string& modname  );
 	wxImage GetSidePicture( const std::string& modname, const std::string& SideName ) const;
 	wxImage GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent = true ) const;
 #ifdef SL_QT_MODE
@@ -129,13 +115,13 @@ public:
 
 	void UnSetCurrentMod();
 
-	wxArrayString GetAIList( const std::string& modname ) const;
-	wxArrayString GetAIInfos( int index ) const;
+    StringVector GetAIList( const std::string& modname ) const;
+    StringVector GetAIInfos( int index ) const;
     GameOptions GetAIOptions( const std::string& modname, int index );
 
 
 	int GetNumUnits( const std::string& modname ) const;
-	wxArrayString GetUnitsList( const std::string& modname );
+    StringVector GetUnitsList( const std::string& modname );
 
     /// get minimap with native width x height
     wxImage GetMinimap( const std::string& mapname );
@@ -159,7 +145,7 @@ public:
 
     void SetSpringDataPath( const std::string& path );
 
-	wxArrayString GetPlaybackList( bool ReplayType = true ) const; //savegames otehrwise
+    StringVector GetPlaybackList( bool ReplayType = true ) const; //savegames otehrwise
 
 	bool FileExists( const std::string& name ) const;
 
@@ -180,7 +166,7 @@ public:
     void GetHeightmapAsync( const std::string& mapname, int width, int height, int evtHandlerId );
     void GetMapExAsync( const std::string& mapname, int evtHandlerId );
 
-	wxArrayString GetScreenshotFilenames() const;
+    StringVector GetScreenshotFilenames() const;
 
     virtual GameOptions GetModCustomizations( const std::string& modname );
     virtual GameOptions GetSkirmishOptions( const std::string& modname, const std::string& skirmish_name );
@@ -188,7 +174,7 @@ public:
 	virtual void OnReload( wxCommandEvent& event );
 	virtual void AddReloadEvent(  );
 
-	wxArrayString FindFilesVFS( const std::string& pattern ) const;
+    StringVector FindFilesVFS( const std::string& pattern ) const;
 
   private:
 	typedef std::map< std::pair<std::string,std::string>, std::string> ShortnameVersionToNameMap;
@@ -200,10 +186,10 @@ public:
     LocalArchivesVector m_maps_unchained_hash; /// mapname -> unchained hash
     LocalArchivesVector m_mods_archive_name; /// modname -> archive name
     LocalArchivesVector m_maps_archive_name; /// mapname -> archive name
-	wxArrayString m_map_array; // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
-	wxArrayString m_mod_array; // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
-	wxArrayString m_unsorted_map_array; // this is because unitsync doesn't have a search map index by name ..
-	wxArrayString m_unsorted_mod_array; // this isn't necessary but makes things more symmetrical :P
+    StringVector m_map_array; // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
+    StringVector m_mod_array; // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
+    StringVector m_unsorted_map_array; // this is because unitsync doesn't have a search map index by name ..
+    StringVector m_unsorted_mod_array; // this isn't necessary but makes things more symmetrical :P
 
     /// caches sett().GetCachePath(), because that method calls back into
     /// susynclib(), there's a good chance main thread blocks on some
@@ -230,9 +216,9 @@ public:
     std::string GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod );
 
     //! returns an array where each element is a line of the file
-	wxArrayString GetCacheFile( const std::string& path ) const;
+    StringVector GetCacheFile( const std::string& path ) const;
     //! write a file where each element of the array is a line
-    void SetCacheFile( const std::string& path, const wxArrayString& data );
+    void SetCacheFile( const std::string& path, const StringVector& data );
 
     bool _LoadUnitSyncLib( const std::string& unitsyncloc );
     void _FreeUnitSyncLib();

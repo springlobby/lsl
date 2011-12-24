@@ -356,7 +356,7 @@ void SpringUnitSyncLib::_Init()
     m_current_mod = wxEmptyString;
     m_init( true, 1 );
 
-    wxArrayString errors = GetUnitsyncErrors();
+    StringVector errors = GetUnitsyncErrors();
     for ( unsigned int i = 0; i < errors.GetCount(); i++ )
     {
     	wxLogError( _T("%s"), errors[i].c_str() );
@@ -427,25 +427,25 @@ void SpringUnitSyncLib::AssertUnitsyncOk() const
 }
 
 
-wxArrayString SpringUnitSyncLib::GetUnitsyncErrors() const
+std::vector<std::string> SpringUnitSyncLib::GetUnitsyncErrors() const
 {
-  wxArrayString ret;
+  std::vector<std::string> ret;
   try
   {
 		UNITSYNC_EXCEPTION( m_loaded, _T("Unitsync not loaded.") );
 		UNITSYNC_EXCEPTION( m_get_next_error, _T("Function was not in unitsync library.") );
 
-    std::string msg = WX_STRINGC( m_get_next_error() );
-    while ( !msg.IsEmpty() )
+    std::string msg = m_get_next_error();
+    while ( !msg.empty() )
     {
-      ret.Add( msg );
-      msg = WX_STRINGC( m_get_next_error() );
+      ret.push_back( msg );
+      msg = m_get_next_error();
     }
     return ret;
   }
   catch ( unitsync_assert &e )
   {
-    ret.Add( WX_STRINGC( e.what() ) );
+    ret.push_back( e.what() );
     return ret;
   }
 }
@@ -643,10 +643,10 @@ std::string SpringUnitSyncLib::GetMapArchiveName( int arnr )
 }
 
 
-wxArrayString SpringUnitSyncLib::GetMapDeps( int index )
+StringVector SpringUnitSyncLib::GetMapDeps( int index )
 {
   int count = GetMapArchiveCount( index );
-	wxArrayString ret;
+    StringVector ret;
 	for ( int i = 0; i < count; i++ )
 	{
 		ret.Add( GetMapArchiveName( i ) );
@@ -717,7 +717,7 @@ MapInfo SpringUnitSyncLib::GetMapInfoEx( int index, int version )
 }
 
 
-wxImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
+UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 {
   InitLib( m_get_minimap );
 
@@ -732,7 +732,7 @@ wxImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
   ASSERT_EXCEPTION( colours, _T("Get minimap failed") );
 
   typedef unsigned char uchar;
-  wxImage minimap(width, height, false);
+  UnitSyncImage minimap(width, height, false);
   uchar* true_colours = minimap.GetData();
 
   for ( int i = 0; i < width*height; i++ ) {
@@ -745,7 +745,7 @@ wxImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 }
 
 
-wxImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
+UnitSyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 {
   InitLib( m_get_infomap_size ); // assume GetInfoMap is available too
 
@@ -757,7 +757,7 @@ wxImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
   ASSERT_EXCEPTION( retval != 0 && width * height != 0, _T("Get metalmap size failed") );
 
   typedef unsigned char uchar;
-  wxImage metalmap(width, height, false);
+  UnitSyncImage metalmap(width, height, false);
   uninitialized_array<uchar> grayscale(width * height);
   uchar* true_colours = metalmap.GetData();
 
@@ -774,7 +774,7 @@ wxImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 }
 
 
-wxImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
+UnitSyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 {
   InitLib( m_get_infomap_size ); // assume GetInfoMap is available too
 
@@ -787,7 +787,7 @@ wxImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 
   typedef unsigned char uchar;
   typedef unsigned short ushort;
-  wxImage heightmap(width, height, false);
+  UnitSyncImage heightmap(width, height, false);
   uninitialized_array<ushort> grayscale(width * height);
   uchar* true_colours = heightmap.GetData();
 
@@ -818,7 +818,7 @@ wxImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 
   // prevent division by zero -- heightmap wouldn't contain any information anyway
   if (min == max)
-    return wxImage( 1, 1 );
+    return UnitSyncImage( 1, 1 );
 
   // perform the mapping from 16 bit grayscale to 24 bit true colour
   const double range = max - min + 1;
@@ -955,10 +955,10 @@ std::string SpringUnitSyncLib::GetPrimaryModChecksumFromName( const std::string&
 }
 
 
-wxArrayString SpringUnitSyncLib::GetModDeps( int index )
+StringVector SpringUnitSyncLib::GetModDeps( int index )
 {
   int count = GetPrimaryModArchiveCount( index );
-	wxArrayString ret;
+    StringVector ret;
 	for ( int i = 0; i < count; i++ )
 	{
 		ret.Add( GetPrimaryModArchiveList( i ) );
@@ -967,14 +967,14 @@ wxArrayString SpringUnitSyncLib::GetModDeps( int index )
 }
 
 
-wxArrayString SpringUnitSyncLib::GetSides( const std::string& modName )
+StringVector SpringUnitSyncLib::GetSides( const std::string& modName )
 {
   InitLib( m_get_side_count );
 	UNITSYNC_EXCEPTION( m_get_side_name, _T("Function was not in unitsync library.") )
 
   _SetCurrentMod( modName );
   int count = m_get_side_count();
-  wxArrayString ret;
+  StringVector ret;
   for ( int i = 0; i < count; i ++ ) ret.Add( WX_STRINGC( m_get_side_name( i ) ) );
   return ret;
 }
@@ -1020,12 +1020,12 @@ int SpringUnitSyncLib::ProcessUnitsNoChecksum()
 }
 
 
-wxArrayString SpringUnitSyncLib::FindFilesVFS( const std::string& name )
+StringVector SpringUnitSyncLib::FindFilesVFS( const std::string& name )
 {
   InitLib( m_find_files_vfs );
 	UNITSYNC_EXCEPTION( m_init_find_vfs, _T("Function was not in unitsync library.") );
 	int handle = m_init_find_vfs( name.mb_str(wxConvUTF8) );
-	wxArrayString ret;
+    StringVector ret;
 	//thanks to assbars awesome edit we now get different invalid values from init and find
 	if ( handle != -1 ) {
 		do
@@ -1422,7 +1422,7 @@ int SpringUnitSyncLib::GetSkirmishAICount( const std::string& modname )
 }
 
 
-wxArrayString SpringUnitSyncLib::GetAIInfo( int aiIndex )
+StringVector SpringUnitSyncLib::GetAIInfo( int aiIndex )
 {
 	InitLib( m_get_skirmish_ai_count );
 	UNITSYNC_EXCEPTION( m_get_skirmish_ai_info_count, _T("Function was not in unitsync library.") );
@@ -1430,7 +1430,7 @@ wxArrayString SpringUnitSyncLib::GetAIInfo( int aiIndex )
 	UNITSYNC_EXCEPTION( m_get_skirmish_ai_info_key, _T("Function was not in unitsync library.") );
 	UNITSYNC_EXCEPTION( m_get_skirmish_ai_info_value, _T("Function was not in unitsync library.") );
 
-	wxArrayString ret;
+    StringVector ret;
 	UNITSYNC_EXCEPTION( ( aiIndex >= 0 ) && ( aiIndex < m_get_skirmish_ai_count() ), _T("aiIndex out of bounds") );
 
 	int infoCount = m_get_skirmish_ai_info_count( aiIndex );

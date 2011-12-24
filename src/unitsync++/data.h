@@ -23,9 +23,11 @@
 #include <map>
 #include <string>
 
+namespace LSL {
+
 struct UnitSyncMod
 {
-  UnitSyncMod() : name(_T("")),hash(_T("")) { }
+  UnitSyncMod() : name(std::string()),hash(std::string()) { }
   std::string name;
   std::string hash;
 };
@@ -55,12 +57,28 @@ struct MapInfo
 
 struct UnitSyncMap
 {
-  UnitSyncMap() : name(_T("")),hash(_T("")) { }
+  UnitSyncMap() : name(std::string()),hash(std::string()) { }
   std::string name;
   std::string hash;
   MapInfo info;
 };
 
+enum GameFeature
+{
+  USYNC_Sett_Handler,
+  USYNC_GetInfoMap,
+  USYNC_GetDataDir,
+  USYNC_GetSkirmishAI
+};
+
+enum MediaType
+{
+  map,
+  mod
+};
+
+
 typedef std::map<std::string,std::string> LocalArchivesVector;
 
+} // namespace LSL
 #endif // SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_DATA_H

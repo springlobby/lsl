@@ -4,20 +4,28 @@
 #include <string>
 #include <stdexcept>
 
-#if defined(__WXMSW__)
+#if WIN32
   #define USYNC_CALL_CONV __stdcall
-#elif defined(__WXGTK__) || defined(__WXX11__)
+#elif linux
   #define USYNC_CALL_CONV
 #elif defined(__WXMAC__)
   #define USYNC_CALL_CONV
+#else
+  #warning "defaulting to no usync call conv"
+  #define USYNC_CALL_CONV
 #endif
 
-#include "unitsync.h"
+#include "data.h"
+#include <utils/datatypes.h>
 #include <boost/noncopyable.hpp>
-#include <extension/shared_library.hpp>
+#include <boost/extension/shared_library.hpp>
+#include <boost/gil/gil_all.hpp>
 
-class std::string;
-class wxImage;
+//#define UNITSYNC_EXCEPTION(cond,msg) if(!(cond))\
+//{wxLogMessage(_T("unitsync runtime assertion ( %s:%d ): %s"), Tostd::string(__FILE__).c_str(),__LINE__ , std::string(msg).c_str() );throw unitsync_assert(std::string(std::string(msg).mb_str()));}
+
+namespace LSL {
+
 struct SpringMapInfo;
 
 class unitsync_assert : public std::runtime_error
@@ -25,10 +33,6 @@ class unitsync_assert : public std::runtime_error
   public:
    unitsync_assert(std::string msg) : std::runtime_error(msg) {}
 };
-
-#define UNITSYNC_EXCEPTION(cond,msg) if(!(cond))\
-{wxLogMessage(_T("unitsync runtime assertion ( %s:%d ): %s"), Tostd::string(__FILE__).c_str(),__LINE__ , std::string(msg).c_str() );throw unitsync_assert(std::string(std::string(msg).mb_str()));}
-
 
 struct SpringMapInfo
 {
@@ -48,6 +52,7 @@ struct SpringMapInfo
   char* author;
 };
 
+typedef boost::gil::packed_image3_type<unsigned short, 5,6,5, boost::gil::rgb_layout_t>::type UnitSyncImage;
 
 /**
  * \defgroup DllPointerTypes Pointer types used with the unitsync library.
@@ -245,7 +250,7 @@ typedef const char* (USYNC_CALL_CONV *lpGetStrKeyStrValPtr)(const char* key, con
  * so often there is a need for running multiple unitsync methods while
  * holding a single lock continuously.
  */
-class SpringUnitSyncLib : public SL::NonCopyable
+class SpringUnitSyncLib : public boost::noncopyable
 {
   public:
 
@@ -289,9 +294,9 @@ class SpringUnitSyncLib : public SL::NonCopyable
     /**
      * Get list of errors from unitsync library in an array
      */
-	wxArrayString GetUnitsyncErrors() const;
+    std::vector<std::string> GetUnitsyncErrors() const;
 
-	bool VersionSupports( SpringUnitSync::GameFeature feature ) const;
+    bool VersionSupports( LSL::GameFeature feature ) const;
 
 
     int GetModIndex( const std::string& name );
@@ -318,7 +323,7 @@ class SpringUnitSyncLib : public SL::NonCopyable
     std::string GetMapName( int index );
     int GetMapArchiveCount( int index );
     std::string GetMapArchiveName( int arnr );
-    wxArrayString GetMapDeps( int index );
+    StringVector GetMapDeps( int index );
 
     /**
      * @brief Get information about a map.
@@ -331,19 +336,19 @@ class SpringUnitSyncLib : public SL::NonCopyable
      * @brief Get minimap.
      * @note Throws assert_exception if unsuccessful.
      */
-    wxImage GetMinimap( const std::string& mapFileName );
+    UnitSyncImage GetMinimap( const std::string& mapFileName );
 
     /**
      * @brief Get metalmap.
      * @note Throws assert_exception if unsuccessful.
      */
-    wxImage GetMetalmap( const std::string& mapFileName );
+    UnitSyncImage GetMetalmap( const std::string& mapFileName );
 
     /**
      * @brief Get heightmap.
      * @note Throws assert_exception if unsuccesful.
      */
-    wxImage GetHeightmap( const std::string& mapFileName );
+    UnitSyncImage GetHeightmap( const std::string& mapFileName );
 
     std::string GetPrimaryModChecksum( int index );
     int GetPrimaryModIndex( const std::string& modName );
@@ -359,9 +364,9 @@ class SpringUnitSyncLib : public SL::NonCopyable
     int GetPrimaryModArchiveCount( int index );
     std::string GetPrimaryModArchiveList( int arnr );
     std::string GetPrimaryModChecksumFromName( const std::string& name );
-    wxArrayString GetModDeps( int index );
+    StringVector GetModDeps( int index );
 
-    wxArrayString GetSides( const std::string& modName );
+    StringVector GetSides( const std::string& modName );
 
     /**
      * Add all achives.
@@ -382,7 +387,7 @@ class SpringUnitSyncLib : public SL::NonCopyable
      * @param the search patterns
      * @return wxarraystring of results
      */
-    wxArrayString FindFilesVFS( const std::string& name );
+    StringVector FindFilesVFS( const std::string& name );
     int OpenFileVFS( const std::string& name );
     int FileSizeVFS( int handle );
     int ReadFileVFS( int handle, void* buffer, int bufferLength );
@@ -441,7 +446,7 @@ class SpringUnitSyncLib : public SL::NonCopyable
      * @param the AI index within range of GetSkirmishAIInfoCount
      * @return an array made of blocks with this layout { key, value, description }
      */
-    wxArrayString GetAIInfo( int index );
+    StringVector GetAIInfo( int index );
 
     std::string GetArchiveChecksum( const std::string& VFSPath );
 
@@ -725,8 +730,7 @@ class SpringUnitSyncLib : public SL::NonCopyable
     /*@}*/
 };
 
-SpringUnitSyncLib& susynclib();
-
+// namespace LSL
 #endif //SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
 
 /**

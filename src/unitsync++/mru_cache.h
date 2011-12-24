@@ -101,6 +101,6 @@ class MostRecentlyUsedCache
 #include <wx/arrstr.h>
 typedef MostRecentlyUsedCache<std::string,wxImage> MostRecentlyUsedImageCache;
 typedef MostRecentlyUsedCache<std::string,MapInfo> MostRecentlyUsedMapInfoCache;
-typedef MostRecentlyUsedCache<std::string,wxArrayString> MostRecentlyUsedArrayStringCache;
+typedef MostRecentlyUsedCache<std::string,StringVector> MostRecentlyUsedArrayStringCache;
 
 #endif // MRU_CACHE_H
