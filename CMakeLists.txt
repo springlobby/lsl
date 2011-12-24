@@ -34,7 +34,7 @@ if(NOT DEFINED LIBSPRINGLOBBY_REV)
 endif(NOT DEFINED LIBSPRINGLOBBY_REV)
 
 INCLUDE(cmake/package_config.cmake)
-INCLUDE(cmake/sources.list)
+INCLUDE(cmake/sources_list.cmake)
 
 # PKG-Config
 FIND_PACKAGE( PkgConfig )

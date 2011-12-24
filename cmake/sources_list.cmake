@@ -14,7 +14,8 @@ SET(libSpringLobbySrc
 SET(libUnitsync++Src
 	src/unitsync++/c_api.cpp
 	src/unitsync++/unitsync.cpp
-	src/unitsync++/thread.cpp )
+	src/unitsync++/thread.cpp 
+	)
 
 SET(basic_testSrc
 	test/basic.cpp test/usync.cpp)
