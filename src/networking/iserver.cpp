@@ -1,6 +1,6 @@
 #include "iserver.h"
 
-iServer::iServer(int serverEventsMode):
+iServer::iServer(int iServerMode):
 m_keepalive(15),
 m_ping_timeout(40),
 m_server_rate_limit(800),
@@ -16,7 +16,7 @@ m_current_battle(0),
 m_buffer(""),
 m_relay_host_bot(0)
 {
-	m_se = IServerEvents::getInstance( *this, IServerEvents::ServerEventsMode(serverEventsMode) );
+	m_se = IiServer::getInstance( *this, IiServer::iServerMode(iServerMode) );
 }
 
 
@@ -51,38 +51,6 @@ void iServer::Disconnect(const std::string& reason)
     }
 	_Disconnect(reason);
 	m_sock->Disconnect();
-}
-
-void iServer::OnConnected(Socket* sock)
-{
-	m_connected = true;
-	m_online = false;
-	m_last_udp_ping = 0;
-	m_relay_host_manager_list.clear();
-	GetLastPingID() = 0;
-	GetPingList().clear();
-}
-
-void iServer::OnDisconnected(Socket* sock)
-{
-    bool connectionwaspresent = m_online || !m_last_denied.lenght() || m_redirecting;
-	m_connected = false;
-	m_online = false;
-    m_redirecting = false;
-    m_last_denied = "";
-	m_relay_host_manager_list.clear();
-	GetLastPingID() = 0;
-	GetPingList().clear();
-	// delete all users, battles, channels
-	m_se->OnDisconnected( connectionwaspresent );
-}
-
-
-void iServer::OnDataReceived( Socket* sock )
-{
-	if ( !sock ) return;
-	m_last_net_packet = time( 0 );
-	_OnDataRecieved(sock);
 }
 
 bool ::IsOnline() const
@@ -397,4 +365,173 @@ void TASServer::UdpPingAllClients()// used when hosting with nat holepunching. h
 			UdpPing(src_port, ip, port, "hai!" );
 		}
 	}
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+/////                       Internal Server Events                         /////
+////////////////////////////////////////////////////////////////////////////////
+
+
+void iServer::OnSocketConnected(Socket* sock)
+{
+	m_connected = true;
+	m_online = false;
+	m_last_udp_ping = 0;
+    m_min_required_spring_ver = "";
+	m_relay_host_manager_list.clear();
+	GetLastPingID() = 0;
+	GetPingList().clear();
+}
+
+void iServer::OnDisconnected(Socket* sock)
+{
+    bool connectionwaspresent = m_online || !m_last_denied.lenght() || m_redirecting;
+	m_connected = false;
+	m_online = false;
+    m_redirecting = false;
+    m_last_denied = "";
+    m_min_required_spring_ver = "";
+	m_relay_host_manager_list.clear();
+	GetLastPingID() = 0;
+	GetPingList().clear();
+	// delete all users, battles, channels
+	m_se->OnDisconnected( connectionwaspresent );
+}
+
+
+void iServer::OnDataReceived( Socket* sock )
+{
+	if ( !sock ) return;
+	m_last_net_packet = time( 0 );
+	_OnDataRecieved(sock);
+}
+
+
+void iServer::OnSocketError( const Sockerror& /*unused*/ )
+{
+}
+
+
+void iServer::OnProtocolError( const Protocolerror /*unused*/ )
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/////                        Command Server Events                         /////
+////////////////////////////////////////////////////////////////////////////////
+
+
+void iServer::OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/)
+{
+	m_server_name = server_name;
+	m_server_ver = server_ver;
+    m_min_required_spring_ver = server_spring_ver;
+}
+
+
+
+void iServer::OnNewUser( const std::string& nick, const std::string& country, int cpu, const std::string& id )
+{
+	User* user = GetUser( id );
+	if ( !user ) user = AddUser( id );
+	user->SetCountry( country );
+	user->SetCpu( cpu );
+	user->SetNick( nick );
+}
+
+void iServer::OnUserStatus( const User* user, UserStatus status )
+{
+	if ( !User ) return;
+	UserStatus oldStatus = user->GetStatus();
+	user->SetStatus( status );
+
+	//TODO: event
+
+	Battle* battle = user->GetBattle():
+	if ( battle != 0 )
+	{
+		if ( battle->GetFounder() == user )
+			if ( status.in_game != battle->GetInGame() )
+			{
+				battle->SetInGame( status.in_game );
+				if ( status.in_game ) OnBattleStarted( battle );
+				else OnBattleStopped( battle );
+			}
+		}
+}
+
+void iServer::OnBattleStarted( const Battle* battle )
+{
+	if (!battle) return;
+	//TODO: event
+}
+
+void iServer::OnBattleStarted( const Battle* battle )
+{
+	if (!battle) return;
+	//TODO: event
+}
+
+
+void iServer::OnDisconnected( bool wasonline )
+{
+	//TODO: event
+}
+
+void iServer::OnLogin()
+{
+	//TODO: event
+}
+
+void iServer::OnLogout()
+{
+	//TODO: event
+}
+
+void iServer::OnLoginInfoComplete()
+{
+	//TODO: event
+}
+
+void iServer::OnUnknownCommand( const std::string& command, const std::string& params )
+{
+	//TODO: log
+	//TODO: event
+}
+
+
+void iServer::OnMotd( const std::string& msg )
+{
+	//TODO: event
+}
+
+
+void iServer::OnPong( long long ping_time )
+{
+	//TODO: event
+}
+
+
+
+void iServer::OnUserQuit( const User* user )
+{
+	if ( !user ) return;
+	Battle* battle = user->GetBattle();
+	if ( battle->GetFounder() == user )
+	UserVector battleusers = battle->GetUsers();
+	for ( UserVector::iterator itor = battleusers; i < int(userbattle->GetNumUsers()); i ++ )
+	{
+		User& battleuser = userbattle->GetUser( i );
+		OnUserLeftBattle( battleid, battleuser.GetNick() );
+	}
+		OnBattleClosed( battleid );
+						}
+						else OnUserLeftBattle( battleid, user.GetNick() );
+					}catch(...){}
+				}
+	//TODO: event
+	RemoveUser( user );
 }
