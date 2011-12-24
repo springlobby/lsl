@@ -34,7 +34,7 @@ if(NOT DEFINED LIBSPRINGLOBBY_REV)
 endif(NOT DEFINED LIBSPRINGLOBBY_REV)
 
 INCLUDE(cmake/package_config.cmake)
-INCLUDE(cmake/sources.list)
+INCLUDE(cmake/sources_list.cmake)
 
 # PKG-Config
 FIND_PACKAGE( PkgConfig )
@@ -93,7 +93,7 @@ ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/test/sw
 # Here the wxWidgets Libraries are added. These are set for us by the FIND Script. If you need other Libraries, you can add them here as well.
 TARGET_LINK_LIBRARIES(libSpringLobby ${SL_BOOST_LIBS} )
 # TARGET_LINK_LIBRARIES(libUnitsync++ dl )
-TARGET_LINK_LIBRARIES(libSpringLobby_test libSpringLobby dl)#(libUnitsync++)
+TARGET_LINK_LIBRARIES(libSpringLobby_test dl)#(libUnitsync++)
 
 IF(MINGW)
 	TARGET_LINK_LIBRARIES( libSpringLobby iphlpapi )

@@ -1,10 +1,28 @@
+#ifndef LSL_ISERVER_H
+#define LSL_ISERVER_H
+
+#include <string>
+#include <map>
+
+namespace LSL {
+
 class StringMap;
 class StringVector;
+class ServerEvents;
+class Channel;
+class User;
+class Battle;
+class BattleOptions;
+class HostInfo;
+class UserBattleStatus;
+class Socket;
+class PingThread;
+class IServerEvents;
 
-
-class iServer()
+class iServer
 {
   public:
+    iServer();
 
 	// Server interface
 
@@ -170,3 +188,7 @@ class iServer()
 	virtual void SendCmd( const std::string& command, const std::string& param ) = 0;
 	void RelayCmd( const std::string& command, const std::string& param );
 };
+
+} //namespace LSL
+
+#endif //LSL_ISERVER_H
