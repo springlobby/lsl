@@ -2,12 +2,14 @@
 #include "../utils/md5.h"
 #include "tasserver.h"
 #include "tasserverdataformats.h"
+#include "commandparsing.h"
 
 
-TASServer::TASServer(int TASServerMode):
+TASServer::TASServer():
 m_ser_ver(0),
 m_server_lanmode(false),
 {
+	AddCommands();
 }
 
 void TASServer::GetInGameTime(const std::string& user)
