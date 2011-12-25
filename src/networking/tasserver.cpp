@@ -1,6 +1,7 @@
 #include "../utils/base64.h"
 #include "../utils/md5.h"
 #include "tasserver.h"
+#include "iserver_private.h"
 #include "tasserverdataformats.h"
 
 
@@ -8,6 +9,7 @@ TASServer::TASServer(int TASServerMode):
 m_ser_ver(0),
 m_server_lanmode(false),
 {
+
 }
 
 void TASServer::GetInGameTime(const std::string& user)
