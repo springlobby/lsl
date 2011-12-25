@@ -3,6 +3,8 @@
 
 #include <string>
 #include <map>
+#include "utils/datatypes.h"
+#include "utils/mutexwrapper.h"
 
 namespace LSL {
 
@@ -31,9 +33,9 @@ class iServer
 	virtual bool Register( const std::string& addr, const int port, const std::string& nick, const std::string& password,std::string& reason ) = 0;
 	virtual void AcceptAgreement() = 0;
 
-	virtual void Connect( const std::string& servername, const std::string& addr, const int port ) = 0;
-	virtual void Disconnect(const std::string& reason) = 0;
-	virtual bool IsConnected() = 0;
+	void Connect( const std::string& servername, const std::string& addr, const int port );
+	void Disconnect(const std::string& reason) = 0;
+	bool IsConnected() = 0;
 
 	virtual void Login() = 0;
 	virtual void Logout() = 0;
@@ -146,10 +148,10 @@ class iServer
 	int m_server_rate_limit; //! in bytes/sec
 	int m_message_size_limit; //! in bytes
 	User* m_me;
-	std::string m_server_name;
 	std::string m_min_required_spring_ver;
 	std::string m_last_denied_connection_reason;
 	PingThread m_ping_thread;
+	std::string m_buffer;
     bool m_connected;
     bool m_online;
     int m_udp_private_port;

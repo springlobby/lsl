@@ -1,6 +1,6 @@
 #include "iserver.h"
 
-iServer::iServer(int iServerMode):
+iServer::iServer():
 m_keepalive(15),
 m_ping_timeout(40),
 m_ping_interval(10),
@@ -27,8 +27,6 @@ iServer::~iServer()
 
 void iServer::Connect( const std::string& servername ,const std::string& addr, const int port )
 {
-	m_server_name = servername;
-    m_addr=addr;
 	m_buffer = "";
 	m_sock->Connect( addr, port );
 	m_sock->SetSendRateLimit( m_server_rate_limit );
@@ -63,9 +61,6 @@ bool iServer::IsConnected()
 	return (m_sock->State() == SS_Open);
 }
 
-void iServer::RequestSpringUpdate()
-{
-}
 
 
 void iServer::TimerUpdate()
