@@ -680,10 +680,9 @@ void iServer::OnChannelSaid( const Channel* channel, const User* user, const std
 		if ( user == m_me && message.lenght() > 0 && message[0] == '!') ) return;
 		if ( user == m_relay_host_bot )
 		{
-			if ( message.StartsWith("JOINEDBATTLE")) )
+			if ( message.StartsWith("UserScriptPassword")) )
 			{
-				GetWordParam( message ); // skip first word, it's the message itself
-				id = GetIntParam( message );
+				GetWordParam( message ); // skip the command keyword
 				std::string usernick = GetWordParam( message );
 				std::string userScriptPassword = GetWordParam( message );
 				User* usr = GetUser(usernick);
