@@ -16,14 +16,12 @@ m_current_battle(0),
 m_buffer(""),
 m_relay_host_bot(0)
 {
-	m_se = IiServer::getInstance( *this, IiServer::iServerMode(iServerMode) );
 }
 
 
 iServer::~iServer()
 {
 	OnDisconnected();
-    delete m_se;
 }
 
 void iServer::Connect( const std::string& servername ,const std::string& addr, const int port )
@@ -173,6 +171,7 @@ void iServer::OpenBattle( BattleOptions bo )
 	if ( bo.userelayhost )
 	{
 		AcquireRelayhost();
+		m_last_relay_host_password = bo.password;
 	}
 
 	if ( bo.nattype > 0 ) UdpPingTheServer();
@@ -433,13 +432,17 @@ void iServer::OnServerInitialData(const std::string& server_name, const std::str
 
 
 
-void iServer::OnNewUser( const std::string& nick, const std::string& country, int cpu, const std::string& id )
+void iServer::OnNewUser( const User* user )
 {
-	User* user = GetUser( id );
-	if ( !user ) user = AddUser( id );
-	user->SetCountry( country );
-	user->SetCpu( cpu );
-	user->SetNick( nick );
+	if (user.GetNick() == "RelayHostManagerList" )
+	{
+		m_relay_host_manager_list = user;
+		SayPrivate( user, "!lm" );
+	}
+	if (user.GetNick() == m_relay_host_bot_nick )
+	{
+		m_relay_host_bot = user;
+	}
 }
 
 void iServer::OnUserStatus( const User* user, UserStatus status )
@@ -448,24 +451,6 @@ void iServer::OnUserStatus( const User* user, UserStatus status )
 	UserStatus oldStatus = user->GetStatus();
 	user->SetStatus( status );
 
-	//TODO: event
-
-	Battle* battle = user->GetBattle():
-	if ( battle != 0 )
-	{
-		if ( battle->GetFounder() == user )
-			if ( status.in_game != battle->GetInGame() )
-			{
-				battle->SetInGame( status.in_game );
-				if ( status.in_game ) OnBattleStarted( battle );
-				else OnBattleStopped( battle );
-			}
-		}
-}
-
-void iServer::OnBattleStarted( const Battle* battle )
-{
-	if (!battle) return;
 	//TODO: event
 }
 
@@ -519,19 +504,253 @@ void iServer::OnPong( long long ping_time )
 void iServer::OnUserQuit( const User* user )
 {
 	if ( !user ) return;
-	Battle* battle = user->GetBattle();
-	if ( battle->GetFounder() == user )
-	UserVector battleusers = battle->GetUsers();
-	for ( UserVector::iterator itor = battleusers; i < int(userbattle->GetNumUsers()); i ++ )
-	{
-		User& battleuser = userbattle->GetUser( i );
-		OnUserLeftBattle( battleid, battleuser.GetNick() );
-	}
-		OnBattleClosed( battleid );
-						}
-						else OnUserLeftBattle( battleid, user.GetNick() );
-					}catch(...){}
-				}
-	//TODO: event
 	RemoveUser( user );
+	//TODO: event
+}
+
+
+void iServer::OnBattleOpened( Battle* battle )
+{
+
+	if ( battle.GetFounder() == m_relay_host_bot )
+	{
+		battle->SetProxy( m_relay_host_bot );
+		JoinBattle( battle, m_last_relay_host_password ); // autojoin relayed host battles
+	}
+}
+
+void iServer::OnBattleMapChanged(const Battle* battle,UnitsyncMap map)
+{
+	if (!battle) return;
+	battle->SetHostMap( map.name, map.hash );
+}
+
+void iServer::OnBattleModChanged( const Battle* battle, UnitsyncMod mod )
+{
+	if (!battle) return;
+	battle->SetHostMod( mod.name, mod.hash );
+}
+
+void iServer::OnBattleMaxPlayersChanged( const Battle* battle, int maxplayers )
+{
+	if (!battle) return;
+	battle->SetMaxPlayers( maxplayers );
+}
+
+void iServer::OnBattleHostChanged( const Battle* battle, User* host, const std::string& ip, int port )
+{
+	if (!battle) return;
+	if (!user) battle->SetFounder( host );
+	battle->SetHostIp( ip );
+	battle->SetHostPort( port );
+}
+
+void iServer::OnBattleSpectatorCountUpdated(const Battle* battle,int spectators)
+{
+	if (!battle) return;
+	battle->SetNumSpectators(spectators);
+}
+
+void iServer::OnAcceptAgreement( const std::string& agreement )
+{
+
+}
+
+
+void iServer::OnRing( const User* from )
+{
+
+}
+
+void iServer::OnServerBroadcast( const std::string& message )
+{
+
+}
+
+void iServer::OnServerMessage( const std::string& message )
+{
+
+}
+
+
+void iServer::OnServerMessageBox( const std::string& message )
+{
+}
+
+
+void iServer::OnChannelMessage( const Channel* channel, const std::string& msg )
+{
+	if (!channel) return;
+}
+
+void iServer::OnBattleLockUpdated(const Battle* battle,bool locked)
+{
+	if (!battle) return;
+	battle->SetLocked(locked);
+}
+
+void iServer::OnUserLeftBattle(const Battle* battle, const User* user)
+{
+	if (!user) return;
+	bool isbot = user->BattleStatus().IsBot();
+	user->BattleStatus().scriptPassword.Clear();
+	if (!battle) return;
+	battle->OnUserRemoved( user );
+	if (user == m_me)
+	{
+		m_relay_host_bot = 0;
+	}
+	//TODO: event
+}
+
+void iServer::OnBattleClosed(const Battle* battle )
+{
+	RemoveBattle( battleid );
+	//TODO:event
+}
+
+void iServer::OnBattleDisableUnit( const Battle* battle, const std::string& unitname, int count )
+{
+	if (!battle) return;
+	battle->RestrictUnit( unitname, count );
+	//TODO: event
+}
+
+void iServer::OnBattleEnableUnit( int battleid, const std::string& unitname )
+{
+	if (!battle) return;
+	battle->UnrestrictUnit( unitname );
+	//TODO: event
+}
+
+void iServer::OnBattleEnableAllUnits( int battleid )
+{
+	if (!battle) return;
+	battle->UnrestrictAllUnits();
+	//TODO: event
+}
+
+
+void OnJoinChannelFailed( const Channel* channel, const std::string& reason )
+{
+	if (!channel) return;
+	//TODO: event
+}
+
+void OnUserJoinedChannel( const Channel* channel, const User* user )
+{
+	if (!channel) return;
+	if (!user) return;
+	channel->OnChannelJoin( user );
+	//TODO: event
+}
+
+void iServer::OnChannelSaid( const Channel* channel, const User* user, const std::string& message )
+{
+	if ( m_relay_host_bot != 0 && channel == GetChannel( "U" + ToString(m_relay_host_bot->GetID()) )
+	{
+		if ( user == m_me && message.lenght() > 0 && message[0] == '!') ) return;
+		if ( user == m_relay_host_bot )
+		{
+			if ( message.StartsWith("JOINEDBATTLE")) )
+			{
+				GetWordParam( message ); // skip first word, it's the message itself
+				id = GetIntParam( message );
+				std::string usernick = GetWordParam( message );
+				std::string userScriptPassword = GetWordParam( message );
+				User* usr = GetUser(usernick);
+				if (!usr) return;
+				OnUserScriptPassword(user, userScriptPassword);
+				return;
+			}
+		}
+	}
+	if ( m_relay_host_manager != 0 && channel == GetChannel( "U" + ToString(m_relay_host_manager->GetID()) )
+	{
+		if ( user == m_me &&  message.lenght() > 0 && message[0] == '!') ) return;
+		if ( user == m_relay_host_manager )
+		{
+		if ( message.lenght() > 0 && message[0] == '\001' ) // error code
+		{
+		}
+		else
+		{
+			m_relay_host_bot_nick = message;
+			return;
+		}
+		}
+	}
+	if ( m_relay_host_manager_list != 0 && channel == GetChannel( "U" + ToString(m_relay_host_manager_list->GetID()) )
+	{
+		if ( user == m_me && message == "!lm" ) return;
+		if ( user == m_relay_host_manager_list )
+		{
+			if  ( message.StartsWith("list ")) )
+			{
+				 std::string list = params.AfterFirst( ' ') );
+				 m_relay_host_manager_list = std::stringTokenize( list, "\t") );
+				 return;
+			}
+		}
+	}
+}
+
+void iServer::OnBattleStartRectAdd( const Battle* battle, int allyno, int left, int top, int right, int bottom )
+{
+	if(!battle) return;
+	battle->AddStartRect( allyno, left, top, right, bottom );
+	battle->StartRectAdded( allyno );
+}
+
+void iServer::OnBattleStartRectRemove( const Battle* battle, int allyno )
+{
+	if (!battle) return;
+	battle->RemoveStartRect( allyno );
+	battle->StartRectRemoved( allyno );
+}
+
+void iServer::OnFileDownload( bool autolaunch, bool autoclose, bool /*disconnectonrefuse*/, const std::string& FileName, const std::string& url, const std::string& description )
+{
+}
+
+void iServer::OnBattleScript( const Battle* battle, const std::string& script )
+{
+	if (!battle) return;
+	battle->GetBattleFromScript( true );
+}
+
+void iServer::OnMuteList(const Channel* channel, const MuteList& mutelist )
+{
+}
+
+void iServer::OnKickedFromBattle( const Battle* battle)
+{
+	if (!battle) return;
+}
+
+
+void iServer::OnUserInternalUdpPort( const User* user, int udpport )
+{
+	if (!user) return;
+}
+
+void iServer::OnUserExternalUdpPort( const User* user, int udpport )
+{
+	if (!user) return;
+	user->BattleStatus().extudpport = udpport;
+}
+
+void iServer::OnUserIP( const User* user, const std::string& ip )
+{
+	if (!user) return;
+	user->BattleStatus().ip = ip;
+}
+
+void iServer::OnRedirect( const std::string& address,  unsigned int port, const std::string& CurrentNick, const std::string& CurrentPassword )
+{
+}
+
+void iServer::OnRequestBattleStatus()
+{
+	if(!m_battle) return;
 }

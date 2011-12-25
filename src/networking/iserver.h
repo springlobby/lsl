@@ -22,8 +22,7 @@ class IServerEvents;
 class iServer
 {
   public:
-    iServer(int serverEventsMode);
-	friend class ServerEvents;
+    iServer();
 
 	// Server interface
 
@@ -169,8 +168,6 @@ class iServer
 		return l_pinglist.Get();
 	}
 
-	IServerEvents m_se;
-
 	Battle* m_current_battle;
 
 	User* m_relay_host_bot;
@@ -179,18 +176,17 @@ class iServer
 
 	StringVector m_relay_host_manager_list;
 
-	User* _AddUser( const std::string& user, const int id );
-	void _RemoveUser( const std::string& nickname );
-	void _RemoveUser( const int id );
+	User* AddUser( const int id );
+	void RemoveUser( const User* user );
 
-	Channel* _AddChannel( const std::string& chan );
-	void _RemoveChannel( const std::string& name );
+	Channel* AddChannel( const std::string& chan );
+	void RemoveChannel( const Channel* chan );
 
-	Battle* _AddBattle( const int& id );
-	void _RemoveBattle( const int& id );
+	Battle* AddBattle( const int& id );
+	void RemoveBattle( const Battle* battle );
 
 	virtual void SendCmd( const std::string& command, const std::string& param ) = 0;
-	virtual void RelayCmd( const std::string& command, const std::string& param ) = 0;
+	void RelayCmd( const std::string& command, const std::string& param );
 };
 
 } //namespace LSL
