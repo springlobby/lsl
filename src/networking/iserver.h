@@ -142,6 +142,7 @@ class iServer
 	Socket* m_sock;
 	int m_keepalive; //! in seconds
 	int m_ping_timeout; //! in seconds
+	int m_ping_interval; //! in seconds
 	int m_server_rate_limit; //! in bytes/sec
 	int m_message_size_limit; //! in bytes
 	User* m_me;
