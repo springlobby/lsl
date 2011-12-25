@@ -813,7 +813,7 @@ void TASServer::AddBot( const Battle* battle, const std::string& nick, UserBattl
 	//ADDBOT name battlestatus teamcolor {AIDLL}
 	std::string msg;
 	std::string ailib;
-	ailib += status.aishortname + "|" + status.aiversion;
+	ailib += status.aishortname; // + "|" + status.aiversion;
 	SendCmd( "ADDBOT"), nick + ToString(tasbs.data) + " " + ToString( tascl.data ) + " " + ailib );
 }
 
