@@ -12,6 +12,7 @@ SET(libSpringLobbySrc
 	src/user/user.cpp
 	src/networking/iserver.cpp
 	src/networking/tasserver.cpp
+	src/networking/commands.cpp
 	src/networking/tasserverdataformats.cpp
 	src/channel.cpp)
 SET(libUnitsync++Src

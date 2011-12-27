@@ -9,7 +9,7 @@
 #include <sstream>
 #include <assert.h>
 
-#include <networking/iserver_private.h>
+#include <networking/commands.h>
 
 struct ServerEvents {
     typedef boost::signals2::signal<void ()> BattleSigType;

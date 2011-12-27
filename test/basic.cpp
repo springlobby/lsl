@@ -31,8 +31,8 @@ int main(int, char**)
     TESTLIST(BattleList)
 //    TESTLIST(ChannelList)
 
-    Server s;
-    std::string msg= "Blubb DE 666 99";
-    s.cmd_map_["ADDUSER"]->process(msg);
+//    Server s;
+//    std::string msg= "Blubb DE 666 99";
+//    s.cmd_map_["ADDUSER"]->process(msg);
 	return 0;
 }

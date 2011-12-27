@@ -1,7 +1,7 @@
 //#include "../utils/base64.h"
 #include "../utils/md5.h"
 #include "tasserver.h"
-#include "iserver_private.h"
+#include "commands.h"
 #include "tasserverdataformats.h"
 #include "commandparsing.h"
 

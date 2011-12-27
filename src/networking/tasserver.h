@@ -11,7 +11,8 @@ public:
 
 private:
     void OnNewUser( const std::string& nick, const std::string& country, int cpu, int id );
-    //! hide actual command imp behind an opaque pointer
+
+    friend class CommandDictionary;
     CommandDictionary* m_cmd_dict;
 };
 
