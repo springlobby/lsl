@@ -20,7 +20,8 @@ public:
     void Connect(const std::string& server, int port);
     void Disconnect();
     void SetSendRateLimit( int Bps = -1 );
-    int GetSendRateLimit() {return m_rate;}
+    int GetSendRateLimit() const { return m_rate; }
+    std::string GetHandle() const;
 
 private:
     void ConnectCallback(const boost::system::error_code& error);

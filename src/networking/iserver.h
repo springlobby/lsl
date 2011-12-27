@@ -3,8 +3,9 @@
 
 #include <string>
 #include <map>
-#include "utils/datatypes.h"
-#include "utils/mutexwrapper.h"
+#include <utils/datatypes.h>
+#include <utils/mutexwrapper.h>
+#include <utils/crc.h>
 
 namespace LSL {
 
@@ -39,7 +40,7 @@ class iServer
 
 	virtual void Login() = 0;
 	virtual void Logout() = 0;
-	virtual bool IsOnline()  const = 0;
+    virtual bool IsOnline()  const ;
 
 	virtual void TimerUpdate();
 
@@ -137,11 +138,12 @@ class iServer
 	std::string GenerateScriptPassword();
 	int RelayScriptSendETA( const std::string& script ); //!in seconds
 
-  protected:
+  private:
 	//! @brief map used internally by the iServer class to calculate ping roundtimes.
 	typedef std::map<int, long long> PingList;
 
 	Socket* m_sock;
+    CRC m_crc;
 	int m_keepalive; //! in seconds
 	int m_ping_timeout; //! in seconds
 	int m_ping_interval; //! in seconds

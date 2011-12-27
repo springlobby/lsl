@@ -76,4 +76,71 @@ void Socket::ReceiveCallback(const boost::system::error_code &error, size_t byte
     }
 }
 
-// namespace LSL
+std::string Socket::GetHandle() const
+{
+    std::string handle;
+    #ifdef WIN32
+
+    IP_ADAPTER_INFO AdapterInfo[16];       // Allocate information for 16 cards
+    DWORD dwBufLen = sizeof(AdapterInfo);  // Save memory size of buffer
+
+    DWORD dwStatus = GetAdaptersInfo ( AdapterInfo, &dwBufLen); // Get info
+        if (dwStatus != NO_ERROR) return _T(""); // Check status
+    for (unsigned int i=0; i<std::min( (unsigned int)6, (unsigned int)AdapterInfo[0].AddressLength); i++)
+    {
+        handle += TowxString(((unsigned int)AdapterInfo[0].Address[i])&255);
+        if (i != 5) handle += _T(':');
+    }
+    #elif defined(linux)
+    int sock = socket (AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        return _T(""); //not a valid socket
+    }
+    struct ifreq dev; //container for the hw data
+    struct if_nameindex *NameList = if_nameindex(); //container for the interfaces list
+    if (NameList == NULL)
+    {
+        close(sock);
+        return _T(""); //cannot list the interfaces
+    }
+
+    int pos = 0;
+    std::string InterfaceName;
+    do
+    {
+        if (NameList[pos].if_index == 0)
+        {
+            close(sock);
+            if_freenameindex(NameList);
+            return _T(""); // no valid interfaces found
+        }
+        InterfaceName = NameList[pos].if_name;
+        pos++;
+    } while (InterfaceName.substr(0,2) == "lo" || InterfaceName.substr(0,3) == "sit");
+
+    if_freenameindex(NameList); //free the memory
+
+    strcpy (dev.ifr_name, InterfaceName.c_str()); //select from the name
+    if (ioctl(sock, SIOCGIFHWADDR, &dev) < 0) //get the interface data
+    {
+        close(sock);
+        return _T(""); //cannot list the interfaces
+    }
+
+    for (int i=0; i<6; i++)
+    {
+        handle += TowxString(((unsigned int)dev.ifr_hwaddr.sa_data[i])&255);
+        if (i != 5) handle += _T(':');
+    }
+    close(sock);
+#endif
+    return handle;
+
+}
+
+void Socket::SetSendRateLimit(int Bps)
+{
+}
+
+} // namespace LSL

@@ -1,5 +1,4 @@
 #include "iserver.h"
-
 #include "socket.h"
 
 
@@ -31,12 +30,12 @@ void iServer::Connect( const std::string& servername ,const std::string& addr, c
     m_sock->SetSendRateLimit( m_server_rate_limit );
 	m_connected = false;
     m_online = false;
-    m_redirecting = false;
-    m_agreement = "";
+//    m_redirecting = false;
+//    m_agreement = "";
 	m_crc.ResetCRC();
-	m_last_net_packet = 0;
+//	m_last_net_packet = 0;
 	std::string handle = m_sock->GetHandle();
-	if ( handle.lenght() > 0 ) m_crc.UpdateData( handle + m_addr );
+    if ( handle.length() > 0 ) m_crc.UpdateData( handle + addr );
 }
 
 void iServer::Disconnect(const std::string& reason)
@@ -49,7 +48,7 @@ void iServer::Disconnect(const std::string& reason)
 	m_sock->Disconnect();
 }
 
-bool ::IsOnline() const
+bool iServer::IsOnline() const
 {
 	if ( !m_connected ) return false;
 	return m_online;
@@ -59,8 +58,6 @@ bool iServer::IsConnected()
 {
 	return (m_sock->State() == SS_Open);
 }
-
-
 
 void iServer::TimerUpdate()
 {
