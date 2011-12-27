@@ -7,7 +7,7 @@ class CommandDictionary;
 
 class TASServer {
 public:
-    TASServer(int TASServerMode);
+    TASServer();
 
 private:
     void OnNewUser( const std::string& nick, const std::string& country, int cpu, int id );
