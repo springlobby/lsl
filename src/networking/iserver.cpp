@@ -1,8 +1,9 @@
 #include "iserver.h"
 
-iServer::iServer(int iServerMode):
+iServer::iServer():
 m_keepalive(15),
 m_ping_timeout(40),
+m_ping_interval(10),
 m_server_rate_limit(800),
 m_message_size_limit(1024),
 m_connected(false),
@@ -26,8 +27,6 @@ iServer::~iServer()
 
 void iServer::Connect( const std::string& servername ,const std::string& addr, const int port )
 {
-	m_server_name = servername;
-    m_addr=addr;
 	m_buffer = "";
 	m_sock->Connect( addr, port );
 	m_sock->SetSendRateLimit( m_server_rate_limit );
@@ -62,9 +61,6 @@ bool iServer::IsConnected()
 	return (m_sock->State() == SS_Open);
 }
 
-void iServer::RequestSpringUpdate()
-{
-}
 
 
 void iServer::TimerUpdate()
@@ -466,8 +462,13 @@ void iServer::OnDisconnected( bool wasonline )
 	//TODO: event
 }
 
-void iServer::OnLogin()
+void iServer::OnLogin( const User* user )
 {
+	if (m_online) return;
+	m_online = true;
+	m_me = user;
+	m_ping_thread = new PingThread( *this, m_ping_interval*1000 );
+	m_ping_thread->Init();
 	//TODO: event
 }
 
@@ -504,6 +505,7 @@ void iServer::OnPong( long long ping_time )
 void iServer::OnUserQuit( const User* user )
 {
 	if ( !user ) return;
+	if (user == m_me) return;
 	RemoveUser( user );
 	//TODO: event
 }
@@ -549,6 +551,13 @@ void iServer::OnBattleSpectatorCountUpdated(const Battle* battle,int spectators)
 {
 	if (!battle) return;
 	battle->SetNumSpectators(spectators);
+}
+
+void iServer::OnUserJoinedBattle( const Battle* battle, const User* user )
+{
+	if (!battle) return;
+	if (!user) return;
+	if (battle->IsProxy()) RelayCmd("SUPPORTSCRIPTPASSWORD"); // send flag to relayhost marking we support script passwords
 }
 
 void iServer::OnAcceptAgreement( const std::string& agreement )
@@ -616,10 +625,13 @@ void iServer::OnBattleDisableUnit( const Battle* battle, const std::string& unit
 	//TODO: event
 }
 
-void iServer::OnBattleEnableUnit( int battleid, const std::string& unitname )
+void iServer::OnBattleEnableUnit( int battleid, const StringVector& unitnames )
 {
 	if (!battle) return;
-	battle->UnrestrictUnit( unitname );
+	for (StringVector::iterator itor = unitnames.begin(); itor!= unitnames.end(); itor++)
+	{
+		battle->UnrestrictUnit( *itor );
+	}
 	//TODO: event
 }
 
@@ -631,18 +643,29 @@ void iServer::OnBattleEnableAllUnits( int battleid )
 }
 
 
-void OnJoinChannelFailed( const Channel* channel, const std::string& reason )
+void iServer::OnJoinChannelFailed( const Channel* channel, const std::string& reason )
 {
 	if (!channel) return;
 	//TODO: event
 }
 
-void OnUserJoinedChannel( const Channel* channel, const User* user )
+void iServer::OnUserJoinedChannel( const Channel* channel, const User* user )
 {
 	if (!channel) return;
 	if (!user) return;
 	channel->OnChannelJoin( user );
 	//TODO: event
+}
+
+void iServer::OnKickedFromChannel( const Channel* channel, const std::string& fromWho, const std::string& msg )
+{
+	if (!channel) return;
+}
+
+void iServer::OnLoginFailed( const std::string& reason )
+{
+	//TODO: check if disconnect can be removed
+	Disconnect();
 }
 
 void iServer::OnChannelSaid( const Channel* channel, const User* user, const std::string& message )
@@ -652,10 +675,9 @@ void iServer::OnChannelSaid( const Channel* channel, const User* user, const std
 		if ( user == m_me && message.lenght() > 0 && message[0] == '!') ) return;
 		if ( user == m_relay_host_bot )
 		{
-			if ( message.StartsWith("JOINEDBATTLE")) )
+			if ( message.StartsWith("UserScriptPassword")) )
 			{
-				GetWordParam( message ); // skip first word, it's the message itself
-				id = GetIntParam( message );
+				GetWordParam( message ); // skip the command keyword
 				std::string usernick = GetWordParam( message );
 				std::string userScriptPassword = GetWordParam( message );
 				User* usr = GetUser(usernick);
@@ -711,6 +733,8 @@ void iServer::OnBattleStartRectRemove( const Battle* battle, int allyno )
 
 void iServer::OnFileDownload( bool autolaunch, bool autoclose, bool /*disconnectonrefuse*/, const std::string& FileName, const std::string& url, const std::string& description )
 {
+	UTASOfferFileData parsingdata;
+	parsingdata.data = GetIntParam( params );
 }
 
 void iServer::OnBattleScript( const Battle* battle, const std::string& script )
@@ -746,7 +770,27 @@ void iServer::OnUserIP( const User* user, const std::string& ip )
 	user->BattleStatus().ip = ip;
 }
 
-void iServer::OnRedirect( const std::string& address,  unsigned int port, const std::string& CurrentNick, const std::string& CurrentPassword )
+void iServer::OnRedirect( const std::string& address, int port )
+{
+	if (!address.lenght()) return;
+	if (!port) return;
+}
+
+void iServer::OnChannelJoinUserList( const Channel* channel, const UserVector& users)
+{
+
+}
+
+void TASServer::OnChannelListEnd()
+{
+}
+
+void iServer::OnJoinBattleFailed( const std::string& msg )
+{
+}
+
+
+void iServer::OnOpenBattleFailed( const std::string& msg )
 {
 }
 
