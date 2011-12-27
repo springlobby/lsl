@@ -7,6 +7,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/function.hpp>
 
+#include "tasserver.h"
 
 namespace LSL {
 
@@ -179,7 +180,7 @@ struct Command : public CommandBase  {
 struct CommandDictionary {
     CommandDictionary()
     {
-        NEWCMD("ADDUSER",OnNewUser,Word,Word,Int,Int);
+//        NEWCMD("ADDUSER",OnNewUser,Word,Word,Int,Int);
     }
 
     std::map<std::string,boost::shared_ptr<Commands::CommandBase> > cmd_map_;

@@ -44,7 +44,7 @@ IF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${l
     ADD_DEFINITIONS( -DHAVE_CONFIG_H )
     INCLUDE_DIRECTORIES(${libSpringLobby_BINARY_DIR})
 ENDIF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${libSpringLobby_SOURCE_DIR}/libSpringLobby_config.h  )
-
+INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/lib)
 
 #----------------------------------------------------------------------------------------------------
 # Options, that can be changed be the User in order to customise libSpringLobby

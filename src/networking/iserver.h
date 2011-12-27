@@ -8,8 +8,8 @@
 
 namespace LSL {
 
-class StringMap;
-class StringVector;
+class PingThread {};
+
 class ServerEvents;
 class Channel;
 class User;
@@ -34,8 +34,8 @@ class iServer
 	virtual void AcceptAgreement() = 0;
 
 	void Connect( const std::string& servername, const std::string& addr, const int port );
-	void Disconnect(const std::string& reason) = 0;
-	bool IsConnected() = 0;
+    void Disconnect(const std::string& reason);
+    bool IsConnected();
 
 	virtual void Login() = 0;
 	virtual void Logout() = 0;
@@ -128,7 +128,7 @@ class iServer
 
 	virtual void RequestSpringUpdate();
 
-	virtual void SetRelayIngamePassword( const const User* user ) = 0;
+    virtual void SetRelayIngamePassword( const User* user ) = 0;
 	virtual StringVector GetRelayHostList();
 	User* AcquireRelayhost();
 	virtual void SendScriptToProxy( const std::string& script ) = 0;
@@ -150,6 +150,7 @@ class iServer
 	User* m_me;
 	std::string m_min_required_spring_ver;
 	std::string m_last_denied_connection_reason;
+    std::string m_server_name;
 	PingThread m_ping_thread;
 	std::string m_buffer;
     bool m_connected;
@@ -162,7 +163,7 @@ class iServer
 	unsigned int GetLastPingID()
 	{
 		ScopedLocker<unsigned int> l_last_ping_id(m_last_ping_id);
-		return l_last_id.Get();
+        return l_last_ping_id.Get();
 	}
 	MutexWrapper<PingList> m_pinglist;
 	PingList& GetPingList()

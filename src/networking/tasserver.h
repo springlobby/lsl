@@ -8,8 +8,10 @@ class CommandDictionary;
 class TASServer {
 public:
     TASServer(int TASServerMode);
+
 private:
-    //! hide actual imp behind an opaque pointer
+    void OnNewUser( const std::string& nick, const std::string& country, int cpu, int id );
+    //! hide actual command imp behind an opaque pointer
     CommandDictionary* m_cmd_dict;
 };
 

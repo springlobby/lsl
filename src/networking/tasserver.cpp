@@ -1,4 +1,4 @@
-#include "../utils/base64.h"
+//#include "../utils/base64.h"
 #include "../utils/md5.h"
 #include "tasserver.h"
 #include "iserver_private.h"
@@ -7,8 +7,7 @@
 
 
 TASServer::TASServer():
-m_ser_ver(0),
-m_server_lanmode(false),
+m_cmd_dict( new CommandDictionary() )
 {
 	AddCommands();
 }
