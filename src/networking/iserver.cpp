@@ -1,46 +1,41 @@
 #include "iserver.h"
+#include "socket.h"
 
-iServer::iServer(int serverEventsMode):
-m_keepalive(15),
-m_ping_timeout(40),
-m_server_rate_limit(800),
-m_message_size_limit(1024),
-m_connected(false),
-m_online(false),
-m_me(0),
-m_last_udp_ping(0),
-m_last_net_packet(0),
-m_udp_private_port(0),
-m_udp_reply_timeout(0),
-m_current_battle(0),
-m_buffer(""),
-m_relay_host_bot(0)
+
+namespace LSL {
+
+iServer::iServer()
+    : m_keepalive(15),
+    m_ping_timeout(40),
+    m_ping_interval(10),
+    m_server_rate_limit(800),
+    m_message_size_limit(1024),
+    m_connected(false),
+    m_online(false),
+    m_me(0),
+    //m_last_udp_ping(0),
+    //m_last_net_packet(0),
+    m_udp_private_port(0),
+    m_udp_reply_timeout(0),
+    m_current_battle(0),
+    m_buffer(""),
+    m_relay_host_bot(0)
 {
-	m_se = IServerEvents::getInstance( *this, IServerEvents::ServerEventsMode(serverEventsMode) );
-}
-
-
-iServer::~iServer()
-{
-	OnDisconnected();
-    delete m_se;
 }
 
 void iServer::Connect( const std::string& servername ,const std::string& addr, const int port )
 {
-	m_server_name = servername;
-    m_addr=addr;
 	m_buffer = "";
 	m_sock->Connect( addr, port );
-	m_sock->SetSendRateLimit( m_server_rate_limit );
+    m_sock->SetSendRateLimit( m_server_rate_limit );
 	m_connected = false;
     m_online = false;
-    m_redirecting = false;
-    m_agreement = "";
+//    m_redirecting = false;
+//    m_agreement = "";
 	m_crc.ResetCRC();
-	m_last_net_packet = 0;
+//	m_last_net_packet = 0;
 	std::string handle = m_sock->GetHandle();
-	if ( handle.lenght() > 0 ) m_crc.UpdateData( handle + m_addr );
+    if ( handle.length() > 0 ) m_crc.UpdateData( handle + addr );
 }
 
 void iServer::Disconnect(const std::string& reason)
@@ -53,39 +48,7 @@ void iServer::Disconnect(const std::string& reason)
 	m_sock->Disconnect();
 }
 
-void iServer::OnConnected(Socket* sock)
-{
-	m_connected = true;
-	m_online = false;
-	m_last_udp_ping = 0;
-	m_relay_host_manager_list.clear();
-	GetLastPingID() = 0;
-	GetPingList().clear();
-}
-
-void iServer::OnDisconnected(Socket* sock)
-{
-    bool connectionwaspresent = m_online || !m_last_denied.lenght() || m_redirecting;
-	m_connected = false;
-	m_online = false;
-    m_redirecting = false;
-    m_last_denied = "";
-	m_relay_host_manager_list.clear();
-	GetLastPingID() = 0;
-	GetPingList().clear();
-	// delete all users, battles, channels
-	m_se->OnDisconnected( connectionwaspresent );
-}
-
-
-void iServer::OnDataReceived( Socket* sock )
-{
-	if ( !sock ) return;
-	m_last_net_packet = time( 0 );
-	_OnDataRecieved(sock);
-}
-
-bool ::IsOnline() const
+bool iServer::IsOnline() const
 {
 	if ( !m_connected ) return false;
 	return m_online;
@@ -95,11 +58,6 @@ bool iServer::IsConnected()
 {
 	return (m_sock->State() == SS_Open);
 }
-
-void iServer::RequestSpringUpdate()
-{
-}
-
 
 void iServer::TimerUpdate()
 {
@@ -205,6 +163,7 @@ void iServer::OpenBattle( BattleOptions bo )
 	if ( bo.userelayhost )
 	{
 		AcquireRelayhost();
+		m_last_relay_host_password = bo.password;
 	}
 
 	if ( bo.nattype > 0 ) UdpPingTheServer();
@@ -398,3 +357,442 @@ void TASServer::UdpPingAllClients()// used when hosting with nat holepunching. h
 		}
 	}
 }
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+/////                       Internal Server Events                         /////
+////////////////////////////////////////////////////////////////////////////////
+
+
+void iServer::OnSocketConnected(Socket* sock)
+{
+	m_connected = true;
+	m_online = false;
+	m_last_udp_ping = 0;
+    m_min_required_spring_ver = "";
+	m_relay_host_manager_list.clear();
+	GetLastPingID() = 0;
+	GetPingList().clear();
+}
+
+void iServer::OnDisconnected(Socket* sock)
+{
+    bool connectionwaspresent = m_online || !m_last_denied.lenght() || m_redirecting;
+	m_connected = false;
+	m_online = false;
+    m_redirecting = false;
+    m_last_denied = "";
+    m_min_required_spring_ver = "";
+	m_relay_host_manager_list.clear();
+	GetLastPingID() = 0;
+	GetPingList().clear();
+	// delete all users, battles, channels
+	m_se->OnDisconnected( connectionwaspresent );
+}
+
+
+void iServer::OnDataReceived( Socket* sock )
+{
+	if ( !sock ) return;
+	m_last_net_packet = time( 0 );
+	_OnDataRecieved(sock);
+}
+
+
+void iServer::OnSocketError( const Sockerror& /*unused*/ )
+{
+}
+
+
+void iServer::OnProtocolError( const Protocolerror /*unused*/ )
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/////                        Command Server Events                         /////
+////////////////////////////////////////////////////////////////////////////////
+
+
+void iServer::OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/)
+{
+	m_server_name = server_name;
+	m_server_ver = server_ver;
+    m_min_required_spring_ver = server_spring_ver;
+}
+
+
+
+void iServer::OnNewUser( const User* user )
+{
+	if (user.GetNick() == "RelayHostManagerList" )
+	{
+		m_relay_host_manager_list = user;
+		SayPrivate( user, "!lm" );
+	}
+	if (user.GetNick() == m_relay_host_bot_nick )
+	{
+		m_relay_host_bot = user;
+	}
+}
+
+void iServer::OnUserStatus( const User* user, UserStatus status )
+{
+	if ( !User ) return;
+	UserStatus oldStatus = user->GetStatus();
+	user->SetStatus( status );
+
+	//TODO: event
+}
+
+void iServer::OnBattleStarted( const Battle* battle )
+{
+	if (!battle) return;
+	//TODO: event
+}
+
+
+void iServer::OnDisconnected( bool wasonline )
+{
+	//TODO: event
+}
+
+void iServer::OnLogin( const User* user )
+{
+	if (m_online) return;
+	m_online = true;
+	m_me = user;
+	m_ping_thread = new PingThread( *this, m_ping_interval*1000 );
+	m_ping_thread->Init();
+	//TODO: event
+}
+
+void iServer::OnLogout()
+{
+	//TODO: event
+}
+
+void iServer::OnLoginInfoComplete()
+{
+	//TODO: event
+}
+
+void iServer::OnUnknownCommand( const std::string& command, const std::string& params )
+{
+	//TODO: log
+	//TODO: event
+}
+
+
+void iServer::OnMotd( const std::string& msg )
+{
+	//TODO: event
+}
+
+
+void iServer::OnPong( long long ping_time )
+{
+	//TODO: event
+}
+
+
+
+void iServer::OnUserQuit( const User* user )
+{
+	if ( !user ) return;
+	if (user == m_me) return;
+	RemoveUser( user );
+	//TODO: event
+}
+
+
+void iServer::OnBattleOpened( Battle* battle )
+{
+
+	if ( battle.GetFounder() == m_relay_host_bot )
+	{
+		battle->SetProxy( m_relay_host_bot );
+		JoinBattle( battle, m_last_relay_host_password ); // autojoin relayed host battles
+	}
+}
+
+void iServer::OnBattleMapChanged(const Battle* battle,UnitsyncMap map)
+{
+	if (!battle) return;
+	battle->SetHostMap( map.name, map.hash );
+}
+
+void iServer::OnBattleModChanged( const Battle* battle, UnitsyncMod mod )
+{
+	if (!battle) return;
+	battle->SetHostMod( mod.name, mod.hash );
+}
+
+void iServer::OnBattleMaxPlayersChanged( const Battle* battle, int maxplayers )
+{
+	if (!battle) return;
+	battle->SetMaxPlayers( maxplayers );
+}
+
+void iServer::OnBattleHostChanged( const Battle* battle, User* host, const std::string& ip, int port )
+{
+	if (!battle) return;
+	if (!user) battle->SetFounder( host );
+	battle->SetHostIp( ip );
+	battle->SetHostPort( port );
+}
+
+void iServer::OnBattleSpectatorCountUpdated(const Battle* battle,int spectators)
+{
+	if (!battle) return;
+	battle->SetNumSpectators(spectators);
+}
+
+void iServer::OnUserJoinedBattle( const Battle* battle, const User* user )
+{
+	if (!battle) return;
+	if (!user) return;
+	if (battle->IsProxy()) RelayCmd("SUPPORTSCRIPTPASSWORD"); // send flag to relayhost marking we support script passwords
+}
+
+void iServer::OnAcceptAgreement( const std::string& agreement )
+{
+
+}
+
+
+void iServer::OnRing( const User* from )
+{
+
+}
+
+void iServer::OnServerBroadcast( const std::string& message )
+{
+
+}
+
+void iServer::OnServerMessage( const std::string& message )
+{
+
+}
+
+
+void iServer::OnServerMessageBox( const std::string& message )
+{
+}
+
+
+void iServer::OnChannelMessage( const Channel* channel, const std::string& msg )
+{
+	if (!channel) return;
+}
+
+void iServer::OnBattleLockUpdated(const Battle* battle,bool locked)
+{
+	if (!battle) return;
+	battle->SetLocked(locked);
+}
+
+void iServer::OnUserLeftBattle(const Battle* battle, const User* user)
+{
+	if (!user) return;
+	bool isbot = user->BattleStatus().IsBot();
+	user->BattleStatus().scriptPassword.Clear();
+	if (!battle) return;
+	battle->OnUserRemoved( user );
+	if (user == m_me)
+	{
+		m_relay_host_bot = 0;
+	}
+	//TODO: event
+}
+
+void iServer::OnBattleClosed(const Battle* battle )
+{
+	RemoveBattle( battleid );
+	//TODO:event
+}
+
+void iServer::OnBattleDisableUnit( const Battle* battle, const std::string& unitname, int count )
+{
+	if (!battle) return;
+	battle->RestrictUnit( unitname, count );
+	//TODO: event
+}
+
+void iServer::OnBattleEnableUnit( int battleid, const StringVector& unitnames )
+{
+	if (!battle) return;
+	for (StringVector::iterator itor = unitnames.begin(); itor!= unitnames.end(); itor++)
+	{
+		battle->UnrestrictUnit( *itor );
+	}
+	//TODO: event
+}
+
+void iServer::OnBattleEnableAllUnits( int battleid )
+{
+	if (!battle) return;
+	battle->UnrestrictAllUnits();
+	//TODO: event
+}
+
+
+void iServer::OnJoinChannelFailed( const Channel* channel, const std::string& reason )
+{
+	if (!channel) return;
+	//TODO: event
+}
+
+void iServer::OnUserJoinedChannel( const Channel* channel, const User* user )
+{
+	if (!channel) return;
+	if (!user) return;
+	channel->OnChannelJoin( user );
+	//TODO: event
+}
+
+void iServer::OnKickedFromChannel( const Channel* channel, const std::string& fromWho, const std::string& msg )
+{
+	if (!channel) return;
+}
+
+void iServer::OnLoginFailed( const std::string& reason )
+{
+	//TODO: check if disconnect can be removed
+	Disconnect();
+}
+
+void iServer::OnChannelSaid( const Channel* channel, const User* user, const std::string& message )
+{
+	if ( m_relay_host_bot != 0 && channel == GetChannel( "U" + ToString(m_relay_host_bot->GetID()) )
+	{
+		if ( user == m_me && message.lenght() > 0 && message[0] == '!') ) return;
+		if ( user == m_relay_host_bot )
+		{
+			if ( message.StartsWith("UserScriptPassword")) )
+			{
+				GetWordParam( message ); // skip the command keyword
+				std::string usernick = GetWordParam( message );
+				std::string userScriptPassword = GetWordParam( message );
+				User* usr = GetUser(usernick);
+				if (!usr) return;
+				OnUserScriptPassword(user, userScriptPassword);
+				return;
+			}
+		}
+	}
+	if ( m_relay_host_manager != 0 && channel == GetChannel( "U" + ToString(m_relay_host_manager->GetID()) )
+	{
+		if ( user == m_me &&  message.lenght() > 0 && message[0] == '!') ) return;
+		if ( user == m_relay_host_manager )
+		{
+		if ( message.lenght() > 0 && message[0] == '\001' ) // error code
+		{
+		}
+		else
+		{
+			m_relay_host_bot_nick = message;
+			return;
+		}
+		}
+	}
+	if ( m_relay_host_manager_list != 0 && channel == GetChannel( "U" + ToString(m_relay_host_manager_list->GetID()) )
+	{
+		if ( user == m_me && message == "!lm" ) return;
+		if ( user == m_relay_host_manager_list )
+		{
+			if  ( message.StartsWith("list ")) )
+			{
+				 std::string list = params.AfterFirst( ' ') );
+				 m_relay_host_manager_list = std::stringTokenize( list, "\t") );
+				 return;
+			}
+		}
+	}
+}
+
+void iServer::OnBattleStartRectAdd( const Battle* battle, int allyno, int left, int top, int right, int bottom )
+{
+	if(!battle) return;
+	battle->AddStartRect( allyno, left, top, right, bottom );
+	battle->StartRectAdded( allyno );
+}
+
+void iServer::OnBattleStartRectRemove( const Battle* battle, int allyno )
+{
+	if (!battle) return;
+	battle->RemoveStartRect( allyno );
+	battle->StartRectRemoved( allyno );
+}
+
+void iServer::OnFileDownload( bool autolaunch, bool autoclose, bool /*disconnectonrefuse*/, const std::string& FileName, const std::string& url, const std::string& description )
+{
+	UTASOfferFileData parsingdata;
+	parsingdata.data = GetIntParam( params );
+}
+
+void iServer::OnBattleScript( const Battle* battle, const std::string& script )
+{
+	if (!battle) return;
+	battle->GetBattleFromScript( true );
+}
+
+void iServer::OnMuteList(const Channel* channel, const MuteList& mutelist )
+{
+}
+
+void iServer::OnKickedFromBattle( const Battle* battle)
+{
+	if (!battle) return;
+}
+
+
+void iServer::OnUserInternalUdpPort( const User* user, int udpport )
+{
+	if (!user) return;
+}
+
+void iServer::OnUserExternalUdpPort( const User* user, int udpport )
+{
+	if (!user) return;
+	user->BattleStatus().extudpport = udpport;
+}
+
+void iServer::OnUserIP( const User* user, const std::string& ip )
+{
+	if (!user) return;
+	user->BattleStatus().ip = ip;
+}
+
+void iServer::OnRedirect( const std::string& address, int port )
+{
+	if (!address.lenght()) return;
+	if (!port) return;
+}
+
+void iServer::OnChannelJoinUserList( const Channel* channel, const UserVector& users)
+{
+
+}
+
+void TASServer::OnChannelListEnd()
+{
+}
+
+void iServer::OnJoinBattleFailed( const std::string& msg )
+{
+}
+
+
+void iServer::OnOpenBattleFailed( const std::string& msg )
+{
+}
+
+void iServer::OnRequestBattleStatus()
+{
+	if(!m_battle) return;
+}
+
+// namespace LSL

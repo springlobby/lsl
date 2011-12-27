@@ -44,7 +44,7 @@ IF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${l
     ADD_DEFINITIONS( -DHAVE_CONFIG_H )
     INCLUDE_DIRECTORIES(${libSpringLobby_BINARY_DIR})
 ENDIF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${libSpringLobby_SOURCE_DIR}/libSpringLobby_config.h  )
-
+INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/lib)
 
 #----------------------------------------------------------------------------------------------------
 # Options, that can be changed be the User in order to customise libSpringLobby
@@ -84,15 +84,15 @@ cmake_policy(SET CMP0004 OLD)
 #ignore warnings about macosx app bundle output dir
 cmake_policy(SET CMP0006 OLD)
 
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/lib/ )
 ADD_LIBRARY(libSpringLobby STATIC ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE})
-ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} )
+# ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} )
 ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
+ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/test/swig.cpp )
 
 # Here the wxWidgets Libraries are added. These are set for us by the FIND Script. If you need other Libraries, you can add them here as well.
 TARGET_LINK_LIBRARIES(libSpringLobby ${SL_BOOST_LIBS} )
-TARGET_LINK_LIBRARIES(libUnitsync++ dl )
-TARGET_LINK_LIBRARIES(libSpringLobby_test libSpringLobby libUnitsync++)
+# TARGET_LINK_LIBRARIES(libUnitsync++ dl )
+TARGET_LINK_LIBRARIES(libSpringLobby_test dl)#(libUnitsync++)
 
 IF(MINGW)
 	TARGET_LINK_LIBRARIES( libSpringLobby iphlpapi )

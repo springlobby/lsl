@@ -1,12 +1,31 @@
-class StringMap;
-class StringVector;
+#ifndef LSL_ISERVER_H
+#define LSL_ISERVER_H
+
+#include <string>
+#include <map>
+#include <utils/datatypes.h>
+#include <utils/mutexwrapper.h>
+#include <utils/crc.h>
+
+namespace LSL {
+
+class PingThread {};
 
 class ServerEvents;
+class Channel;
+class User;
+class Battle;
+class BattleOptions;
+class HostInfo;
+class UserBattleStatus;
+class Socket;
+class PingThread;
+class IServerEvents;
 
-class iServer(int serverEventsMode)
+class iServer
 {
   public:
-	friend class ServerEvents;
+    iServer();
 
 	// Server interface
 
@@ -15,13 +34,13 @@ class iServer(int serverEventsMode)
 	virtual bool Register( const std::string& addr, const int port, const std::string& nick, const std::string& password,std::string& reason ) = 0;
 	virtual void AcceptAgreement() = 0;
 
-	virtual void Connect( const std::string& servername, const std::string& addr, const int port ) = 0;
-	virtual void Disconnect(const std::string& reason) = 0;
-	virtual bool IsConnected() = 0;
+	void Connect( const std::string& servername, const std::string& addr, const int port );
+    void Disconnect(const std::string& reason);
+    bool IsConnected();
 
 	virtual void Login() = 0;
 	virtual void Logout() = 0;
-	virtual bool IsOnline()  const = 0;
+    virtual bool IsOnline()  const ;
 
 	virtual void TimerUpdate();
 
@@ -110,7 +129,7 @@ class iServer(int serverEventsMode)
 
 	virtual void RequestSpringUpdate();
 
-	virtual void SetRelayIngamePassword( const const User* user ) = 0;
+    virtual void SetRelayIngamePassword( const User* user ) = 0;
 	virtual StringVector GetRelayHostList();
 	User* AcquireRelayhost();
 	virtual void SendScriptToProxy( const std::string& script ) = 0;
@@ -119,20 +138,23 @@ class iServer(int serverEventsMode)
 	std::string GenerateScriptPassword();
 	int RelayScriptSendETA( const std::string& script ); //!in seconds
 
-  protected:
+  private:
 	//! @brief map used internally by the iServer class to calculate ping roundtimes.
 	typedef std::map<int, long long> PingList;
 
 	Socket* m_sock;
+    CRC m_crc;
 	int m_keepalive; //! in seconds
 	int m_ping_timeout; //! in seconds
+	int m_ping_interval; //! in seconds
 	int m_server_rate_limit; //! in bytes/sec
 	int m_message_size_limit; //! in bytes
 	User* m_me;
-	std::string m_server_name;
 	std::string m_min_required_spring_ver;
 	std::string m_last_denied_connection_reason;
+    std::string m_server_name;
 	PingThread m_ping_thread;
+	std::string m_buffer;
     bool m_connected;
     bool m_online;
     int m_udp_private_port;
@@ -143,7 +165,7 @@ class iServer(int serverEventsMode)
 	unsigned int GetLastPingID()
 	{
 		ScopedLocker<unsigned int> l_last_ping_id(m_last_ping_id);
-		return l_last_id.Get();
+        return l_last_ping_id.Get();
 	}
 	MutexWrapper<PingList> m_pinglist;
 	PingList& GetPingList()
@@ -151,8 +173,6 @@ class iServer(int serverEventsMode)
 		ScopedLocker<PingList> l_pinglist(m_pinglist);
 		return l_pinglist.Get();
 	}
-
-	IServerEvents m_se;
 
 	Battle* m_current_battle;
 
@@ -162,16 +182,19 @@ class iServer(int serverEventsMode)
 
 	StringVector m_relay_host_manager_list;
 
-	User* _AddUser( const std::string& user, const int id );
-	void _RemoveUser( const std::string& nickname );
-	void _RemoveUser( const int id );
+	User* AddUser( const int id );
+	void RemoveUser( const User* user );
 
-	Channel* _AddChannel( const std::string& chan );
-	void _RemoveChannel( const std::string& name );
+	Channel* AddChannel( const std::string& chan );
+	void RemoveChannel( const Channel* chan );
 
-	Battle* _AddBattle( const int& id );
-	void _RemoveBattle( const int& id );
+	Battle* AddBattle( const int& id );
+	void RemoveBattle( const Battle* battle );
 
 	virtual void SendCmd( const std::string& command, const std::string& param ) = 0;
-	virtual void RelayCmd( const std::string& command, const std::string& param ) = 0;
+	void RelayCmd( const std::string& command, const std::string& param );
 };
+
+} //namespace LSL
+
+#endif //LSL_ISERVER_H

@@ -2,7 +2,7 @@
 #include <container/battlelist.h>
 #include <container/channellist.h>
 #include "common.h"
-
+#include "commands.h"
 #include <iostream>
 
 #define TESTLIST(name) \
@@ -22,12 +22,17 @@
         throw TestFailedException("Get should've thrown MissingItemException"); } \
     }
 
+
+
 int main(int, char**)
 {
     using namespace LSL;
     TESTLIST(UserList)
     TESTLIST(BattleList)
-    TESTLIST(ChannelList)
+//    TESTLIST(ChannelList)
 
+//    Server s;
+//    std::string msg= "Blubb DE 666 99";
+//    s.cmd_map_["ADDUSER"]->process(msg);
 	return 0;
 }
