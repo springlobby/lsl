@@ -1,7 +1,8 @@
 #ifndef MUTEXWRAPPER_H
 #define MUTEXWRAPPER_H
-#include <wx/thread.h>
-#include <wx/log.h>
+
+#include <boost/thread/mutex.hpp>
+#include "logging.h"
 
 template<class T>
 class MutexWrapper;
@@ -51,7 +52,7 @@ class ScopedLocker
 template<class T>
 class MutexWrapper: public AbstractMutexWrapper
 {
-  wxCriticalSection mutex;/// critical section is same as mutex except on windows it only works within one process (i.e. program). I'm gonna call it mutex.
+  boost::mutex mutex;/// critical section is same as mutex except on windows it only works within one process (i.e. program). I'm gonna call it mutex.
   T data;
   bool locked;
   public:
@@ -60,17 +61,17 @@ class MutexWrapper: public AbstractMutexWrapper
     virtual ~MutexWrapper(){
     }
     virtual void Lock(){
-      mutex.Enter();
+      mutex.lock();
       locked=true;
     }
     virtual void UnLock(){
       locked=false;
-      mutex.Leave();
+      mutex.unlock();
     }
     protected:
     T &GetData(){
       if(!locked) {
-            wxLogError(_T("serious error in MutexWrapper usage : not locked, but Get() is called!"));
+            LslError("serious error in MutexWrapper usage : not locked, but Get() is called!");
       }
       return data;
     }
