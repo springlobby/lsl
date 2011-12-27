@@ -1,17 +1,31 @@
 //#include "../utils/base64.h"
 #include "../utils/md5.h"
 #include "tasserver.h"
+#include "socket.h"
 #include "commands.h"
 #include "tasserverdataformats.h"
 #include "commandparsing.h"
 
 
-TASServer::TASServer():
-m_cmd_dict( new CommandDictionary() )
+TASServer::TASServer(int /*TASServerMode*/)
+    : m_cmd_dict( new CommandDictionary() )
 {
-	AddCommands();
+    sock.dataReceived.connect( boost::bind( &TASServer::ExecuteCommand, this, _1, _2 ) );
 }
 
+void TASServer::OnNewUser( const std::string& nick, const std::string& country, int cpu, int id )
+{
+}
+
+void TASServer::ExecuteCommand( const std::string& cmd, const std::string& inparams, int replyid )
+{
+    if ( cmd == "PONG")
+        HandlePong( replyid );
+    else
+        m_cmd_dict->process(cmd,inparams);
+}
+
+#ifdef LETS_SEE_SHIT_BREAK
 void TASServer::GetInGameTime(const std::string& user)
 {
 	SendCmd( "GETINGAMETIME", user );
@@ -1537,8 +1551,4 @@ void iServer::OnFileDownload( int intdata, const std::string& FileName, const st
 	OnFileDownload(  parsingdata.tasdata.autoopen, parsingdata.tasdata.closelobbyondownload, parsingdata.tasdata.disconnectonrefuse, FileName, url, description );
 }
 
-void TASServer::ExecuteCommand( const std::string& cmd, const std::string& inparams, int replyid )
-{
-	if ( cmd == "PONG") ) HandlePong( replyid );
-	else s.cmd_map_[cmd]->process(inparams);
-}
+#endif //#ifdef LETS_SEE_SHIT_BREAK

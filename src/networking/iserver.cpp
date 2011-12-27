@@ -1,23 +1,26 @@
 #include "iserver.h"
 
+#include "socket.h"
+
+
 namespace LSL {
 
-iServer::iServer():
-m_keepalive(15),
-m_ping_timeout(40),
-m_ping_interval(10),
-m_server_rate_limit(800),
-m_message_size_limit(1024),
-m_connected(false),
-m_online(false),
-m_me(0),
-//m_last_udp_ping(0),
-//m_last_net_packet(0),
-m_udp_private_port(0),
-m_udp_reply_timeout(0),
-m_current_battle(0),
-m_buffer(""),
-m_relay_host_bot(0)
+iServer::iServer()
+    : m_keepalive(15),
+    m_ping_timeout(40),
+    m_ping_interval(10),
+    m_server_rate_limit(800),
+    m_message_size_limit(1024),
+    m_connected(false),
+    m_online(false),
+    m_me(0),
+    //m_last_udp_ping(0),
+    //m_last_net_packet(0),
+    m_udp_private_port(0),
+    m_udp_reply_timeout(0),
+    m_current_battle(0),
+    m_buffer(""),
+    m_relay_host_bot(0)
 {
 }
 
@@ -25,7 +28,7 @@ void iServer::Connect( const std::string& servername ,const std::string& addr, c
 {
 	m_buffer = "";
 	m_sock->Connect( addr, port );
-	m_sock->SetSendRateLimit( m_server_rate_limit );
+    m_sock->SetSendRateLimit( m_server_rate_limit );
 	m_connected = false;
     m_online = false;
     m_redirecting = false;
