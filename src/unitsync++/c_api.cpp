@@ -10,7 +10,10 @@
 #include <stdexcept>
 #include <cmath>
 #include <boost/extension/shared_library.hpp>
-#include <boost/gil/image_view_factory.hpp>
+//#include <boost/gil/image_view_factory.hpp>
+//#include <boost/gil/extension/io/png_io.hpp>
+#include <boost/gil/extension/io/png_dynamic_io.hpp>
+#include <boost/gil/gil_all.hpp>
 #include <boost/foreach.hpp>
 #include <boost/typeof/typeof.hpp>
 
@@ -157,11 +160,12 @@ void SpringUnitSyncLib::_Load( const std::string& path )
 			boost::filesystem::current_path( path.parent_path() );
 #endif
 			m_libhandle = new boost::extensions::shared_library( path );
-			if ( !m_libhandle->is_open() ) {
+			if ( !m_libhandle->open() ) {
 				delete m_libhandle;
 				m_libhandle = 0;
 			}
-		} catch(...) {
+		} catch(std::exception& e) {
+			LslDebug( "UNITSYNC, loading failed, nulling handle: %s\n", e.what() );
 			m_libhandle = 0;
 		}
 	}
@@ -454,8 +458,8 @@ std::vector<std::string> SpringUnitSyncLib::GetUnitsyncErrors() const
 		UNITSYNC_EXCEPTION( m_loaded, "Unitsync not loaded.");
 		UNITSYNC_EXCEPTION( m_get_next_error, "Function was not in unitsync library.");
 
-		std::string msg = m_get_next_error();
-		while ( !msg.empty() )
+		const char* msg = m_get_next_error();
+		while ( msg )
 		{
 			ret.push_back( msg );
 			msg = m_get_next_error();
@@ -555,7 +559,7 @@ std::map<std::string, std::string> SpringUnitSyncLib::GetSpringVersionList(const
 			boost::filesystem::current_path( path.parent_path() );
 #endif
 			boost::extensions::shared_library temphandle( path );
-			if( !temphandle.is_open())
+			if( !temphandle.open())
 				LSL_THROW(unitsync, "Couldn't load the unitsync library");
 
 			GetSpringVersionPtr getspringversion = 0;
@@ -749,9 +753,9 @@ UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 
 	UnitSyncImage minimap(width, height);
 
-	typedef boost::gil::iterator_type_from_pixel< UnitSyncPixelType >::type Iter;
+//	typedef boost::gil::iterator_type_from_pixel< UnitSyncPixelType >::type Iter;
 
-	BOOST_AUTO( view, boost::gil::interleaved_view(width, height, (UnitSyncPixelType*) colours, width * 3 * sizeof(unsigned short)) );
+//	BOOST_AUTO( view, );
 //	boost::gil::copy_pixels(Tview, minimap);
 
 //	uchar* true_colours = minimap.GetData();
@@ -762,6 +766,8 @@ UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 //		true_colours[(i*3)+2] = uchar( (( colours[i] & 31 )/31.0)*255.0 );
 //	}
 
+	boost::gil::png_write_view("/tmp/out.png",
+			boost::gil::interleaved_view(width, height, (const boost::gil::rgb8_pixel_t*)colours, width * 3 * sizeof(unsigned short)) );
 	return minimap;
 }
 

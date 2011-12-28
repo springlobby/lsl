@@ -89,9 +89,9 @@ ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} ${commonSrc}
 ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
 ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/test/swig.cpp )
 
-# Here the wxWidgets Libraries are added. These are set for us by the FIND Script. If you need other Libraries, you can add them here as well.
+SET( SL_BOOST_LIBS boost_system boost_filesystem )
 TARGET_LINK_LIBRARIES(libSpringLobby ${SL_BOOST_LIBS} )
-TARGET_LINK_LIBRARIES(libUnitsync++ dl )
+TARGET_LINK_LIBRARIES(libUnitsync++ dl ${SL_BOOST_LIBS} png )
 TARGET_LINK_LIBRARIES(libSpringLobby_test dl libUnitsync++)
 
 IF(MINGW)

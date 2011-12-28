@@ -34,6 +34,6 @@ int main(int, char**)
 //    Server s;
 //    std::string msg= "Blubb DE 666 99";
 //    s.cmd_map_["ADDUSER"]->process(msg);
-            dummySync();
+	dummySync();
 	return 0;
 }
