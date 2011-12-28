@@ -1,6 +1,8 @@
 #ifndef LSL_MISC_H
 #define LSL_MISC_H
 
+#include <string>
+
 namespace LSL {
 namespace Util {
 
