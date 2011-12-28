@@ -4,29 +4,23 @@
 #include <string>
 #include <stdexcept>
 
-#if WIN32
-  #define USYNC_CALL_CONV __stdcall
-#elif linux
-  #define USYNC_CALL_CONV
-#elif defined(__WXMAC__)
-  #define USYNC_CALL_CONV
-#else
-  #warning "defaulting to no usync call conv"
-  #define USYNC_CALL_CONV
-#endif
-
 #include "data.h"
+#include "signatures.h"
 #include <utils/datatypes.h>
 #include <boost/noncopyable.hpp>
-#include <boost/extension/shared_library.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/gil/gil_all.hpp>
 
-//#define UNITSYNC_EXCEPTION(cond,msg) if(!(cond))\
-//{wxLogMessage(_T("unitsync runtime assertion ( %s:%d ): %s"), Tostd::string(__FILE__).c_str(),__LINE__ , std::string(msg).c_str() );throw unitsync_assert(std::string(std::string(msg).mb_str()));}
 
-namespace LSL {
+namespace boost {
+namespace extensions {
+    class shared_library;
+}
+}
 
-struct SpringMapInfo;
+namespace LUS {
+
+static const unsigned int MapInfoMaxStartPositions = 16;
 
 class unitsync_assert : public std::runtime_error
 {
@@ -47,198 +41,13 @@ struct SpringMapInfo
   int width;
   int height;
   int posCount;
-  StartPos positions[16];
+  StartPos positions[MapInfoMaxStartPositions];
 
   char* author;
 };
 
 typedef boost::gil::packed_image3_type<unsigned short, 5,6,5, boost::gil::rgb_layout_t>::type UnitSyncImage;
 
-/**
- * \defgroup DllPointerTypes Pointer types used with the unitsync library.
- * \TODO move from global namespace
- */
-/** @{ */
-
-typedef const char* (USYNC_CALL_CONV *GetSpringVersionPtr)();
-
-typedef int (USYNC_CALL_CONV *InitPtr)(bool, int);
-typedef void (USYNC_CALL_CONV *UnInitPtr)();
-typedef const char* (USYNC_CALL_CONV *GetNextErrorPtr)();
-typedef const char* (USYNC_CALL_CONV *GetWritableDataDirectoryPtr)();
-typedef const char* (USYNC_CALL_CONV *GetDataDirectoryPtr)(int);
-typedef int (USYNC_CALL_CONV *GetDataDirectoryCountPtr)();
-
-typedef int (USYNC_CALL_CONV *GetMapCountPtr)();
-typedef unsigned int (USYNC_CALL_CONV *GetMapChecksumPtr)(int);
-typedef const char* (USYNC_CALL_CONV *GetMapNamePtr)(int);
-typedef const char*  (USYNC_CALL_CONV *GetMapDescriptionPtr)(int);
-typedef const char*  (USYNC_CALL_CONV *GetMapAuthorPtr)(int);
-typedef int          (USYNC_CALL_CONV *GetMapWidthPtr)(int);
-typedef int          (USYNC_CALL_CONV *GetMapHeightPtr)(int);
-typedef int          (USYNC_CALL_CONV *GetMapTidalStrengthPtr)(int);
-typedef int          (USYNC_CALL_CONV *GetMapWindMinPtr)(int);
-typedef int          (USYNC_CALL_CONV *GetMapWindMaxPtr)(int);
-typedef int          (USYNC_CALL_CONV *GetMapGravityPtr)(int);
-typedef int          (USYNC_CALL_CONV *GetMapResourceCountPtr)(int);
-typedef const char*  (USYNC_CALL_CONV *GetMapResourceNamePtr)(int, int);
-typedef float        (USYNC_CALL_CONV *GetMapResourceMaxPtr)(int, int);
-typedef int          (USYNC_CALL_CONV *GetMapResourceExtractorRadiusPtr)(int, int);
-typedef int          (USYNC_CALL_CONV *GetMapPosCountPtr)(int);
-typedef float        (USYNC_CALL_CONV *GetMapPosXPtr)(int, int);
-typedef float        (USYNC_CALL_CONV *GetMapPosZPtr)(int, int);
-
-typedef int (USYNC_CALL_CONV *GetMapInfoExPtr)(const char*, SpringMapInfo*, int);
-typedef void* (USYNC_CALL_CONV *GetMinimapPtr)(const char*, int);
-typedef int (USYNC_CALL_CONV *GetInfoMapSizePtr)(const char*, const char*, int*, int*);
-typedef int (USYNC_CALL_CONV *GetInfoMapPtr)(const char*, const char*, void*, int);
-
-typedef unsigned int (USYNC_CALL_CONV *GetPrimaryModChecksumPtr)(int);
-typedef int (USYNC_CALL_CONV *GetPrimaryModIndexPtr)(const char*);
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModNamePtr)(int);
-typedef int (USYNC_CALL_CONV *GetPrimaryModCountPtr)();
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModArchivePtr)(int);
-
-typedef int (USYNC_CALL_CONV *GetSideCountPtr)();
-typedef const char* (USYNC_CALL_CONV *GetSideNamePtr)(int);
-
-typedef void (USYNC_CALL_CONV *AddAllArchivesPtr)(const char*);
-typedef void (USYNC_CALL_CONV *RemoveAllArchivesPtr)();
-
-typedef const char * (USYNC_CALL_CONV *GetFullUnitNamePtr)(int);
-typedef const char * (USYNC_CALL_CONV *GetUnitNamePtr)(int);
-typedef int (USYNC_CALL_CONV *GetUnitCountPtr)();
-typedef int (USYNC_CALL_CONV *ProcessUnitsNoChecksumPtr)();
-
-typedef int (USYNC_CALL_CONV *InitFindVFSPtr)(const char*);
-typedef int (USYNC_CALL_CONV *FindFilesVFSPtr)(int, char*, int);
-typedef int (USYNC_CALL_CONV *OpenFileVFSPtr)(const char*);
-typedef int (USYNC_CALL_CONV *FileSizeVFSPtr)(int);
-typedef int (USYNC_CALL_CONV *ReadFileVFSPtr)(int, void*, int);
-typedef void (USYNC_CALL_CONV *CloseFileVFSPtr)(int);
-
-typedef void (USYNC_CALL_CONV *SetSpringConfigFilePtr)(const char*);
-typedef const char * (USYNC_CALL_CONV *GetSpringConfigFilePtr)();
-
-typedef int (USYNC_CALL_CONV *GetSpringConfigIntPtr)(const char*, int );
-typedef const char* (USYNC_CALL_CONV *GetSpringConfigStringPtr)(const char*, const char* );
-typedef float (USYNC_CALL_CONV *GetSpringConfigFloatPtr)(const char*, float );
-
-typedef void (USYNC_CALL_CONV *SetSpringConfigStringPtr)(const char*, const char* );
-typedef void (USYNC_CALL_CONV *SetSpringConfigIntPtr)(const char*, int );
-typedef void (USYNC_CALL_CONV *SetSpringConfigFloatPtr)(const char*, float );
-
-typedef int (USYNC_CALL_CONV *ProcessUnitsPtr)(void);
-typedef void (USYNC_CALL_CONV *AddArchivePtr)(const char* name);
-typedef unsigned int (USYNC_CALL_CONV *GetArchiveChecksumPtr)(const char* arname);
-typedef const char* (USYNC_CALL_CONV *GetArchivePathPtr)(const char* arname);
-typedef int (USYNC_CALL_CONV *GetMapArchiveCountPtr)(const char* mapName);
-typedef const char* (USYNC_CALL_CONV *GetMapArchiveNamePtr)(int index);
-typedef unsigned int (USYNC_CALL_CONV *GetMapChecksumPtr)(int index);
-typedef int (USYNC_CALL_CONV *GetMapChecksumFromNamePtr)(const char* mapName);
-
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModShortNamePtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModVersionPtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModMutatorPtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModGamePtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModShortGamePtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModDescriptionPtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModArchivePtr)(int index);
-typedef int (USYNC_CALL_CONV *GetPrimaryModArchiveCountPtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetPrimaryModArchiveListPtr)(int arnr);
-typedef unsigned int (USYNC_CALL_CONV *GetPrimaryModChecksumFromNamePtr)(const char* name);
-typedef unsigned int (USYNC_CALL_CONV *GetModValidMapCountPtr)();
-typedef const char* (USYNC_CALL_CONV *GetModValidMapPtr)(int index);
-
-typedef int (USYNC_CALL_CONV *GetLuaAICountPtr)();
-typedef const char* (USYNC_CALL_CONV *GetLuaAINamePtr)(int aiIndex);
-typedef const char* (USYNC_CALL_CONV *GetLuaAIDescPtr)(int aiIndex);
-
-typedef int (USYNC_CALL_CONV *GetMapOptionCountPtr)(const char* name);
-typedef int (USYNC_CALL_CONV *GetCustomOptionCountPtr)(const char* name);
-typedef int (USYNC_CALL_CONV *GetModOptionCountPtr)();
-typedef int (USYNC_CALL_CONV *GetSkirmishAIOptionCountPtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetOptionKeyPtr)(int optIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionNamePtr)(int optIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionDescPtr)(int optIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionSectionPtr)(int optIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionStylePtr)(int optIndex);
-typedef int (USYNC_CALL_CONV *GetOptionTypePtr)(int optIndex);
-typedef int (USYNC_CALL_CONV *GetOptionBoolDefPtr)(int optIndex);
-typedef float (USYNC_CALL_CONV *GetOptionNumberDefPtr)(int optIndex);
-typedef float (USYNC_CALL_CONV *GetOptionNumberMinPtr)(int optIndex);
-typedef float (USYNC_CALL_CONV *GetOptionNumberMaxPtr)(int optIndex);
-typedef float (USYNC_CALL_CONV *GetOptionNumberStepPtr)(int optIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionStringDefPtr)(int optIndex);
-typedef int (USYNC_CALL_CONV *GetOptionStringMaxLenPtr)(int optIndex);
-typedef int (USYNC_CALL_CONV *GetOptionListCountPtr)(int optIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionListDefPtr)(int optIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionListItemKeyPtr)(int optIndex, int itemIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionListItemNamePtr)(int optIndex, int itemIndex);
-typedef const char* (USYNC_CALL_CONV *GetOptionListItemDescPtr)(int optIndex, int itemIndex);
-
-typedef int (USYNC_CALL_CONV *OpenArchivePtr)(const char* name);
-typedef void (USYNC_CALL_CONV *CloseArchivePtr)(int archive);
-typedef int (USYNC_CALL_CONV *FindFilesArchivePtr)(int archive, int cur, char* nameBuf, int* size);
-typedef int (USYNC_CALL_CONV *OpenArchiveFilePtr)(int archive, const char* name);
-typedef int (USYNC_CALL_CONV *ReadArchiveFilePtr)(int archive, int handle, void* buffer, int numBytes);
-typedef void (USYNC_CALL_CONV *CloseArchiveFilePtr)(int archive, int handle);
-typedef int (USYNC_CALL_CONV *SizeArchiveFilePtr)(int archive, int handle);
-
-typedef int (USYNC_CALL_CONV *GetSkirmishAICountPtr)();
-typedef int (USYNC_CALL_CONV *GetSkirmishAIInfoCountPtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetInfoKeyPtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetInfoValuePtr)(int index);
-typedef const char* (USYNC_CALL_CONV *GetInfoDescriptionPtr)(int index);
-
-/// Unitsync functions wrapping lua parser
-typedef void (USYNC_CALL_CONV *lpClosePtr)();
-typedef int (USYNC_CALL_CONV *lpOpenFilePtr)(const char* filename, const char* fileModes,  const char* accessModes);
-typedef int (USYNC_CALL_CONV *lpOpenSourcePtr)(const char* source, const char* accessModes);
-typedef int (USYNC_CALL_CONV *lpExecutePtr)();
-typedef const char* (USYNC_CALL_CONV *lpErrorLogPtr)();
-
-typedef void (USYNC_CALL_CONV *lpAddTableIntPtr)(int key, int override);
-typedef void (USYNC_CALL_CONV *lpAddTableStrPtr)(const char* key, int override);
-typedef void (USYNC_CALL_CONV *lpEndTablePtr)();
-typedef void (USYNC_CALL_CONV *lpAddIntKeyIntValPtr)(int key, int val);
-typedef void (USYNC_CALL_CONV *lpAddStrKeyIntValPtr)(const char* key, int val);
-typedef void (USYNC_CALL_CONV *lpAddIntKeyBoolValPtr)(int key, int val);
-typedef void (USYNC_CALL_CONV *lpAddStrKeyBoolValPtr)(const char* key, int val);
-typedef void (USYNC_CALL_CONV *lpAddIntKeyFloatValPtr)(int key, float val);
-typedef void (USYNC_CALL_CONV *lpAddStrKeyFloatValPtr)(const char* key, float val);
-typedef void (USYNC_CALL_CONV *lpAddIntKeyStrValPtr)(int key, const char* val);
-typedef void (USYNC_CALL_CONV *lpAddStrKeyStrValPtr)(const char* key, const char* val);
-
-typedef int (USYNC_CALL_CONV *lpRootTablePtr)();
-typedef int (USYNC_CALL_CONV *lpRootTableExprPtr)(const char* expr);
-typedef int (USYNC_CALL_CONV *lpSubTableIntPtr)(int key);
-typedef int (USYNC_CALL_CONV *lpSubTableStrPtr)(const char* key);
-typedef int (USYNC_CALL_CONV *lpSubTableExprPtr)(const char* expr);
-typedef void (USYNC_CALL_CONV *lpPopTablePtr)();
-
-typedef int (USYNC_CALL_CONV *lpGetKeyExistsIntPtr)(int key);
-typedef int (USYNC_CALL_CONV *lpGetKeyExistsStrPtr)(const char* key);
-
-typedef int (USYNC_CALL_CONV *lpGetIntKeyTypePtr)(int key);
-typedef int (USYNC_CALL_CONV *lpGetStrKeyTypePtr)(const char* key);
-
-typedef int (USYNC_CALL_CONV *lpGetIntKeyListCountPtr)();
-typedef int (USYNC_CALL_CONV *lpGetIntKeyListEntryPtr)(int index);
-typedef int (USYNC_CALL_CONV *lpGetStrKeyListCountPtr)();
-typedef const char* (USYNC_CALL_CONV *lpGetStrKeyListEntryPtr)(int index);
-
-typedef int (USYNC_CALL_CONV *lpGetIntKeyIntValPtr)(int key, int defVal);
-typedef int (USYNC_CALL_CONV *lpGetStrKeyIntValPtr)(const char* key, int defVal);
-typedef int (USYNC_CALL_CONV *lpGetIntKeyBoolValPtr)(int key, int defVal);
-typedef int (USYNC_CALL_CONV *lpGetStrKeyBoolValPtr)(const char* key, int defVal);
-typedef float (USYNC_CALL_CONV *lpGetIntKeyFloatValPtr)(int key, float defVal);
-typedef float (USYNC_CALL_CONV *lpGetStrKeyFloatValPtr)(const char* key, float defVal);
-typedef const char* (USYNC_CALL_CONV *lpGetIntKeyStrValPtr)(int key, const char* defVal);
-typedef const char* (USYNC_CALL_CONV *lpGetStrKeyStrValPtr)(const char* key, const char* defVal);
-
-
-/** @} */
 
 /**
  * Primitive class handeling the unitsync library.
@@ -296,7 +105,7 @@ class SpringUnitSyncLib : public boost::noncopyable
      */
     std::vector<std::string> GetUnitsyncErrors() const;
 
-    bool VersionSupports( LSL::GameFeature feature ) const;
+    bool VersionSupports( LUS::GameFeature feature ) const;
 
 
     int GetModIndex( const std::string& name );
@@ -323,6 +132,9 @@ class SpringUnitSyncLib : public boost::noncopyable
     std::string GetMapName( int index );
     int GetMapArchiveCount( int index );
     std::string GetMapArchiveName( int arnr );
+
+    typedef std::vector< std::string >
+        StringVector;
     StringVector GetMapDeps( int index );
 
     /**
@@ -504,10 +316,10 @@ class SpringUnitSyncLib : public boost::noncopyable
     bool m_loaded;
 
     //! Handle to the unitsync library.
-    wxDynamicLibrary* m_libhandle;
+    boost::extensions::shared_library* m_libhandle;
 
     //! Critical section controlling access to unitsync functions.
-    mutable wxCriticalSection m_lock;
+    mutable boost::mutex m_lock;
 
     //! Path to unitsync.
     std::string m_path;
@@ -674,11 +486,11 @@ class SpringUnitSyncLib : public boost::noncopyable
     SetSpringConfigStringPtr m_set_spring_config_string;
     SetSpringConfigIntPtr m_set_spring_config_int;
 
-		GetSkirmishAICountPtr m_get_skirmish_ai_count;
-		GetSkirmishAIInfoCountPtr m_get_skirmish_ai_info_count;
-		GetInfoKeyPtr m_get_skirmish_ai_info_key;
-		GetInfoValuePtr m_get_skirmish_ai_info_value;
-		GetInfoDescriptionPtr m_get_skirmish_ai_info_description;
+    GetSkirmishAICountPtr m_get_skirmish_ai_count;
+    GetSkirmishAIInfoCountPtr m_get_skirmish_ai_info_count;
+    GetInfoKeyPtr m_get_skirmish_ai_info_key;
+    GetInfoValuePtr m_get_skirmish_ai_info_value;
+    GetInfoDescriptionPtr m_get_skirmish_ai_info_description;
 
     // lua parser section
 
@@ -693,44 +505,44 @@ class SpringUnitSyncLib : public boost::noncopyable
     lpEndTablePtr m_parser_end_table;
     lpAddIntKeyIntValPtr m_parser_add_int_key_int_value;
     lpAddStrKeyIntValPtr m_parser_add_string_key_int_value;
-		lpAddIntKeyBoolValPtr m_parser_add_int_key_bool_value;
-		lpAddStrKeyBoolValPtr m_parser_add_string_key_bool_value;
-		lpAddIntKeyFloatValPtr m_parser_add_int_key_float_value;
-		lpAddStrKeyFloatValPtr m_parser_add_string_key_float_value;
-		lpAddIntKeyStrValPtr m_parser_add_int_key_string_value;
-		lpAddStrKeyStrValPtr m_parser_add_string_key_string_value;
+    lpAddIntKeyBoolValPtr m_parser_add_int_key_bool_value;
+    lpAddStrKeyBoolValPtr m_parser_add_string_key_bool_value;
+    lpAddIntKeyFloatValPtr m_parser_add_int_key_float_value;
+    lpAddStrKeyFloatValPtr m_parser_add_string_key_float_value;
+    lpAddIntKeyStrValPtr m_parser_add_int_key_string_value;
+    lpAddStrKeyStrValPtr m_parser_add_string_key_string_value;
 
-		lpRootTablePtr m_parser_root_table;
-		lpRootTableExprPtr m_parser_root_table_expression;
-		lpSubTableIntPtr m_parser_sub_table_int;
-		lpSubTableStrPtr m_parser_sub_table_string;
-		lpSubTableExprPtr m_parser_sub_table_expression;
-		lpPopTablePtr m_parser_pop_table;
+    lpRootTablePtr m_parser_root_table;
+    lpRootTableExprPtr m_parser_root_table_expression;
+    lpSubTableIntPtr m_parser_sub_table_int;
+    lpSubTableStrPtr m_parser_sub_table_string;
+    lpSubTableExprPtr m_parser_sub_table_expression;
+    lpPopTablePtr m_parser_pop_table;
 
-		lpGetKeyExistsIntPtr m_parser_key_int_exists;
-		lpGetKeyExistsStrPtr m_parser_key_string_exists;
+    lpGetKeyExistsIntPtr m_parser_key_int_exists;
+    lpGetKeyExistsStrPtr m_parser_key_string_exists;
 
-		lpGetIntKeyTypePtr m_parser_int_key_get_type;
-		lpGetStrKeyTypePtr m_parser_string_key_get_type;
+    lpGetIntKeyTypePtr m_parser_int_key_get_type;
+    lpGetStrKeyTypePtr m_parser_string_key_get_type;
 
-		lpGetIntKeyListCountPtr m_parser_int_key_get_list_count;
-		lpGetIntKeyListEntryPtr m_parser_int_key_get_list_entry;
-		lpGetStrKeyListCountPtr m_parser_string_key_get_list_count;
-		lpGetStrKeyListEntryPtr m_parser_string_key_get_list_entry;
+    lpGetIntKeyListCountPtr m_parser_int_key_get_list_count;
+    lpGetIntKeyListEntryPtr m_parser_int_key_get_list_entry;
+    lpGetStrKeyListCountPtr m_parser_string_key_get_list_count;
+    lpGetStrKeyListEntryPtr m_parser_string_key_get_list_entry;
 
-		lpGetIntKeyIntValPtr m_parser_int_key_get_int_value;
-		lpGetStrKeyIntValPtr m_parser_string_key_get_int_value;
-		lpGetIntKeyBoolValPtr m_parser_int_key_get_bool_value;
-		lpGetStrKeyBoolValPtr m_parser_string_key_get_bool_value;
-		lpGetIntKeyFloatValPtr m_parser_int_key_get_float_value;
-		lpGetStrKeyFloatValPtr m_parser_string_key_get_float_value;
-		lpGetIntKeyStrValPtr m_parser_int_key_get_string_value;
-		lpGetStrKeyStrValPtr m_parser_string_key_get_string_value;
+    lpGetIntKeyIntValPtr m_parser_int_key_get_int_value;
+    lpGetStrKeyIntValPtr m_parser_string_key_get_int_value;
+    lpGetIntKeyBoolValPtr m_parser_int_key_get_bool_value;
+    lpGetStrKeyBoolValPtr m_parser_string_key_get_bool_value;
+    lpGetIntKeyFloatValPtr m_parser_int_key_get_float_value;
+    lpGetStrKeyFloatValPtr m_parser_string_key_get_float_value;
+    lpGetIntKeyStrValPtr m_parser_int_key_get_string_value;
+    lpGetStrKeyStrValPtr m_parser_string_key_get_string_value;
 
     /*@}*/
 };
 
-// namespace LSL
+} // namespace LUS
 #endif //SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
 
 /**

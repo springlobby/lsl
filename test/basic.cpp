@@ -22,8 +22,8 @@
         throw TestFailedException("Get should've thrown MissingItemException"); } \
     }
 
-
-
+//#include <unitsync++/c_api.h>
+void dummySync();
 int main(int, char**)
 {
     using namespace LSL;
@@ -34,5 +34,6 @@ int main(int, char**)
 //    Server s;
 //    std::string msg= "Blubb DE 666 99";
 //    s.cmd_map_["ADDUSER"]->process(msg);
+            dummySync();
 	return 0;
 }

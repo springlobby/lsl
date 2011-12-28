@@ -16,14 +16,14 @@
 **/
 
 
-#ifndef SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_DATA_H
-#define SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_DATA_H
+#ifndef LSL_HEADERGUARD_SPRINGUNITSYNC_DATA_H
+#define LSL_HEADERGUARD_SPRINGUNITSYNC_DATA_H
 
 #include <vector>
 #include <map>
 #include <string>
 
-namespace LSL {
+namespace LUS {
 
 struct UnitSyncMod
 {
@@ -80,5 +80,5 @@ enum MediaType
 
 typedef std::map<std::string,std::string> LocalArchivesVector;
 
-} // namespace LSL
+} // namespace LUS
 #endif // SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_DATA_H

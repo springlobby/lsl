@@ -125,7 +125,7 @@ class CommandDictionary {
 private:
     //! only TASSERVER can construct a CommandDictionary
     friend class TASServer;
-    CommandDictionary::CommandDictionary( TASServer* tas );
+    CommandDictionary( TASServer* tas );
 
     TASServer* m_tas;
     std::map<std::string,boost::shared_ptr<Commands::CommandBase> > cmd_map_;
