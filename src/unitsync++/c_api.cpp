@@ -10,7 +10,9 @@
 #include <stdexcept>
 #include <cmath>
 #include <boost/extension/shared_library.hpp>
+#include <boost/gil/image_view_factory.hpp>
 #include <boost/foreach.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <utils/logging.h>
 #include <utils/misc.h>
@@ -740,14 +742,25 @@ UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 		LSL_THROW( unitsync, "Get minimap failed");
 
 	typedef unsigned char uchar;
-	UnitSyncImage minimap(width, height, false);
-	uchar* true_colours = minimap.GetData();
 
-	for ( int i = 0; i < width*height; i++ ) {
-		true_colours[(i*3)  ] = uchar( (( colours[i] >> 11 )/31.0)*255.0 );
-		true_colours[(i*3)+1] = uchar( (( (colours[i] >> 5) & 63 )/63.0)*255.0 );
-		true_colours[(i*3)+2] = uchar( (( colours[i] & 31 )/31.0)*255.0 );
-	}
+//	void ComputeXGradientGray8(const unsigned char* src_pixels, ptrdiff_t src_row_bytes, int w, int h,
+//	                                   signed char* dst_pixels, ptrdiff_t dst_row_bytes) {
+//		gray8c_view_t src = boost::gil::interleaved_view(width, height, (const gray8_pixel_t*)src_pixels, width * sizeof(unsigned short) );
+
+	UnitSyncImage minimap(width, height);
+
+	typedef boost::gil::iterator_type_from_pixel< UnitSyncPixelType >::type Iter;
+
+	BOOST_AUTO( view, boost::gil::interleaved_view(width, height, (UnitSyncPixelType*) colours, width * 3 * sizeof(unsigned short)) );
+//	boost::gil::copy_pixels(Tview, minimap);
+
+//	uchar* true_colours = minimap.GetData();
+
+//	for ( int i = 0; i < width*height; i++ ) {
+//		true_colours[(i*3)  ] = uchar( (( colours[i] >> 11 )/31.0)*255.0 );
+//		true_colours[(i*3)+1] = uchar( (( (colours[i] >> 5) & 63 )/63.0)*255.0 );
+//		true_colours[(i*3)+2] = uchar( (( colours[i] & 31 )/31.0)*255.0 );
+//	}
 
 	return minimap;
 }
@@ -767,6 +780,7 @@ UnitSyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 
 	typedef unsigned char uchar;
 	UnitSyncImage metalmap(width, height, false);
+#if 0
 	uninitialized_array<uchar> grayscale(width * height);
 	uchar* true_colours = metalmap.GetData();
 
@@ -779,7 +793,7 @@ UnitSyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 		true_colours[(i*3)+1] = grayscale[i];
 		true_colours[(i*3)+2] = 0;
 	}
-
+#endif
 	return metalmap;
 }
 
@@ -799,6 +813,7 @@ UnitSyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 	typedef unsigned char uchar;
 	typedef unsigned short ushort;
 	UnitSyncImage heightmap(width, height, false);
+#if 0
 	uninitialized_array<ushort> grayscale(width * height);
 	uchar* true_colours = heightmap.GetData();
 
@@ -847,7 +862,7 @@ UnitSyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 		for ( int j = 0; j < 3; ++j)
 			true_colours[(i*3)+j] = (points[idx1][j] * (255 - t) + points[idx2][j] * t) / 255;
 	}
-
+#endif
 	return heightmap;
 }
 
@@ -1705,7 +1720,7 @@ std::string SpringUnitSyncLib::GetKeyValue( int key, const std::string& defval )
 {
 	InitLib( m_parser_int_key_get_string_value );
 
-	return m_parser_int_key_get_string_value( key, defval.c_str() ) );
+	return m_parser_int_key_get_string_value( key, defval.c_str() );
 }
 
 float SpringUnitSyncLib::GetKeyValue( int key, float defval )

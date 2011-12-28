@@ -46,7 +46,18 @@ struct SpringMapInfo
   char* author;
 };
 
-typedef boost::gil::packed_image3_type<unsigned short, 5,6,5, boost::gil::rgb_layout_t>::type UnitSyncImage;
+template <typename BitField, typename ChannelBitSizeVector, typename Layout, typename Alloc=std::allocator<unsigned char> >
+struct my_packed_image_type {
+	typedef typename boost::gil::packed_pixel_type<BitField,ChannelBitSizeVector,Layout> PixelType;
+	typedef boost::gil::image<typename PixelType::type,false,Alloc> type;
+};
+template <typename BitField, unsigned Size1, unsigned Size2, unsigned Size3, typename Layout, typename Alloc=std::allocator<unsigned char> >
+struct my_packed_image3_type : public my_packed_image_type<BitField, boost::mpl::vector3_c<unsigned, Size1, Size2, Size3>, Layout, Alloc> {};
+
+typedef my_packed_image3_type<unsigned short, 5,6,5, boost::gil::rgb_layout_t, std::allocator<unsigned short>  >
+	my_packed_type;
+typedef my_packed_type::type UnitSyncImage;
+typedef my_packed_type::PixelType UnitSyncPixelType;
 
 
 /**
@@ -105,7 +116,7 @@ class SpringUnitSyncLib : public boost::noncopyable
      */
     std::vector<std::string> GetUnitsyncErrors() const;
 
-    bool VersionSupports( LSL::GameFeature feature ) const;
+	bool VersionSupports( LSL::GameFeature feature ) const;
 
 
     int GetModIndex( const std::string& name );
@@ -134,7 +145,7 @@ class SpringUnitSyncLib : public boost::noncopyable
     std::string GetMapArchiveName( int arnr );
 
     typedef std::vector< std::string >
-        StringVector;
+		StringVector;
     StringVector GetMapDeps( int index );
 
     /**
