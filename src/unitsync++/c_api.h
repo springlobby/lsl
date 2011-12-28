@@ -18,7 +18,7 @@ namespace extensions {
 }
 }
 
-namespace LUS {
+namespace LSL {
 
 static const unsigned int MapInfoMaxStartPositions = 16;
 
@@ -105,7 +105,7 @@ class SpringUnitSyncLib : public boost::noncopyable
      */
     std::vector<std::string> GetUnitsyncErrors() const;
 
-    bool VersionSupports( LUS::GameFeature feature ) const;
+    bool VersionSupports( LSL::GameFeature feature ) const;
 
 
     int GetModIndex( const std::string& name );
@@ -542,7 +542,7 @@ class SpringUnitSyncLib : public boost::noncopyable
     /*@}*/
 };
 
-} // namespace LUS
+} // namespace LSL
 #endif //SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
 
 /**

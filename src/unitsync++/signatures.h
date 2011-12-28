@@ -14,7 +14,7 @@
 
 #include <boost/function.hpp>
 
-namespace LUS {
+namespace LSL {
 
 struct SpringMapInfo;
 
@@ -205,6 +205,6 @@ typedef boost::function< const char* (const char*, const char*) > lpGetStrKeyStr
 /** @} */
 
 
-}
+} //namespace LSL
 
 #endif // LSL_SIGNATURES_H

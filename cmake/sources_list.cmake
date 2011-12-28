@@ -21,7 +21,10 @@ SET(libUnitsync++Src
 # 	src/unitsync++/unitsync.cpp
 # 	src/unitsync++/thread.cpp 
 	)
-
+SET(commonSrc
+	src/utils/misc.cpp 
+	)
+	
 SET(basic_testSrc
 	test/basic.cpp test/usync.cpp)
 	

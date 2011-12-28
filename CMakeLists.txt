@@ -84,8 +84,8 @@ cmake_policy(SET CMP0004 OLD)
 #ignore warnings about macosx app bundle output dir
 cmake_policy(SET CMP0006 OLD)
 
-ADD_LIBRARY(libSpringLobby STATIC ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE})
-ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} )
+ADD_LIBRARY(libSpringLobby STATIC ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE} ${commonSrc})
+ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} ${commonSrc} )
 ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
 ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/test/swig.cpp )
 
