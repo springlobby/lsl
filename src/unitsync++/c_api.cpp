@@ -26,16 +26,17 @@
 #define UNITSYNC_EXCEPTION(cond,msg) do { if(!(cond))\
 	LSL_THROW(unitsync,msg); } while(0)
 
+#define CHECK_FUNCTION( arg ) \
+	do { if ( !(arg) ) LSL_THROW( function_missing, "arg" ); } while (0)
+
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
 //! Macro that checks if a function is present/loaded, unitsync is loaded, and locks it on call.
 #define InitLib( arg ) \
 	LOCK_UNITSYNC; \
 	UNITSYNC_EXCEPTION( m_loaded, "Unitsync not loaded."); \
-	UNITSYNC_EXCEPTION( arg, "Function was not in unitsync library.");
+	CHECK_FUNCTION( arg );
 
-#define CHECK_FUNCTION( arg ) \
-	do { if ( !(arg) ) LSL_THROW( function_missing, "arg" ); } while (0)
 
 namespace LSL {
 
@@ -366,15 +367,14 @@ void SpringUnitSyncLib::_Load( const std::string& path )
 		// only when we end up here unitsync was succesfully loaded.
 		m_loaded = true;
 	}
-	catch ( ... )
+	catch ( std::exception& e )
 	{
 		// don't uninit unitsync in _Unload -- it hasn't been init'ed yet
 		m_uninit = NULL;
 		_Unload();
-		LSL_THROW( unitsync, "Failed to load Unitsync lib.");
+		LSL_THROW( unitsync, e.what() );
 	}
 }
-
 
 void SpringUnitSyncLib::_Init()
 {
@@ -382,14 +382,11 @@ void SpringUnitSyncLib::_Init()
 	{
 		m_current_mod = std::string();
 		m_init( true, 1 );
-
-		BOOST_FOREACH( const std::string error, GetUnitsyncErrors() )
-		{
+		BOOST_FOREACH( const std::string error, GetUnitsyncErrors() ) {
 			LslError( "%s", error.c_str() );
 		}
 	}
 }
-
 
 void SpringUnitSyncLib::_RemoveAllArchives()
 {
@@ -399,15 +396,12 @@ void SpringUnitSyncLib::_RemoveAllArchives()
 		_Init();
 }
 
-
 void SpringUnitSyncLib::Unload()
 {
 	if ( !_IsLoaded() ) return;// dont even lock anything if unloaded.
 	LOCK_UNITSYNC;
-
 	_Unload();
 }
-
 
 void SpringUnitSyncLib::_Unload()
 {
@@ -429,18 +423,15 @@ void SpringUnitSyncLib::_Unload()
 	m_uninit = NULL;
 }
 
-
 bool SpringUnitSyncLib::IsLoaded() const
 {
 	return m_loaded;
 }
 
-
 bool SpringUnitSyncLib::_IsLoaded() const
 {
 	return m_loaded;
 }
-
 
 void SpringUnitSyncLib::AssertUnitsyncOk() const
 {
@@ -448,7 +439,6 @@ void SpringUnitSyncLib::AssertUnitsyncOk() const
 	UNITSYNC_EXCEPTION( m_get_next_error, "Function was not in unitsync library.");
 	UNITSYNC_EXCEPTION( false, m_get_next_error() );
 }
-
 
 std::vector<std::string> SpringUnitSyncLib::GetUnitsyncErrors() const
 {
@@ -473,11 +463,9 @@ std::vector<std::string> SpringUnitSyncLib::GetUnitsyncErrors() const
 	}
 }
 
-
 bool SpringUnitSyncLib::VersionSupports( LSL::GameFeature feature ) const
 {
 	LOCK_UNITSYNC;
-
 	switch (feature)
 	{
 		case LSL::USYNC_Sett_Handler: return m_set_spring_config_string;
@@ -503,7 +491,6 @@ void SpringUnitSyncLib::_ConvertSpringMapInfo( const SpringMapInfo& in, MapInfo&
 	out.positions = std::vector<StartPos>( in.positions, in.positions + in.posCount );
 }
 
-
 void SpringUnitSyncLib::SetCurrentMod( const std::string& modname )
 {
 	InitLib( m_init ); // assumes the others are fine
@@ -511,7 +498,6 @@ void SpringUnitSyncLib::SetCurrentMod( const std::string& modname )
 
 	_SetCurrentMod( modname );
 }
-
 
 void SpringUnitSyncLib::_SetCurrentMod( const std::string& modname )
 {
@@ -523,7 +509,6 @@ void SpringUnitSyncLib::_SetCurrentMod( const std::string& modname )
 	}
 }
 
-
 void SpringUnitSyncLib::UnSetCurrentMod( )
 {
 	LOCK_UNITSYNC;
@@ -531,12 +516,10 @@ void SpringUnitSyncLib::UnSetCurrentMod( )
 	m_current_mod = std::string();
 }
 
-
 int SpringUnitSyncLib::GetModIndex( const std::string& name )
 {
 	return GetPrimaryModIndex( name );
 }
-
 
 std::map<std::string, std::string> SpringUnitSyncLib::GetSpringVersionList(const std::map<std::string, std::string>& usync_paths)
 {
@@ -585,78 +568,62 @@ std::map<std::string, std::string> SpringUnitSyncLib::GetSpringVersionList(const
 std::string SpringUnitSyncLib::GetSpringVersion()
 {
 	InitLib( m_get_spring_version );
-
 	return m_get_spring_version();
 }
 
 std::string SpringUnitSyncLib::GetSpringDataDir()
 {
 	InitLib( m_get_writeable_data_dir );
-
 	return m_get_writeable_data_dir();
 }
 
 int SpringUnitSyncLib::GetSpringDataDirCount()
 {
 	InitLib( m_get_data_dir_count);
-
 	return m_get_data_dir_count();
 }
 
 std::string SpringUnitSyncLib::GetSpringDataDirByIndex( const int index )
 {
 	InitLib( m_get_data_dir_by_index );
-
 	return m_get_data_dir_by_index( index );
 }
 
 std::string SpringUnitSyncLib::GetConfigFilePath()
 {
 	InitLib( m_get_spring_config_file_path );
-
 	return m_get_spring_config_file_path();
 }
-
 
 int SpringUnitSyncLib::GetMapCount()
 {
 	InitLib( m_get_map_count );
-
 	return m_get_map_count();
 }
-
 
 std::string SpringUnitSyncLib::GetMapChecksum( int index )
 {
 	InitLib( m_get_map_checksum );
-
 	return Util::ToString( (unsigned int)m_get_map_checksum( index ) );
 }
-
 
 std::string SpringUnitSyncLib::GetMapName( int index )
 {
 	InitLib( m_get_map_name );
-
 	return m_get_map_name( index );
 }
-
 
 int SpringUnitSyncLib::GetMapArchiveCount( int index )
 {
 	InitLib( m_get_map_archive_count );
-
 	return m_get_map_archive_count( m_get_map_name( index ) );
 }
-
 
 std::string SpringUnitSyncLib::GetMapArchiveName( int arnr )
 {
 	InitLib( m_get_map_archive_name );
-
 	return m_get_map_archive_name( arnr );
 }
-
 
 SpringUnitSyncLib::StringVector SpringUnitSyncLib::GetMapDeps( int index )
 {
@@ -668,7 +635,6 @@ SpringUnitSyncLib::StringVector SpringUnitSyncLib::GetMapDeps( int index )
 	}
 	return ret;
 }
-
 
 MapInfo SpringUnitSyncLib::GetMapInfoEx( int index, int version )
 {
@@ -682,7 +648,6 @@ MapInfo SpringUnitSyncLib::GetMapInfoEx( int index, int version )
 		char tmpauth[256];
 
 		MapInfo info;
-
 		SpringMapInfo tm;
 		tm.description = &tmpdesc[0];
 		tm.author = &tmpauth[0];
@@ -696,8 +661,7 @@ MapInfo SpringUnitSyncLib::GetMapInfoEx( int index, int version )
 		// new fetch method
 		InitLib( m_get_map_description )
 
-				MapInfo info;
-
+		MapInfo info;
 		info.description = m_get_map_description( index);
 		info.tidalStrength = m_get_map_tidalStrength(index);
 		info.gravity = m_get_map_gravity(index);
@@ -729,7 +693,6 @@ MapInfo SpringUnitSyncLib::GetMapInfoEx( int index, int version )
 	}
 }
 
-
 UnitsyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 {
 	InitLib( m_get_minimap );
@@ -742,7 +705,6 @@ UnitsyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 		LSL_THROW( unitsync, "Get minimap failed");
 	return UnitsyncImage::FromMinimapData( colours, width, height );
 }
-
 
 UnitsyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 {
@@ -758,7 +720,6 @@ UnitsyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 	return UnitsyncImage::FromMetalmapData(grayscale, width, height);
 }
 
-
 UnitsyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 {
 	InitLib( m_get_infomap_size ); // assume GetInfoMap is available too
@@ -773,142 +734,110 @@ UnitsyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 	return UnitsyncImage::FromHeightmapData( grayscale, width, height );
 }
 
-
 std::string SpringUnitSyncLib::GetPrimaryModChecksum( int index )
 {
 	InitLib( m_get_mod_checksum );
 	return Util::ToString( (unsigned int)m_get_mod_checksum( index ) );
 }
 
-
 int SpringUnitSyncLib::GetPrimaryModIndex( const std::string& modName )
 {
 	InitLib( m_get_mod_index );
-
 	return m_get_mod_index( modName.c_str() );
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModName( int index )
 {
 	InitLib( m_get_mod_name );
-
 	return m_get_mod_name( index );
 }
-
 
 int SpringUnitSyncLib::GetPrimaryModCount()
 {
 	InitLib( m_get_mod_count );
-
 	return m_get_mod_count();
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModArchive( int index )
 {
 	InitLib( m_get_mod_archive );
 	if (!m_get_mod_count)
 		LSL_THROW( unitsync, "Function was not in unitsync library.");
-
 	int count = m_get_mod_count();
 	if (index >= count)
 		LSL_THROW( unitsync, "index out of bounds");
 	return m_get_mod_archive( index );
 }
 
-
 std::string SpringUnitSyncLib::GetPrimaryModShortName( int index )
 {
 	InitLib( m_get_primary_mod_short_name );
-
 	return m_get_primary_mod_short_name( index );
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModVersion( int index )
 {
 	InitLib( m_get_primary_mod_version );
-
 	return m_get_primary_mod_version( index );
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModMutator( int index )
 {
 	InitLib( m_get_primary_mod_mutator );
-
 	return m_get_primary_mod_mutator( index );
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModGame( int index )
 {
 	InitLib( m_get_primary_mod_game );
-
 	return m_get_primary_mod_game( index );
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModShortGame( int index )
 {
 	InitLib( m_get_primary_mod_short_game );
-
 	return m_get_primary_mod_short_game( index );
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModDescription( int index )
 {
 	InitLib( m_get_primary_mod_description );
-
 	return m_get_primary_mod_description( index );
 }
-
 
 int SpringUnitSyncLib::GetPrimaryModArchiveCount( int index )
 {
 	InitLib( m_get_primary_mod_archive_count );
-
 	return m_get_primary_mod_archive_count( index );
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModArchiveList( int arnr )
 {
 	InitLib( m_get_primary_mod_archive_list );
-
 	return m_get_primary_mod_archive_list( arnr );
 }
-
 
 std::string SpringUnitSyncLib::GetPrimaryModChecksumFromName( const std::string& name )
 {
 	InitLib( m_get_primary_mod_checksum_from_name );
-
 	return Util::ToString( (unsigned int)m_get_primary_mod_checksum_from_name( name.c_str() ) );
 }
-
 
 SpringUnitSyncLib::StringVector SpringUnitSyncLib::GetModDeps( int index )
 {
 	int count = GetPrimaryModArchiveCount( index );
 	StringVector ret;
 	for ( int i = 0; i < count; i++ )
-	{
 		ret.push_back( GetPrimaryModArchiveList( i ) );
-	}
 	return ret;
 }
-
 
 SpringUnitSyncLib::StringVector SpringUnitSyncLib::GetSides( const std::string& modName )
 {
 	InitLib( m_get_side_count );
 	if (!m_get_side_name)
 		LSL_THROW( function_missing, "m_get_side_name");
-
-			_SetCurrentMod( modName );
+	_SetCurrentMod( modName );
 	int count = m_get_side_count();
 	StringVector ret;
 	for ( int i = 0; i < count; i ++ )
@@ -916,46 +845,35 @@ SpringUnitSyncLib::StringVector SpringUnitSyncLib::GetSides( const std::string& 
 	return ret;
 }
 
-
 void SpringUnitSyncLib::AddAllArchives( const std::string& root )
 {
 	InitLib( m_add_all_archives );
-
 	m_add_all_archives( root.c_str() );
 }
-
 
 std::string SpringUnitSyncLib::GetFullUnitName( int index )
 {
 	InitLib( m_get_unit_full_name );
-
 	return m_get_unit_full_name( index );
 }
-
 
 std::string SpringUnitSyncLib::GetUnitName( int index )
 {
 	InitLib( m_get_unit_name );
-
 	return m_get_unit_name( index );
 }
-
 
 int SpringUnitSyncLib::GetUnitCount()
 {
 	InitLib( m_get_unit_count );
-
 	return m_get_unit_count();
 }
-
 
 int SpringUnitSyncLib::ProcessUnitsNoChecksum()
 {
 	InitLib( m_proc_units_nocheck );
-
 	return m_proc_units_nocheck();
 }
-
 
 SpringUnitSyncLib::StringVector SpringUnitSyncLib::FindFilesVFS( const std::string& name )
 {
@@ -976,86 +894,67 @@ SpringUnitSyncLib::StringVector SpringUnitSyncLib::FindFilesVFS( const std::stri
 	return ret;
 }
 
-
 int SpringUnitSyncLib::OpenFileVFS( const std::string& name )
 {
 	InitLib( m_open_file_vfs );
-
 	return m_open_file_vfs( name.c_str() );
 }
-
 
 int SpringUnitSyncLib::FileSizeVFS( int handle )
 {
 	InitLib( m_file_size_vfs );
-
 	return m_file_size_vfs( handle );
 }
-
 
 int SpringUnitSyncLib::ReadFileVFS( int handle, void* buffer, int bufferLength )
 {
 	InitLib( m_read_file_vfs );
-
 	return m_read_file_vfs( handle, buffer, bufferLength );
 }
-
 
 void SpringUnitSyncLib::CloseFileVFS( int handle )
 {
 	InitLib( m_close_file_vfs );
-
 	m_close_file_vfs( handle );
 }
-
 
 int SpringUnitSyncLib::GetLuaAICount( const std::string& modname )
 {
 	InitLib( m_get_luaai_count );
-
 	_SetCurrentMod( modname );
 	return m_get_luaai_count();
 }
 
-
 std::string SpringUnitSyncLib::GetLuaAIName( int aiIndex )
 {
 	InitLib( m_get_luaai_name );
-
 	return m_get_luaai_name( aiIndex );
 }
-
 
 std::string SpringUnitSyncLib::GetLuaAIDesc( int aiIndex )
 {
 	InitLib( m_get_luaai_desc );
-
 	return m_get_luaai_desc( aiIndex );
 }
 
 unsigned int SpringUnitSyncLib::GetValidMapCount( const std::string& modname )
 {
 	InitLib( m_get_mod_valid_map_count );
-
 	_SetCurrentMod( modname );
 	return m_get_mod_valid_map_count();
 }
 
-
 std::string SpringUnitSyncLib::GetValidMapName( unsigned int MapIndex )
 {
 	InitLib( m_get_valid_map );
-
 	return m_get_valid_map( MapIndex );
 }
-
 
 int SpringUnitSyncLib::GetMapOptionCount( const std::string& name )
 {
 	InitLib( m_get_map_option_count );
 	if (name.empty())
 		LSL_THROW( unitsync, "tried to pass empty mapname to unitsync");
-
 	return m_get_map_option_count( name.c_str() );
 }
 
@@ -1069,279 +968,213 @@ int SpringUnitSyncLib::GetCustomOptionCount( const std::string& archive_name, co
 	return m_get_custom_option_count( filename.c_str() );
 }
 
-
 int SpringUnitSyncLib::GetModOptionCount( const std::string& name )
 {
 	InitLib( m_get_mod_option_count );
 	if (name.empty())
 		LSL_THROW( unitsync, "tried to pass empty modname to unitsync");
-
 	_SetCurrentMod( name );
 	return m_get_mod_option_count();
 }
-
 
 int SpringUnitSyncLib::GetAIOptionCount( const std::string& modname, int aiIndex )
 {
 	InitLib( m_get_skirmish_ai_option_count );
 	_SetCurrentMod( modname );
 	CHECK_FUNCTION( m_get_skirmish_ai_count );
-
 	if ( !(( aiIndex >= 0 ) && ( aiIndex < m_get_skirmish_ai_count() )) )
 		LSL_THROW( unitsync, "aiIndex out of bounds");
-
 	return m_get_skirmish_ai_option_count( aiIndex );
 }
-
 
 std::string SpringUnitSyncLib::GetOptionKey( int optIndex )
 {
 	InitLib( m_get_option_key );
-
 	return m_get_option_key( optIndex );
 }
-
 
 std::string SpringUnitSyncLib::GetOptionName( int optIndex )
 {
 	InitLib( m_get_option_name );
-
 	return m_get_option_name( optIndex );
 }
-
 
 std::string SpringUnitSyncLib::GetOptionDesc( int optIndex )
 {
 	InitLib( m_get_option_desc );
-
 	return m_get_option_desc( optIndex );
 }
 
 std::string SpringUnitSyncLib::GetOptionSection( int optIndex )
 {
 	InitLib( m_get_option_section );
-
 	return m_get_option_section( optIndex );
 }
 
 std::string SpringUnitSyncLib::GetOptionStyle( int optIndex )
 {
 	InitLib( m_get_option_style );
-
 	return m_get_option_style( optIndex );
 }
-
 
 int SpringUnitSyncLib::GetOptionType( int optIndex )
 {
 	InitLib( m_get_option_type );
-
 	return m_get_option_type( optIndex );
 }
-
 
 int SpringUnitSyncLib::GetOptionBoolDef( int optIndex )
 {
 	InitLib( m_get_option_bool_def );
-
 	return m_get_option_bool_def( optIndex );
 }
-
 
 float SpringUnitSyncLib::GetOptionNumberDef( int optIndex )
 {
 	InitLib( m_get_option_number_def );
-
 	return m_get_option_number_def( optIndex );
 }
-
 
 float SpringUnitSyncLib::GetOptionNumberMin( int optIndex )
 {
 	InitLib( m_get_option_number_min );
-
 	return m_get_option_number_min( optIndex );
 }
-
 
 float SpringUnitSyncLib::GetOptionNumberMax( int optIndex )
 {
 	InitLib( m_get_option_number_max );
-
 	return m_get_option_number_max( optIndex );
 }
-
 
 float SpringUnitSyncLib::GetOptionNumberStep( int optIndex )
 {
 	InitLib( m_get_option_number_step );
-
 	return m_get_option_number_step( optIndex );
 }
-
 
 std::string SpringUnitSyncLib::GetOptionStringDef( int optIndex )
 {
 	InitLib( m_get_option_string_def );
-
 	return m_get_option_string_def( optIndex );
 }
-
 
 int SpringUnitSyncLib::GetOptionStringMaxLen( int optIndex )
 {
 	InitLib( m_get_option_string_max_len );
-
 	return m_get_option_string_max_len( optIndex );
 }
-
 
 int SpringUnitSyncLib::GetOptionListCount( int optIndex )
 {
 	InitLib( m_get_option_list_count );
-
 	return m_get_option_list_count( optIndex );
 }
-
 
 std::string SpringUnitSyncLib::GetOptionListDef( int optIndex )
 {
 	InitLib( m_get_option_list_def );
-
 	return m_get_option_list_def( optIndex );
 }
-
 
 std::string SpringUnitSyncLib::GetOptionListItemKey( int optIndex, int itemIndex )
 {
 	InitLib( m_get_option_list_item_key );
-
 	return m_get_option_list_item_key( optIndex, itemIndex  );
 }
-
 
 std::string SpringUnitSyncLib::GetOptionListItemName( int optIndex, int itemIndex )
 {
 	InitLib( m_get_option_list_item_name );
-
 	return m_get_option_list_item_name( optIndex, itemIndex  );
 }
-
 
 std::string SpringUnitSyncLib::GetOptionListItemDesc( int optIndex, int itemIndex )
 {
 	InitLib( m_get_option_list_item_desc );
-
 	return m_get_option_list_item_desc( optIndex, itemIndex  );
 }
-
 
 int SpringUnitSyncLib::OpenArchive( const std::string& name )
 {
 	InitLib( m_open_archive );
-
 	return m_open_archive( name.c_str() );
 }
-
 
 void SpringUnitSyncLib::CloseArchive( int archive )
 {
 	InitLib( m_close_archive );
-
 	m_close_archive( archive );
 }
-
 
 int SpringUnitSyncLib::FindFilesArchive( int archive, int cur, std::string& nameBuf )
 {
 	InitLib( m_find_Files_archive );
-
 	char buffer[1025];
 	int size = 1024;
 	bool ret = m_find_Files_archive( archive, cur, &buffer[0], &size );
 	buffer[1024] = 0;
 	nameBuf = &buffer[0];
-
 	return ret;
 }
-
 
 int SpringUnitSyncLib::OpenArchiveFile( int archive, const std::string& name )
 {
 	InitLib( m_open_archive_file );
-
 	return m_open_archive_file( archive, name.c_str() );
 }
-
 
 int SpringUnitSyncLib::ReadArchiveFile( int archive, int handle, void* buffer, int numBytes)
 {
 	InitLib( m_read_archive_file );
-
 	return m_read_archive_file( archive, handle, buffer, numBytes );
 }
-
 
 void SpringUnitSyncLib::CloseArchiveFile( int archive, int handle )
 {
 	InitLib( m_close_archive_file );
-
 	m_close_archive_file( archive, handle );
 }
-
 
 int SpringUnitSyncLib::SizeArchiveFile( int archive, int handle )
 {
 	InitLib( m_size_archive_file );
-
 	return m_size_archive_file( archive, handle );
 }
-
 
 std::string SpringUnitSyncLib::GetArchivePath( const std::string& name )
 {
 	InitLib( m_get_archive_path );
-
 	return m_get_archive_path( name.c_str() );
 }
-
 
 int SpringUnitSyncLib::GetSpringConfigInt( const std::string& key, int defValue )
 {
 	InitLib( m_get_spring_config_int );
-
 	return m_get_spring_config_int( key.c_str(), defValue );
 }
-
 
 std::string SpringUnitSyncLib::GetSpringConfigString( const std::string& key, const std::string& defValue )
 {
 	InitLib( m_get_spring_config_string );
-
 	return m_get_spring_config_string( key.c_str(), defValue.c_str() );
 }
-
 
 float SpringUnitSyncLib::GetSpringConfigFloat( const std::string& key, const float defValue )
 {
 	InitLib( m_get_spring_config_float );
-
 	return m_get_spring_config_float( key.c_str(), defValue );
 }
-
 
 void SpringUnitSyncLib::SetSpringConfigString( const std::string& key, const std::string& value )
 {
 	InitLib( m_set_spring_config_string );
-
 	m_set_spring_config_string( key.c_str(), value.c_str() );
 }
-
 
 void SpringUnitSyncLib::SetSpringConfigInt( const std::string& key, int value )
 {
 	InitLib( m_set_spring_config_int );
-
 	m_set_spring_config_int( key.c_str(), value );
 }
 
@@ -1353,15 +1186,12 @@ void SpringUnitSyncLib::SetSpringConfigFloat( const std::string& key, const floa
 	m_set_spring_config_float( key.c_str(), value );
 }
 
-
 int SpringUnitSyncLib::GetSkirmishAICount( const std::string& modname )
 {
 	InitLib( m_get_skirmish_ai_count );
 	_SetCurrentMod( modname );
-
 	return m_get_skirmish_ai_count();
 }
-
 
 SpringUnitSyncLib::StringVector SpringUnitSyncLib::GetAIInfo( int aiIndex )
 {
@@ -1396,251 +1226,210 @@ std::string SpringUnitSyncLib::GetArchiveChecksum( const std::string& VFSPath )
 void SpringUnitSyncLib::CloseParser()
 {
 	InitLib( m_parser_close );
-
 	m_parser_close();
 }
 
 bool SpringUnitSyncLib::OpenParserFile( const std::string& filename, const std::string& filemodes, const std::string& accessModes )
 {
 	InitLib( m_parser_open_file );
-
 	return m_parser_open_file( filename.c_str(), filemodes.c_str(), accessModes.c_str() );
 }
 
 bool SpringUnitSyncLib::OpenParserSource( const std::string& source, const std::string& accessModes )
 {
 	InitLib( m_parser_open_source );
-
 	return m_parser_open_source( source.c_str(), accessModes.c_str() );
 }
 
 bool SpringUnitSyncLib::ParserExecute()
 {
 	InitLib( m_parser_execute );
-
 	return m_parser_execute();
 }
 
 std::string SpringUnitSyncLib::ParserErrorLog()
 {
 	InitLib( m_parser_error_log );
-
 	return m_parser_error_log();
 }
-
 
 void SpringUnitSyncLib::ParserAddTable( int key, bool override )
 {
 	InitLib( m_parser_add_table_int );
-
 	m_parser_add_table_int( key, override );
 }
 
 void SpringUnitSyncLib::ParserAddTable( const std::string& key, bool override )
 {
 	InitLib( m_parser_add_table_string );
-
 	m_parser_add_table_string( key.c_str(), override );
 }
 
 void SpringUnitSyncLib::ParserEndTable()
 {
 	InitLib( m_parser_end_table );
-
 	m_parser_end_table();
 }
 
 void SpringUnitSyncLib::ParserAddTableValue( int key, int val )
 {
 	InitLib( m_parser_add_int_key_int_value );
-
 	m_parser_add_int_key_int_value( key, val );
 }
 
 void SpringUnitSyncLib::ParserAddTableValue( const std::string& key, int val )
 {
 	InitLib( m_parser_add_string_key_int_value );
-
 	m_parser_add_string_key_int_value( key.c_str(), val );
 }
 
 void SpringUnitSyncLib::ParserAddTableValue( int key, bool val )
 {
 	InitLib( m_parser_add_int_key_int_value );
-
 	m_parser_add_int_key_int_value( key, val );
 }
 
 void SpringUnitSyncLib::ParserAddTableValue( const std::string& key, bool val )
 {
 	InitLib( m_parser_add_string_key_int_value );
-
 	m_parser_add_string_key_int_value( key.c_str(), val );
 }
 
 void SpringUnitSyncLib::ParserAddTableValue( int key, const std::string& val )
 {
 	InitLib( m_parser_add_int_key_string_value );
-
 	m_parser_add_int_key_string_value( key, val.c_str() );
 }
 
 void SpringUnitSyncLib::ParserAddTableValue( const std::string& key, const std::string& val )
 {
 	InitLib( m_parser_add_string_key_string_value );
-
 	m_parser_add_string_key_string_value( key.c_str(), val.c_str() );
 }
 
 void SpringUnitSyncLib::ParserAddTableValue( int key, float val )
 {
 	InitLib( m_parser_add_int_key_float_value );
-
 	m_parser_add_int_key_float_value( key, val );
 }
 
 void SpringUnitSyncLib::ParserAddTableValue( const std::string& key, float val )
 {
 	InitLib( m_parser_add_string_key_float_value );
-
 	m_parser_add_string_key_float_value( key.c_str(), val );
 }
-
 
 bool SpringUnitSyncLib::ParserGetRootTable()
 {
 	InitLib( m_parser_root_table );
-
 	return m_parser_root_table();
 }
 
 bool SpringUnitSyncLib::ParserGetRootTableExpression( const std::string& exp )
 {
 	InitLib( m_parser_root_table_expression );
-
 	return m_parser_root_table_expression( exp.c_str() );
 }
 
 bool SpringUnitSyncLib::ParserGetSubTableInt( int key )
 {
 	InitLib( m_parser_sub_table_int );
-
 	return m_parser_sub_table_int( key );
 }
 
 bool SpringUnitSyncLib::ParserGetSubTableString( const std::string& key )
 {
 	InitLib( m_parser_sub_table_string );
-
 	return m_parser_sub_table_string( key.c_str() );
 }
 
 bool SpringUnitSyncLib::ParserGetSubTableInt( const std::string& exp )
 {
 	InitLib( m_parser_sub_table_expression );
-
 	return m_parser_sub_table_expression( exp.c_str() );
 }
 
 void SpringUnitSyncLib::ParserPopTable()
 {
 	InitLib( m_parser_pop_table );
-
 	m_parser_pop_table();
 }
-
 
 bool SpringUnitSyncLib::ParserKeyExists( int key )
 {
 	InitLib( m_parser_key_int_exists );
-
 	return m_parser_key_int_exists( key );
 }
 
 bool SpringUnitSyncLib::ParserKeyExists( const std::string& key )
 {
 	InitLib( m_parser_key_string_exists );
-
 	return m_parser_key_string_exists( key.c_str() );
 }
-
 
 int SpringUnitSyncLib::ParserGetKeyType( int key )
 {
 	InitLib( m_parser_int_key_get_type );
-
 	return m_parser_int_key_get_type( key );
 }
 
 int SpringUnitSyncLib::ParserGetKeyType( const std::string& key )
 {
 	InitLib( m_parser_string_key_get_type );
-
 	return m_parser_string_key_get_type( key.c_str() );
 }
-
 
 int SpringUnitSyncLib::ParserGetIntKeyListCount()
 {
 	InitLib( m_parser_int_key_get_list_count );
-
 	return m_parser_int_key_get_list_count();
 }
 
 int SpringUnitSyncLib::ParserGetIntKeyListEntry( int index )
 {
 	InitLib( m_parser_int_key_get_list_entry );
-
 	return m_parser_int_key_get_list_entry( index );
 }
 
 int SpringUnitSyncLib::ParserGetStringKeyListCount()
 {
 	InitLib( m_parser_string_key_get_list_count );
-
 	return m_parser_string_key_get_list_count();
 }
 
 int SpringUnitSyncLib::ParserGetStringKeyListEntry( int index )
 {
 	InitLib( m_parser_int_key_get_list_entry );
-
 	return m_parser_int_key_get_list_entry( index );
 }
-
 
 int SpringUnitSyncLib::GetKeyValue( int key, int defval )
 {
 	InitLib( m_parser_int_key_get_int_value );
-
 	return m_parser_int_key_get_int_value( key, defval );
 }
 
 bool SpringUnitSyncLib::GetKeyValue( int key, bool defval )
 {
 	InitLib( m_parser_int_key_get_bool_value );
-
 	return m_parser_int_key_get_bool_value( key, defval );
 }
 
 std::string SpringUnitSyncLib::GetKeyValue( int key, const std::string& defval )
 {
 	InitLib( m_parser_int_key_get_string_value );
-
 	return m_parser_int_key_get_string_value( key, defval.c_str() );
 }
 
 float SpringUnitSyncLib::GetKeyValue( int key, float defval )
 {
 	InitLib( m_parser_int_key_get_float_value );
-
 	return m_parser_int_key_get_float_value( key, defval );
 }
 
 int SpringUnitSyncLib::GetKeyValue( const std::string& key, int defval )
 {
 	InitLib( m_parser_string_key_get_int_value );
-
 	return m_parser_string_key_get_int_value( key.c_str(), defval );
 }
 
