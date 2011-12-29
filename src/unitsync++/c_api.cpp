@@ -21,7 +21,7 @@
 #include <utils/misc.h>
 #include <utils/debug.h>
 #include <utils/conversion.h>
-
+#include "interleaved_ptr.hpp"
 
 #define UNITSYNC_EXCEPTION(cond,msg) do { if(!(cond))\
 	LSL_THROW(unitsync,msg); } while(0)
@@ -740,7 +740,10 @@ UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 
 	LslDebug( "Minimap: %s", mapFileName.c_str() );
 
+	using namespace boost::gil;
 	// this unitsync call returns a pointer to a static buffer
+	typedef interleaved_ptr<unsigned short*, rgb_layout_t> short_ptr;
+	typedef type_from_x_iterator< short_ptr >::view_t short_ptr_view_t;
 	unsigned short* colours = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
 	if (!colours)
 		LSL_THROW( unitsync, "Get minimap failed");
@@ -752,11 +755,13 @@ UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 //		gray8c_view_t src = boost::gil::interleaved_view(width, height, (const gray8_pixel_t*)src_pixels, width * sizeof(unsigned short) );
 
 	UnitSyncImage minimap(width, height);
+//	typedef packed_image3_type<uint16_t, 7,7,2, bgr_layout_t>::type bgr772_image_t;
+//	    bgr772_image_t bgr772_img(img.dimensions());
+//	    copy_and_convert_pixels(const_view(img),view(bgr772_img));
 
-//	typedef boost::gil::iterator_type_from_pixel< UnitSyncPixelType >::type Iter;
-
-//	BOOST_AUTO( view, );
-//	boost::gil::copy_pixels(Tview, minimap);
+	BOOST_AUTO( const my_view, boost::gil::interleaved_view(width, height, short_ptr(colours), width * sizeof(unsigned char)) );
+	boost::gil::copy_and_convert_pixels(my_view, boost::gil::view(minimap) );
+//	boost::gil::copy_pixels(my_view, boost::gil::view(minimap) );
 
 //	uchar* true_colours = minimap.GetData();
 
@@ -766,8 +771,7 @@ UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 //		true_colours[(i*3)+2] = uchar( (( colours[i] & 31 )/31.0)*255.0 );
 //	}
 
-	boost::gil::png_write_view("/tmp/out.png",
-			boost::gil::interleaved_view(width, height, (const boost::gil::rgb8_pixel_t*)colours, width * 3 * sizeof(unsigned short)) );
+	boost::gil::png_write_view("/tmp/out.png", boost::gil::const_view(minimap));
 	return minimap;
 }
 

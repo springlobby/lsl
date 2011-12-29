@@ -57,12 +57,17 @@ template <typename BitField, unsigned Size1, unsigned Size2, unsigned Size3, typ
 struct my_packed_image3_type : public my_packed_image_type<BitField, boost::mpl::vector3_c<unsigned, Size1, Size2, Size3>, Layout, Alloc> {};
 
 typedef my_packed_image3_type<Bitfield, 5,6,5, boost::gil::rgb_layout_t, std::allocator<Bitfield>  >
-	my_packed_type;
+	my_image_type;
 typedef boost::gil::packed_image3_type<Bitfield, 5,6,5, boost::gil::rgb_layout_t, std::allocator<Bitfield>  >
-	packed_type;
+	image_type;
 
-typedef my_packed_type::type UnitSyncImage;
-typedef my_packed_type::PixelType UnitSyncPixelType;
+typedef boost::gil::packed_pixel_type<uint16_t, boost::mpl::vector3_c<unsigned,5,6,5>, boost::gil::rgb_layout_t>::type rgb565_pixel_t;
+
+
+typedef boost::gil::rgb8_image_t UnitSyncImage;
+typedef
+//my_image_type::PixelType
+rgb565_pixel_t UnitSyncPixelType;
 
 
 /**
