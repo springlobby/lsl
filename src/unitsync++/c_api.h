@@ -9,8 +9,7 @@
 #include <utils/datatypes.h>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/gil/gil_all.hpp>
-
+#include <cimg/CImg.h>
 
 namespace boost {
 namespace extensions {
@@ -46,28 +45,8 @@ struct SpringMapInfo
   char* author;
 };
 
-template <typename BitField, typename ChannelBitSizeVector, typename Layout, typename Alloc=std::allocator<unsigned char> >
-struct my_packed_image_type {
-	typedef typename boost::gil::packed_pixel_type<BitField,ChannelBitSizeVector,Layout>::type PixelType;
-	typedef boost::gil::image<PixelType,false,Alloc> type;
-};
-//typedef unsigned short Bitfield;
-typedef unsigned char Bitfield;
-template <typename BitField, unsigned Size1, unsigned Size2, unsigned Size3, typename Layout, typename Alloc >
-struct my_packed_image3_type : public my_packed_image_type<BitField, boost::mpl::vector3_c<unsigned, Size1, Size2, Size3>, Layout, Alloc> {};
 
-typedef my_packed_image3_type<Bitfield, 5,6,5, boost::gil::rgb_layout_t, std::allocator<Bitfield>  >
-	my_image_type;
-typedef boost::gil::packed_image3_type<Bitfield, 5,6,5, boost::gil::rgb_layout_t, std::allocator<Bitfield>  >
-	image_type;
-
-typedef boost::gil::packed_pixel_type<uint16_t, boost::mpl::vector3_c<unsigned,5,6,5>, boost::gil::rgb_layout_t>::type rgb565_pixel_t;
-
-
-typedef boost::gil::rgb8_image_t UnitSyncImage;
-typedef
-//my_image_type::PixelType
-rgb565_pixel_t UnitSyncPixelType;
+typedef cimg_library::CImg<unsigned short> UnitSyncImage;
 
 
 /**

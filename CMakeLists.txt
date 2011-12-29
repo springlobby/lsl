@@ -36,8 +36,8 @@ endif(NOT DEFINED LIBSPRINGLOBBY_REV)
 INCLUDE(cmake/package_config.cmake)
 INCLUDE(cmake/sources_list.cmake)
 
-# PKG-Config
 FIND_PACKAGE( PkgConfig )
+
 
 #if nothing went wrong we have the file and can define HAVE_CONFIG_H
 IF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${libSpringLobby_SOURCE_DIR}/libSpringLobby_config.h  )
@@ -84,6 +84,10 @@ cmake_policy(SET CMP0004 OLD)
 #ignore warnings about macosx app bundle output dir
 cmake_policy(SET CMP0006 OLD)
 
+#cimage deps
+FIND_PACKAGE( PNG REQUIRED)
+ADD_DEFINITIONS( -Dcimg_use_png )
+
 ADD_LIBRARY(libSpringLobby STATIC ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE} ${commonSrc})
 ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} ${commonSrc} )
 ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
@@ -91,7 +95,10 @@ ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/test/sw
 
 SET( SL_BOOST_LIBS boost_system boost_filesystem )
 TARGET_LINK_LIBRARIES(libSpringLobby ${SL_BOOST_LIBS} )
-TARGET_LINK_LIBRARIES(libUnitsync++ dl ${SL_BOOST_LIBS} png )
+TARGET_LINK_LIBRARIES(libUnitsync++ dl ${SL_BOOST_LIBS}  )
+#cimage deps
+TARGET_LINK_LIBRARIES(libUnitsync++ ${PNG_LIBRARY} X11 )
+
 TARGET_LINK_LIBRARIES(libSpringLobby_test dl libUnitsync++)
 
 IF(MINGW)
