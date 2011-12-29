@@ -9,7 +9,6 @@
 #include <utils/datatypes.h>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
-#include <cimg/CImg.h>
 
 namespace boost {
 namespace extensions {
@@ -18,6 +17,8 @@ namespace extensions {
 }
 
 namespace LSL {
+
+class UnitsyncImage;
 
 static const unsigned int MapInfoMaxStartPositions = 16;
 
@@ -44,10 +45,6 @@ struct SpringMapInfo
 
   char* author;
 };
-
-
-typedef cimg_library::CImg<unsigned short> UnitSyncImage;
-
 
 /**
  * Primitive class handeling the unitsync library.
@@ -148,19 +145,19 @@ class SpringUnitSyncLib : public boost::noncopyable
      * @brief Get minimap.
      * @note Throws assert_exception if unsuccessful.
      */
-    UnitSyncImage GetMinimap( const std::string& mapFileName );
+	UnitsyncImage GetMinimap( const std::string& mapFileName );
 
     /**
      * @brief Get metalmap.
      * @note Throws assert_exception if unsuccessful.
      */
-    UnitSyncImage GetMetalmap( const std::string& mapFileName );
+	UnitsyncImage GetMetalmap( const std::string& mapFileName );
 
     /**
      * @brief Get heightmap.
      * @note Throws assert_exception if unsuccesful.
      */
-    UnitSyncImage GetHeightmap( const std::string& mapFileName );
+	UnitsyncImage GetHeightmap( const std::string& mapFileName );
 
     std::string GetPrimaryModChecksum( int index );
     int GetPrimaryModIndex( const std::string& modName );

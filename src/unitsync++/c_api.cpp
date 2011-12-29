@@ -21,7 +21,7 @@
 #include <utils/misc.h>
 #include <utils/debug.h>
 #include <utils/conversion.h>
-#include "interleaved_ptr.hpp"
+#include "image.h"
 
 #define UNITSYNC_EXCEPTION(cond,msg) do { if(!(cond))\
 	LSL_THROW(unitsync,msg); } while(0)
@@ -730,7 +730,7 @@ MapInfo SpringUnitSyncLib::GetMapInfoEx( int index, int version )
 }
 
 
-UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
+UnitsyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 {
 	InitLib( m_get_minimap );
 
@@ -738,33 +738,33 @@ UnitSyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 	const int width  = 1024 >> miplevel;
 	const int height = 1024 >> miplevel;
 
-	LslDebug( "Minimap: %s", mapFileName.c_str() );
+//	LslDebug( "Minimap: %s", mapFileName.c_str() );
 
-	using namespace boost::gil;
-	// this unitsync call returns a pointer to a static buffer
-	typedef interleaved_ptr<unsigned short*, rgb_layout_t> short_ptr;
-	typedef type_from_x_iterator< short_ptr >::view_t short_ptr_view_t;
-	unsigned short* colours = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
-	if (!colours)
-		LSL_THROW( unitsync, "Get minimap failed");
+//	using namespace boost::gil;
+//	// this unitsync call returns a pointer to a static buffer
+//	typedef interleaved_ptr<unsigned short*, rgb_layout_t> short_ptr;
+//	typedef type_from_x_iterator< short_ptr >::view_t short_ptr_view_t;
+//	unsigned short* colours = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
+//	if (!colours)
+//		LSL_THROW( unitsync, "Get minimap failed");
 
-	typedef unsigned char uchar;
-	UnitSyncImage minimap(colours,width, height);
+//	typedef unsigned char uchar;
+//	UnitsyncImage minimap(colours,width, height);
 
-//	uchar* true_colours = minimap.GetData();
+////	uchar* true_colours = minimap.GetData();
 
-//	for ( int i = 0; i < width*height; i++ ) {
-//		true_colours[(i*3)  ] = uchar( (( colours[i] >> 11 )/31.0)*255.0 );
-//		true_colours[(i*3)+1] = uchar( (( (colours[i] >> 5) & 63 )/63.0)*255.0 );
-//		true_colours[(i*3)+2] = uchar( (( colours[i] & 31 )/31.0)*255.0 );
-//	}
+////	for ( int i = 0; i < width*height; i++ ) {
+////		true_colours[(i*3)  ] = uchar( (( colours[i] >> 11 )/31.0)*255.0 );
+////		true_colours[(i*3)+1] = uchar( (( (colours[i] >> 5) & 63 )/63.0)*255.0 );
+////		true_colours[(i*3)+2] = uchar( (( colours[i] & 31 )/31.0)*255.0 );
+////	}
 
-	minimap.save( "/tmp/out.png" );
-	return minimap;
+//	minimap.save( "/tmp/out.png" );
+//	return minimap;
 }
 
 
-UnitSyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
+UnitsyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 {
 	InitLib( m_get_infomap_size ); // assume GetInfoMap is available too
 
@@ -777,7 +777,7 @@ UnitSyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 		LSL_THROW( unitsync, "Get metalmap size failed");
 
 	typedef unsigned char uchar;
-	UnitSyncImage metalmap(width, height, false);
+	UnitsyncImage metalmap(width, height, false);
 #if 0
 	uninitialized_array<uchar> grayscale(width * height);
 	uchar* true_colours = metalmap.GetData();
@@ -796,7 +796,7 @@ UnitSyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 }
 
 
-UnitSyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
+UnitsyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 {
 	InitLib( m_get_infomap_size ); // assume GetInfoMap is available too
 
@@ -810,7 +810,7 @@ UnitSyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 
 	typedef unsigned char uchar;
 	typedef unsigned short ushort;
-	UnitSyncImage heightmap(width, height, false);
+	UnitsyncImage heightmap(width, height, false);
 #if 0
 	uninitialized_array<ushort> grayscale(width * height);
 	uchar* true_colours = heightmap.GetData();
@@ -843,7 +843,7 @@ UnitSyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 
 	// prevent division by zero -- heightmap wouldn't contain any information anyway
 	if (min == max)
-		return UnitSyncImage( 1, 1 );
+		return UnitsyncImage( 1, 1 );
 
 	// perform the mapping from 16 bit grayscale to 24 bit true colour
 	const double range = max - min + 1;

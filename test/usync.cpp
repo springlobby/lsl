@@ -6,6 +6,6 @@ void dummySync()
 {
 	   LSL::SpringUnitSyncLib s;
 	   s.Load( "/usr/lib/spring/libunitsync.so", "" );
-	   s.GetMinimap( "Alaska" );
+//	   s.GetMinimap( "Alaska" );
 }
 
