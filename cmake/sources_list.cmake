@@ -19,6 +19,7 @@ SET(libSpringLobbySrc
 SET(libUnitsync++Src
 	src/unitsync++/c_api.cpp
 	src/unitsync++/image.cpp
+	src/unitsync++/loader.cpp
 # 	src/unitsync++/unitsync.cpp
 # 	src/unitsync++/thread.cpp 
 	)

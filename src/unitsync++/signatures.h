@@ -3,12 +3,7 @@
 
 #if WIN32
  #define USYNC_CALL_CONV __stdcall
-#elif linux
- #define USYNC_CALL_CONV
-#elif defined(__WXMAC__)
- #define USYNC_CALL_CONV
 #else
- #warning "defaulting to no usync call conv"
  #define USYNC_CALL_CONV
 #endif
 

@@ -19,6 +19,7 @@ namespace extensions {
 namespace LSL {
 
 class UnitsyncImage;
+class UnitsyncFunctionLoader;
 
 static const unsigned int MapInfoMaxStartPositions = 16;
 
@@ -58,8 +59,10 @@ struct SpringMapInfo
  */
 class SpringUnitSyncLib : public boost::noncopyable
 {
-  public:
+	//! we use this to offload the mind numblingly boring pointer loading
+	friend class UnitsyncFunctionLoader;
 
+  public:
     /**
      * Constructor.
      */
@@ -307,7 +310,7 @@ class SpringUnitSyncLib : public boost::noncopyable
     float GetKeyValue( const std::string& key, float defval );
 
 
-  protected:
+  private:
     SpringUnitSyncLib( const SpringUnitSyncLib& );
     //! Keeps track if unitsync is loaded or not.
     bool m_loaded;
