@@ -733,135 +733,44 @@ MapInfo SpringUnitSyncLib::GetMapInfoEx( int index, int version )
 UnitsyncImage SpringUnitSyncLib::GetMinimap( const std::string& mapFileName )
 {
 	InitLib( m_get_minimap );
-
 	const int miplevel = 0;  // miplevel should not be 10 ffs
 	const int width  = 1024 >> miplevel;
 	const int height = 1024 >> miplevel;
-
-//	LslDebug( "Minimap: %s", mapFileName.c_str() );
-
-//	using namespace boost::gil;
-//	// this unitsync call returns a pointer to a static buffer
-//	typedef interleaved_ptr<unsigned short*, rgb_layout_t> short_ptr;
-//	typedef type_from_x_iterator< short_ptr >::view_t short_ptr_view_t;
-//	unsigned short* colours = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
-//	if (!colours)
-//		LSL_THROW( unitsync, "Get minimap failed");
-
-//	typedef unsigned char uchar;
-//	UnitsyncImage minimap(colours,width, height);
-
-////	uchar* true_colours = minimap.GetData();
-
-////	for ( int i = 0; i < width*height; i++ ) {
-////		true_colours[(i*3)  ] = uchar( (( colours[i] >> 11 )/31.0)*255.0 );
-////		true_colours[(i*3)+1] = uchar( (( (colours[i] >> 5) & 63 )/63.0)*255.0 );
-////		true_colours[(i*3)+2] = uchar( (( colours[i] & 31 )/31.0)*255.0 );
-////	}
-
-//	minimap.save( "/tmp/out.png" );
-//	return minimap;
+	// this unitsync call returns a pointer to a static buffer
+	unsigned short* colours = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
+	if (!colours)
+		LSL_THROW( unitsync, "Get minimap failed");
+	return UnitsyncImage::FromMinimapData( colours, width, height );
 }
 
 
 UnitsyncImage SpringUnitSyncLib::GetMetalmap( const std::string& mapFileName )
 {
 	InitLib( m_get_infomap_size ); // assume GetInfoMap is available too
-
-	LslDebug( "Metalmap: %s", mapFileName.c_str() );
-
 	int width = 0, height = 0, retval;
-
 	retval = m_get_infomap_size(mapFileName.c_str(), "metal", &width, &height);
 	if ( !(retval != 0 && width * height != 0) )
 		LSL_THROW( unitsync, "Get metalmap size failed");
-
-	typedef unsigned char uchar;
-	UnitsyncImage metalmap(width, height, false);
-#if 0
-	uninitialized_array<uchar> grayscale(width * height);
-	uchar* true_colours = metalmap.GetData();
-
+	Util::uninitialized_array<unsigned char> grayscale(width * height);
 	retval = m_get_infomap(mapFileName.c_str(), "metal", grayscale, 1 /*byte per pixel*/);
 	if ( retval == 0 )
 		LSL_THROW( unitsync, "Get metalmap failed");
-
-	for ( int i = 0; i < width*height; i++ ) {
-		true_colours[(i*3)  ] = 0;
-		true_colours[(i*3)+1] = grayscale[i];
-		true_colours[(i*3)+2] = 0;
-	}
-#endif
-	return metalmap;
+	return UnitsyncImage::FromMetalmapData(grayscale, width, height);
 }
 
 
 UnitsyncImage SpringUnitSyncLib::GetHeightmap( const std::string& mapFileName )
 {
 	InitLib( m_get_infomap_size ); // assume GetInfoMap is available too
-
-	LslDebug( "Heightmap: %s", mapFileName.c_str() );
-
 	int width = 0, height = 0, retval;
-
 	retval = m_get_infomap_size(mapFileName.c_str(), "height", &width, &height);
 	if ( !(retval != 0 && width * height != 0) )
 		LSL_THROW( unitsync, "Get heightmap size failed");
-
-	typedef unsigned char uchar;
-	typedef unsigned short ushort;
-	UnitsyncImage heightmap(width, height, false);
-#if 0
-	uninitialized_array<ushort> grayscale(width * height);
-	uchar* true_colours = heightmap.GetData();
-
+	Util::uninitialized_array<unsigned short> grayscale(width * height);
 	retval = m_get_infomap(mapFileName.c_str(), "height", grayscale, 2 /*byte per pixel*/);
 	if ( retval == 0 )
 		LSL_THROW( unitsync, "Get heightmap failed");
-
-	// the height is mapped to this "palette" of colors
-	// the colors are linearly interpolated
-
-	const uchar points[][3] = {
-		{   0,   0,   0 },
-		{   0,   0, 255 },
-		{   0, 255, 255 },
-		{   0, 255,   0 },
-		{ 255, 255,   0 },
-		{ 255,   0,   0 },
-	};
-	const int numPoints = sizeof(points) / sizeof(points[0]);
-
-	// find range of values present in the height data returned by unitsync
-	int min = 65536;
-	int max = 0;
-
-	for ( int i = 0; i < width*height; i++ ) {
-		if (grayscale[i] < min) min = grayscale[i];
-		if (grayscale[i] > max) max = grayscale[i];
-	}
-
-	// prevent division by zero -- heightmap wouldn't contain any information anyway
-	if (min == max)
-		return UnitsyncImage( 1, 1 );
-
-	// perform the mapping from 16 bit grayscale to 24 bit true colour
-	const double range = max - min + 1;
-	for ( int i = 0; i < width*height; i++ ) {
-		const double value = (grayscale[i] - min) / (range / (numPoints - 1));
-		const int idx1 = int(value);
-		const int idx2 = idx1 + 1;
-		const int t = int(256.0 * (value - std::floor(value)));
-
-		//assert(idx1 >= 0 && idx1 < numPoints-1);
-		//assert(idx2 >= 1 && idx2 < numPoints);
-		//assert(t >= 0 && t <= 255);
-
-		for ( int j = 0; j < 3; ++j)
-			true_colours[(i*3)+j] = (points[idx1][j] * (255 - t) + points[idx2][j] * t) / 255;
-	}
-#endif
-	return heightmap;
+	return UnitsyncImage::FromHeightmapData( grayscale, width, height );
 }
 
 

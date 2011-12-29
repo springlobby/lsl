@@ -12,17 +12,31 @@ class CImg;
 
 namespace LSL {
 
-typedef cimg_library::CImg<unsigned short> RawImage;
-
+namespace Util {
+template <class T>
+class uninitialized_array;
+}
 /** we use this class mostly to hide the cimg implementation details
- *
+ * \todo decide/implement COW
  */
 class UnitsyncImage
 {
+private:
+    typedef unsigned short
+        RawDataType;
+    typedef cimg_library::CImg<RawDataType>
+        PrivateImageType;
+	typedef boost::shared_ptr<PrivateImageType>
+		PrivateImagePtrType;
 public:
-    UnitsyncImage();
-    UnitsyncImage( int width, int height, bool clear = true ) {}
-    boost::shared_ptr<RawImage> m_data;
+	void Save( const std::string& path ) const;
+	static UnitsyncImage FromMinimapData( const RawDataType* data, int width, int height );
+	static UnitsyncImage FromHeightmapData( const Util::uninitialized_array<unsigned short>& data, int width, int height );
+	static UnitsyncImage FromMetalmapData( const Util::uninitialized_array<unsigned char>& data, int width, int height );
+private:
+    explicit UnitsyncImage( int width, int height );
+	UnitsyncImage( PrivateImagePtrType ptr );
+	PrivateImagePtrType m_data_ptr;
 };
 
 } //namespace LSL
