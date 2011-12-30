@@ -134,7 +134,7 @@ public:
 	std::string GetMapArchiveName( int arnr );
 
 	typedef std::vector< std::string >
-	StringVector;
+		StringVector;
 	StringVector GetMapDeps( int index );
 
 	/**
