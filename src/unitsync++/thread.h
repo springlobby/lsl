@@ -5,6 +5,8 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/noncopyable.hpp>
 
+namespace LSL {
+
 class WorkItemQueue;
 
 
@@ -39,8 +41,10 @@ class WorkItem : public boost::noncopyable
 };
 
 
-/** @brief Priority queue of work items */
-class WorkItemQueue
+/** @brief Priority queue of work items
+ *	this is processed via a boost thread from \ref WorkerThread::operator ()
+ * */
+class WorkItemQueue : public boost::noncopyable
 {
   public:
     /** @brief Push more work onto the queue */
@@ -67,14 +71,19 @@ class WorkerThread
   public:
     /** @brief Adds a new WorkItem to the queue */
     void DoWork(WorkItem* item, int priority = 0, bool toBeDeleted = true);
-    /** @brief Overrides wxThread::Entry, thread entry point */
-    void* Entry();
-
   private:
+	friend class boost::thread;
+	/** @brief thread entry point */
+	void operator()();
     void CleanupWorkItem(WorkItem* item);
 
     WorkItemQueue m_workItems;
+	boost::thread* m_thread;
+	boost::mutex m_mutex;
+	boost::condition_variable m_cond;
 };
+
+} // namespace LSL
 
 #endif // LIBUNITSYNCPP_THREAD_H
 
