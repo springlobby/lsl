@@ -34,15 +34,19 @@ class MostRecentlyUsedCache
 {
 public:
 	//! name parameter might be used to identify stats in dgb output
-	MostRecentlyUsedCache(int max_size, const std::string& name = _T("") )
-		: m_size(0), m_max_size(max_size), m_cache_hits(0), m_cache_misses(0), m_name(name)
+	MostRecentlyUsedCache(int max_size, const std::string& name = "" )
+		: m_size(0),
+		m_max_size(max_size),
+		m_cache_hits(0),
+		m_cache_misses(0),
+		m_name(name)
 	{
 	}
 
 	~MostRecentlyUsedCache()
 	{
-		wxLogDebugFunc( m_name + _T("cache hits: ") + Tostd::string( m_cache_hits ) );
-		wxLogDebugFunc( m_name + _T("cache misses: ") + Tostd::string( m_cache_misses ) );
+		LslDebug( "%s - cache hits: %d", m_name, m_cache_hits );
+		LslDebug( "%s - cache misses: %d", m_name, m_cache_misses );
 	}
 
 	void Add( const TKey& name, const TValue& img )
@@ -103,7 +107,7 @@ class UnitsyncImage;
 class MapInfo;
 typedef MostRecentlyUsedCache<std::string,UnitsyncImage> MostRecentlyUsedImageCache;
 typedef MostRecentlyUsedCache<std::string,MapInfo> MostRecentlyUsedMapInfoCache;
-typedef MostRecentlyUsedCache<std::string,StringVector> MostRecentlyUsedArrayStringCache;
+typedef MostRecentlyUsedCache<std::string,std::vector<std::string> > MostRecentlyUsedArrayStringCache;
 
 } // namespace LSL
 

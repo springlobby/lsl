@@ -6,14 +6,14 @@
 #include "data.h"
 #include "mru_cache.h"
 
+#include <boost/thread/mutex.hpp>
 #include <map>
 
-class wxImage;
+namespace LSL {
 
+class UnitsyncImage;
 extern const wxEventType UnitSyncAsyncOperationCompletedEvt;
 struct GameOptions;
-class wxDynamicLibrary;
-class wxImage;
 struct CachedMapInfo;
 struct SpringMapInfo;
 class SpringUnitSyncLib;
@@ -31,7 +31,7 @@ class EvtHandlerCollection
   private:
     typedef std::map<int, wxEvtHandler*> EvtHandlerMap;
 
-    mutable wxCriticalSection m_lock;
+	boost::mutex m_lock;
     EvtHandlerMap m_items;
     int m_last_id;
 };
@@ -40,8 +40,9 @@ class SpringUnitSync
 {
 private:
 	SpringUnitSync();
-	friend class GlobalObjectHolder<SpringUnitSync, LineInfo<SpringUnitSync> >;
 
+	typedef std::vector< std::string >
+		StringVector;
 public:
 	virtual ~SpringUnitSync();
 
@@ -90,19 +91,16 @@ public:
     StringVector GetMapDeps( const std::string& name );
 
     //! function to fetch default singplayer/replay/savegame's default nick
-		std::string GetDefaultNick();
-		//! function to set default singplayer/replay/savegame's default nick
-		void SetDefaultNick( const std::string& nick );
+	std::string GetDefaultNick();
+	//! function to set default singplayer/replay/savegame's default nick
+	void SetDefaultNick( const std::string& nick );
 	//! this functions returns index CUSTOM ALPHBETICALLY SORTED, DO NOT USE TO ACCESS UNITSYNC DIRECTLY
 	//! use m_unsorted_map_array for real unitsync index
 	int GetMapIndex( const std::string& name ) const;
 
     StringVector GetSides( const std::string& modname  );
-	wxImage GetSidePicture( const std::string& modname, const std::string& SideName ) const;
-	wxImage GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent = true ) const;
-#ifdef SL_QT_MODE
-	QImage GetQImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent = true ) const;
-#endif
+	UnitsyncImage GetSidePicture( const std::string& modname, const std::string& SideName ) const;
+	UnitsyncImage GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent = true ) const;
 
     bool LoadUnitSyncLib( const std::string& unitsyncloc );
     void FreeUnitSyncLib();
@@ -124,22 +122,22 @@ public:
     StringVector GetUnitsList( const std::string& modname );
 
     /// get minimap with native width x height
-    wxImage GetMinimap( const std::string& mapname );
+    UnitsyncImage GetMinimap( const std::string& mapname );
     /// get minimap rescaled to given width x height
-    wxImage GetMinimap( const std::string& mapname, int width, int height );
+    UnitsyncImage GetMinimap( const std::string& mapname, int width, int height );
     /// get metalmap with native width x height
-    wxImage GetMetalmap( const std::string& mapname );
+    UnitsyncImage GetMetalmap( const std::string& mapname );
     /// get metalmap rescaled to given width x height
-    wxImage GetMetalmap( const std::string& mapname, int width, int height );
+    UnitsyncImage GetMetalmap( const std::string& mapname, int width, int height );
     /// get heightmap with native width x height
-    wxImage GetHeightmap( const std::string& mapname );
+    UnitsyncImage GetHeightmap( const std::string& mapname );
     /// get heightmap rescaled to given width x height
-    wxImage GetHeightmap( const std::string& mapname, int width, int height );
+    UnitsyncImage GetHeightmap( const std::string& mapname, int width, int height );
 
 	std::string GetTextfileAsString( const std::string& modname, const std::string& file_path );
 
 	bool ReloadUnitSyncLib(  );
-	void ReloadUnitSyncLib( GlobalEvents::GlobalEventData /*data*/ ) { ReloadUnitSyncLib(); }
+//	void ReloadUnitSyncLib( GlobalEvents::GlobalEventData /*data*/ ) { ReloadUnitSyncLib(); }
 	bool FastLoadUnitSyncLib( const std::string& unitsyncloc );
 	bool FastLoadUnitSyncLibInit();
 
@@ -196,7 +194,7 @@ public:
     /// WorkerThread operation... cache is invalidated on reload.
     std::string m_cache_path;
 
-    mutable wxCriticalSection m_lock;
+	mutable boost::mutex m_lock;
 	WorkerThread* m_cache_thread;
     EvtHandlerCollection m_evt_handlers;
 
@@ -227,10 +225,10 @@ public:
 
     void PopulateArchiveList();
 
-    wxImage _GetMapImage( const std::string& mapname, const std::string& imagename, wxImage (SpringUnitSyncLib::*loadMethod)(const std::string&) );
-    wxImage _GetScaledMapImage( const std::string& mapname, wxImage (SpringUnitSync::*loadMethod)(const std::string&), int width, int height );
+    UnitsyncImage _GetMapImage( const std::string& mapname, const std::string& imagename, UnitsyncImage (SpringUnitSyncLib::*loadMethod)(const std::string&) );
+    UnitsyncImage _GetScaledMapImage( const std::string& mapname, UnitsyncImage (SpringUnitSync::*loadMethod)(const std::string&), int width, int height );
 
-    void _GetMapImageAsync( const std::string& mapname, wxImage (SpringUnitSync::*loadMethod)(const std::string&), int evtHandlerId );
+    void _GetMapImageAsync( const std::string& mapname, UnitsyncImage (SpringUnitSync::*loadMethod)(const std::string&), int evtHandlerId );
 
 public:
 	std::string GetNameForShortname( const std::string& shortname, const std::string& version ) const;
@@ -270,6 +268,7 @@ class UnitSyncAsyncOps
 	int m_id;
 };
 
+// namespace LSL
 
 #endif // SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_H
 
