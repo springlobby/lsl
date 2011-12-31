@@ -68,6 +68,12 @@ void WorkerThread::DoWork( WorkItem* item, int priority, bool toBeDeleted )
     m_cond.notify_one();
 }
 
+void WorkerThread::Wait()
+{
+    if ( m_thread )
+        m_thread->join();
+}
+
 void WorkerThread::operator()()
 {
     while ( true ) {

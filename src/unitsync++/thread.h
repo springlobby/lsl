@@ -71,6 +71,8 @@ class WorkerThread
   public:
     /** @brief Adds a new WorkItem to the queue */
     void DoWork(WorkItem* item, int priority = 0, bool toBeDeleted = true);
+	//! joins underlying thread
+	void Wait();
   private:
 	friend class boost::thread;
 	/** @brief thread entry point */

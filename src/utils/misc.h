@@ -40,6 +40,16 @@ class uninitialized_array : public boost::noncopyable
 	T* elems;
 };
 
+template < class StlContainer >
+inline int IndexInSequence( const StlContainer& ct,
+							const typename StlContainer::value_type& val )
+{
+	typename StlContainer::const_iterator result =
+			std::find( ct.begin(), ct.end(), val );
+	if ( result == ct.end() )
+		return -1;
+	return std::distance( ct.begin(), result );
+}
 
 } //namespace Util {
 } //namespace LSL {

@@ -7,44 +7,32 @@
 #include "mru_cache.h"
 
 #include <boost/thread/mutex.hpp>
+#include <boost/signals2/signal.hpp>
 #include <map>
 
 namespace LSL {
 
 class UnitsyncImage;
-extern const wxEventType UnitSyncAsyncOperationCompletedEvt;
 struct GameOptions;
 struct CachedMapInfo;
 struct SpringMapInfo;
-class SpringUnitSyncLib;
+class UnitsyncLib;
 
-/// Thread safe mapping from evtHandlerId to wxEvtHandler*
-class EvtHandlerCollection
-{
-  public:
-    EvtHandlerCollection() : m_last_id(0) {}
-
-    int Add( wxEvtHandler* evtHandler );
-    void Remove( int evtHandlerId );
-    void PostEvent( int evtHandlerId, wxEvent& evt );
-
-  private:
-    typedef std::map<int, wxEvtHandler*> EvtHandlerMap;
-
-	boost::mutex m_lock;
-    EvtHandlerMap m_items;
-    int m_last_id;
-};
-
-class SpringUnitSync
+class Unitsync
 {
 private:
-	SpringUnitSync();
+	Unitsync();
 
 	typedef std::vector< std::string >
 		StringVector;
+	typedef boost::signals2::signal<void (std::string)>
+		StringSignalType;
+
 public:
-	virtual ~SpringUnitSync();
+	typedef StringSignalType::slot_type
+		StringSignalSlotType;
+
+	virtual ~Unitsync();
 
 	typedef std::map<std::string,mmOptionBool> OptionMapBool;
 	typedef std::map<std::string,mmOptionFloat> OptionMapFloat;
@@ -152,24 +140,24 @@ public:
     /// schedule a map for prefetching
     void PrefetchMap( const std::string& mapname );
 
-    int RegisterEvtHandler( wxEvtHandler* evtHandler );
-    void UnregisterEvtHandler( int evtHandlerId );
-    void PostEvent( int evtHandlerId, wxEvent& evt ); // helper for WorkItems
+	void RegisterEvtHandler( StringSignalSlotType handler );
+	void UnregisterEvtHandler(StringSignalSlotType handler );
+	void PostEvent(const std::string evt ); // helper for WorkItems
 
-    void GetMinimapAsync( const std::string& mapname, int evtHandlerId );
-    void GetMinimapAsync( const std::string& mapname, int width, int height, int evtHandlerId );
-    void GetMetalmapAsync( const std::string& mapname, int evtHandlerId );
-    void GetMetalmapAsync( const std::string& mapname, int width, int height, int evtHandlerId );
-    void GetHeightmapAsync( const std::string& mapname, int evtHandlerId );
-    void GetHeightmapAsync( const std::string& mapname, int width, int height, int evtHandlerId );
-    void GetMapExAsync( const std::string& mapname, int evtHandlerId );
+	void GetMinimapAsync( const std::string& mapname );
+	void GetMinimapAsync( const std::string& mapname, int width, int height );
+	void GetMetalmapAsync( const std::string& mapname );
+	void GetMetalmapAsync( const std::string& mapname, int width, int height );
+	void GetHeightmapAsync( const std::string& mapname );
+	void GetHeightmapAsync( const std::string& mapname, int width, int height );
+	void GetMapExAsync( const std::string& mapname );
 
     StringVector GetScreenshotFilenames() const;
 
     virtual GameOptions GetModCustomizations( const std::string& modname );
     virtual GameOptions GetSkirmishOptions( const std::string& modname, const std::string& skirmish_name );
 
-	virtual void OnReload( wxCommandEvent& event );
+//	virtual void OnReload( wxCommandEvent& event );
 	virtual void AddReloadEvent(  );
 
     StringVector FindFilesVFS( const std::string& pattern ) const;
@@ -196,7 +184,7 @@ public:
 
 	mutable boost::mutex m_lock;
 	WorkerThread* m_cache_thread;
-    EvtHandlerCollection m_evt_handlers;
+	StringSignalType m_async_ops_complete_sig;
 
     /// this cache facilitates async image fetching (image is stored in cache
     /// in background thread, then main thread gets it from cache)
@@ -225,50 +213,56 @@ public:
 
     void PopulateArchiveList();
 
-    UnitsyncImage _GetMapImage( const std::string& mapname, const std::string& imagename, UnitsyncImage (SpringUnitSyncLib::*loadMethod)(const std::string&) );
-    UnitsyncImage _GetScaledMapImage( const std::string& mapname, UnitsyncImage (SpringUnitSync::*loadMethod)(const std::string&), int width, int height );
+	UnitsyncImage _GetMapImage( const std::string& mapname, const std::string& imagename, UnitsyncImage (UnitsyncLib::*loadMethod)(const std::string&) );
+	UnitsyncImage _GetScaledMapImage( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int width, int height );
 
-    void _GetMapImageAsync( const std::string& mapname, UnitsyncImage (SpringUnitSync::*loadMethod)(const std::string&), int evtHandlerId );
+	void _GetMapImageAsync( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int evtHandlerId );
 
+	friend Unitsync& usync();
 public:
 	std::string GetNameForShortname( const std::string& shortname, const std::string& version ) const;
 };
 
-
+Unitsync& usync() {
+	static Unitsync us;
+	return us;
+}
 
 struct GameOptions
 {
-  SpringUnitSync::OptionMapBool bool_map;
-  SpringUnitSync::OptionMapFloat float_map;
-  SpringUnitSync::OptionMapString string_map;
-  SpringUnitSync::OptionMapList list_map;
-  SpringUnitSync::OptionMapSection section_map;
+  Unitsync::OptionMapBool bool_map;
+  Unitsync::OptionMapFloat float_map;
+  Unitsync::OptionMapString string_map;
+  Unitsync::OptionMapList list_map;
+  Unitsync::OptionMapSection section_map;
 };
 
 /// Helper class for managing async operations safely
 class UnitSyncAsyncOps
 {
-  public:
-	UnitSyncAsyncOps( wxEvtHandler* evtHandler )
-		: m_id( usync().RegisterEvtHandler( evtHandler ) )
-	{}
+public:
+	UnitSyncAsyncOps( Unitsync::StringSignalSlotType evtHandler )
+		: m_evtHandler( evtHandler )
+	{
+		usync().RegisterEvtHandler( evtHandler );
+	}
 	~UnitSyncAsyncOps() {
-	  usync().UnregisterEvtHandler( m_id );
+		usync().UnregisterEvtHandler( m_evtHandler );
 	}
 
-	void GetMinimap( const std::string& mapname )                 { usync().GetMinimapAsync( mapname, m_id ); }
-	void GetMinimap( const std::string& mapname, int w, int h )   { usync().GetMinimapAsync( mapname, w, h, m_id ); }
-	void GetMetalmap( const std::string& mapname )                { usync().GetMetalmapAsync( mapname, m_id ); }
-	void GetMetalmap( const std::string& mapname, int w, int h )  { usync().GetMetalmapAsync( mapname, w, h, m_id ); }
-	void GetHeightmap( const std::string& mapname )               { usync().GetHeightmapAsync( mapname, m_id ); }
-	void GetHeightmap( const std::string& mapname, int w, int h ) { usync().GetHeightmapAsync( mapname, w, h, m_id ); }
-	void GetMapEx( const std::string& mapname )                   { usync().GetMapExAsync( mapname, m_id ); }
+	void GetMinimap( const std::string& mapname )                 { usync().GetMinimapAsync( mapname ); }
+	void GetMinimap( const std::string& mapname, int w, int h )   { usync().GetMinimapAsync( mapname, w, h ); }
+	void GetMetalmap( const std::string& mapname )                { usync().GetMetalmapAsync( mapname ); }
+	void GetMetalmap( const std::string& mapname, int w, int h )  { usync().GetMetalmapAsync( mapname, w, h ); }
+	void GetHeightmap( const std::string& mapname )               { usync().GetHeightmapAsync( mapname ); }
+	void GetHeightmap( const std::string& mapname, int w, int h ) { usync().GetHeightmapAsync( mapname, w, h ); }
+	void GetMapEx( const std::string& mapname )                   { usync().GetMapExAsync( mapname ); }
 
-  private:
-	int m_id;
+private:
+	Unitsync::StringSignalSlotType m_evtHandler;
 };
 
-// namespace LSL
+} // namespace LSL
 
 #endif // SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_H
 

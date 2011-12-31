@@ -5,7 +5,7 @@
 
 namespace LSL {
 
-#define NEW_PTR new PrivateImageType( width, height, 1, 3 )
+#define NEW_PTR UnitsyncImage::NewImagePtr( width, height )
 #define DEFINE_PTR(name) PrivateImageType* name = NEW_PTR
 
 UnitsyncImage::UnitsyncImage( int width, int height )
@@ -16,6 +16,11 @@ UnitsyncImage::UnitsyncImage( int width, int height )
 UnitsyncImage::UnitsyncImage(PrivateImagePtrType ptr)
 	: m_data_ptr( ptr )
 {
+}
+
+UnitsyncImage::PrivateImageType* UnitsyncImage::NewImagePtr(int width, int height)
+{
+	return new PrivateImageType( width, height, 1, 3 );
 }
 
 UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<unsigned char>& data, int width, int height)
@@ -29,6 +34,11 @@ UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<un
 	}
 	PrivateImagePtrType ptr( img_p );
 	return UnitsyncImage( ptr );
+}
+
+UnitsyncImage::UnitsyncImage()
+	: m_data_ptr( NewImagePtr() )
+{
 }
 
 void UnitsyncImage::Save(const std::string& path) const

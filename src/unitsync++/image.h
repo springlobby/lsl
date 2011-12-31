@@ -29,6 +29,7 @@ private:
 	typedef boost::shared_ptr<PrivateImageType>
 		PrivateImagePtrType;
 public:
+	UnitsyncImage();
 	void Save( const std::string& path ) const;
 	static UnitsyncImage FromMinimapData( const RawDataType* data, int width, int height );
 	static UnitsyncImage FromHeightmapData( const Util::uninitialized_array<unsigned short>& data, int width, int height );
@@ -36,6 +37,7 @@ public:
 private:
     explicit UnitsyncImage( int width, int height );
 	UnitsyncImage( PrivateImagePtrType ptr );
+	static PrivateImageType* NewImagePtr( int width = 0, int height = 0 );
 	PrivateImagePtrType m_data_ptr;
 };
 

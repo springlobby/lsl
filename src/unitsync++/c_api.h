@@ -542,6 +542,12 @@ private:
 	/*@}*/
 };
 
+SpringUnitSyncLib& susynclib()
+{
+	static SpringUnitSyncLib ss;
+	return ss;
+}
+
 } // namespace LSL
 #endif //SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
 
