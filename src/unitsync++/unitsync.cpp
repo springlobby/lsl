@@ -6,8 +6,10 @@
 #include <cmath>
 #include <stdexcept>
 #include <clocale>
+#include <set>
 #include <boost/algorithm/string/compare.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/format.hpp>
 
 #include <lslconfig.h>
 #include "c_api.h"
@@ -18,7 +20,7 @@
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
-//const wxEventType wxUnitsyncReloadEvent = wxNewEventType();
+#define ASSERT_EXCEPTION(cond,msg) do { if ((cond)) { LSL_THROW( unitsync, msg ); } } while (0)
 
 namespace LSL {
 
@@ -549,15 +551,15 @@ Unitsync::StringVector Unitsync::GetAIList( const std::string& modname ) const
 		const Unitsync::StringVector dlllist = susynclib().FindFilesVFS( Util::Lib::CanonicalizeName("AI/Bot-libs/*", Util::Lib::Module ) );
 		for( int i = 0; i < long(dlllist.size()); i++ )
 		{
-			if ( Util::IndexInSequence( ret, Util::BeforeLast( dlllist[i], '/' ) ) == lslNotFound )
-				ret.push_back ( dlllist[i] ); // don't add duplicates
+			if ( Util::IndexInSequence( ret, Util::BeforeLast( dlllist[i], "/" ) ) == lslNotFound )
+				ret.push_back ( dlllist[i] ); // don't add duplicates //TODO(koshi) make ret a set instead :)
 		}
 		// list jar files (java AIs)
 		const Unitsync::StringVector jarlist = susynclib().FindFilesVFS("AI/Bot-libs/*.jar");
 		for( int i = 0; i < long(jarlist.size()); i++ )
 		{
-			if ( Util::IndexInSequence( ret, Util::BeforeLast( jarlist[i],'/' ) ) == lslNotFound )
-				ret.push_back ( jarlist[i] ); // don't add duplicates
+			if ( Util::IndexInSequence( ret, Util::BeforeLast( jarlist[i], "/" ) ) == lslNotFound )
+				ret.push_back ( jarlist[i] ); // don't add duplicates //TODO(koshi) make ret a set instead :)
 		}
 
 		// luaai
@@ -753,13 +755,13 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			for ( unsigned int i = 0; i < posinfo.size(); i++)
 			{
 				StartPos position;
-				position.x = Util::FromString<long>( Util::BeforeFirst( posinfo[i],  '-' ) );
-				position.y = Util::FromString<long>( Util::AfterFirst( posinfo[i], '-' ) );
+				position.x = Util::FromString<long>( Util::BeforeFirst( posinfo[i],  "-" ) );
+				position.y = Util::FromString<long>( Util::AfterFirst( posinfo[i], "-" ) );
 				info.positions.push_back( position );
 			}
 			const unsigned int LineCount = cache.size();
 			for ( unsigned int i = 10; i < LineCount; i++ )
-				info.description + cache[i] + _T('\n');
+				info.description + cache[i] + "\n";
 		}
 		catch (...)
 		{
@@ -797,17 +799,6 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 	m_mapinfo_cache.Add( mapname, info );
 
 	return info;
-}
-
-//void Unitsync::OnReload( wxCommandEvent& /*event*/ )
-//{
-//	ReloadUnitSyncLib();
-//}
-
-void Unitsync::AddReloadEvent(  )
-{
-	wxCommandEvent evt( wxUnitsyncReloadEvent, wxNewId() );
-	AddPendingEvent( evt );
 }
 
 Unitsync::StringVector Unitsync::FindFilesVFS( const std::string& pattern ) const
@@ -861,7 +852,7 @@ Unitsync::StringVector Unitsync::GetCacheFile( const std::string& path ) const
 	return ret;
 }
 
-void Unitsync::SetCacheFile( const std::string& path, const wxArrayString& data )
+void Unitsync::SetCacheFile( const std::string& path, const Unitsync::StringVector& data )
 {
 	wxTextFile file( path );
 	unsigned int arraycount = data.size();
@@ -879,9 +870,9 @@ Unitsync::StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
 	if ( !IsLoaded() ) return ret;
 
 	if ( ReplayType )
-		return susynclib().FindFilesVFS( _T("demos/*.sdf") );
+		return susynclib().FindFilesVFS( "demos/*.sdf" );
 	else
-		return susynclib().FindFilesVFS( _T("Saves/*.ssf") );
+		return susynclib().FindFilesVFS( "Saves/*.ssf" );
 }
 
 bool Unitsync::FileExists( const std::string& name ) const
@@ -894,22 +885,22 @@ bool Unitsync::FileExists( const std::string& name ) const
 
 std::string Unitsync::GetArchivePath( const std::string& name ) const
 {
-	wxLogDebugFunc( name );
-
 	return susynclib().GetArchivePath( name );
 }
 
 Unitsync::StringVector Unitsync::GetScreenshotFilenames() const
 {
-	Unitsync::StringVector ret;
-	if ( !IsLoaded() ) return ret;
+	if ( !IsLoaded() )
+		return Unitsync::StringVector();
 
-	ret = susynclib().FindFilesVFS( "screenshots/*.*" );
-	for ( int i = 0; i < long(ret.Count() - 1); ++i ) {
-		if ( ret[i] == ret[i+1] )
-			ret.RemoveAt( i+1 );
-	}
-	ret.Sort();
+	Unitsync::StringVector ret = susynclib().FindFilesVFS( "screenshots/*.*" );
+	std::set<std::string> ret_set ( ret.begin(), ret.end() );
+//	for ( int i = 0; i < long(ret.size() - 1); ++i ) {
+//		if ( ret[i] == ret[i+1] )
+//			ret.RemoveAt( i+1 );
+//	}
+	ret = Unitsync::StringVector ( ret_set.begin(), ret_set.end() );
+	std::sort( ret.begin(), ret.end() );
 	return ret;
 }
 
@@ -1003,13 +994,13 @@ protected:
 
 	void PostEvent()
 	{
-		m_usync->PostEvent( m_evtHandlerId, m_mapname );
+		m_usync->PostEvent( m_mapname );
 	}
 
 	virtual void RunCore() = 0;
 
-	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtHandlerId, int evtId )
-		: m_usync(usync), m_mapname(mapname.c_str()), m_evtHandlerId(evtHandlerId), m_evtId(evtId) {}
+	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId )
+		: m_usync(usync), m_mapname(mapname.c_str()), m_evtId(evtId) {}
 };
 
 class GetMapImageAsyncWorkItem : public GetMapImageAsyncResult
@@ -1022,8 +1013,8 @@ public:
 
 	LoadMethodPtr m_loadMethod;
 
-	GetMapImageAsyncWorkItem( Unitsync* usync, const std::string& mapname, int evtHandlerId, LoadMethodPtr loadMethod )
-		: GetMapImageAsyncResult( usync, mapname, evtHandlerId, 1 ), m_loadMethod(loadMethod) {}
+	GetMapImageAsyncWorkItem( Unitsync* usync, const std::string& mapname, LoadMethodPtr loadMethod )
+		: GetMapImageAsyncResult( usync, mapname, 1 ), m_loadMethod(loadMethod) {}
 };
 
 class GetScaledMapImageAsyncWorkItem : public GetMapImageAsyncResult
@@ -1038,8 +1029,8 @@ public:
 	int m_height;
 	ScaledLoadMethodPtr m_loadMethod;
 
-	GetScaledMapImageAsyncWorkItem( Unitsync* usync, const std::string& mapname, int w, int h, int evtHandlerId, ScaledLoadMethodPtr loadMethod )
-		: GetMapImageAsyncResult( usync, mapname, evtHandlerId, 2 ), m_width(w), m_height(h), m_loadMethod(loadMethod) {}
+	GetScaledMapImageAsyncWorkItem( Unitsync* usync, const std::string& mapname, int w, int h, ScaledLoadMethodPtr loadMethod )
+		: GetMapImageAsyncResult( usync, mapname, 2 ), m_width(w), m_height(h), m_loadMethod(loadMethod) {}
 };
 
 class GetMapExAsyncWorkItem : public GetMapImageAsyncResult
@@ -1050,8 +1041,8 @@ public:
 		m_usync->GetMapEx( m_mapname );
 	}
 
-	GetMapExAsyncWorkItem( Unitsync* usync, const std::string& mapname, int evtHandlerId )
-		: GetMapImageAsyncResult( usync, mapname, evtHandlerId, 3 ) {}
+	GetMapExAsyncWorkItem( Unitsync* usync, const std::string& mapname )
+		: GetMapImageAsyncResult( usync, mapname, 3 ) {}
 };
 }
 
@@ -1067,9 +1058,9 @@ void Unitsync::PrefetchMap( const std::string& mapname )
 	// 50% hits without, 80% hits with this code.  (cache size 20 images)
 
 	const int length = std::max(0, int(mapname.length()) - 4);
-	const int hash = ( wxChar(mapname[length * 1/4]) << 16 )
-			| ( wxChar(mapname[length * 2/4]) << 8  )
-			| wxChar(mapname[length * 3/4]);
+	const int hash = ( mapname[length * 1/4] << 16 )
+			| ( mapname[length * 2/4] << 8  )
+			| mapname[length * 3/4];
 	const int priority = -hash;
 
 	if (! m_cache_thread )
@@ -1109,7 +1100,7 @@ void Unitsync::PostEvent( const std::string evt )
 	m_async_ops_complete_sig( evt );
 }
 
-void Unitsync::_GetMapImageAsync( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int evtHandlerId )
+void Unitsync::_GetMapImageAsync( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&) )
 {
 	if (! m_cache_thread )
 	{
@@ -1117,48 +1108,48 @@ void Unitsync::_GetMapImageAsync( const std::string& mapname, UnitsyncImage (Uni
 		return;
 	}
 	GetMapImageAsyncWorkItem* work;
-	work = new GetMapImageAsyncWorkItem( this, mapname, evtHandlerId, loadMethod );
+	work = new GetMapImageAsyncWorkItem( this, mapname, loadMethod );
 	m_cache_thread->DoWork( work, 100 );
 }
 
-void Unitsync::GetMinimapAsync( const std::string& mapname, int evtHandlerId )
+void Unitsync::GetMinimapAsync( const std::string& mapname )
 {
-	_GetMapImageAsync( mapname, &Unitsync::GetMinimap, evtHandlerId );
+	_GetMapImageAsync( mapname, &Unitsync::GetMinimap );
 }
 
-void Unitsync::GetMinimapAsync( const std::string& mapname, int width, int height, int evtHandlerId )
+void Unitsync::GetMinimapAsync( const std::string& mapname, int width, int height )
 {
 	if (! m_cache_thread )
 	{
-		LslError( _T("cache thread not initialised") );
+		LslError( "cache thread not initialised" );
 		return;
 	}
 	GetScaledMapImageAsyncWorkItem* work;
-	work = new GetScaledMapImageAsyncWorkItem( this, mapname, width, height, evtHandlerId, &Unitsync::GetMinimap );
+	work = new GetScaledMapImageAsyncWorkItem( this, mapname, width, height, &Unitsync::GetMinimap );
 	m_cache_thread->DoWork( work, 100 );
 }
 
-void Unitsync::GetMetalmapAsync( const std::string& mapname, int evtHandlerId )
+void Unitsync::GetMetalmapAsync( const std::string& mapname )
 {
-	_GetMapImageAsync( mapname, &Unitsync::GetMetalmap, evtHandlerId );
+	_GetMapImageAsync( mapname, &Unitsync::GetMetalmap );
 }
 
-void Unitsync::GetMetalmapAsync( const std::string& mapname, int /*width*/, int /*height*/, int evtHandlerId )
+void Unitsync::GetMetalmapAsync( const std::string& mapname, int /*width*/, int /*height*/ )
 {
-	GetMetalmapAsync( mapname, evtHandlerId );
+	GetMetalmapAsync( mapname );
 }
 
-void Unitsync::GetHeightmapAsync( const std::string& mapname, int evtHandlerId )
+void Unitsync::GetHeightmapAsync( const std::string& mapname )
 {
-	_GetMapImageAsync( mapname, &Unitsync::GetHeightmap, evtHandlerId );
+	_GetMapImageAsync( mapname, &Unitsync::GetHeightmap );
 }
 
-void Unitsync::GetHeightmapAsync( const std::string& mapname, int /*width*/, int /*height*/, int evtHandlerId )
+void Unitsync::GetHeightmapAsync( const std::string& mapname, int /*width*/, int /*height*/ )
 {
-	GetHeightmapAsync( mapname, evtHandlerId );
+	GetHeightmapAsync( mapname );
 }
 
-void Unitsync::GetMapExAsync( const std::string& mapname, int evtHandlerId )
+void Unitsync::GetMapExAsync( const std::string& mapname )
 {
 	if (! m_cache_thread )
 	{
@@ -1166,7 +1157,7 @@ void Unitsync::GetMapExAsync( const std::string& mapname, int evtHandlerId )
 		return;
 	}
 	GetMapExAsyncWorkItem* work;
-	work = new GetMapExAsyncWorkItem( this, mapname, evtHandlerId );
+	work = new GetMapExAsyncWorkItem( this, mapname );
 	m_cache_thread->DoWork( work, 200 /* higher prio then GetMinimapAsync */ );
 }
 
@@ -1182,9 +1173,9 @@ std::string Unitsync::GetTextfileAsString( const std::string& modname, const std
 		susynclib().CloseFileVFS(ini);
 		return std::string();
 	}
-	uninitialized_array<char> FileContent(FileSize);
+	Util::uninitialized_array<char> FileContent(FileSize);
 	susynclib().ReadFileVFS(ini, FileContent, FileSize);
-	return std::string( FileContent, wxConvAuto(), size_t( FileSize ) );
+	return std::string( FileContent, size_t( FileSize ) );
 }
 
 std::string Unitsync::GetNameForShortname( const std::string& shortname, const std::string& version) const
@@ -1195,5 +1186,18 @@ std::string Unitsync::GetNameForShortname( const std::string& shortname, const s
 		return it->second;
 	return std::string();
 }
+
+#if 0
+void Unitsync::OnReload( wxCommandEvent& /*event*/ )
+{
+	ReloadUnitSyncLib();
+}
+
+void Unitsync::AddReloadEvent(  )
+{
+	wxCommandEvent evt( wxUnitsyncReloadEvent, wxNewId() );
+	AddPendingEvent( evt );
+}
+#endif
 
 } // namespace LSL

@@ -216,7 +216,7 @@ public:
 	UnitsyncImage _GetMapImage( const std::string& mapname, const std::string& imagename, UnitsyncImage (UnitsyncLib::*loadMethod)(const std::string&) );
 	UnitsyncImage _GetScaledMapImage( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int width, int height );
 
-	void _GetMapImageAsync( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int evtHandlerId );
+	void _GetMapImageAsync( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&) );
 
 	friend Unitsync& usync();
 public:

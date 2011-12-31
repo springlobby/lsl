@@ -45,8 +45,8 @@ public:
 
 	~MostRecentlyUsedCache()
 	{
-		LslDebug( "%s - cache hits: %d", m_name, m_cache_hits );
-		LslDebug( "%s - cache misses: %d", m_name, m_cache_misses );
+		LslDebug( "%s - cache hits: %d", m_name.c_str(), m_cache_hits );
+		LslDebug( "%s - cache misses: %d", m_name.c_str(), m_cache_misses );
 	}
 
 	void Add( const TKey& name, const TValue& img )
