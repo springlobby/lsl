@@ -1,7 +1,82 @@
 #include "image.h"
 
+#include <cstdio>
+
 #include <cimg/CImg.h>
 #include <utils/misc.h>
+#include <utils/logging.h>
+
+namespace cimg_library {
+
+template < class T>
+void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size,
+		const std::string& fn, CImg<T>& img) {
+  const char* filename = fn.c_str();
+
+  std::FILE *file =  fmemopen( (void*)data, size, "r" );
+
+  const char *const ext = cimg::split_filename(filename);
+  cimg::exception_mode() = 0;
+#ifdef cimg_load_plugin
+	cimg_load_plugin(filename);
+#endif
+#ifdef cimg_load_plugin1
+	cimg_load_plugin1(filename);
+#endif
+#ifdef cimg_load_plugin2
+	cimg_load_plugin2(filename);
+#endif
+#ifdef cimg_load_plugin3
+	cimg_load_plugin3(filename);
+#endif
+#ifdef cimg_load_plugin4
+	cimg_load_plugin4(filename);
+#endif
+#ifdef cimg_load_plugin5
+	cimg_load_plugin5(filename);
+#endif
+#ifdef cimg_load_plugin6
+	cimg_load_plugin6(filename);
+#endif
+#ifdef cimg_load_plugin7
+	cimg_load_plugin7(filename);
+#endif
+#ifdef cimg_load_plugin8
+	cimg_load_plugin8(filename);
+#endif
+	// ASCII formats
+	if (!cimg::strcasecmp(ext,"asc")) img.load_ascii(file);
+	else if (!cimg::strcasecmp(ext,"dlm") ||
+			 !cimg::strcasecmp(ext,"txt")) img.load_dlm(file);
+
+	// 2d binary formats
+	else if (!cimg::strcasecmp(ext,"bmp")) img.load_bmp(file);
+	else if (!cimg::strcasecmp(ext,"jpg") ||
+			 !cimg::strcasecmp(ext,"jpeg") ||
+			 !cimg::strcasecmp(ext,"jpe") ||
+			 !cimg::strcasecmp(ext,"jfif") ||
+			 !cimg::strcasecmp(ext,"jif")) img.load_jpeg(file);
+	else if (!cimg::strcasecmp(ext,"png")) img.load_png(file);
+	else if (!cimg::strcasecmp(ext,"ppm") ||
+			 !cimg::strcasecmp(ext,"pgm") ||
+			 !cimg::strcasecmp(ext,"pnm") ||
+			 !cimg::strcasecmp(ext,"pbm") ||
+			 !cimg::strcasecmp(ext,"pnk")) img.load_pnm(file);
+	else if (!cimg::strcasecmp(ext,"pfm")) img.load_pfm(file);
+
+	// 3d binary formats
+	else if (!cimg::strcasecmp(ext,"hdr") ||
+			 !cimg::strcasecmp(ext,"nii")) img.load_analyze(file);
+	else if (!cimg::strcasecmp(ext,"inr")) img.load_inr(file);
+	else if (!cimg::strcasecmp(ext,"pan")) img.load_pandore(file);
+	else if (!cimg::strcasecmp(ext,"cimg") ||
+			 !cimg::strcasecmp(ext,"cimgz") ||
+			 !*ext)  img.load_cimg(file);
+	else throw CImgIOException("CImg<%s>::load()",
+							   img.pixel_type());
+	cimg::exception_mode() = 0;
+  }
+} // namespace cimg_library
 
 namespace LSL {
 
@@ -31,6 +106,20 @@ UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<un
 		img(x,y,0,0) = 0;
 		img(x,y,0,1) = data[x+(y*width)];
 		img(x,y,0,2) = 0;
+	}
+	PrivateImagePtrType ptr( img_p );
+	return UnitsyncImage( ptr );
+}
+
+UnitsyncImage UnitsyncImage::FromVfsFileData( Util::uninitialized_array<char>& data, size_t size,
+											 const std::string& fn, bool useWhiteAsTransparent)
+{
+	PrivateImageType* img_p = new PrivateImageType( 100, 100, 1, 4 );
+	try {
+		cimg_library::load_mem( data, size, fn, *img_p );
+	}
+	catch ( std::exception& e ) {
+		LslError( "couldn't load VFS file %s: %s", fn.c_str(), e.what() );
 	}
 	PrivateImagePtrType ptr( img_p );
 	return UnitsyncImage( ptr );
