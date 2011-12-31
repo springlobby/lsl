@@ -30,13 +30,21 @@ private:
 		PrivateImagePtrType;
 public:
 	UnitsyncImage();
+	explicit UnitsyncImage( int width, int height );
+	UnitsyncImage( const std::string& filename );
+
 	void Save( const std::string& path ) const;
+	void Load( const std::string& path ) const;
+
 	static UnitsyncImage FromMinimapData( const RawDataType* data, int width, int height );
 	static UnitsyncImage FromHeightmapData( const Util::uninitialized_array<unsigned short>& data, int width, int height );
 	static UnitsyncImage FromMetalmapData( const Util::uninitialized_array<unsigned char>& data, int width, int height );
 	static UnitsyncImage FromVfsFileData(  Util::uninitialized_array<char>& data, size_t size, const std::string& fn, bool useWhiteAsTransparent = true );
+
+	int GetWidth() const;
+	int GetHeight() const;
+	void Rescale( const int new_width, const int new_height);
 private:
-    explicit UnitsyncImage( int width, int height );
 	UnitsyncImage( PrivateImagePtrType ptr );
 	static PrivateImageType* NewImagePtr( int width = 0, int height = 0 );
 	PrivateImagePtrType m_data_ptr;

@@ -4,6 +4,7 @@
 #include "common.h"
 #include "commands.h"
 #include <iostream>
+#include <utils/misc.h>
 
 #define TESTLIST(name) \
     { name instance; \
@@ -35,5 +36,13 @@ int main(int, char**)
 //    std::string msg= "Blubb DE 666 99";
 //    s.cmd_map_["ADDUSER"]->process(msg);
 	dummySync();
+
+	std::string sequence("/root/path/jijij.png");
+	std::cout	<< "\n\nBeforeLast: " << LSL::Util::BeforeLast( sequence, "/" ) << "\n"
+				<< "AfterLast: " << LSL::Util::AfterLast( sequence, "/" ) << "\n"
+				<< "BeforeFirst: " << LSL::Util::BeforeFirst( sequence, "/" ) << "\n"
+				<< "AfterFirst: " << LSL::Util::AfterFirst( sequence, "/" ) << "\n";
+
+	std::cout << std::endl;
 	return 0;
 }

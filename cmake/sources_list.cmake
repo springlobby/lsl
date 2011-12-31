@@ -20,11 +20,12 @@ SET(libUnitsync++Src
 	src/unitsync++/c_api.cpp
 	src/unitsync++/image.cpp
 	src/unitsync++/loader.cpp
-	src/unitsync++/unitsync.cpp
+# 	src/unitsync++/unitsync.cpp
 	src/unitsync++/thread.cpp 
 	)
 SET(commonSrc
-	src/utils/misc.cpp 
+	src/utils/misc.cpp
+	src/lslconfig.cpp 
 	)
 	
 SET(basic_testSrc

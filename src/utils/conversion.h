@@ -15,7 +15,7 @@ ReturnType FromString(const T s)
 }
 
 template<class T>
-static inline std::string ToString(T arg){
+static inline std::string ToString(const T arg){
 	std::stringstream s;
 	s << arg;
 	return s.str();

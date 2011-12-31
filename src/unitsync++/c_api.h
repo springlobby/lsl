@@ -57,7 +57,7 @@ struct SpringMapInfo
  * so often there is a need for running multiple unitsync methods while
  * holding a single lock continuously.
  */
-class SpringUnitSyncLib : public boost::noncopyable
+class UnitsyncLib : public boost::noncopyable
 {
 	//! we use this to offload the mind numblingly boring pointer loading
 	friend class UnitsyncFunctionLoader;
@@ -66,12 +66,12 @@ public:
 	/**
 	 * Constructor.
 	 */
-	SpringUnitSyncLib();
+	UnitsyncLib();
 
 	/**
 	 * Destructor, unloads unitsync if loaded.
 	 */
-	~SpringUnitSyncLib();
+	~UnitsyncLib();
 
 	/**
 	 * Loads the unitsync library from path.
@@ -311,7 +311,7 @@ public:
 
 
 private:
-	SpringUnitSyncLib( const SpringUnitSyncLib& );
+	UnitsyncLib( const UnitsyncLib& );
 	//! Keeps track if unitsync is loaded or not.
 	bool m_loaded;
 
@@ -542,9 +542,9 @@ private:
 	/*@}*/
 };
 
-inline static SpringUnitSyncLib& susynclib()
+inline static UnitsyncLib& susynclib()
 {
-	static SpringUnitSyncLib ss;
+	static UnitsyncLib ss;
 	return ss;
 }
 

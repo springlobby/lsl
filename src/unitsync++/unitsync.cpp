@@ -512,68 +512,52 @@ UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::s
 
 UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent  ) const
 {
-	UnitsyncImage cache;
 	susynclib().SetCurrentMod( modname );
-
 	int ini = susynclib().OpenFileVFS ( image_path );
 	if( !ini )
-		LSL_THROW( unitsync, "cannot find side image");
-
+		LSL_THROW( unitsync, "cannot find image");
 	int FileSize = susynclib().FileSizeVFS(ini);
 	if (FileSize == 0) {
 		susynclib().CloseFileVFS(ini);
 		LSL_THROW( unitsync, "image has size 0" );
 	}
-
 	Util::uninitialized_array<char> FileContent(FileSize);
 	susynclib().ReadFileVFS(ini, FileContent, FileSize);
-	wxMemoryInputStream FileContentStream( FileContent, FileSize );
-
-	cache.LoadFile( FileContentStream, wxBITMAP_TYPE_ANY, -1);
-	cache.InitAlpha();
-	if ( useWhiteAsTransparent )
-	{
-		for ( int x = 0; x < cache.GetWidth(); x++ )
-			for ( int y = 0; y < cache.GetHeight(); y++ )
-				if ( cache.GetBlue( x, y ) == 255 && cache.GetGreen( x, y ) == 255 && cache.GetRed( x, y ) == 255 )
-					cache.SetAlpha( x, y, 0 ); // set pixel to be transparent
-	}
-	return cache;
+	return UnitsyncImage::FromVfsFileData( FileContent, FileSize, image_path, useWhiteAsTransparent );
 }
 
 Unitsync::StringVector Unitsync::GetAIList( const std::string& modname ) const
 {
-
-
 	Unitsync::StringVector ret;
-
 	if ( usync().VersionSupports( USYNC_GetSkirmishAI ) )
 	{
 		int total = susynclib().GetSkirmishAICount( modname );
 		for ( int i = 0; i < total; i++ )
 		{
 			Unitsync::StringVector infos = susynclib().GetAIInfo( i );
-			int namepos = Util::IndexInSequence( infos, "shortName");
-			int versionpos = Util::IndexInSequence( infos, "version");
+			const int namepos = Util::IndexInSequence( infos, "shortName");
+			const int versionpos = Util::IndexInSequence( infos, "version");
 			std::string ainame;
-			if ( namepos != -1 ) ainame += infos[namepos +1];
-			if ( versionpos != -1 ) ainame += " " + infos[versionpos +1];
+			if ( namepos != lslNotFound ) ainame += infos[namepos +1];
+			if ( versionpos != lslNotFound ) ainame += " " + infos[versionpos +1];
 			ret.push_back( ainame );
 		}
 	}
 	else
 	{
 		// list dynamic link libraries
-		Unitsync::StringVector dlllist = susynclib().FindFilesVFS( wxDynamicLibrary::CanonicalizeName(_T("AI/Bot-libs/*"), wxDL_MODULE) );
+		const Unitsync::StringVector dlllist = susynclib().FindFilesVFS( Util::Lib::CanonicalizeName("AI/Bot-libs/*", Util::Lib::Module ) );
 		for( int i = 0; i < long(dlllist.size()); i++ )
 		{
-			if ( ret.Index( dlllist[i].BeforeLast( '/') ) == wxNOT_FOUND ) ret.push_back ( dlllist[i] ); // don't add duplicates
+			if ( Util::IndexInSequence( ret, Util::BeforeLast( dlllist[i], '/' ) ) == lslNotFound )
+				ret.push_back ( dlllist[i] ); // don't add duplicates
 		}
 		// list jar files (java AIs)
-		Unitsync::StringVector jarlist = susynclib().FindFilesVFS( _T("AI/Bot-libs/*.jar") );
+		const Unitsync::StringVector jarlist = susynclib().FindFilesVFS("AI/Bot-libs/*.jar");
 		for( int i = 0; i < long(jarlist.size()); i++ )
 		{
-			if ( ret.Index( jarlist[i].BeforeLast( '/') ) == wxNOT_FOUND ) ret.push_back ( jarlist[i] ); // don't add duplicates
+			if ( Util::IndexInSequence( ret, Util::BeforeLast( jarlist[i],'/' ) ) == lslNotFound )
+				ret.push_back ( jarlist[i] ); // don't add duplicates
 		}
 
 		// luaai
@@ -582,7 +566,7 @@ Unitsync::StringVector Unitsync::GetAIList( const std::string& modname ) const
 			const int LuaAICount = susynclib().GetLuaAICount( modname );
 			for ( int i = 0; i < LuaAICount; i++ )
 			{
-				ret.push_back( _T( "LuaAI:" ) +  susynclib().GetLuaAIName( i ) );
+				ret.push_back( "LuaAI:" +  susynclib().GetLuaAIName( i ) );
 			}
 		}
 		catch ( ... ) {}
@@ -611,7 +595,6 @@ Unitsync::StringVector Unitsync::GetAIInfos( int index ) const
 
 GameOptions Unitsync::GetAIOptions( const std::string& modname, int index )
 {
-	wxLogDebugFunc( Tostd::string(index) );
 	GameOptions ret;
 	int count = susynclib().GetAIOptionCount(modname, index);
 	for (int i = 0; i < count; ++i)
@@ -638,10 +621,10 @@ Unitsync::StringVector Unitsync::GetUnitsList( const std::string& modname )
 	{
 		susynclib().SetCurrentMod( modname );
 		while ( susynclib().ProcessUnitsNoChecksum() ) {}
-		unsigned int unitcount = susynclib().GetUnitCount();
+		const unsigned int unitcount = susynclib().GetUnitCount();
 		for ( unsigned int i = 0; i < unitcount; i++ )
 		{
-			cache.push_back( susynclib().GetFullUnitName(i) << " (" << susynclib().GetUnitName(i) << ")" );
+			cache.push_back( susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")" );
 		}
 		SetCacheFile( GetFileCachePath( modname, "", true ) + ".units", cache );
 	}
@@ -650,7 +633,7 @@ Unitsync::StringVector Unitsync::GetUnitsList( const std::string& modname )
 
 UnitsyncImage Unitsync::GetMinimap( const std::string& mapname )
 {
-	return _GetMapImage( mapname, _T(".minimap.png"), &UnitsyncLib::GetMinimap );
+	return _GetMapImage( mapname, ".minimap.png", &UnitsyncLib::GetMinimap );
 }
 
 UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int height )
@@ -659,7 +642,7 @@ UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int h
 	UnitsyncImage img;
 	if ( tiny && m_tiny_minimap_cache.TryGet( mapname, img ) )
 	{
-		wxSize image_size = MakeFit(wxSize(img.GetWidth(), img.GetHeight()), wxSize(width, height));
+		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit( lslSize(width, height) );
 		if ( image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight() )
 			img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
 
@@ -674,7 +657,7 @@ UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int h
 		try {
 			MapInfo mapinfo = _GetMapInfoEx( mapname );
 
-			wxSize image_size = MakeFit(wxSize(mapinfo.width, mapinfo.height), wxSize(width, height));
+			lslSize image_size = lslSize(mapinfo.width, mapinfo.height).MakeFit( lslSize(width, height) );
 			img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
 		}
 		catch (...) {
@@ -682,7 +665,7 @@ UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int h
 		}
 	}
 	if ( tiny )
-		m_tiny_minimap_cache.push_back( mapname, img );
+		m_tiny_minimap_cache.Add( mapname, img );
 	return img;
 }
 
@@ -715,24 +698,21 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 	std::string originalsizepath = GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + imagename;
 	try
 	{
-		ASSERT_EXCEPTION( wxFileExists( originalsizepath ), "File cached image does not exist");
-
-		img = UnitsyncImage( originalsizepath, wxBITMAP_TYPE_PNG );
-		ASSERT_EXCEPTION( img.Ok(), "Failed to load cache image");
+		img = UnitsyncImage( originalsizepath );
 	}
 	catch (...)
 	{
 		try
 		{
 			img = (susynclib().*loadMethod)( mapname );
-			img.SaveFile( originalsizepath, wxBITMAP_TYPE_PNG );
+			img.Save( originalsizepath );
 		}
 		catch (...)
 		{
 			img = UnitsyncImage( 1, 1 );
 		}
 	}
-	m_map_image_cache.push_back( mapname + imagename, img );
+	m_map_image_cache.Add( mapname + imagename, img );
 	return img;
 }
 
@@ -741,7 +721,7 @@ UnitsyncImage Unitsync::_GetScaledMapImage( const std::string& mapname, Unitsync
 	UnitsyncImage img = (this->*loadMethod) ( mapname );
 	if (img.GetWidth() > 1 && img.GetHeight() > 1)
 	{
-		wxSize image_size = MakeFit(wxSize(img.GetWidth(), img.GetHeight()), wxSize(width, height));
+		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit( lslSize(width, height) );
 		img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
 	}
 	return img;
@@ -761,53 +741,52 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 
 			ASSERT_EXCEPTION( cache.size() >= 11, "not enough lines found in cache info ex");
 			info.author = cache[0];
-			info.tidalStrength =  s2l( cache[1] );
-			info.gravity = s2l( cache[2] );
-			info.maxMetal = s2d( cache[3] );
-			info.extractorRadius = s2d( cache[4] );
-			info.minWind = s2l( cache[5] );
-			info.maxWind = s2l( cache[6] );
-			info.width = s2l( cache[7] );
-			info.height = s2l( cache[8] );
-			Unitsync::StringVector posinfo = std::stringTokenize( cache[9], _T(' '), wxTOKEN_RET_EMPTY );
+			info.tidalStrength =  Util::FromString<long>( cache[1] );
+			info.gravity = Util::FromString<long>( cache[2] );
+			info.maxMetal = Util::FromString<double>( cache[3] );
+			info.extractorRadius = Util::FromString<double>( cache[4] );
+			info.minWind = Util::FromString<long>( cache[5] );
+			info.maxWind = Util::FromString<long>( cache[6] );
+			info.width = Util::FromString<long>( cache[7] );
+			info.height = Util::FromString<long>( cache[8] );
+			Unitsync::StringVector posinfo = wxStringTokenize( cache[9], " ", wxTOKEN_RET_EMPTY );
 			for ( unsigned int i = 0; i < posinfo.size(); i++)
 			{
 				StartPos position;
-				position.x = s2l( posinfo[i].BeforeFirst( _T('-') ) );
-				position.y = s2l( posinfo[i].AfterFirst( _T('-') ) );
+				position.x = Util::FromString<long>( Util::BeforeFirst( posinfo[i],  '-' ) );
+				position.y = Util::FromString<long>( Util::AfterFirst( posinfo[i], '-' ) );
 				info.positions.push_back( position );
 			}
-
-			unsigned int LineCount = cache.size();
-			for ( unsigned int i = 10; i < LineCount; i++ ) info.description << cache[i] << _T('\n');
-
+			const unsigned int LineCount = cache.size();
+			for ( unsigned int i = 10; i < LineCount; i++ )
+				info.description + cache[i] + _T('\n');
 		}
 		catch (...)
 		{
-			info = susynclib().GetMapInfoEx( m_unsorted_map_array.Index(mapname), 1 );
+			info = susynclib().GetMapInfoEx( Util::IndexInSequence( m_unsorted_map_array, mapname), 1 );
 
 			cache.push_back ( info.author );
-			cache.push_back( Tostd::string( info.tidalStrength ) );
-			cache.push_back( Tostd::string( info.gravity ) );
-			cache.push_back( Tostd::string( info.maxMetal ) );
-			cache.push_back( Tostd::string( info.extractorRadius ) );
-			cache.push_back( Tostd::string( info.minWind ) );
-			cache.push_back( Tostd::string( info.maxWind )  );
-			cache.push_back( Tostd::string( info.width ) );
-			cache.push_back( Tostd::string( info.height ) );
+			cache.push_back( Util::ToString( info.tidalStrength ) );
+			cache.push_back( Util::ToString( info.gravity ) );
+			cache.push_back( Util::ToString( info.maxMetal ) );
+			cache.push_back( Util::ToString( info.extractorRadius ) );
+			cache.push_back( Util::ToString( info.minWind ) );
+			cache.push_back( Util::ToString( info.maxWind )  );
+			cache.push_back( Util::ToString( info.width ) );
+			cache.push_back( Util::ToString( info.height ) );
 
 			std::string postring;
 			for ( unsigned int i = 0; i < info.positions.size(); i++)
 			{
-				postring << Tostd::string( info.positions[i].x ) << _T('-') << Tostd::string( info.positions[i].y ) << _T(' ');
+				postring + Util::ToString( info.positions[i].x ) + "-" + Util::ToString( info.positions[i].y ) + " ";
 			}
 			cache.push_back( postring );
 
-			Unitsync::StringVector descrtoken = std::stringTokenize( info.description, _T('\n') );
+			Unitsync::StringVector descrtoken = std::stringTokenize( info.description, "\n" );
 			unsigned int desclinecount = descrtoken.size();
 			for ( unsigned int count = 0; count < desclinecount; count++ ) cache.push_back( descrtoken[count] );
 
-			SetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + _T(".infoex"), cache );
+			SetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex", cache );
 		}
 	}
 	catch ( ... ) {
@@ -815,7 +794,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 		info.height = 1;
 	}
 
-	m_mapinfo_cache.push_back( mapname, info );
+	m_mapinfo_cache.Add( mapname, info );
 
 	return info;
 }
@@ -844,21 +823,25 @@ bool Unitsync::ReloadUnitSyncLib()
 
 void Unitsync::SetSpringDataPath( const std::string& path )
 {
-	susynclib().SetSpringConfigString( _T("SpringData"), path );
+	susynclib().SetSpringConfigString( "SpringData", path );
 }
 
 std::string Unitsync::GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod )
 {
 	std::string ret = m_cache_path;
-	if ( !name.empty() ) ret << name;
-	else return std::string();
-	if ( !hash.empty() ) ret << "-" << hash;
+	if ( !name.empty() )
+		ret + name;
+	else
+		return std::string();
+	if ( !hash.empty() )
+		ret + "-" + hash;
 	else
 	{
-		if ( IsMod ) ret <<  "-" << m_mods_list[name];
+		if ( IsMod )
+			ret + "-" + m_mods_list[name];
 		else
 		{
-			ret << "-" << m_maps_list[name];
+			ret + "-" + m_maps_list[name];
 		}
 	}
 	return ret;

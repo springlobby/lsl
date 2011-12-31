@@ -8,7 +8,7 @@
 
 namespace LSL {
 
-void UnitsyncFunctionLoader::LuaParser(SpringUnitSyncLib *s)
+void UnitsyncFunctionLoader::LuaParser(UnitsyncLib *s)
 {
     GetLibFuncPtr( s->m_libhandle, "lpClose",                   s->m_parser_close );
     GetLibFuncPtr( s->m_libhandle, "lpOpenFile",				s->m_parser_open_file );
@@ -56,7 +56,7 @@ void UnitsyncFunctionLoader::LuaParser(SpringUnitSyncLib *s)
     GetLibFuncPtr( s->m_libhandle, "lpGetStrKeyStrVal",			s->m_parser_string_key_get_string_value );
 }
 
-void UnitsyncFunctionLoader::MMOptions(SpringUnitSyncLib *s)
+void UnitsyncFunctionLoader::MMOptions(UnitsyncLib *s)
 {
     GetLibFuncPtr( s->m_libhandle, "GetMapOptionCount",			s->m_get_map_option_count );
     GetLibFuncPtr( s->m_libhandle, "GetCustomOptionCount",		s->m_get_custom_option_count );
@@ -82,7 +82,7 @@ void UnitsyncFunctionLoader::MMOptions(SpringUnitSyncLib *s)
     GetLibFuncPtr( s->m_libhandle, "GetOptionListItemDesc",		s->m_get_option_list_item_desc );
 }
 
-void UnitsyncFunctionLoader::Map(SpringUnitSyncLib *s)
+void UnitsyncFunctionLoader::Map(UnitsyncLib *s)
 {
     GetLibFuncPtr( s->m_libhandle, "GetMapCount",					 s->m_get_map_count );
     GetLibFuncPtr( s->m_libhandle, "GetMapChecksum",				 s->m_get_map_checksum );
@@ -122,7 +122,7 @@ void UnitsyncFunctionLoader::Map(SpringUnitSyncLib *s)
     GetLibFuncPtr( s->m_libhandle, "GetMapChecksumFromName",		s->m_get_map_checksum_from_name );
 }
 
-void UnitsyncFunctionLoader::Basic(SpringUnitSyncLib *s)
+void UnitsyncFunctionLoader::Basic(UnitsyncLib *s)
 {
     GetLibFuncPtr( s->m_libhandle, "Init",							s->m_init );
     GetLibFuncPtr( s->m_libhandle, "UnInit",						s->m_uninit );
@@ -167,7 +167,7 @@ void UnitsyncFunctionLoader::Basic(SpringUnitSyncLib *s)
     GetLibFuncPtr( s->m_libhandle, "GetLuaAIDesc",					s->m_get_luaai_desc );
 }
 
-void UnitsyncFunctionLoader::Config(SpringUnitSyncLib *s)
+void UnitsyncFunctionLoader::Config(UnitsyncLib *s)
 {
     GetLibFuncPtr( s->m_libhandle, "SetSpringConfigFile",			s->m_set_spring_config_file_path );
     GetLibFuncPtr( s->m_libhandle, "GetSpringConfigFile",           s->m_get_spring_config_file_path );
@@ -180,7 +180,7 @@ void UnitsyncFunctionLoader::Config(SpringUnitSyncLib *s)
     GetLibFuncPtr( s->m_libhandle, "SetSpringConfigInt",            s->m_set_spring_config_int );
 }
 
-void UnitsyncFunctionLoader::Mod(SpringUnitSyncLib *s)
+void UnitsyncFunctionLoader::Mod(UnitsyncLib *s)
 {
     GetLibFuncPtr( s->m_libhandle, "GetPrimaryModChecksum",         s->m_get_mod_checksum );
     GetLibFuncPtr( s->m_libhandle, "GetPrimaryModIndex",			s->m_get_mod_index );

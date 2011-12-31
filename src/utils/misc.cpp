@@ -16,5 +16,62 @@ bool FileCanOpen( const std::string path )
     return std::ifstream(path).is_open();
 }
 
+namespace Lib {
+
+std::string GetDllExt()
+{
+#if defined(__UNIX__)
+	return ".so";
+#elif defined(WIN32)
+	return ".dll";
+#else
+	assert( false );
+#endif
+}
+
+std::string CanonicalizeName( const std::string& name, Category cat)
+{
+	std::string nameCanonic;
+	// under Unix the library names usually start with "lib" prefix, add it
+#if defined(__UNIX__) && !defined(__EMX__)
+	switch ( cat )
+	{
+		default:
+			wxFAIL_MSG( _T("unknown wxDynamicLibraryCategory value") );
+			// fall through
+		case wxDL_MODULE:
+			// don't do anything for modules, their names are arbitrary
+			break;
+		case wxDL_LIBRARY:
+			// library names should start with "lib" under Unix
+			nameCanonic = _T("lib");
+			break;
+	}
+#else // !__UNIX__
+	lslUnusedVar(cat);
+#endif // __UNIX__/!__UNIX__
+	nameCanonic + name + GetDllExt();
+	return nameCanonic;
+}
+
+} //namespace Lib
 } //namespace Util
+
+
+lslSize lslSize::MakeFit(const lslSize bounds)
+{
+	if( ( bounds.GetWidth() <= 0 ) || ( bounds.GetHeight() <= 0 ) )
+		return lslSize(0,0);
+	const int sizex = ( this->GetWidth() * bounds.GetHeight() ) / this->GetHeight();
+	if( sizex <= bounds.GetWidth() )
+	{
+	  return lslSize( sizex, bounds.GetHeight() );
+	}
+	else
+	{
+	  const int sizey = ( this->GetHeight() * bounds.GetWidth() ) / this->GetWidth();
+	  return lslSize( bounds.GetWidth(), sizey );
+	}
+}
+
 } //namespace LSL

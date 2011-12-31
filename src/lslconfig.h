@@ -3,6 +3,8 @@
 
 #define STR_DUMMY(name) std::string name () const { return std::string(); }
 
+#include <string>
+
 namespace LSL {
 
 class Config
@@ -11,6 +13,7 @@ public:
     Config();
     STR_DUMMY( GetCachePath )
     STR_DUMMY( GetForcedSpringConfigFilePath )
+    STR_DUMMY( GetCurrentUsedUnitSync )
 };
 
 Config& sett() {

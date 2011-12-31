@@ -3,16 +3,16 @@
 
 namespace LSL {
 
-class SpringUnitSyncLib;
+class UnitsyncLib;
 
 struct UnitsyncFunctionLoader
 {
-    static void LuaParser( SpringUnitSyncLib* s );
-    static void MMOptions( SpringUnitSyncLib* s );
-    static void Map( SpringUnitSyncLib* s );
-    static void Mod( SpringUnitSyncLib* s );
-    static void Basic( SpringUnitSyncLib* s );
-    static void Config( SpringUnitSyncLib* s );
+	static void LuaParser( UnitsyncLib* s );
+	static void MMOptions( UnitsyncLib* s );
+	static void Map( UnitsyncLib* s );
+	static void Mod( UnitsyncLib* s );
+	static void Basic( UnitsyncLib* s );
+	static void Config( UnitsyncLib* s );
 };
 
 } // namespace LSL

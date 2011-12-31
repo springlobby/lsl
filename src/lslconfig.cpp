@@ -1,5 +1,9 @@
-#include "config.h"
+#include "lslconfig.h"
+
+namespace LSL {
 
 Config::Config()
 {
 }
+
+}// namespace LSL {

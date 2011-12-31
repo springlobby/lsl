@@ -88,6 +88,12 @@ UnitsyncImage::UnitsyncImage( int width, int height )
 {
 }
 
+UnitsyncImage::UnitsyncImage(const std::string &filename)
+	: m_data_ptr( NewImagePtr(1,1) )
+{
+	m_data_ptr->load( filename.c_str() );
+}
+
 UnitsyncImage::UnitsyncImage(PrivateImagePtrType ptr)
 	: m_data_ptr( ptr )
 {
@@ -121,6 +127,14 @@ UnitsyncImage UnitsyncImage::FromVfsFileData( Util::uninitialized_array<char>& d
 	catch ( std::exception& e ) {
 		LslError( "couldn't load VFS file %s: %s", fn.c_str(), e.what() );
 	}
+	//	cache.InitAlpha();
+	//	if ( useWhiteAsTransparent )
+	//	{
+	//		for ( int x = 0; x < cache.GetWidth(); x++ )
+	//			for ( int y = 0; y < cache.GetHeight(); y++ )
+	//				if ( cache.GetBlue( x, y ) == 255 && cache.GetGreen( x, y ) == 255 && cache.GetRed( x, y ) == 255 )
+	//					cache.SetAlpha( x, y, 0 ); // set pixel to be transparent
+	//	}
 	PrivateImagePtrType ptr( img_p );
 	return UnitsyncImage( ptr );
 }
@@ -132,8 +146,12 @@ UnitsyncImage::UnitsyncImage()
 
 void UnitsyncImage::Save(const std::string& path) const
 {
-	assert( m_data_ptr );
 	m_data_ptr->save( path.c_str() );
+}
+
+void UnitsyncImage::Load(const std::string &path) const
+{
+	m_data_ptr->load( path.c_str() );
 }
 
 UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *colours, int width, int height)
@@ -202,5 +220,19 @@ UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<u
 	return UnitsyncImage( ptr );
 }
 
+int UnitsyncImage::GetHeight() const
+{
+	return m_data_ptr->height();
+}
+
+void UnitsyncImage::Rescale(const int new_width, const int new_height)
+{
+	m_data_ptr->resize( new_width, new_height, -100 /*c-default*/, 1 /*interpolation type*/);
+}
+
+int UnitsyncImage::GetWidth() const
+{
+	return m_data_ptr->width();
+}
 
 } // namespace LSL

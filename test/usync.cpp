@@ -5,7 +5,7 @@
 
 void dummySync()
 {
-	   LSL::SpringUnitSyncLib s;
+	   LSL::UnitsyncLib s;
 	   s.Load( "/usr/lib/spring/libunitsync.so", "" );
 	   LSL::UnitsyncImage mini = s.GetMinimap( "Alaska" );
 	   LSL::UnitsyncImage metal = s.GetMetalmap( "Alaska" );
@@ -13,5 +13,7 @@ void dummySync()
 	   mini.Save( "/tmp/alaska_mini.png" );
 	   metal.Save( "/tmp/alaska_metal.png" );
 	   height.Save( "/tmp/alaska_height.png" );
+	   LSL::UnitsyncImage heightL( "/tmp/alaska_height.png" );
+	   heightL.Save( "/tmp/alaska_heightL.png" );
 }
 
