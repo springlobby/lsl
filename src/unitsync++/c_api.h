@@ -542,7 +542,7 @@ private:
 	/*@}*/
 };
 
-SpringUnitSyncLib& susynclib()
+inline static SpringUnitSyncLib& susynclib()
 {
 	static SpringUnitSyncLib ss;
 	return ss;
