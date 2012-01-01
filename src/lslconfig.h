@@ -14,12 +14,10 @@ public:
     STR_DUMMY( GetCachePath )
     STR_DUMMY( GetForcedSpringConfigFilePath )
     STR_DUMMY( GetCurrentUsedUnitSync )
+    std::string GetCurrentUsedUnitSync() { return "/usr/lib/spring/libunitsync.so";}
 };
 
-Config& sett() {
-    static Config cc;
-    return cc;
-}
+Config& sett();
 
 } // namespace LSL
 

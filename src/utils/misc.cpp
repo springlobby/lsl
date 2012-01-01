@@ -55,6 +55,31 @@ std::string CanonicalizeName( const std::string& name, Category cat)
 }
 
 } //namespace Lib
+
+std::string BeforeLast( const std::string& phrase, const std::string& searchterm )
+{
+	const size_t pos = phrase.rfind( searchterm );
+	return phrase.substr( 0, pos );
+}
+
+std::string AfterLast( const std::string& phrase, const std::string& searchterm )
+{
+	const size_t pos = phrase.rfind( searchterm );
+	return phrase.substr( pos+1 );
+}
+
+std::string BeforeFirst( const std::string& phrase, const std::string& searchterm )
+{
+	const size_t pos = phrase.find( searchterm );
+	return phrase.substr( 0, pos );
+}
+
+std::string AfterFirst( const std::string& phrase, const std::string& searchterm )
+{
+	const size_t pos = phrase.find( searchterm );
+	return phrase.substr( pos+1 );
+}
+
 } //namespace Util
 
 

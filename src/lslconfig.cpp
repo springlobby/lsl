@@ -6,4 +6,10 @@ Config::Config()
 {
 }
 
+Config& sett() {
+    static Config cc;
+    return cc;
+}
+
+
 }// namespace LSL {

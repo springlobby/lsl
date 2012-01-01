@@ -223,10 +223,7 @@ public:
 	std::string GetNameForShortname( const std::string& shortname, const std::string& version ) const;
 };
 
-Unitsync& usync() {
-	static Unitsync us;
-	return us;
-}
+Unitsync& usync();
 
 struct GameOptions
 {

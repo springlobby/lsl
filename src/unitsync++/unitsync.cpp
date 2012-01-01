@@ -7,8 +7,9 @@
 #include <stdexcept>
 #include <clocale>
 #include <set>
-#include <boost/algorithm/string/compare.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
+#include <fstream>
+#include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
 #include <boost/format.hpp>
 
 #include <lslconfig.h>
@@ -20,7 +21,7 @@
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
-#define ASSERT_EXCEPTION(cond,msg) do { if ((cond)) { LSL_THROW( unitsync, msg ); } } while (0)
+#define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( unitsync, msg ); } } while (0)
 
 namespace LSL {
 
@@ -751,17 +752,19 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			info.maxWind = Util::FromString<long>( cache[6] );
 			info.width = Util::FromString<long>( cache[7] );
 			info.height = Util::FromString<long>( cache[8] );
-			Unitsync::StringVector posinfo = wxStringTokenize( cache[9], " ", wxTOKEN_RET_EMPTY );
-			for ( unsigned int i = 0; i < posinfo.size(); i++)
+			Unitsync::StringVector posinfo;
+			boost::algorithm::split( posinfo, cache[9], boost::algorithm::is_any_of(" "),
+									 boost::algorithm::token_compress_off );
+			BOOST_FOREACH( const std::string pos, posinfo )
 			{
 				StartPos position;
-				position.x = Util::FromString<long>( Util::BeforeFirst( posinfo[i],  "-" ) );
-				position.y = Util::FromString<long>( Util::AfterFirst( posinfo[i], "-" ) );
+				position.x = Util::FromString<long>( Util::BeforeFirst( pos,  "-" ) );
+				position.y = Util::FromString<long>( Util::AfterFirst( pos, "-" ) );
 				info.positions.push_back( position );
 			}
 			const unsigned int LineCount = cache.size();
 			for ( unsigned int i = 10; i < LineCount; i++ )
-				info.description + cache[i] + "\n";
+				info.description += cache[i] + "\n";
 		}
 		catch (...)
 		{
@@ -780,14 +783,16 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			std::string postring;
 			for ( unsigned int i = 0; i < info.positions.size(); i++)
 			{
-				postring + Util::ToString( info.positions[i].x ) + "-" + Util::ToString( info.positions[i].y ) + " ";
+				postring += Util::ToString( info.positions[i].x ) + "-" + Util::ToString( info.positions[i].y ) + " ";
 			}
 			cache.push_back( postring );
 
-			Unitsync::StringVector descrtoken = std::stringTokenize( info.description, "\n" );
-			unsigned int desclinecount = descrtoken.size();
-			for ( unsigned int count = 0; count < desclinecount; count++ ) cache.push_back( descrtoken[count] );
-
+			Unitsync::StringVector descrtokens;
+			boost::algorithm::split( descrtokens, info.description, boost::algorithm::is_any_of("\n"),
+									 boost::algorithm::token_compress_off );
+			BOOST_FOREACH( const std::string descrtoken, descrtokens ) {
+				cache.push_back( descrtoken );
+			}
 			SetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex", cache );
 		}
 	}
@@ -821,18 +826,18 @@ std::string Unitsync::GetFileCachePath( const std::string& name, const std::stri
 {
 	std::string ret = m_cache_path;
 	if ( !name.empty() )
-		ret + name;
+		ret += name;
 	else
 		return std::string();
 	if ( !hash.empty() )
-		ret + "-" + hash;
+		ret += "-" + hash;
 	else
 	{
 		if ( IsMod )
-			ret + "-" + m_mods_list[name];
+			ret += "-" + m_mods_list[name];
 		else
 		{
-			ret + "-" + m_maps_list[name];
+			ret += "-" + m_maps_list[name];
 		}
 	}
 	return ret;
@@ -841,27 +846,28 @@ std::string Unitsync::GetFileCachePath( const std::string& name, const std::stri
 Unitsync::StringVector Unitsync::GetCacheFile( const std::string& path ) const
 {
 	Unitsync::StringVector ret;
-	wxTextFile file( path );
-	file.Open();
-	ASSERT_EXCEPTION( file.IsOpened() , boost::format( "cache file( %s ) not found" ) % path );
-	unsigned int linecount = file.GetLineCount();
-	for ( unsigned int count = 0; count < linecount; count ++ )
+	std::ifstream file( path );
+	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
+	std::string line;
+	while(std::getline(file,line))
 	{
-		ret.push_back( file[count] );
+		ret.push_back( line );
 	}
 	return ret;
 }
 
 void Unitsync::SetCacheFile( const std::string& path, const Unitsync::StringVector& data )
 {
-	wxTextFile file( path );
+	std::ofstream file( path );
+	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
 	unsigned int arraycount = data.size();
 	for ( unsigned int count = 0; count < arraycount; count++ )
+	BOOST_FOREACH( const std::string line, data )
 	{
-		file.push_backLine( data[count] );
+		file << line << std::endl;
 	}
-	file.Write();
-	file.Close();
+	file.flush();
+	file.close();
 }
 
 Unitsync::StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
@@ -1092,7 +1098,8 @@ void Unitsync::RegisterEvtHandler( StringSignalSlotType handler )
 
 void Unitsync::UnregisterEvtHandler( StringSignalSlotType handler )
 {
-	m_async_ops_complete_sig.disconnect( handler );
+//	m_async_ops_complete_sig.disconnect( handler );
+	assert( false );
 }
 
 void Unitsync::PostEvent( const std::string evt )
@@ -1192,12 +1199,19 @@ void Unitsync::OnReload( wxCommandEvent& /*event*/ )
 {
 	ReloadUnitSyncLib();
 }
+#endif
 
 void Unitsync::AddReloadEvent(  )
 {
-	wxCommandEvent evt( wxUnitsyncReloadEvent, wxNewId() );
-	AddPendingEvent( evt );
+	assert( false );
+//	wxCommandEvent evt( wxUnitsyncReloadEvent, wxNewId() );
+//	AddPendingEvent( evt );
 }
-#endif
+
+Unitsync& usync() {
+	static Unitsync us;
+	return us;
+}
+
 
 } // namespace LSL

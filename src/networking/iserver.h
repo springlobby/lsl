@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <utils/datatypes.h>
 #include <utils/mutexwrapper.h>
 #include <utils/crc.h>
@@ -27,6 +28,8 @@ class iServer
   public:
     iServer();
 
+	typedef std::vector<std::string>
+		StringVector;
 	// Server interface
 
 	virtual bool ExecuteSayCommand( const std::string& cmd ) = 0;

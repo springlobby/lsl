@@ -1222,4 +1222,10 @@ float UnitsyncLib::GetKeyValue( const std::string& key, float defval )
 	return m_parser_string_key_get_float_value( key.c_str(), defval );
 }
 
+UnitsyncLib& susynclib()
+{
+	static UnitsyncLib ss;
+	return ss;
+}
+
 } //namespace LSL

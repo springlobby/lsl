@@ -2,14 +2,15 @@
 
 #include <unitsync++/c_api.h>
 #include <unitsync++/image.h>
+#include <unitsync++/unitsync.h>
 
 void dummySync()
 {
-	   LSL::UnitsyncLib s;
-	   s.Load( "/usr/lib/spring/libunitsync.so", "" );
-	   LSL::UnitsyncImage mini = s.GetMinimap( "Alaska" );
-	   LSL::UnitsyncImage metal = s.GetMetalmap( "Alaska" );
-	   LSL::UnitsyncImage height = s.GetHeightmap( "Alaska" );
+	   LSL::usync();
+	   const bool usync_loaded = LSL::usync().ReloadUnitSyncLib();
+	   LSL::UnitsyncImage mini = LSL::usync().GetMinimap( "Alaska" );
+	   LSL::UnitsyncImage metal = LSL::usync().GetMetalmap( "Alaska" );
+	   LSL::UnitsyncImage height = LSL::usync().GetHeightmap( "Alaska" );
 	   mini.Save( "/tmp/alaska_mini.png" );
 	   metal.Save( "/tmp/alaska_metal.png" );
 	   height.Save( "/tmp/alaska_height.png" );

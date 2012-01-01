@@ -1,21 +1,23 @@
 #include "mmoptionmodel.h"
 
+namespace LSL {
+
 mmOptionModel::mmOptionModel(std::string name_, std::string key_, std::string description_, OptionType type_,
                              std::string section_ , std::string style_ )
 	: name(name_),key(key_),description(description_),type(type_),
       section(section_),ct_type_string(style_)
 {
     //set style according to input string
-    if ( style_ == _T("yaadda") )
+    if ( style_ == "yaadda" )//TODO(koshi) the fuck?
         ct_type = ct_someothers;
     else
         ct_type = ct_undefined; //lobby will chooose best fit
 
-    if ( section == wxEmptyString )
-        section = SLGlobals::nosection_name;
+    if ( section == std::string() )
+        section = Constants::nosection_name;
 
-    if ( ct_type_string == wxEmptyString )
-        ct_type_string  = SLGlobals::nostyle_name;
+    if ( ct_type_string == std::string() )
+        ct_type_string  = Constants::nostyle_name;
 
 }
 
@@ -32,10 +34,10 @@ mmOptionModel::~mmOptionModel()
 mmOptionModel::mmOptionModel()
 {
 	type = opt_undefined;
-	name = _T("");
+    name = std::string();
 	key = name;
 	description = name;
-	section = SLGlobals::nosection_name;
+    section = Constants::nosection_name;
 	ct_type = ct_undefined;
 }
 
@@ -69,7 +71,7 @@ mmOptionString::mmOptionString(std::string name_, std::string key_, std::string 
 
 mmOptionString::mmOptionString():mmOptionModel()
 {
-	def = _T("");
+    def = std::string();
 	value = def;
 	max_len = 0;
 }
@@ -84,8 +86,8 @@ mmOptionList::mmOptionList(std::string name_, std::string key_, std::string desc
 
 mmOptionList::mmOptionList():mmOptionModel()
 {
-	value = _T("");
-	def = _T("");
+    value = std::string();
+    def = std::string();
 }
 
 void mmOptionList::addItem(std::string key_, std::string name_, std::string desc_)
@@ -94,7 +96,7 @@ void mmOptionList::addItem(std::string key_, std::string name_, std::string desc
 	//make sure current choice is set to default
 	if ( this->def == key_ )
         this->cur_choice_index = listitems.size() - 1;
-	cbx_choices.Add(name_);
+    cbx_choices.push_back(name_);
 }
 
 listItem::listItem(std::string key_, std::string name_,std::string desc_):
@@ -106,7 +108,7 @@ listItem::listItem(std::string key_, std::string name_,std::string desc_):
 
  mmOptionSection::mmOptionSection():mmOptionModel()
 {
-    key = SLGlobals::nosection_name;
+    key = Constants::nosection_name;
 }
 
  mmOptionSection::mmOptionSection(std::string name_, std::string key_, std::string description_,std::string section_, std::string style_ )
@@ -115,3 +117,4 @@ listItem::listItem(std::string key_, std::string name_,std::string desc_):
 
 }
 
+} // namespace LSL {
