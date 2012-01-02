@@ -32,16 +32,14 @@ int main(int, char**)
     TESTLIST(BattleList)
 //    TESTLIST(ChannelList)
 
-//    Server s;
-//    std::string msg= "Blubb DE 666 99";
-//    s.cmd_map_["ADDUSER"]->process(msg);
+
 	dummySync();
 
-	std::string sequence("/root/path/jijij.png");
-	std::cout	<< "\n\nBeforeLast: " << LSL::Util::BeforeLast( sequence, "/" ) << "\n"
-				<< "AfterLast: " << LSL::Util::AfterLast( sequence, "/" ) << "\n"
-				<< "BeforeFirst: " << LSL::Util::BeforeFirst( sequence, "/" ) << "\n"
-				<< "AfterFirst: " << LSL::Util::AfterFirst( sequence, "/" ) << "\n";
+//	std::string sequence("/root/path/jijij.png");
+//	std::cout	<< "\n\nBeforeLast: " << LSL::Util::BeforeLast( sequence, "/" ) << "\n"
+//				<< "AfterLast: " << LSL::Util::AfterLast( sequence, "/" ) << "\n"
+//				<< "BeforeFirst: " << LSL::Util::BeforeFirst( sequence, "/" ) << "\n"
+//				<< "AfterFirst: " << LSL::Util::AfterFirst( sequence, "/" ) << "\n";
 
 	std::cout << std::endl;
 	return 0;
