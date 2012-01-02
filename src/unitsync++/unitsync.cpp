@@ -54,10 +54,17 @@ Unitsync::~Unitsync()
 	delete m_susynclib;
 }
 
-static int CompareStringNoCase(const std::string& first, const std::string& second)
+bool CompareStringNoCase(const std::string& first, const std::string& second)
 {
-	static boost::is_iless il;
-	return il(first,second);
+	static std::locale l("C");
+	static boost::is_iless il(l);
+	try {
+		//this fails on certain names
+		return il(first,second);
+	}
+	catch(...) {
+		return first < second;
+	}
 }
 
 bool Unitsync::FastLoadUnitSyncLib( const std::string& unitsyncloc )
@@ -185,8 +192,8 @@ void Unitsync::PopulateArchiveList()
 	}
 	m_unsorted_mod_array = m_mod_array;
 	m_unsorted_map_array = m_map_array;
-	std::sort( m_map_array.begin(), m_map_array.end() );//, boost::is_iless() );
-	std::sort( m_mod_array.begin(), m_mod_array.end() );//, boost::is_iless() );
+	std::sort( m_map_array.begin(), m_map_array.end() , &CompareStringNoCase );
+	std::sort( m_mod_array.begin(), m_mod_array.end() , &CompareStringNoCase  );
 }
 
 
