@@ -18,11 +18,9 @@ struct CachedMapInfo;
 struct SpringMapInfo;
 class UnitsyncLib;
 
-class Unitsync
+class Unitsync : public boost::noncopyable
 {
 private:
-	Unitsync();
-
 	typedef std::vector< std::string >
 		StringVector;
 	typedef boost::signals2::signal<void (std::string)>
@@ -32,6 +30,7 @@ public:
 	typedef StringSignalType::slot_type
 		StringSignalSlotType;
 
+	Unitsync();
 	virtual ~Unitsync();
 
 	typedef std::map<std::string,mmOptionBool> OptionMapBool;
@@ -163,6 +162,7 @@ public:
     StringVector FindFilesVFS( const std::string& pattern ) const;
 
   private:
+	UnitsyncLib* m_susynclib;
 	typedef std::map< std::pair<std::string,std::string>, std::string> ShortnameVersionToNameMap;
 	ShortnameVersionToNameMap m_shortname_to_name_map;
 

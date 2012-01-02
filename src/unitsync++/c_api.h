@@ -542,7 +542,7 @@ private:
 	/*@}*/
 };
 
-UnitsyncLib& susynclib();
+//UnitsyncLib& susynclib();
 
 } // namespace LSL
 #endif //SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H

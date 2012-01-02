@@ -34,7 +34,8 @@ namespace LSL {
 
 
 Unitsync::Unitsync()
-	: m_cache_thread( NULL )
+	: m_susynclib( new UnitsyncLib() )
+	, m_cache_thread( NULL )
 	, m_map_image_cache( 3, "m_map_image_cache" )         // may take about 3M per image ( 1024x1024 24 bpp minimap )
 	, m_tiny_minimap_cache( 200, "m_tiny_minimap_cache" ) // takes at most 30k per image (   100x100 24 bpp minimap )
 	, m_mapinfo_cache( 1000000, "m_mapinfo_cache" )       // this one is just misused as thread safe std::map ...
@@ -50,6 +51,7 @@ Unitsync::~Unitsync()
 	if ( m_cache_thread )
 		m_cache_thread->Wait();
 	delete m_cache_thread;
+	delete m_susynclib;
 }
 
 static int CompareStringNoCase(const std::string& first, const std::string& second)
@@ -69,18 +71,18 @@ bool Unitsync::FastLoadUnitSyncLib( const std::string& unitsyncloc )
 	m_unsorted_mod_array.clear();
 	m_mods_unchained_hash.clear();
 
-	const int numMods = susynclib().GetPrimaryModCount();
+	const int numMods = m_susynclib->GetPrimaryModCount();
 	std::string name, hash;
 	for ( int i = 0; i < numMods; i++ )
 	{
 		try
 		{
-			name = susynclib().GetPrimaryModName( i );
+			name = m_susynclib->GetPrimaryModName( i );
 			m_mods_list[name] = "fakehash";
 			m_mod_array.push_back( name );
 			m_shortname_to_name_map[
-					std::make_pair(susynclib().GetPrimaryModShortName( i ),
-								   susynclib().GetPrimaryModVersion( i )) ] = name;
+					std::make_pair(m_susynclib->GetPrimaryModShortName( i ),
+								   m_susynclib->GetPrimaryModVersion( i )) ] = name;
 		} catch (...) { continue; }
 	}
 	m_unsorted_mod_array = m_mod_array;
@@ -125,19 +127,19 @@ void Unitsync::PopulateArchiveList()
 	m_mods_unchained_hash.clear();
 	m_shortname_to_name_map.clear();
 
-	int numMaps = susynclib().GetMapCount();
+	int numMaps = m_susynclib->GetMapCount();
 	for ( int i = 0; i < numMaps; i++ )
 	{
 		std::string name, hash, archivename, unchainedhash;
 		try
 		{
-			name = susynclib().GetMapName( i );
-			hash = susynclib().GetMapChecksum( i );
-			int count = susynclib().GetMapArchiveCount( i );
+			name = m_susynclib->GetMapName( i );
+			hash = m_susynclib->GetMapChecksum( i );
+			int count = m_susynclib->GetMapArchiveCount( i );
 			if ( count > 0 )
 			{
-				archivename =  susynclib().GetMapArchiveName( 0 );
-				unchainedhash = susynclib().GetArchiveChecksum( archivename );
+				archivename =  m_susynclib->GetMapArchiveName( 0 );
+				unchainedhash = m_susynclib->GetArchiveChecksum( archivename );
 			}
 			//PrefetchMap( name ); // DEBUG
 		} catch (...) { continue; }
@@ -152,19 +154,19 @@ void Unitsync::PopulateArchiveList()
 			LslError( "Found map with hash collision: %s hash: %s", name.c_str(), hash.c_str() );
 		}
 	}
-	int numMods = susynclib().GetPrimaryModCount();
+	int numMods = m_susynclib->GetPrimaryModCount();
 	for ( int i = 0; i < numMods; i++ )
 	{
 		std::string name, hash, archivename, unchainedhash;
 		try
 		{
-			name = susynclib().GetPrimaryModName( i );
-			hash = susynclib().GetPrimaryModChecksum( i );
-			int count = susynclib().GetPrimaryModArchiveCount( i );
+			name = m_susynclib->GetPrimaryModName( i );
+			hash = m_susynclib->GetPrimaryModChecksum( i );
+			int count = m_susynclib->GetPrimaryModArchiveCount( i );
 			if ( count > 0 )
 			{
-				archivename = susynclib().GetPrimaryModArchive( i );
-				unchainedhash = susynclib().GetArchiveChecksum( archivename );
+				archivename = m_susynclib->GetPrimaryModArchive( i );
+				unchainedhash = m_susynclib->GetArchiveChecksum( archivename );
 			}
 		} catch (...) { continue; }
 		try
@@ -174,8 +176,8 @@ void Unitsync::PopulateArchiveList()
 			if ( !archivename.empty() ) m_mods_archive_name[name] = archivename;
 			m_mod_array.push_back( name );
 			m_shortname_to_name_map[
-					std::make_pair(susynclib().GetPrimaryModShortName( i ),
-								   susynclib().GetPrimaryModVersion( i )) ] = name;
+					std::make_pair(m_susynclib->GetPrimaryModShortName( i ),
+								   m_susynclib->GetPrimaryModVersion( i )) ] = name;
 		} catch (...)
 		{
 			LslError( "Found game with hash collision: %s hash: %s", name.c_str(), hash.c_str() );
@@ -183,8 +185,8 @@ void Unitsync::PopulateArchiveList()
 	}
 	m_unsorted_mod_array = m_mod_array;
 	m_unsorted_map_array = m_map_array;
-	std::sort( m_map_array.begin(), m_map_array.end(), boost::is_iless() );
-	std::sort( m_mod_array.begin(), m_mod_array.end(), boost::is_iless() );
+	std::sort( m_map_array.begin(), m_map_array.end() );//, boost::is_iless() );
+	std::sort( m_mod_array.begin(), m_mod_array.end() );//, boost::is_iless() );
 }
 
 
@@ -192,7 +194,7 @@ void Unitsync::PopulateArchiveList()
 bool Unitsync::_LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	try {
-		susynclib().Load( unitsyncloc, sett().GetForcedSpringConfigFilePath() );
+		m_susynclib->Load( unitsyncloc, sett().GetForcedSpringConfigFilePath() );
 	} catch (...) {
 		return false;
 	}
@@ -204,13 +206,13 @@ void Unitsync::FreeUnitSyncLib()
 {
 	LOCK_UNITSYNC;
 
-	susynclib().Unload();
+	m_susynclib->Unload();
 }
 
 
 bool Unitsync::IsLoaded() const
 {
-	return susynclib().IsLoaded();
+	return m_susynclib->IsLoaded();
 }
 
 
@@ -220,7 +222,7 @@ std::string Unitsync::GetSpringVersion() const
 	std::string ret;
 	try
 	{
-		ret = susynclib().GetSpringVersion();
+		ret = m_susynclib->GetSpringVersion();
 	}
 	catch (...){}
 	return ret;
@@ -229,7 +231,7 @@ std::string Unitsync::GetSpringVersion() const
 
 bool Unitsync::VersionSupports( GameFeature feature ) const
 {
-	return susynclib().VersionSupports( feature );
+	return m_susynclib->VersionSupports( feature );
 }
 
 
@@ -306,9 +308,9 @@ Unitsync::StringVector Unitsync::GetModValidMapList( const std::string& modname 
 {
 	Unitsync::StringVector ret;
 	try {
-		unsigned int mapcount = susynclib().GetValidMapCount( modname );
+		unsigned int mapcount = m_susynclib->GetValidMapCount( modname );
 		for ( unsigned int i = 0; i < mapcount; i++ )
-			ret.push_back( susynclib().GetValidMapName( i ) );
+			ret.push_back( m_susynclib->GetValidMapName( i ) );
 	} catch ( Exceptions::unitsync& e ) {}
 	return ret;
 }
@@ -352,58 +354,58 @@ UnitSyncMap Unitsync::GetMapEx( int index )
 	return m;
 }
 
-void GetOptionEntry( const int i, GameOptions& ret)
+void GetOptionEntry( UnitsyncLib* const susynclib, const int i, GameOptions& ret)
 {
 	//all section values for options are converted to lower case
 	//since usync returns the key of section type keys lower case
 	//otherwise comapring would be a real hassle
-	const std::string key = susynclib().GetOptionKey(i);
-	const std::string name = susynclib().GetOptionName(i);
-	const std::string section_str = boost::algorithm::to_lower_copy( susynclib().GetOptionSection(i) );
-	switch (susynclib().GetOptionType(i))
+	const std::string key = susynclib->GetOptionKey(i);
+	const std::string name = susynclib->GetOptionName(i);
+	const std::string section_str = boost::algorithm::to_lower_copy( susynclib->GetOptionSection(i) );
+	switch (susynclib->GetOptionType(i))
 	{
 	case opt_float:
 	{
 		ret.float_map[key] = mmOptionFloat( name, key,
-											susynclib().GetOptionDesc(i), susynclib().GetOptionNumberDef(i),
-											susynclib().GetOptionNumberStep(i),
-											susynclib().GetOptionNumberMin(i), susynclib().GetOptionNumberMax(i),
-											section_str, susynclib().GetOptionStyle(i) );
+											susynclib->GetOptionDesc(i), susynclib->GetOptionNumberDef(i),
+											susynclib->GetOptionNumberStep(i),
+											susynclib->GetOptionNumberMin(i), susynclib->GetOptionNumberMax(i),
+											section_str, susynclib->GetOptionStyle(i) );
 		break;
 	}
 	case opt_bool:
 	{
 		ret.bool_map[key] = mmOptionBool( name, key,
-										  susynclib().GetOptionDesc(i), susynclib().GetOptionBoolDef(i),
-										  section_str, susynclib().GetOptionStyle(i) );
+										  susynclib->GetOptionDesc(i), susynclib->GetOptionBoolDef(i),
+										  section_str, susynclib->GetOptionStyle(i) );
 		break;
 	}
 	case opt_string:
 	{
 		ret.string_map[key] = mmOptionString( name, key,
-											  susynclib().GetOptionDesc(i), susynclib().GetOptionStringDef(i),
-											  susynclib().GetOptionStringMaxLen(i),
-											  section_str, susynclib().GetOptionStyle(i) );
+											  susynclib->GetOptionDesc(i), susynclib->GetOptionStringDef(i),
+											  susynclib->GetOptionStringMaxLen(i),
+											  section_str, susynclib->GetOptionStyle(i) );
 		break;
 	}
 	case opt_list:
 	{
 		ret.list_map[key] = mmOptionList(name,key,
-										 susynclib().GetOptionDesc(i),susynclib().GetOptionListDef(i),
-										 section_str,susynclib().GetOptionStyle(i));
+										 susynclib->GetOptionDesc(i),susynclib->GetOptionListDef(i),
+										 section_str,susynclib->GetOptionStyle(i));
 
-		int listItemCount = susynclib().GetOptionListCount(i);
+		int listItemCount = susynclib->GetOptionListCount(i);
 		for (int j = 0; j < listItemCount; ++j)
 		{
-			std::string descr = susynclib().GetOptionListItemDesc(i,j);
-			ret.list_map[key].addItem(susynclib().GetOptionListItemKey(i,j),susynclib().GetOptionListItemName(i,j), descr);
+			std::string descr = susynclib->GetOptionListItemDesc(i,j);
+			ret.list_map[key].addItem(susynclib->GetOptionListItemKey(i,j),susynclib->GetOptionListItemName(i,j), descr);
 		}
 		break;
 	}
 	case opt_section:
 	{
-		ret.section_map[key] = mmOptionSection( name, key, susynclib().GetOptionDesc(i),
-												section_str, susynclib().GetOptionStyle(i) );
+		ret.section_map[key] = mmOptionSection( name, key, susynclib->GetOptionDesc(i),
+												section_str, susynclib->GetOptionStyle(i) );
 	}
 	}
 }
@@ -412,10 +414,10 @@ void GetOptionEntry( const int i, GameOptions& ret)
 GameOptions Unitsync::GetMapOptions( const std::string& name )
 {
 	GameOptions ret;
-	int count = susynclib().GetMapOptionCount(name);
+	int count = m_susynclib->GetMapOptionCount(name);
 	for (int i = 0; i < count; ++i)
 	{
-		GetOptionEntry( i, ret );
+		GetOptionEntry( m_susynclib, i, ret );
 	}
 	return ret;
 }
@@ -425,7 +427,7 @@ Unitsync::StringVector Unitsync::GetMapDeps( const std::string& mapname )
 	Unitsync::StringVector ret;
 	try
 	{
-		ret = susynclib().GetMapDeps( Util::IndexInSequence( m_unsorted_map_array, mapname ) );
+		ret = m_susynclib->GetMapDeps( Util::IndexInSequence( m_unsorted_map_array, mapname ) );
 	}
 	catch( Exceptions::unitsync& u ) {}
 	return ret;
@@ -447,10 +449,10 @@ int Unitsync::GetMapIndex( const std::string& name ) const
 GameOptions Unitsync::GetModOptions( const std::string& name )
 {
 	GameOptions ret;
-	int count = susynclib().GetModOptionCount(name);
+	int count = m_susynclib->GetModOptionCount(name);
 	for (int i = 0; i < count; ++i)
 	{
-		GetOptionEntry( i, ret );
+		GetOptionEntry( m_susynclib, i, ret );
 	}
 	return ret;
 }
@@ -458,9 +460,9 @@ GameOptions Unitsync::GetModOptions( const std::string& name )
 GameOptions Unitsync::GetModCustomizations( const std::string& modname )
 {
 	GameOptions ret;
-	int count = susynclib().GetCustomOptionCount( modname, "LobbyOptions.lua" );
+	int count = m_susynclib->GetCustomOptionCount( modname, "LobbyOptions.lua" );
 	for (int i = 0; i < count; ++i) {
-		GetOptionEntry( i, ret );
+		GetOptionEntry( m_susynclib, i, ret );
 	}
 	return ret;
 }
@@ -468,9 +470,9 @@ GameOptions Unitsync::GetModCustomizations( const std::string& modname )
 GameOptions Unitsync::GetSkirmishOptions( const std::string& modname, const std::string& skirmish_name )
 {
 	GameOptions ret;
-	int count = susynclib().GetCustomOptionCount( modname, skirmish_name );
+	int count = m_susynclib->GetCustomOptionCount( modname, skirmish_name );
 	for (int i = 0; i < count; ++i) {
-		GetOptionEntry( i, ret );
+		GetOptionEntry( m_susynclib, i, ret );
 	}
 	return ret;
 }
@@ -480,7 +482,7 @@ Unitsync::StringVector Unitsync::GetModDeps( const std::string& modname ) const
 	Unitsync::StringVector ret;
 	try
 	{
-		ret = susynclib().GetModDeps( Util::IndexInSequence( m_unsorted_mod_array, modname ) );
+		ret = m_susynclib->GetModDeps( Util::IndexInSequence( m_unsorted_mod_array, modname ) );
 	}
 	catch( Exceptions::unitsync& u ) {}
 	return ret;
@@ -492,7 +494,7 @@ Unitsync::StringVector Unitsync::GetSides( const std::string& modname )
 	if ( ! m_sides_cache.TryGet( modname, ret ) ) {
 		try
 		{
-			ret = susynclib().GetSides( modname );
+			ret = m_susynclib->GetSides( modname );
 			m_sides_cache.Add( modname, ret );
 		}
 		catch( Exceptions::unitsync& u ) {}
@@ -515,17 +517,17 @@ UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::s
 
 UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent  ) const
 {
-	susynclib().SetCurrentMod( modname );
-	int ini = susynclib().OpenFileVFS ( image_path );
+	m_susynclib->SetCurrentMod( modname );
+	int ini = m_susynclib->OpenFileVFS ( image_path );
 	if( !ini )
 		LSL_THROW( unitsync, "cannot find image");
-	int FileSize = susynclib().FileSizeVFS(ini);
+	int FileSize = m_susynclib->FileSizeVFS(ini);
 	if (FileSize == 0) {
-		susynclib().CloseFileVFS(ini);
+		m_susynclib->CloseFileVFS(ini);
 		LSL_THROW( unitsync, "image has size 0" );
 	}
 	Util::uninitialized_array<char> FileContent(FileSize);
-	susynclib().ReadFileVFS(ini, FileContent, FileSize);
+	m_susynclib->ReadFileVFS(ini, FileContent, FileSize);
 	return UnitsyncImage::FromVfsFileData( FileContent, FileSize, image_path, useWhiteAsTransparent );
 }
 
@@ -534,10 +536,10 @@ Unitsync::StringVector Unitsync::GetAIList( const std::string& modname ) const
 	Unitsync::StringVector ret;
 	if ( usync().VersionSupports( USYNC_GetSkirmishAI ) )
 	{
-		int total = susynclib().GetSkirmishAICount( modname );
+		int total = m_susynclib->GetSkirmishAICount( modname );
 		for ( int i = 0; i < total; i++ )
 		{
-			Unitsync::StringVector infos = susynclib().GetAIInfo( i );
+			Unitsync::StringVector infos = m_susynclib->GetAIInfo( i );
 			const int namepos = Util::IndexInSequence( infos, "shortName");
 			const int versionpos = Util::IndexInSequence( infos, "version");
 			std::string ainame;
@@ -549,14 +551,14 @@ Unitsync::StringVector Unitsync::GetAIList( const std::string& modname ) const
 	else
 	{
 		// list dynamic link libraries
-		const Unitsync::StringVector dlllist = susynclib().FindFilesVFS( Util::Lib::CanonicalizeName("AI/Bot-libs/*", Util::Lib::Module ) );
+		const Unitsync::StringVector dlllist = m_susynclib->FindFilesVFS( Util::Lib::CanonicalizeName("AI/Bot-libs/*", Util::Lib::Module ) );
 		for( int i = 0; i < long(dlllist.size()); i++ )
 		{
 			if ( Util::IndexInSequence( ret, Util::BeforeLast( dlllist[i], "/" ) ) == lslNotFound )
 				ret.push_back ( dlllist[i] ); // don't add duplicates //TODO(koshi) make ret a set instead :)
 		}
 		// list jar files (java AIs)
-		const Unitsync::StringVector jarlist = susynclib().FindFilesVFS("AI/Bot-libs/*.jar");
+		const Unitsync::StringVector jarlist = m_susynclib->FindFilesVFS("AI/Bot-libs/*.jar");
 		for( int i = 0; i < long(jarlist.size()); i++ )
 		{
 			if ( Util::IndexInSequence( ret, Util::BeforeLast( jarlist[i], "/" ) ) == lslNotFound )
@@ -566,10 +568,10 @@ Unitsync::StringVector Unitsync::GetAIList( const std::string& modname ) const
 		// luaai
 		try
 		{
-			const int LuaAICount = susynclib().GetLuaAICount( modname );
+			const int LuaAICount = m_susynclib->GetLuaAICount( modname );
 			for ( int i = 0; i < LuaAICount; i++ )
 			{
-				ret.push_back( "LuaAI:" +  susynclib().GetLuaAIName( i ) );
+				ret.push_back( "LuaAI:" +  m_susynclib->GetLuaAIName( i ) );
 			}
 		}
 		catch ( ... ) {}
@@ -581,7 +583,7 @@ void Unitsync::UnSetCurrentMod()
 {
 	try
 	{
-		susynclib().UnSetCurrentMod();
+		m_susynclib->UnSetCurrentMod();
 	} catch( unitsync_assert ) {}
 }
 
@@ -590,7 +592,7 @@ Unitsync::StringVector Unitsync::GetAIInfos( int index ) const
 	Unitsync::StringVector ret;
 	try
 	{
-		ret = susynclib().GetAIInfo( index );
+		ret = m_susynclib->GetAIInfo( index );
 	}
 	catch ( unitsync_assert ) {}
 	return ret;
@@ -599,19 +601,19 @@ Unitsync::StringVector Unitsync::GetAIInfos( int index ) const
 GameOptions Unitsync::GetAIOptions( const std::string& modname, int index )
 {
 	GameOptions ret;
-	int count = susynclib().GetAIOptionCount(modname, index);
+	int count = m_susynclib->GetAIOptionCount(modname, index);
 	for (int i = 0; i < count; ++i)
 	{
-		GetOptionEntry( i, ret );
+		GetOptionEntry( m_susynclib, i, ret );
 	}
 	return ret;
 }
 
 int Unitsync::GetNumUnits( const std::string& modname ) const
 {
-	susynclib().AddAllArchives( susynclib().GetPrimaryModArchive( Util::IndexInSequence( m_unsorted_mod_array, modname ) ) );
-	susynclib().ProcessUnitsNoChecksum();
-	return susynclib().GetUnitCount();
+	m_susynclib->AddAllArchives( m_susynclib->GetPrimaryModArchive( Util::IndexInSequence( m_unsorted_mod_array, modname ) ) );
+	m_susynclib->ProcessUnitsNoChecksum();
+	return m_susynclib->GetUnitCount();
 }
 
 Unitsync::StringVector Unitsync::GetUnitsList( const std::string& modname )
@@ -622,12 +624,12 @@ Unitsync::StringVector Unitsync::GetUnitsList( const std::string& modname )
 		cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
 	} catch(...)
 	{
-		susynclib().SetCurrentMod( modname );
-		while ( susynclib().ProcessUnitsNoChecksum() ) {}
-		const unsigned int unitcount = susynclib().GetUnitCount();
+		m_susynclib->SetCurrentMod( modname );
+		while ( m_susynclib->ProcessUnitsNoChecksum() ) {}
+		const unsigned int unitcount = m_susynclib->GetUnitCount();
 		for ( unsigned int i = 0; i < unitcount; i++ )
 		{
-			cache.push_back( susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")" );
+			cache.push_back( m_susynclib->GetFullUnitName(i) + " (" + m_susynclib->GetUnitName(i) + ")" );
 		}
 		SetCacheFile( GetFileCachePath( modname, "", true ) + ".units", cache );
 	}
@@ -707,7 +709,7 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 	{
 		try
 		{
-			img = (susynclib().*loadMethod)( mapname );
+			img = (m_susynclib->*loadMethod)( mapname );
 			img.Save( originalsizepath );
 		}
 		catch (...)
@@ -768,7 +770,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 		}
 		catch (...)
 		{
-			info = susynclib().GetMapInfoEx( Util::IndexInSequence( m_unsorted_map_array, mapname), 1 );
+			info = m_susynclib->GetMapInfoEx( Util::IndexInSequence( m_unsorted_map_array, mapname), 1 );
 
 			cache.push_back ( info.author );
 			cache.push_back( Util::ToString( info.tidalStrength ) );
@@ -808,7 +810,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 
 Unitsync::StringVector Unitsync::FindFilesVFS( const std::string& pattern ) const
 {
-	return susynclib().FindFilesVFS( pattern );
+	return m_susynclib->FindFilesVFS( pattern );
 }
 
 bool Unitsync::ReloadUnitSyncLib()
@@ -819,7 +821,7 @@ bool Unitsync::ReloadUnitSyncLib()
 
 void Unitsync::SetSpringDataPath( const std::string& path )
 {
-	susynclib().SetSpringConfigString( "SpringData", path );
+	m_susynclib->SetSpringConfigString( "SpringData", path );
 }
 
 std::string Unitsync::GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod )
@@ -846,7 +848,7 @@ std::string Unitsync::GetFileCachePath( const std::string& name, const std::stri
 Unitsync::StringVector Unitsync::GetCacheFile( const std::string& path ) const
 {
 	Unitsync::StringVector ret;
-	std::ifstream file( path );
+	std::ifstream file( path.c_str() );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
 	std::string line;
 	while(std::getline(file,line))
@@ -858,7 +860,7 @@ Unitsync::StringVector Unitsync::GetCacheFile( const std::string& path ) const
 
 void Unitsync::SetCacheFile( const std::string& path, const Unitsync::StringVector& data )
 {
-	std::ofstream file( path );
+	std::ofstream file( path.c_str() );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
 	unsigned int arraycount = data.size();
 	for ( unsigned int count = 0; count < arraycount; count++ )
@@ -876,22 +878,22 @@ Unitsync::StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
 	if ( !IsLoaded() ) return ret;
 
 	if ( ReplayType )
-		return susynclib().FindFilesVFS( "demos/*.sdf" );
+		return m_susynclib->FindFilesVFS( "demos/*.sdf" );
 	else
-		return susynclib().FindFilesVFS( "Saves/*.ssf" );
+		return m_susynclib->FindFilesVFS( "Saves/*.ssf" );
 }
 
 bool Unitsync::FileExists( const std::string& name ) const
 {
-	int handle = susynclib().OpenFileVFS(name);
+	int handle = m_susynclib->OpenFileVFS(name);
 	if ( handle == 0 ) return false;
-	susynclib().CloseFileVFS(handle);
+	m_susynclib->CloseFileVFS(handle);
 	return true;
 }
 
 std::string Unitsync::GetArchivePath( const std::string& name ) const
 {
-	return susynclib().GetArchivePath( name );
+	return m_susynclib->GetArchivePath( name );
 }
 
 Unitsync::StringVector Unitsync::GetScreenshotFilenames() const
@@ -899,7 +901,7 @@ Unitsync::StringVector Unitsync::GetScreenshotFilenames() const
 	if ( !IsLoaded() )
 		return Unitsync::StringVector();
 
-	Unitsync::StringVector ret = susynclib().FindFilesVFS( "screenshots/*.*" );
+	Unitsync::StringVector ret = m_susynclib->FindFilesVFS( "screenshots/*.*" );
 	std::set<std::string> ret_set ( ret.begin(), ret.end() );
 //	for ( int i = 0; i < long(ret.size() - 1); ++i ) {
 //		if ( ret[i] == ret[i+1] )
@@ -912,9 +914,9 @@ Unitsync::StringVector Unitsync::GetScreenshotFilenames() const
 
 std::string Unitsync::GetDefaultNick()
 {
-	std::string name = susynclib().GetSpringConfigString( "name", "Player" );
+	std::string name = m_susynclib->GetSpringConfigString( "name", "Player" );
 	if ( name.empty() ) {
-		susynclib().SetSpringConfigString( "name", "Player" );
+		m_susynclib->SetSpringConfigString( "name", "Player" );
 		return "Player";
 	}
 	return name;
@@ -922,7 +924,7 @@ std::string Unitsync::GetDefaultNick()
 
 void Unitsync::SetDefaultNick( const std::string& nick )
 {
-	susynclib().SetSpringConfigString( "name", nick );
+	m_susynclib->SetSpringConfigString( "name", nick );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1170,18 +1172,18 @@ void Unitsync::GetMapExAsync( const std::string& mapname )
 
 std::string Unitsync::GetTextfileAsString( const std::string& modname, const std::string& file_path )
 {
-	susynclib().SetCurrentMod( modname );
+	m_susynclib->SetCurrentMod( modname );
 
-	int ini = susynclib().OpenFileVFS ( file_path );
+	int ini = m_susynclib->OpenFileVFS ( file_path );
 	if ( !ini )
 		return std::string();
-	int FileSize = susynclib().FileSizeVFS(ini);
+	int FileSize = m_susynclib->FileSizeVFS(ini);
 	if (FileSize == 0) {
-		susynclib().CloseFileVFS(ini);
+		m_susynclib->CloseFileVFS(ini);
 		return std::string();
 	}
 	Util::uninitialized_array<char> FileContent(FileSize);
-	susynclib().ReadFileVFS(ini, FileContent, FileSize);
+	m_susynclib->ReadFileVFS(ini, FileContent, FileSize);
 	return std::string( FileContent, size_t( FileSize ) );
 }
 
