@@ -13,7 +13,7 @@ bool FileExists( const std::string path )
 
 bool FileCanOpen( const std::string path )
 {
-    return std::ifstream(path).is_open();
+	return std::ifstream(path.c_str()).is_open();
 }
 
 namespace Lib {

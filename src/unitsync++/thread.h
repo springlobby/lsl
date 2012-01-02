@@ -4,6 +4,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/noncopyable.hpp>
+#include <vector>
 
 namespace LSL {
 

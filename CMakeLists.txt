@@ -37,7 +37,9 @@ INCLUDE(cmake/package_config.cmake)
 INCLUDE(cmake/sources_list.cmake)
 
 FIND_PACKAGE( PkgConfig )
-
+FIND_PACKAGE(Boost 1.48.0 REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 #if nothing went wrong we have the file and can define HAVE_CONFIG_H
 IF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${libSpringLobby_SOURCE_DIR}/libSpringLobby_config.h  )
@@ -93,7 +95,7 @@ ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} ${commonSrc}
 ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
 ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/test/swig.cpp )
 
-SET( SL_BOOST_LIBS boost_system boost_filesystem boost_thread )
+SET( SL_BOOST_LIBS boost_system boost_filesystem boost_thread boost_timer )
 TARGET_LINK_LIBRARIES(libSpringLobby ${SL_BOOST_LIBS} )
 TARGET_LINK_LIBRARIES(libUnitsync++ dl ${SL_BOOST_LIBS}  )
 #cimage deps
