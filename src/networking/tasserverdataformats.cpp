@@ -1,7 +1,14 @@
 #include "tasserverdataformats.h"
+#include <user/user.h>
+#include <battle/ibattle.h>
+#include <utils/debug.h>
+
+#define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( conversion, msg ); } } while (0)
+
 ////////////////////////
 // Utility functions
 //////////////////////
+namespace LSL {
 
 UserStatus ConvTasclientstatus( TASClientstatus tas )
 {
@@ -42,52 +49,54 @@ TASBattleStatus ConvTasbattlestatus( UserBattleStatus bs)
 }
 
 
-IBattle::StartType IntToStartType( int start )
+Battle::StartType IntToStartType( int start )
 {
     switch ( start )
     {
     case 0:
-        return IBattle::ST_Fixed;
+		return Battle::ST_Fixed;
     case 1:
-        return IBattle::ST_Random;
+		return Battle::ST_Random;
     case 2:
-        return IBattle::ST_Choose;
+		return Battle::ST_Choose;
     default:
-        ASSERT_EXCEPTION( false, _T("invalid value") );
+		ASSERT_EXCEPTION( false, "int to IBattle::StartType" );
     };
-    return IBattle::ST_Fixed;
+	return Battle::ST_Fixed;
 }
 
 
-NatType IntToNatType( int nat )
+Battle::NatType IntToNatType( int nat )
 {
     switch ( nat )
     {
     case 0:
-        return NAT_None;
+		return Battle::NAT_None;
     case 1:
-        return NAT_Hole_punching;
+		return Battle::NAT_Hole_punching;
     case 2:
-        return NAT_Fixed_source_ports;
+		return Battle::NAT_Fixed_source_ports;
     default:
-        ASSERT_EXCEPTION( false, _T("invalid value") );
+		ASSERT_EXCEPTION( false, "int to NatType" );
     };
-    return NAT_None;
+	return Battle::NAT_None;
 }
 
 
-IBattle::GameType IntToGameType( int gt )
+Battle::GameType IntToGameType( int gt )
 {
     switch ( gt )
     {
     case 0:
-        return IBattle::GT_ComContinue;
+		return Battle::GT_ComContinue;
     case 1:
-        return IBattle::GT_ComEnds;
+		return Battle::GT_ComEnds;
     case 2:
-        return IBattle::GT_Lineage;
+		return Battle::GT_Lineage;
     default:
-        ASSERT_EXCEPTION( false, _T("invalid value") );
+		ASSERT_EXCEPTION( false, "int to IBattle::GameType" );
     };
-    return IBattle::GT_ComContinue;
+	return Battle::GT_ComContinue;
 }
+
+} // namespace LSL {

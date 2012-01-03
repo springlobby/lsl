@@ -5,10 +5,12 @@
 #include <battle/ibattle.h>
 
 namespace LSL {
+namespace Battle {
 
 class BattleList : public ContainerBase< IBattle >
 {};
 
+} //namespace Battle
 } //namespace LSL
 
 #endif // SPRINGLOBBY_HEADERGUARD_BATTLELIST_H

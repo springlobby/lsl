@@ -3,12 +3,16 @@
 
 #include <string>
 #include <sstream>
+#include <map>
 #include <boost/tuple/tuple.hpp>
 #include <boost/typeof/typeof.hpp>
 #include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include <utils/conversion.h>
 #include "tasserver.h"
+
+namespace BT = boost::tuples;
 
 namespace LSL {
 
@@ -91,15 +95,19 @@ struct All: public Basic<std::string>{
 		:Basic<std::string>( params )
 	{ params = ""; }
 } ;
-struct none{
-	template < class T > none( T& ){}
-};
+//struct NoToken{
+//	template < class T > NoToken( T& ){}
+//};
+
+#define NoToken boost::tuples::null_type
 
 } //namespace Tokens
+} //namespace LSL
 
-namespace Commands {
 
 #include "function_templates.h"
+
+namespace LSL {
 
 struct CommandBase {
 	virtual void process( std::string& params )
@@ -108,14 +116,18 @@ struct CommandBase {
 	}
 };
 
-template < class T1 = Tokens::none, class T2 = Tokens::none, class T3 = Tokens::none, class T4 = Tokens::none, class T5 = Tokens::none >
+template < class T0 = NoToken, class T1 = NoToken, class T2 = NoToken, class T3 = NoToken, class T4 = NoToken,
+		   class T5 = NoToken, class T6 = NoToken, class T7 = NoToken, class T8 = NoToken, class T9 = NoToken>
 struct Command : public CommandBase  {
-	typedef boost::tuples::tuple<T1,T2,T3,T4,T5> mtuple;
-	typedef Signature<T1,T2,T3,T4,T5> SignatureType;
-	typedef typename SignatureType::Type CallBackType;
+	typedef boost::tuples::tuple<T0,T1,T2,T3,T4,T5,
+				T6,T7,T8,T9> mtuple;
+	typedef Signature<mtuple,boost::tuples::length<mtuple>::value>
+		SignatureType;
+	typedef typename SignatureType::Type
+		CallBackType;
 	CallBackType func;
-	template < class F, class T >
-	Command( F f, T* x)
+	template < class F, class X >
+	Command( F f, X* x)
 		:func ( SignatureType::make( f, x ) )
 	{}
 	virtual void process( std::string& params )
@@ -124,9 +136,6 @@ struct Command : public CommandBase  {
 	}
 };
 
-} //namespace Commands
-
-
 class CommandDictionary {
 private:
 	//! only TASSERVER can construct a CommandDictionary
@@ -134,7 +143,7 @@ private:
 	CommandDictionary( TASServer* tas );
 
 	TASServer* m_tas;
-	std::map<std::string,boost::shared_ptr<Commands::CommandBase> > cmd_map_;
+	std::map<std::string,boost::shared_ptr<CommandBase> > cmd_map_;
 };
 
 } //namespace LSL

@@ -19,6 +19,9 @@ struct file_not_found : public base {
 struct unitsync : public base {
    unitsync(const std::string& msg) : base("UNITSYNC: " + msg) {}
 };
+struct conversion : public base {
+   conversion(const std::string& msg) : base("conversion failed: " + msg) {}
+};
 struct function_missing : public unitsync {
    function_missing(const std::string& funcname) : unitsync(" function couldn't be imported: " + funcname) {}
 };

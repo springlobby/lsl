@@ -98,6 +98,22 @@ public:
 	lslSize MakeFit(const lslSize bounds);
 };
 
+class lslColor {
+private:
+	unsigned char r,g,b,a;
+public:
+	lslColor():r(0),g(0),b(0),a(0){}
+	lslColor(unsigned char _r,unsigned char _g,unsigned char _b,unsigned char _a = 0)
+		:r(_r),g(_g),b(_b),a(_a){}
+
+	bool operator == (const lslColor o) const {
+		return r == o.r && 	g == o.g && b == o.b && a == o.a;
+	}
+	bool operator != (const lslColor o) const {
+		return !(this->operator ==(o));
+	}
+};
+
 } //namespace LSL {
 
 #endif // LSL_MISC_H

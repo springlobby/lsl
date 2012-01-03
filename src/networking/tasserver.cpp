@@ -6,6 +6,7 @@
 #include "tasserverdataformats.h"
 #include "commandparsing.h"
 
+namespace LSL {
 
 TASServer::TASServer(int /*TASServerMode*/)
     : m_cmd_dict( new CommandDictionary() )
@@ -25,12 +26,10 @@ void TASServer::ExecuteCommand( const std::string& cmd, const std::string& inpar
         m_cmd_dict->process(cmd,inparams);
 }
 
-#ifdef LETS_SEE_SHIT_BREAK
 void TASServer::GetInGameTime(const std::string& user)
 {
 	SendCmd( "GETINGAMETIME", user );
 }
-
 
 void TASServer::KickUser(const std::string& user)
 {
@@ -110,7 +109,6 @@ void TASServer::GetLastUserIP(const std::string& user)
 	SendCmd( "GETLASTIP", user );
 }
 
-
 int TASServer::Register( const std:string& addr, const int port, const std:string& nick, const std:string& password )
 {
 	FakeNetClass temp;
@@ -143,12 +141,10 @@ int TASServer::Register( const std:string& addr, const int port, const std:strin
 	return 3;
 }
 
-
 bool TASServer::IsPasswordHash( const std::string& pass ) const
 {
 	return pass.length() == 24 && pass[22] == '=' && pass[23] == '=';
 }
-
 
 std::string TASServer::GetPasswordHash( const std::string& pass ) const
 {
@@ -227,9 +223,6 @@ void TASServer::SendCmd( const std::string& command, const std::string& param )
 	m_se->OnSentMessage(send_success, msg, GetLastID());
 }
 
-
-
-
 void TASServer::SendPing()
 {
 	SendCmd( "PING") );
@@ -241,88 +234,57 @@ void TASServer::JoinChannel( const std::string& channel, const std::string& key 
 	SendCmd ( "JOIN"), channel + " ") + key );
 }
 
-
 void TASServer::PartChannel( const std::string& channel )
 {
-	//LEAVE channame
-	wxLogDebugFunc( channel );
-
 	SendCmd( "LEAVE"), channel );
-
 }
-
 
 void TASServer::DoActionChannel( const std::string& channel, const std::string& msg )
 {
-	//SAYEX channame {message}
-	wxLogDebugFunc( "") );
-
 	SendCmd( "SAYEX"), channel + " ") + msg );
 }
 
-
 void TASServer::SayChannel( const std::string& channel, const std::string& msg )
 {
-	//SAY channame {message}
-	wxLogDebugFunc( "") );
-
 	SendCmd( "SAY"), channel + " ") + msg );
 }
 
-
 void TASServer::SayPrivate( const std::string& nick, const std::string& msg )
 {
-	//SAYPRIVATE username {message}
-	wxLogDebugFunc( "") );
-
 	SendCmd( "SAYPRIVATE"), nick + " ") + msg );
 }
 
-
 void TASServer::DoActionPrivate( const std::string& nick, const std::string& msg )
 {
-	wxLogDebugFunc( "") );
-
 	SendCmd( "SAYPRIVATEEX"), nick + " ") + msg );
 }
 
-
 void TASServer::SayBattle( int /*unused*/, const std::string& msg )
 {
-	wxLogDebugFunc( "") );
-
 	SendCmd( "SAYBATTLE"), msg );
 }
 
-
 void TASServer::DoActionBattle( int /*unused*/, const std::string& msg )
 {
-	wxLogDebugFunc( "") );
-
 	SendCmd( "SAYBATTLEEX"), msg );
 }
 
-
 void TASServer::Ring( const std::string& nick )
 {
-	wxLogDebugFunc( "") );
-		try
-		{
-				ASSERT_EXCEPTION( m_battle_id != -1, "invalid m_battle_id value") );
-				ASSERT_EXCEPTION( BattleExists(m_battle_id), "battle doesn't exists") );
+	try {
+		ASSERT_EXCEPTION( m_battle_id != -1, "invalid m_battle_id value") );
+		ASSERT_EXCEPTION( BattleExists(m_battle_id), "battle doesn't exists") );
 
-				Battle& battle = GetBattle( m_battle_id );
-				ASSERT_EXCEPTION( m_current_battle->IsFounderMe(), "I'm not founder") );
+		Battle& battle = GetBattle( m_battle_id );
+		ASSERT_EXCEPTION( m_current_battle->IsFounderMe(), "I'm not founder") );
 
-				RelayCmd( "RING"), nick );
-
-		}
-		catch (...)
-		{
-			SendCmd( "RING"), nick );
-		}
+		RelayCmd( "RING"), nick );
+	}
+	catch (...)
+	{
+		SendCmd( "RING"), nick );
+	}
 }
-
 
 void TASServer::ModeratorSetChannelTopic( const std::string& channel, const std::string& topic )
 {
@@ -331,16 +293,15 @@ void TASServer::ModeratorSetChannelTopic( const std::string& channel, const std:
 	SendCmd( "CHANNELTOPIC", channel + " " + msgcopy );
 }
 
-
 void TASServer::ModeratorSetChannelKey( const std::string& channel, const std::string& key)
 {
 	SendCmd( "SETCHANNELKEY", channel + " " + key );
 }
 
-
 void TASServer::ModeratorMute( const std::string& channel, const std::string& nick, int duration, bool byip )
 {
-	SendCmd( "MUTE", channel + " " + nick + " " + std::string::Format( "%d"), duration) + (byip?" ip":"")  );
+//	SendCmd( "MUTE", channel + " " + nick + " " + std::string::Format( "%d"), duration) + (byip?" ip":"")  );
+	SendCmd( "MUTE", boost::format( "%s %s %s %d %s" ) % channel % nick % duration % (byip?" ip":"")  );
 }
 
 
@@ -1551,4 +1512,14 @@ void iServer::OnFileDownload( int intdata, const std::string& FileName, const st
 	OnFileDownload(  parsingdata.tasdata.autoopen, parsingdata.tasdata.closelobbyondownload, parsingdata.tasdata.disconnectonrefuse, FileName, url, description );
 }
 
-#endif //#ifdef LETS_SEE_SHIT_BREAK
+void TASServer::SendCmd( const std::string& command, const std::string& param )
+{
+	assert( false );
+}
+void TASServer::SendCmd( const std::string& command, const boost::format& param )
+{
+	SendCmd( command, param.str() );
+}
+//#endif //#ifdef LETS_SEE_SHIT_BREAK
+
+} // namespace LSL {

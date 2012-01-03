@@ -1,25 +1,35 @@
 #include "socket.h"
 
+#include <utils/net.h>
+
+#include <boost/asio.hpp>
+#include <boost/system/error_code.hpp>
+#include <sstream>
+
+namespace BA = boost::asio;
+namespace BS = boost::system;
+namespace IP = boost::asio::ip;
+
 namespace LSL {
 
 Socket::Socket()
-    : m_rate(-1)
+    : m_sock(m_netservice)
+    , m_rate(-1)
 {
 }
 
 void Socket::Connect(const std::string &server, int port)
 {
-    using namespace boost::asio;
     boost::system::error_code err;
-    ip::address tempAddr = netcode::WrapIP(server, &err);
+    IP::address tempAddr = IP::address::from_string(server, err);
     if (err)
     {
         // error, maybe a hostname?
-        ip::tcp::resolver resolver(netservice);
+        IP::tcp::resolver resolver(m_netservice);
         std::ostringstream portbuf;
         portbuf << port;
-        ip::tcp::resolver::query query(server, portbuf.str());
-        ip::tcp::resolver::iterator iter = netcode::WrapResolve(resolver, query, &err);
+        IP::tcp::resolver::query query(server, portbuf.str());
+        IP::tcp::resolver::iterator iter = resolver.resolve(query, err);
         if (err)
         {
             doneConnecting(false, err.message());
@@ -27,8 +37,8 @@ void Socket::Connect(const std::string &server, int port)
         }
         tempAddr = iter->endpoint().address();
     }
-    ip::tcp::endpoint serverep(tempAddr, port);
-    sock.async_connect(serverep, boost::bind(&Socket::ConnectCallback, this, placeholders::error));
+    IP::tcp::endpoint serverep(tempAddr, port);
+    m_sock.async_connect(serverep, boost::bind(&Socket::ConnectCallback, this, BA::placeholders::error));
 }
 
 void Socket::ConnectCallback(const boost::system::error_code &error)
@@ -36,7 +46,7 @@ void Socket::ConnectCallback(const boost::system::error_code &error)
     if (!error)
     {
         doneConnecting(true, "");
-        boost::asio::async_read_until(sock, incomeBuffer, "\n", boost::bind(&Socket::ReceiveCallback, this, placeholders::error, placeholders::bytes_transferred));
+        BA::async_read_until(m_sock, m_incoming_buffer, "\n", boost::bind(&Socket::ReceiveCallback, this, BA::placeholders::error, BA::placeholders::bytes_transferred));
     }
     else
     {
@@ -50,7 +60,7 @@ void Socket::ReceiveCallback(const boost::system::error_code &error, size_t byte
     {
         std::string msg;
         std::string command;
-        std::istream buf(&incomeBuffer);
+        std::istream buf(&m_incoming_buffer);
         buf >> command;
         std::getline(buf, msg);
         if (!msg.empty())
@@ -60,19 +70,19 @@ void Socket::ReceiveCallback(const boost::system::error_code &error, size_t byte
     }
     else
     {
-        if (error.value() == connection_reset || error.value() == boost::asio::error::eof)
+        if (error.value() == BS::errc::connection_reset || error.value() == BA::error::eof)
         {
-            sock.close();
-            Disconnected();
+            m_sock.close();
+            socketDisconnected();
         }
-        else if (sock.is_open()) //! ignore error messages after connect was closed
+        else if (m_sock.is_open()) //! ignore error messages after connect was closed
         {
-            NetworkError(error.message());
+            networkError(error.message());
         }
     }
-    if (sock.is_open())
+    if (m_sock.is_open())
     {
-        boost::asio::async_read_until(sock, incomeBuffer, "\n", boost::bind(&Socket::ReceiveCallback, this, placeholders::error, placeholders::bytes_transferred));
+        BA::async_read_until(m_sock, m_incoming_buffer, "\n", boost::bind(&Socket::ReceiveCallback, this, BA::placeholders::error, BA::placeholders::bytes_transferred));
     }
 }
 

@@ -1,3 +1,8 @@
+#ifndef LSL_TASDATADORMATS_H
+#define LSL_TASDATADORMATS_H
+
+namespace LSL {
+
 //! @brief Struct used internally by the TASServer class to get client status information.
 struct TASClientstatus
 {
@@ -99,9 +104,15 @@ union UTASColor
 myteamcolor:  Should be 32-bit signed integer in decimal form (e.g. 255 and not FF) where each color channel should occupy 1 byte (e.g. in hexdecimal: $00BBGGRR, B = blue, G = green, R = red). Example: 255 stands for $000000FF.
 
 */
+class UserStatus;
+class UserBattleStatus;
 UserStatus ConvTasclientstatus( TASClientstatus );
 UserBattleStatus ConvTasbattlestatus( TASBattleStatus );
 TASBattleStatus ConvTasbattlestatus( UserBattleStatus );
-IBattle::StartType IntToStartType( int start );
-NatType IntToNatType( int nat );
-IBattle::GameType IntToGameType( int gt );
+//IBattle::StartType IntToStartType( int start );
+//NatType IntToNatType( int nat );
+//IBattle::GameType IntToGameType( int gt );
+
+} //namespace LSL {
+
+#endif // LSL_TASDATADORMATS_H

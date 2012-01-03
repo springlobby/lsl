@@ -11,8 +11,10 @@ namespace LSL {
 class Socket
 {
 public:
-    boost::signals2::signal<void (std::string)> dataReceived;
+	boost::signals2::signal<void (std::string,std::string)> dataReceived;
     boost::signals2::signal<void (bool,std::string)> doneConnecting;
+	boost::signals2::signal<void ()> socketDisconnected;
+	boost::signals2::signal<void (std::string)> networkError;
 
     Socket();
     virtual ~Socket();
@@ -27,7 +29,9 @@ private:
     void ConnectCallback(const boost::system::error_code& error);
     void ReceiveCallback(const boost::system::error_code& error, size_t bytes);
 
-    boost::asio::ip::tcp::socket sock;
+	boost::asio::io_service m_netservice;
+	boost::asio::ip::tcp::socket m_sock;
+	boost::asio::streambuf m_incoming_buffer;
     int m_rate;
 };
 

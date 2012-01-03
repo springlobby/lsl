@@ -194,7 +194,6 @@ class iServer
 	Battle* AddBattle( const int& id );
 	void RemoveBattle( const Battle* battle );
 
-	virtual void SendCmd( const std::string& command, const std::string& param ) = 0;
 	void RelayCmd( const std::string& command, const std::string& param );
 };
 
