@@ -8,6 +8,7 @@
 
 namespace LSL {
 
+//! a wrapper around asio tcp-socket, mostly borrowed from Engine's lobby/connection, but with signals
 class Socket
 {
 public:
@@ -15,6 +16,22 @@ public:
     boost::signals2::signal<void (bool,std::string)> doneConnecting;
 	boost::signals2::signal<void ()> socketDisconnected;
 	boost::signals2::signal<void (std::string)> networkError;
+
+	enum SocketState
+	{
+	  SS_Closed,
+	  SS_Connecting,
+	  SS_Open
+	};
+
+	enum SocketError
+	{
+	  SE_No_Error,
+	  SE_NotConnected,
+	  SE_Resolve_Host_Failed,
+	  SE_Connect_Host_Failed
+	};
+	SocketState State() const;
 
     Socket();
     virtual ~Socket();

@@ -151,6 +151,12 @@ std::string Socket::GetHandle() const
 
 void Socket::SetSendRateLimit(int Bps)
 {
+    m_rate = Bps;
+}
+
+Socket::SocketState Socket::State() const
+{
+    return SS_Open;
 }
 
 } // namespace LSL

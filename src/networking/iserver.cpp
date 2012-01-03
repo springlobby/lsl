@@ -56,16 +56,15 @@ bool iServer::IsOnline() const
 
 bool iServer::IsConnected()
 {
-	return (m_sock->State() == SS_Open);
+	return (m_sock->State() == Socket::SS_Open);
 }
 
 void iServer::TimerUpdate()
 {
-
-	if ( !IsConnected() ) return;
+	if ( !IsConnected() )
+		return;
 
 	time_t now = time( 0 );
-
 	if ( ( m_last_net_packet > 0 ) && ( ( now - m_last_net_packet ) > m_ping_timeout ) )
 	{
 		m_se->OnTimeout();
@@ -81,7 +80,7 @@ void iServer::TimerUpdate()
 	if (m_last_udp_ping > 0 && (now - m_last_udp_ping) > m_udp_reply_timeout )
 	{
 		m_se->OnNATPunchFailed();
-	};
+	}
 
 	// Is it time for a nat traversal PING?
 	if ( ( m_last_udp_ping + m_keepalive ) < now )
@@ -100,12 +99,10 @@ void iServer::TimerUpdate()
 					{
 						UdpPingAllClients();
 					}
-					}
 				}
 			}
 		}
 	}
-
 }
 
 void iServer::OnDataReceived( Socket* sock )
