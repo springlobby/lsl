@@ -11,18 +11,19 @@ SET(libSpringLobbySrc
 	src/container/battlelist.cpp
 	src/user/user.cpp
 	src/utils/crc.cpp
-	src/networking/iserver.cpp
-	src/networking/tasserver.cpp
+	src/networking/socket.cpp
 	src/networking/commands.cpp
 	src/networking/tasserverdataformats.cpp
+	src/networking/iserver.cpp
+	src/networking/tasserver.cpp
 	src/channel.cpp)
 SET(libUnitsync++Src
 	src/unitsync++/c_api.cpp
 	src/unitsync++/image.cpp
 	src/unitsync++/loader.cpp
-	src/unitsync++/unitsync.cpp
 	src/unitsync++/thread.cpp 
 	src/unitsync++/mmoptionmodel.cpp
+	src/unitsync++/unitsync.cpp
 	)
 SET(commonSrc
 	src/utils/misc.cpp

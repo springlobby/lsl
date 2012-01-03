@@ -88,7 +88,7 @@ cmake_policy(SET CMP0006 OLD)
 
 #cimage deps
 FIND_PACKAGE( PNG REQUIRED)
-ADD_DEFINITIONS( -Dcimg_use_png )
+ADD_DEFINITIONS( -Dcimg_use_png -std=c++0x)
 
 ADD_LIBRARY(libSpringLobby STATIC ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE} ${commonSrc})
 ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} ${commonSrc} )
@@ -97,7 +97,7 @@ ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/test/sw
 
 SET( SL_BOOST_LIBS boost_system boost_filesystem boost_thread boost_timer )
 TARGET_LINK_LIBRARIES(libSpringLobby ${SL_BOOST_LIBS} )
-TARGET_LINK_LIBRARIES(libUnitsync++ dl ${SL_BOOST_LIBS}  )
+TARGET_LINK_LIBRARIES(libUnitsync++ dl ${SL_BOOST_LIBS} DebuggingHelper  )
 #cimage deps
 TARGET_LINK_LIBRARIES(libUnitsync++ ${PNG_LIBRARY} X11 )
 
