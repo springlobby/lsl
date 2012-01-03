@@ -8,15 +8,23 @@
 #include <utils/mutexwrapper.h>
 #include <utils/crc.h>
 
+namespace boost {
+template <class T>
+class shared_ptr;
+}
+
 namespace LSL {
+
+namespace Battle {
+class IBattle;
+class BattleOptions;
+}
 
 class PingThread {};
 
 class ServerEvents;
 class Channel;
 class User;
-class Battle;
-class BattleOptions;
 class HostInfo;
 class UserBattleStatus;
 class Socket;
@@ -30,6 +38,18 @@ class iServer
 
 	typedef std::vector<std::string>
 		StringVector;
+	typedef boost::shared_ptr<User>
+		UserPtr;
+	typedef boost::shared_ptr<const User>
+		ConstUserPtr;
+	typedef boost::shared_ptr<Battle::IBattle>
+		BattlePtr;
+	typedef boost::shared_ptr<const Battle::IBattle>
+		ConstBattlePtr;
+	typedef boost::shared_ptr<Channel>
+		ChannelPtr;
+	typedef boost::shared_ptr<const Channel>
+		ConstChannelPtr;
 	// Server interface
 
 	virtual bool ExecuteSayCommand( const std::string& cmd ) = 0;
@@ -43,23 +63,23 @@ class iServer
 
 	virtual void Login() = 0;
 	virtual void Logout() = 0;
-    virtual bool IsOnline()  const ;
+	bool IsOnline()  const ;
 
-	virtual void TimerUpdate();
+	void TimerUpdate();
 
 	virtual void JoinChannel( const std::string& channel, const std::string& key ) = 0;
-	virtual void PartChannel( Channel* channel ) = 0;
+	virtual void PartChannel( ChannelPtr channel ) = 0;
 
-	virtual void DoActionChannel( const Channel* channel, const std::string& msg ) = 0;
-	virtual void SayChannel( const Channel* channel, const std::string& msg ) = 0;
+	virtual void DoActionChannel( const ChannelPtr channel, const std::string& msg ) = 0;
+	virtual void SayChannel( const ChannelPtr channel, const std::string& msg ) = 0;
 
-	virtual void SayPrivate( const User* user, const std::string& msg ) = 0;
-	virtual void DoActionPrivate( const User* user, const std::string& msg ) = 0;
+	virtual void SayPrivate( const UserPtr user, const std::string& msg ) = 0;
+	virtual void DoActionPrivate( const UserPtr user, const std::string& msg ) = 0;
 
-	virtual void SayBattle( const Battle* battle, const std::string& msg ) = 0;
-	virtual void DoActionBattle( const Battle* battle, const std::string& msg ) = 0;
+	virtual void SayBattle( const BattlePtr battle, const std::string& msg ) = 0;
+	virtual void DoActionBattle( const BattlePtr battle, const std::string& msg ) = 0;
 
-	virtual void Ring( const User* user ) = 0;
+	virtual void Ring( const UserPtr user ) = 0;
 
 	// these need to not use specific classes since they can be nonexistent/offline
 	virtual void ModeratorSetChannelTopic( const std::string& channel, const std::string& topic ) = 0;
@@ -78,22 +98,22 @@ class iServer
 	virtual void AdminChangeAccountAccess( const std::string& nick, const std::string& accesscode ) = 0;
 	virtual void AdminSetBotMode( const std::string& nick, bool isbot ) = 0;
 
-	virtual void HostBattle( BattleOptions bo ) = 0;
-	virtual void JoinBattle( const Battle* battle, const std::string& password = "" ) = 0;
-	virtual void LeaveBattle( const Battle* battle ) = 0;
+	virtual void HostBattle( Battle::BattleOptions bo ) = 0;
+	virtual void JoinBattle( const BattlePtr battle, const std::string& password = "" ) = 0;
+	virtual void LeaveBattle( const BattlePtr battle ) = 0;
 	virtual void StartHostedBattle() = 0;
 
-	virtual void ForceSide( const Battle* battle, const User* user, int side ) = 0;
-	virtual void ForceTeam( const Battle* battle, const User* user, int team ) = 0;
-	virtual void ForceAlly( const Battle* battle, const User* user, int ally ) = 0;
-	virtual void ForceColour( const Battle* battle, const User* user, int r, int g, int b ) = 0;
-	virtual void ForceSpectator( const Battle* battle, const User* user, bool spectator ) = 0;
-	virtual void BattleKickPlayer( const Battle* battle, const User* user ) = 0;
-	virtual void SetHandicap( const Battle* battle, const User* user, int handicap) = 0;
+	virtual void ForceSide( const BattlePtr battle, const UserPtr user, int side ) = 0;
+	virtual void ForceTeam( const BattlePtr battle, const UserPtr user, int team ) = 0;
+	virtual void ForceAlly( const BattlePtr battle, const UserPtr user, int ally ) = 0;
+	virtual void ForceColour( const BattlePtr battle, const UserPtr user, int r, int g, int b ) = 0;
+	virtual void ForceSpectator( const BattlePtr battle, const UserPtr user, bool spectator ) = 0;
+	virtual void BattleKickPlayer( const BattlePtr battle, const UserPtr user ) = 0;
+	virtual void SetHandicap( const BattlePtr battle, const UserPtr user, int handicap) = 0;
 
-	virtual void AddBot( const Battle* battle, const std::string& nick, UserBattleStatus& status ) = 0;
-	virtual void RemoveBot( const Battle* battle, const User* user ) = 0;
-	virtual void UpdateBot( const Battle* battle, const User* user, UserBattleStatus& status ) = 0;
+	virtual void AddBot( const BattlePtr battle, const std::string& nick, UserBattleStatus& status ) = 0;
+	virtual void RemoveBot( const BattlePtr battle, const UserPtr user ) = 0;
+	virtual void UpdateBot( const BattlePtr battle, const UserPtr user, UserBattleStatus& status ) = 0;
 
 	virtual void SendHostInfo( HostInfo update ) = 0;
 	virtual void SendHostInfo( const std::string& Tag ) = 0;
@@ -102,15 +122,15 @@ class iServer
 
 	virtual void RequestInGameTime( const std::string& nick ) = 0;
 
-	virtual Battle* GetCurrentBattle() = 0;
+	virtual BattlePtr GetCurrentBattle() = 0;
 
 	virtual void RequestChannels() = 0;
 
 	virtual void SendMyBattleStatus( UserBattleStatus& bs ) = 0;
 	virtual void SendMyUserStatus() = 0;
 
-	virtual void SetKeepaliveInterval( int seconds ) { m_keepalive = seconds; }
-	virtual int GetKeepaliveInterval() { return m_keepalive; }
+	void SetKeepaliveInterval( int seconds ) { m_keepalive = seconds; }
+	int GetKeepaliveInterval() { return m_keepalive; }
 
 	virtual bool IsPasswordHash( const std::string& pass ) const = 0;
 	virtual std::string GetPasswordHash( const std::string& pass ) const = 0;
@@ -120,39 +140,39 @@ class iServer
 
 	virtual void OnConnected( Socket* sock ) = 0;
 	virtual void OnDisconnected( Socket* sock ) = 0;
-	virtual void OnDataReceived( Socket* sock ) = 0;
 
-	virtual const User* GetMe() const {return m_me;}
+	const UserPtr GetMe() const {return m_me;}
 
 	virtual void SendScriptToClients( const std::string& script ) = 0;
-
-	std::map<std::string,std::string> m_channel_pw;  /// channel name -> password, filled on channel join
 
 	std::string GetServerName() const { return m_server_name; }
 
 	virtual void RequestSpringUpdate();
 
-    virtual void SetRelayIngamePassword( const User* user ) = 0;
+	virtual void SetRelayIngamePassword( const UserPtr user ) = 0;
 	virtual StringVector GetRelayHostList();
-	User* AcquireRelayhost();
+	UserPtr AcquireRelayhost();
 	virtual void SendScriptToProxy( const std::string& script ) = 0;
 
 	void SetPrivateUdpPort(int port) {m_udp_private_port = port;}
 	std::string GenerateScriptPassword();
 	int RelayScriptSendETA( const std::string& script ); //!in seconds
 
-  private:
+protected://ideally this would be nothing, so long as Tasserver is still a child
+	Socket* m_sock;
+
+private:
+	std::map<std::string,std::string> m_channel_pw;  /// channel name -> password, filled on channel join
 	//! @brief map used internally by the iServer class to calculate ping roundtimes.
 	typedef std::map<int, long long> PingList;
 
-	Socket* m_sock;
     CRC m_crc;
 	int m_keepalive; //! in seconds
 	int m_ping_timeout; //! in seconds
 	int m_ping_interval; //! in seconds
 	int m_server_rate_limit; //! in bytes/sec
 	int m_message_size_limit; //! in bytes
-	User* m_me;
+	UserPtr m_me;
 	std::string m_min_required_spring_ver;
 	std::string m_last_denied_connection_reason;
     std::string m_server_name;
@@ -177,22 +197,22 @@ class iServer
 		return l_pinglist.Get();
 	}
 
-	Battle* m_current_battle;
+	BattlePtr m_current_battle;
 
-	User* m_relay_host_bot;
-	User* m_relay_host_manager;
-	User* m_relay_host_list;
+	UserPtr m_relay_host_bot;
+	UserPtr m_relay_host_manager;
+	UserPtr m_relay_host_list;
 
 	StringVector m_relay_host_manager_list;
 
-	User* AddUser( const int id );
-	void RemoveUser( const User* user );
+	UserPtr AddUser( const int id );
+	void RemoveUser( const UserPtr user );
 
-	Channel* AddChannel( const std::string& chan );
-	void RemoveChannel( const Channel* chan );
+	ChannelPtr AddChannel( const std::string& chan );
+	void RemoveChannel( const ChannelPtr chan );
 
-	Battle* AddBattle( const int& id );
-	void RemoveBattle( const Battle* battle );
+	BattlePtr AddBattle( const int& id );
+	void RemoveBattle( const BattlePtr battle );
 
 	void RelayCmd( const std::string& command, const std::string& param );
 };

@@ -11,7 +11,7 @@ namespace LSL {
 TASServer::TASServer(int /*TASServerMode*/)
     : m_cmd_dict( new CommandDictionary() )
 {
-    sock.dataReceived.connect( boost::bind( &TASServer::ExecuteCommand, this, _1, _2 ) );
+	m_sock.dataReceived.connect( boost::bind( &TASServer::ExecuteCommand, this, _1, _2 ) );
 }
 
 void TASServer::OnNewUser( const std::string& nick, const std::string& country, int cpu, int id )
@@ -35,7 +35,6 @@ void TASServer::KickUser(const std::string& user)
 {
 	SendCmd( "KICKUSER", user );
 }
-
 
 void TASServer::BanUser(const std::string& user)
 {

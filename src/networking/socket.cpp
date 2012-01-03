@@ -15,11 +15,13 @@ namespace LSL {
 Socket::Socket()
     : m_sock(m_netservice)
     , m_rate(-1)
+    , m_last_net_packet(0)
 {
 }
 
 void Socket::Connect(const std::string &server, int port)
 {
+    m_last_net_packet = 0;
     boost::system::error_code err;
     IP::address tempAddr = IP::address::from_string(server, err);
     if (err)
@@ -56,6 +58,7 @@ void Socket::ConnectCallback(const boost::system::error_code &error)
 
 void Socket::ReceiveCallback(const boost::system::error_code &error, size_t bytes)
 {
+    m_last_net_packet = time( 0 );
     if (!error)
     {
         std::string msg;
@@ -147,6 +150,12 @@ std::string Socket::GetHandle() const
 #endif
     return handle;
 
+}
+
+bool Socket::InTimeout(int timeout_seconds) const
+{
+    time_t now = time( 0 );
+    return ( ( m_last_net_packet > 0 ) && ( ( now - m_last_net_packet ) > timeout_seconds ) );
 }
 
 void Socket::SetSendRateLimit(int Bps)

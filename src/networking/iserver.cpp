@@ -1,6 +1,7 @@
 #include "iserver.h"
 #include "socket.h"
 
+#include <battle/ibattle.h>
 
 namespace LSL {
 
@@ -12,14 +13,10 @@ iServer::iServer()
     m_message_size_limit(1024),
     m_connected(false),
     m_online(false),
-    m_me(0),
-    //m_last_udp_ping(0),
-    //m_last_net_packet(0),
+	//m_last_udp_ping(0),
     m_udp_private_port(0),
     m_udp_reply_timeout(0),
-    m_current_battle(0),
-    m_buffer(""),
-    m_relay_host_bot(0)
+	m_buffer("")
 {
 }
 
@@ -33,7 +30,6 @@ void iServer::Connect( const std::string& servername ,const std::string& addr, c
 //    m_redirecting = false;
 //    m_agreement = "";
 	m_crc.ResetCRC();
-//	m_last_net_packet = 0;
 	std::string handle = m_sock->GetHandle();
     if ( handle.length() > 0 ) m_crc.UpdateData( handle + addr );
 }
@@ -63,9 +59,7 @@ void iServer::TimerUpdate()
 {
 	if ( !IsConnected() )
 		return;
-
-	time_t now = time( 0 );
-	if ( ( m_last_net_packet > 0 ) && ( ( now - m_last_net_packet ) > m_ping_timeout ) )
+	if ( m_sock->InTimeout( m_ping_timeout ) )
 	{
 		m_se->OnTimeout();
 		Disconnect();
@@ -89,10 +83,11 @@ void iServer::TimerUpdate()
 		// Nat travelsal "ping"
 		if ( m_current_battle_id > 0 )
 		{
-			Battle *battle=GetCurrentBattle();
+			const BattlePtr battle=GetCurrentBattle();
 			if (battle && !battle->GetInGame() )
 			{
-				if ( battle->GetNatType() == NAT_Hole_punching || battle->GetNatType() == NAT_Fixed_source_ports  )
+				if ( battle->GetNatType() == Battle::NAT_Hole_punching
+					 || battle->GetNatType() == Battle::NAT_Fixed_source_ports  )
 				{
 					UdpPingTheServer();
 					if ( battle->IsFounderMe() )
@@ -102,20 +97,6 @@ void iServer::TimerUpdate()
 				}
 			}
 		}
-	}
-}
-
-void iServer::OnDataReceived( Socket* sock )
-{
-	std::string data = sock->Receive();
-	m_buffer += data;
-	int returnpos = m_buffer.find( "\n" );
-	while ( returnpos != -1 )
-	{
-		std::string cmd = m_buffer.Left( returnpos );
-		m_buffer = m_buffer.Mid( returnpos + 1 );
-		ExecuteCommand( cmd );
-		returnpos = m_buffer.Find( "\n" );
 	}
 }
 
@@ -163,7 +144,8 @@ void iServer::OpenBattle( BattleOptions bo )
 		m_last_relay_host_password = bo.password;
 	}
 
-	if ( bo.nattype > 0 ) UdpPingTheServer();
+	if ( bo.nattype > 0 )
+		UdpPingTheServer();
 	_HostBattle(bo);
 }
 
@@ -174,7 +156,7 @@ std::string GenerateScriptPassword()
 	return std::string(buff);
 }
 
-void iServer::JoinBattle( Battle* battle, const std::string& password )
+void iServer::JoinBattle( const BattlePtr battle, const std::string& password )
 {
 	if (battle)
 	{
@@ -208,13 +190,13 @@ void iServer::StartHostedBattle()
 	m_se->OnStartHostedBattle( m_battle_id );
 }
 
-void iServer::LeaveBattle( const Battle* battle)
+void iServer::LeaveBattle( const BattlePtr battle)
 {
     m_relay_host_bot = 0;
     _LeaveBattle(battle);
 }
 
-void iServer::BattleKickPlayer( const Battle* battle, const User* user )
+void iServer::BattleKickPlayer( const BattlePtr battle, const User* user )
 {
 	if (!battle) return;
 	if (!battle.IsFounderMe()) return;
@@ -389,15 +371,6 @@ void iServer::OnDisconnected(Socket* sock)
 	m_se->OnDisconnected( connectionwaspresent );
 }
 
-
-void iServer::OnDataReceived( Socket* sock )
-{
-	if ( !sock ) return;
-	m_last_net_packet = time( 0 );
-	_OnDataRecieved(sock);
-}
-
-
 void iServer::OnSocketError( const Sockerror& /*unused*/ )
 {
 }
@@ -443,7 +416,7 @@ void iServer::OnUserStatus( const User* user, UserStatus status )
 	//TODO: event
 }
 
-void iServer::OnBattleStarted( const Battle* battle )
+void iServer::OnBattleStarted( const BattlePtr battle )
 {
 	if (!battle) return;
 	//TODO: event
@@ -504,7 +477,7 @@ void iServer::OnUserQuit( const User* user )
 }
 
 
-void iServer::OnBattleOpened( Battle* battle )
+void iServer::OnBattleOpened( const BattlePtr battle )
 {
 
 	if ( battle.GetFounder() == m_relay_host_bot )
@@ -514,25 +487,25 @@ void iServer::OnBattleOpened( Battle* battle )
 	}
 }
 
-void iServer::OnBattleMapChanged(const Battle* battle,UnitsyncMap map)
+void iServer::OnBattleMapChanged(const BattlePtr battle,UnitsyncMap map)
 {
 	if (!battle) return;
 	battle->SetHostMap( map.name, map.hash );
 }
 
-void iServer::OnBattleModChanged( const Battle* battle, UnitsyncMod mod )
+void iServer::OnBattleModChanged( const BattlePtr battle, UnitsyncMod mod )
 {
 	if (!battle) return;
 	battle->SetHostMod( mod.name, mod.hash );
 }
 
-void iServer::OnBattleMaxPlayersChanged( const Battle* battle, int maxplayers )
+void iServer::OnBattleMaxPlayersChanged( const BattlePtr battle, int maxplayers )
 {
 	if (!battle) return;
 	battle->SetMaxPlayers( maxplayers );
 }
 
-void iServer::OnBattleHostChanged( const Battle* battle, User* host, const std::string& ip, int port )
+void iServer::OnBattleHostChanged( const BattlePtr battle, User* host, const std::string& ip, int port )
 {
 	if (!battle) return;
 	if (!user) battle->SetFounder( host );
@@ -540,13 +513,13 @@ void iServer::OnBattleHostChanged( const Battle* battle, User* host, const std::
 	battle->SetHostPort( port );
 }
 
-void iServer::OnBattleSpectatorCountUpdated(const Battle* battle,int spectators)
+void iServer::OnBattleSpectatorCountUpdated(const BattlePtr battle,int spectators)
 {
 	if (!battle) return;
 	battle->SetNumSpectators(spectators);
 }
 
-void iServer::OnUserJoinedBattle( const Battle* battle, const User* user )
+void iServer::OnUserJoinedBattle( const BattlePtr battle, const User* user )
 {
 	if (!battle) return;
 	if (!user) return;
@@ -585,13 +558,13 @@ void iServer::OnChannelMessage( const Channel* channel, const std::string& msg )
 	if (!channel) return;
 }
 
-void iServer::OnBattleLockUpdated(const Battle* battle,bool locked)
+void iServer::OnBattleLockUpdated(const BattlePtr battle,bool locked)
 {
 	if (!battle) return;
 	battle->SetLocked(locked);
 }
 
-void iServer::OnUserLeftBattle(const Battle* battle, const User* user)
+void iServer::OnUserLeftBattle(const BattlePtr battle, const User* user)
 {
 	if (!user) return;
 	bool isbot = user->BattleStatus().IsBot();
@@ -605,13 +578,13 @@ void iServer::OnUserLeftBattle(const Battle* battle, const User* user)
 	//TODO: event
 }
 
-void iServer::OnBattleClosed(const Battle* battle )
+void iServer::OnBattleClosed(const BattlePtr battle )
 {
 	RemoveBattle( battleid );
 	//TODO:event
 }
 
-void iServer::OnBattleDisableUnit( const Battle* battle, const std::string& unitname, int count )
+void iServer::OnBattleDisableUnit( const BattlePtr battle, const std::string& unitname, int count )
 {
 	if (!battle) return;
 	battle->RestrictUnit( unitname, count );
@@ -710,14 +683,14 @@ void iServer::OnChannelSaid( const Channel* channel, const User* user, const std
 	}
 }
 
-void iServer::OnBattleStartRectAdd( const Battle* battle, int allyno, int left, int top, int right, int bottom )
+void iServer::OnBattleStartRectAdd( const BattlePtr battle, int allyno, int left, int top, int right, int bottom )
 {
 	if(!battle) return;
 	battle->AddStartRect( allyno, left, top, right, bottom );
 	battle->StartRectAdded( allyno );
 }
 
-void iServer::OnBattleStartRectRemove( const Battle* battle, int allyno )
+void iServer::OnBattleStartRectRemove( const BattlePtr battle, int allyno )
 {
 	if (!battle) return;
 	battle->RemoveStartRect( allyno );
@@ -730,7 +703,7 @@ void iServer::OnFileDownload( bool autolaunch, bool autoclose, bool /*disconnect
 	parsingdata.data = GetIntParam( params );
 }
 
-void iServer::OnBattleScript( const Battle* battle, const std::string& script )
+void iServer::OnBattleScript( const BattlePtr battle, const std::string& script )
 {
 	if (!battle) return;
 	battle->GetBattleFromScript( true );
@@ -740,7 +713,7 @@ void iServer::OnMuteList(const Channel* channel, const MuteList& mutelist )
 {
 }
 
-void iServer::OnKickedFromBattle( const Battle* battle)
+void iServer::OnKickedFromBattle( const BattlePtr battle)
 {
 	if (!battle) return;
 }

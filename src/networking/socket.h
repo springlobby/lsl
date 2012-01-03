@@ -12,9 +12,13 @@ namespace LSL {
 class Socket
 {
 public:
+	//! cmd_name,params
 	boost::signals2::signal<void (std::string,std::string)> dataReceived;
+	//! connect_success,msg_if_failed
     boost::signals2::signal<void (bool,std::string)> doneConnecting;
+	//! the actual asio::tcp::socket got disconnected
 	boost::signals2::signal<void ()> socketDisconnected;
+	//! error_msg
 	boost::signals2::signal<void (std::string)> networkError;
 
 	enum SocketState
@@ -41,6 +45,7 @@ public:
     void SetSendRateLimit( int Bps = -1 );
     int GetSendRateLimit() const { return m_rate; }
     std::string GetHandle() const;
+	bool InTimeout( int timeout_seconds ) const;
 
 private:
     void ConnectCallback(const boost::system::error_code& error);
@@ -50,6 +55,7 @@ private:
 	boost::asio::ip::tcp::socket m_sock;
 	boost::asio::streambuf m_incoming_buffer;
     int m_rate;
+	time_t m_last_net_packet;
 };
 
 } //namespace LSL
