@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <boost/signals2/signal.hpp>
 #include <utils/datatypes.h>
 #include <utils/mutexwrapper.h>
 #include <utils/crc.h>
@@ -36,10 +37,19 @@ class iServer
   public:
     iServer();
 
+	boost::signals2::signal<void ()> sig_NATPunchFailed;
+	//! battle_id
+	boost::signals2::signal<void (int)> sig_StartHostedBattle;
+	//! seconds since ping received
+	boost::signals2::signal<void (int)> sig_Pong;
+	boost::signals2::signal<void ()> sig_Timeout;
+
 	typedef std::vector<std::string>
 		StringVector;
 	typedef boost::shared_ptr<User>
 		UserPtr;
+	typedef std::vector<UserPtr>
+		UserVector;
 	typedef boost::shared_ptr<const User>
 		ConstUserPtr;
 	typedef boost::shared_ptr<Battle::IBattle>
@@ -100,15 +110,15 @@ class iServer
 
 	virtual void HostBattle( Battle::BattleOptions bo ) = 0;
 	virtual void JoinBattle( const BattlePtr battle, const std::string& password = "" ) = 0;
-	virtual void LeaveBattle( const BattlePtr battle ) = 0;
-	virtual void StartHostedBattle() = 0;
+	void LeaveBattle( const BattlePtr battle );
+	void StartHostedBattle();
 
 	virtual void ForceSide( const BattlePtr battle, const UserPtr user, int side ) = 0;
 	virtual void ForceTeam( const BattlePtr battle, const UserPtr user, int team ) = 0;
 	virtual void ForceAlly( const BattlePtr battle, const UserPtr user, int ally ) = 0;
 	virtual void ForceColour( const BattlePtr battle, const UserPtr user, int r, int g, int b ) = 0;
 	virtual void ForceSpectator( const BattlePtr battle, const UserPtr user, bool spectator ) = 0;
-	virtual void BattleKickPlayer( const BattlePtr battle, const UserPtr user ) = 0;
+	void BattleKickPlayer( const BattlePtr battle, const UserPtr user );
 	virtual void SetHandicap( const BattlePtr battle, const UserPtr user, int handicap) = 0;
 
 	virtual void AddBot( const BattlePtr battle, const std::string& nick, UserBattleStatus& status ) = 0;
@@ -119,6 +129,7 @@ class iServer
 	virtual void SendHostInfo( const std::string& Tag ) = 0;
 	virtual void SendRaw( const std::string& raw ) = 0;
 	virtual void SendUserPosition( const User& usr ) = 0;
+	virtual void SendCmd( const std::string& command, const std::string& param ) = 0;
 
 	virtual void RequestInGameTime( const std::string& nick ) = 0;
 
@@ -149,10 +160,10 @@ class iServer
 
 	virtual void RequestSpringUpdate();
 
-	virtual void SetRelayIngamePassword( const UserPtr user ) = 0;
-	virtual StringVector GetRelayHostList();
+	void SetRelayIngamePassword( const UserPtr user );
+
 	UserPtr AcquireRelayhost();
-	virtual void SendScriptToProxy( const std::string& script ) = 0;
+	void SendScriptToProxy( const std::string& script );
 
 	void SetPrivateUdpPort(int port) {m_udp_private_port = port;}
 	std::string GenerateScriptPassword();
@@ -183,6 +194,7 @@ private:
     int m_udp_private_port;
     int m_nat_helper_port;
 	int m_udp_reply_timeout;
+	time_t m_last_udp_ping;
 
 	MutexWrapper<unsigned int> m_last_ping_id;
 	unsigned int GetLastPingID()
@@ -203,6 +215,7 @@ private:
 	UserPtr m_relay_host_manager;
 	UserPtr m_relay_host_list;
 
+	UserVector GetAvailableRelayHostList();
 	StringVector m_relay_host_manager_list;
 
 	UserPtr AddUser( const int id );
@@ -215,6 +228,68 @@ private:
 	void RemoveBattle( const BattlePtr battle );
 
 	void RelayCmd( const std::string& command, const std::string& param );
+	void OpenBattle( Battle::BattleOptions bo );
+	void HandlePong( int replyid );
+	void Ping();
+
+
+private://defs from iserver.cpp bottom
+	void OnSocketError( const Socket::SocketError& /*unused*/ );
+	void OnProtocolError( const Protocolerror /*unused*/ );
+	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);
+	void OnNewUser( const UserPtr user );
+	void OnUserStatus( const UserPtr user, UserStatus status );
+	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);
+	void OnBattleStarted( const BattlePtr battle );
+	void OnDisconnected( bool wasonline );
+	void OnLogin( const UserPtr user );
+	void OnLogout();
+	void OnLoginInfoComplete();
+	void OnUnknownCommand( const std::string& command, const std::string& params );
+	void OnMotd( const std::string& msg );
+	void OnPong( long long ping_time );
+	void OnUserQuit( const UserPtr user );
+	void OnBattleOpened( const BattlePtr battle );
+	void OnBattleMapChanged(const BattlePtr battle,UnitsyncMap map);
+	void OnBattleModChanged( const BattlePtr battle, UnitsyncMod mod );
+	void OnBattleMaxPlayersChanged( const BattlePtr battle, int maxplayers );
+	void OnBattleHostChanged( const BattlePtr battle, UserPtr host, const std::string& ip, int port );
+	void OnBattleSpectatorCountUpdated(const BattlePtr battle,int spectators);
+	void OnUserJoinedBattle( const BattlePtr battle, const UserPtr user );
+	void OnAcceptAgreement( const std::string& agreement );
+	void OnRing( const UserPtr from );
+	void OnServerBroadcast( const std::string& message );
+	void OnServerMessage( const std::string& message );
+	void OnServerMessageBox( const std::string& message );
+	void OnChannelMessage( const ChannelPtr channel, const std::string& msg );
+	void OnBattleLockUpdated(const BattlePtr battle,bool locked);
+	void OnUserLeftBattle(const BattlePtr battle, const UserPtr user);
+	void OnBattleClosed(const BattlePtr battle );
+	void OnBattleDisableUnit( const BattlePtr battle, const std::string& unitname, int count );
+	void OnBattleEnableUnit( int battleid, const StringVector& unitnames );
+	void OnBattleEnableAllUnits( int battleid );
+	void OnJoinChannelFailed( const ChannelPtr channel, const std::string& reason );
+	void OnUserJoinedChannel( const ChannelPtr channel, const UserPtr user );
+	void OnKickedFromChannel( const ChannelPtr channel, const std::string& fromWho, const std::string& msg );
+	void OnLoginFailed( const std::string& reason );
+	void OnChannelSaid( const ChannelPtr channel, const UserPtr user, const std::string& message );
+	void OnBattleStartRectAdd( const BattlePtr battle, int allyno, int left, int top, int right, int bottom );
+	void OnBattleStartRectRemove( const BattlePtr battle, int allyno );
+	void OnFileDownload( bool autolaunch, bool autoclose, bool /*disconnectonrefuse*/, const std::string& FileName, const std::string& url, const std::string& description );
+	void OnBattleScript( const BattlePtr battle, const std::string& script );
+	void OnMuteList(const ChannelPtr channel, const MuteList& mutelist );
+	void OnKickedFromBattle( const BattlePtr battle);
+	void OnUserInternalUdpPort( const UserPtr user, int udpport );
+	void OnUserExternalUdpPort( const UserPtr user, int udpport );
+	void OnUserIP( const UserPtr user, const std::string& ip );
+	void OnRedirect( const std::string& address, int port );
+	void OnChannelJoinUserList( const ChannelPtr channel, const UserVector& users);
+	void OnChannelListEnd();
+	void OnJoinBattleFailed( const std::string& msg );
+	void OnOpenBattleFailed( const std::string& msg );
+	void OnRequestBattleStatus();
+
+
 };
 
 } //namespace LSL

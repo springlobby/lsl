@@ -79,7 +79,7 @@ void TASServer::ChangePassword(const std::string& oldpassword, const std::string
 
 void TASServer::GetMD5(const std::string& text, const std::string& newpassword )
 {
-	return GetPasswordHash(params)
+	return GetPasswordHash(params);
 }
 
 void TASServer::Rename(const std::string& newnick)
@@ -113,11 +113,14 @@ int TASServer::Register( const std:string& addr, const int port, const std:strin
 	FakeNetClass temp;
 	Socket tempsocket( temp, true, true );
 	tempsocket.Connect( addr, port );
-	if ( tempsocket.State() != SS_Open ) return false;
+	if ( tempsocket.State() != Socket::SS_Open )
+		return false;
 
 	std::string data = tempsocket.Receive().BeforeLast(_T('\n'));
-	if ( data.find( _T("\r") ) != -1 ) data = data.BeforeLast(_T('\r'));
-	if ( GetWordParam( data ) != "TASServer" ) return false;
+	if ( data.find( "\r" ) != std::string::npos )
+		data = Util::BeforeLast( data, "\r" );
+	if ( GetWordParam( data ) != "TASServer" )
+		return false;
 
 	tempsocket.Send( "REGISTER " + nick + " " + GetPasswordHash( password ) + "\n" );
 
@@ -128,7 +131,7 @@ int TASServer::Register( const std:string& addr, const int port, const std:strin
 	{
 		return 1;
 	}
-	wxString cmd = GetWordParam( data );
+	std::string cmd = GetWordParam( data );
 	if ( cmd == "REGISTRATIONACCEPTED")
 	{
 		return 0;
@@ -187,7 +190,6 @@ void TASServer::AcceptAgreement()
 {
 	SendCmd( "CONFIRMAGREEMENT" );
 }
-
 
 void TASServer::ExecuteCommand( const std::string& in )
 {

@@ -34,7 +34,7 @@ void Socket::Connect(const std::string &server, int port)
         IP::tcp::resolver::iterator iter = resolver.resolve(query, err);
         if (err)
         {
-            doneConnecting(false, err.message());
+            sig_doneConnecting(false, err.message());
             return;
         }
         tempAddr = iter->endpoint().address();
@@ -47,12 +47,12 @@ void Socket::ConnectCallback(const boost::system::error_code &error)
 {
     if (!error)
     {
-        doneConnecting(true, "");
+        sig_doneConnecting(true, "");
         BA::async_read_until(m_sock, m_incoming_buffer, "\n", boost::bind(&Socket::ReceiveCallback, this, BA::placeholders::error, BA::placeholders::bytes_transferred));
     }
     else
     {
-        doneConnecting(false, error.message());
+        sig_doneConnecting(false, error.message());
     }
 }
 
@@ -69,18 +69,18 @@ void Socket::ReceiveCallback(const boost::system::error_code &error, size_t byte
         if (!msg.empty())
             msg = msg.substr(1);
         //emits the signal
-        dataReceived(command, msg);
+        sig_dataReceived(command, msg);
     }
     else
     {
         if (error.value() == BS::errc::connection_reset || error.value() == BA::error::eof)
         {
             m_sock.close();
-            socketDisconnected();
+            sig_socketDisconnected();
         }
         else if (m_sock.is_open()) //! ignore error messages after connect was closed
         {
-            networkError(error.message());
+            sig_networkError(error.message());
         }
     }
     if (m_sock.is_open())

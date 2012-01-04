@@ -13,13 +13,13 @@ class Socket
 {
 public:
 	//! cmd_name,params
-	boost::signals2::signal<void (std::string,std::string)> dataReceived;
+	boost::signals2::signal<void (std::string,std::string)> sig_dataReceived;
 	//! connect_success,msg_if_failed
-    boost::signals2::signal<void (bool,std::string)> doneConnecting;
+	boost::signals2::signal<void (bool,std::string)> sig_doneConnecting;
 	//! the actual asio::tcp::socket got disconnected
-	boost::signals2::signal<void ()> socketDisconnected;
+	boost::signals2::signal<void ()> sig_socketDisconnected;
 	//! error_msg
-	boost::signals2::signal<void (std::string)> networkError;
+	boost::signals2::signal<void (std::string)> sig_networkError;
 
 	enum SocketState
 	{

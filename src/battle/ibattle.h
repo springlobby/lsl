@@ -124,8 +124,12 @@ public:
     IBattle() {}
 
     int index() const { return 1; }
-    static std::string className() { return "Channel"; }
+	static std::string className() { return "IBattle"; }
 
+	bool Ingame() const { return false; }
+	NatType GetNatType() const { return NAT_None; }
+	bool IsFounderMe() const { return false; }
+	bool IsProxy() const { return false; }
 
 };
 
