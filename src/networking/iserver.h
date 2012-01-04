@@ -31,6 +31,10 @@ class UserBattleStatus;
 class Socket;
 class PingThread;
 class IServerEvents;
+class UnitsyncMap;
+class UnitsyncMod;
+class UserStatus;
+class MuteList;
 
 class iServer
 {
@@ -236,7 +240,6 @@ private:
 private://defs from iserver.cpp bottom
 	void OnSocketError( const Socket::SocketError& /*unused*/ );
 	void OnProtocolError( const Protocolerror /*unused*/ );
-	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);
 	void OnNewUser( const UserPtr user );
 	void OnUserStatus( const UserPtr user, UserStatus status );
 	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);

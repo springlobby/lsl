@@ -315,7 +315,7 @@ struct UserOrder
 };
 
 
-void TASServer::UdpPingAllClients()// used when hosting with nat holepunching. has some rudimentary support for fixed source ports.
+void iServer::UdpPingAllClients()// used when hosting with nat holepunching. has some rudimentary support for fixed source ports.
 {
 	if (!m_current_battle)return;
 	if (!m_current_battle->IsFounderMe())return;
@@ -330,17 +330,17 @@ void TASServer::UdpPingAllClients()// used when hosting with nat holepunching. h
 
 	// copypasta from spring.cpp
 	UserVector ordered_users = m_current_battle->GetUsers();
+	//TODO this uses ptr diff atm
 	std::sort(ordered_users.begin(),ordered_users.end());
 
-
-	for (UserVector::iterator itor = ordered_users.begin(); itor != ordered_users.end(); itor++)
+	BOOST_FOREACH( const UserPtr user, ordered_users )
 	{
-		if (!*itor) continue;
-		UserBattleStatus status = *itor->BattleStatus();
+		if (!user) continue;
+		UserBattleStatus status = user->BattleStatus();
 		std::string ip=status.ip;
 		unsigned int port=status.udpport;
 		unsigned int src_port = m_udp_private_port;
-		if ( battle->GetNatType() == NAT_Fixed_source_ports )
+		if ( battle->GetNatType() == Battle::NAT_Fixed_source_ports )
 		{
 			port = FIRST_UDP_SOURCEPORT + i;
 		}
