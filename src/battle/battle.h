@@ -12,7 +12,6 @@ class Server;
 class User;
 class UnitsyncMap;
 class UnitsyncMod;
-class lslColor;
 
 namespace Battle {
 
@@ -23,6 +22,7 @@ class Battle : public IBattle
 public:
     Battle( Server& serv, int id );
     ~Battle();
+    int key() const { return m_id; }
 
     Server& GetServer() { return m_serv; }
 

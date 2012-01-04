@@ -75,7 +75,7 @@ struct UserBattleStatus
 };
 
 //! parent class leaving out server related functionality
-class CommonUser : public HasIndex< std::string >
+class CommonUser : public HasKey< std::string >
 {
 public:
 	CommonUser(const std::string& nick, const std::string& country, const int& cpu)
@@ -83,7 +83,7 @@ public:
 
 	virtual ~CommonUser(){}
 
-	std::string index() const {return "dummy";}
+	std::string key() const {return Nick();}
 	static std::string className() { return "Channel"; }
 
 	const std::string& Nick() const { return m_nick; }

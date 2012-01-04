@@ -3,7 +3,9 @@
 
 #include <utils/global_interfaces.h>
 
-class Channel : public HasIndex < std::string >
+namespace LSL {
+
+class Channel : public HasKey< std::string >
 {
 public:
     Channel();
@@ -11,5 +13,7 @@ public:
     std::string index() const { return "dummy"; }
     static std::string className() { return "Channel"; }
 };
+
+} // namespace LSL {
 
 #endif // CHANNEL_H

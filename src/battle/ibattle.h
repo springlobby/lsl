@@ -79,10 +79,10 @@ struct BattleOptions
 	std::string modname;
 };
 
-class IBattle : public HasIndex< int >
+class IBattle : public HasKey< int >
 {
 public:
-	int index() const { return 1; }
+	int key() const { return 1; }
 	static std::string className() { return "IBattle"; }
 
 	IBattle();
@@ -129,7 +129,7 @@ public:
 
 	virtual int GetMyPlayerNum() const;
 
-	virtual int GetPlayerNum( const UserPtr user ) const;
+	virtual int GetPlayerNum(const ConstUserPtr user ) const;
 
 	virtual void SetHostMod( const std::string& modname, const std::string& hash );
 	virtual void SetLocalMod( const UnitsyncMod& mod );
@@ -201,8 +201,7 @@ public:
 	virtual std::vector<lslColor> &GetFixColoursPalette( int numteams ) const;
 	virtual int GetClosestFixColour(const lslColor &col, const std::vector<int> &excludes, int difference) const;
 	virtual lslColor GetFixColour(int i) const;
-	virtual lslColor GetFreeColour( User &for_whom ) const;
-	lslColor GetFreeColour( User* for_whom = NULL ) const;
+	virtual lslColor GetFreeColour( const ConstUserPtr for_whom = UserPtr() ) const;
 	lslColor GetNewColour() const;
 	int ColourDifference(const lslColor &a, const lslColor &b)  const;
 

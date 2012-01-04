@@ -338,7 +338,7 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
     if ( cmd_name == _T("/replacehostip") )
     {
         std::string ip = cmd.AfterFirst(' ');
-        if ( ip.IsEmpty() ) return false;
+        if ( ip.empty() ) return false;
         m_opts.ip = ip;
         return true;
     }

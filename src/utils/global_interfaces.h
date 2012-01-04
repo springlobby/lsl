@@ -13,15 +13,18 @@ class CRTPbase {
 		const Derived& asImp () const { return static_cast<const Derived&>(*this); }
 };
 
+namespace LSL {
 //! minimal interface for classes usable as Items for ContainerBase
-template < class IndexImp >
-struct HasIndex {
-    typedef IndexImp
-        IndexType;
+template < class KeyImp >
+struct HasKey {
+	typedef KeyImp
+		KeyType;
     //! This will be used a sthe index in std::map like container, needs to be unique
-    virtual IndexImp index() const = 0;
+	virtual KeyImp key() const = 0;
     //! A readble string to identify the indexed class type by
     static std::string className();
 };
+
+} //namespace LSL {
 
 #endif // LIBSPRINGLOBBY_HEADERGUARD_CRTPBASE_H

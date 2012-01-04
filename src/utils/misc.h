@@ -3,6 +3,7 @@
 
 #include <string>
 #include <algorithm>
+#include <vector>
 #include <boost/noncopyable.hpp>
 #include <boost/algorithm/string/find.hpp>
 
@@ -15,6 +16,9 @@ inline void lslUnusedVar(const T& LSLUNUSED(t)) { }
 namespace LSL {
 
 class lslSize;
+template < class T > class lslColorBase;
+typedef lslColorBase<unsigned char> lslColor;
+
 static const int lslNotFound = -1;
 
 namespace Util {
@@ -78,6 +82,9 @@ std::string AfterLast( const std::string& phrase, const std::string& searchterm 
 std::string BeforeFirst( const std::string& phrase, const std::string& searchterm );
 std::string AfterFirst( const std::string& phrase, const std::string& searchterm );
 
+std::vector<lslColor>& GetBigFixColoursPalette( int numteams );
+bool AreColoursSimilar( const lslColor& col1, const lslColor& col2, int mindiff );
+
 } //namespace Util {
 
 //! wxSize replacement,
@@ -98,12 +105,13 @@ public:
 	lslSize MakeFit(const lslSize bounds);
 };
 
-class lslColor {
+template < typename T = unsigned char >
+class lslColorBase {
 private:
-	unsigned char r,g,b,a;
+	T r,g,b,a;
 public:
-	lslColor():r(0),g(0),b(0),a(0){}
-	lslColor(unsigned char _r,unsigned char _g,unsigned char _b,unsigned char _a = 0)
+	lslColorBase():r(0),g(0),b(0),a(0){}
+	lslColorBase(T _r, T _g, T _b, T _a = 0)
 		:r(_r),g(_g),b(_b),a(_a){}
 
 	bool operator == (const lslColor o) const {
@@ -112,6 +120,9 @@ public:
 	bool operator != (const lslColor o) const {
 		return !(this->operator ==(o));
 	}
+	T Red()   const { return r; }
+	T Green() const { return g; }
+	T Blue()  const { return b; }
 };
 
 } //namespace LSL {

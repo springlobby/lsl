@@ -14,7 +14,7 @@ void ContainerBase<T>::Add( PointerType item )
 }
 
 template < class T >
-void ContainerBase<T>::Remove( const IndexType& index )
+void ContainerBase<T>::Remove( const KeyType& index )
 {
     typename ContainerBase<T>::MapType::iterator
         it = map_.find( index );
@@ -24,7 +24,7 @@ void ContainerBase<T>::Remove( const IndexType& index )
 }
 
 template < class T >
-const typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const IndexType& index ) const
+const typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const KeyType& index ) const
 {
     typename ContainerBase<T>::MapType::const_iterator
         it = map_.find( index );
@@ -33,7 +33,7 @@ const typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const IndexT
     return it->second;
 }
 template < class T >
-typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const IndexType& index )
+typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const KeyType& index )
 {
     typename ContainerBase<T>::MapType::iterator
         it = map_.find( index );
@@ -43,7 +43,7 @@ typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const IndexType& i
 }
 
 template < class T >
-bool ContainerBase<T>::Exists( const IndexType& index ) const
+bool ContainerBase<T>::Exists( const KeyType& index ) const
 {
     return map_.find( index ) != map_.end();
 }
@@ -55,7 +55,7 @@ typename ContainerBase<T>::MapType::size_type ContainerBase<T>::size() const
 }
 
 template < class T >
-ContainerBase<T>::MissingItemException::MissingItemException( const typename ContainerBase<T>::IndexType& index )
+ContainerBase<T>::MissingItemException::MissingItemException( const typename ContainerBase<T>::KeyType& index )
     :std::out_of_range( (boost::format( "No %s found in list for item %s" ) % T::className() % index).str() )
 {}
 
