@@ -23,7 +23,7 @@ public:
 
     //! putting this here makes it inherently distinguishable on a per *List basis
     struct MissingItemException : public std::out_of_range {
-		MissingItemException( const KeyType& index );
+		MissingItemException( const KeyType& key );
     };
 
 protected:
@@ -34,21 +34,28 @@ public:
     ContainerBase();
 
     void Add( PointerType item );
-	void Remove( const KeyType& index );
-    //! throws MissingItemException if no item at \param index
-	const PointerType Get( const KeyType& index ) const;
-	PointerType Get( const KeyType& index );
-	bool Exists( const KeyType& index ) const;
+	void Remove( const KeyType& key );
+	//! throws MissingItemException if no item at \param key
+	const PointerType Get( const KeyType& key ) const;
+	PointerType Get( const KeyType& key );
+	bool Exists( const KeyType& key ) const;
 
     typename MapType::size_type size() const;
 
-	typename MapType::const_iterator begin() const { return map_.begin(); }
-	typename MapType::iterator begin() { return map_.begin(); }
-	typename MapType::const_iterator end() const { return map_.end(); }
-	typename MapType::iterator end() { return map_.end(); }
+	typename MapType::const_iterator begin() const { return m_map.begin(); }
+	typename MapType::iterator begin() { return m_map.begin(); }
+	typename MapType::const_iterator end() const { return m_map.end(); }
+	typename MapType::iterator end() { return m_map.end(); }
+
+	const ConstPointerType At( const typename MapType::size_type index ) const;
+	const ConstPointerType operator[]( typename MapType::size_type index ) const { return At(index); }
 
 private:
-    MapType map_;
+	MapType m_map;
+	// The following are used as internal cache to speed up random access:
+	mutable typename MapType::const_iterator m_seek;
+	mutable typename MapType::size_type m_seekpos;
+	static const typename MapType::size_type SEEKPOS_INVALID = typename MapType::size_type(-1);
 };
 
 } //namespace LSL

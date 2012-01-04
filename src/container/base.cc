@@ -10,25 +10,25 @@ ContainerBase<T>::ContainerBase()
 template < class T >
 void ContainerBase<T>::Add( PointerType item )
 {
-    map_[item->index()] = item;
+    m_map[item->index()] = item;
 }
 
 template < class T >
 void ContainerBase<T>::Remove( const KeyType& index )
 {
     typename ContainerBase<T>::MapType::iterator
-        it = map_.find( index );
-    const bool found = it != map_.end();
+        it = m_map.find( index );
+    const bool found = it != m_map.end();
     if ( found )
-        map_.erase( it );
+        m_map.erase( it );
 }
 
 template < class T >
 const typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const KeyType& index ) const
 {
     typename ContainerBase<T>::MapType::const_iterator
-        it = map_.find( index );
-    if ( it == map_.end() )
+        it = m_map.find( index );
+    if ( it == m_map.end() )
         throw MissingItemException( index );
     return it->second;
 }
@@ -36,8 +36,8 @@ template < class T >
 typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const KeyType& index )
 {
     typename ContainerBase<T>::MapType::iterator
-        it = map_.find( index );
-    if ( it == map_.end() )
+        it = m_map.find( index );
+    if ( it == m_map.end() )
         throw MissingItemException( index );
     return it->second;
 }
@@ -45,18 +45,31 @@ typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const KeyType& ind
 template < class T >
 bool ContainerBase<T>::Exists( const KeyType& index ) const
 {
-    return map_.find( index ) != map_.end();
+    return m_map.find( index ) != m_map.end();
 }
 
 template < class T >
 typename ContainerBase<T>::MapType::size_type ContainerBase<T>::size() const
 {
-    return map_.size();
+    return m_map.size();
 }
 
 template < class T >
 ContainerBase<T>::MissingItemException::MissingItemException( const typename ContainerBase<T>::KeyType& index )
     :std::out_of_range( (boost::format( "No %s found in list for item %s" ) % T::className() % index).str() )
 {}
+
+template < class T >
+const typename ContainerBase<T>::ConstPointerType
+ContainerBase<T>::At( const typename ContainerBase<T>::MapType::size_type index) const
+{
+    if ((m_seekpos == SEEKPOS_INVALID) || (m_seekpos > index)) {
+        m_seek = m_map.begin();
+        m_seekpos = 0;
+    }
+    std::advance( m_seek, index - m_seekpos );
+    m_seekpos = index;
+    return *m_seek->second;
+}
 
 }
