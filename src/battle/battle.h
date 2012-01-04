@@ -88,7 +88,7 @@ public:
 
     void SetImReady( bool ready );
 
-    const UserPtr GetMe();
+    UserPtr GetMe();
     const ConstUserPtr GetMe() const;
 
     void UserPositionChanged( const ConstUserPtr user );

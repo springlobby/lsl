@@ -144,7 +144,7 @@ User& Battle::GetMe()
     return m_serv.GetMe();
 }
 
-const User& Battle::GetMe() const
+UserPtr Battle::GetMe()
 {
     return m_serv.GetMe();
 }

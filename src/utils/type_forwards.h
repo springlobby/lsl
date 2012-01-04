@@ -1,9 +1,18 @@
 #ifndef LSL_DATATYPES_H
 #define LSL_DATATYPES_H
 
+//there's no good way to forward these
+#include <string>
+#include <map>
+#include <vector>
+
 namespace boost {
 template < class T >
 class shared_ptr;
+}
+
+namespace std {
+
 }
 
 namespace LSL {
@@ -14,10 +23,14 @@ namespace Battle {
 class User;
 class Channel;
 class Server;
+class UnitsyncMap;
+class UnitsyncMod;
+class UserBattleStatus;
+class UserPosition;
+class OptionsWrapper;
 
-//typedef std::map< std::string, std::string> StringMap;
-//typedef std::vector< std::string > StringVector;
-//typedef std::vector< UserPtr > UserVector;
+typedef std::map< std::string, std::string> StringMap;
+typedef std::vector< std::string > StringVector;
 
 typedef boost::shared_ptr< User > UserPtr;
 typedef boost::shared_ptr< const User > ConstUserPtr;
@@ -30,6 +43,12 @@ typedef boost::shared_ptr< const Channel > ConstChannelPtr;
 
 typedef boost::shared_ptr< Server > ServerPtr;
 typedef boost::shared_ptr< const Server > ConstServerPtr;
+
+typedef std::vector< UserPtr > UserVector;
+typedef std::vector< ConstUserPtr > ConstUserVector;
+
+typedef boost::shared_ptr< OptionsWrapper > OptionsWrapperPtr;
+typedef boost::shared_ptr< const OptionsWrapper > ConstOptionsWrapperPtr;
 
 }//namespace LSL
 #endif //LSL_DATATYPES_H

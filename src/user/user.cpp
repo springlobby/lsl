@@ -37,7 +37,7 @@ void User::SetStatus( const UserStatus& status )
 	if ( m_battle ) {
 		try
 		{
-			UserPtr user = m_battle->GetFounder();
+			const ConstUserPtr user = m_battle->GetFounder();
 			if ( user->Nick() == m_nick ) {
 				m_battle->Update();
 			}
