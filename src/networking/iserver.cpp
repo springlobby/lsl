@@ -283,7 +283,6 @@ void iServer::SendScriptToProxy( const std::string& script )
 	RelayCmd( "STARTGAME" );
 }
 
-
 //! @brief Send udp ping.
 //! @note used for nat travelsal.
 

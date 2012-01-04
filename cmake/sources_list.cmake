@@ -10,6 +10,7 @@ SET(libSpringLobbySrc
 	src/container/channellist.cpp
 	src/container/battlelist.cpp
 	src/user/user.cpp
+	src/user/common.cpp
 	src/utils/crc.cpp
 	src/utils/net.cpp
 	src/networking/socket.cpp
