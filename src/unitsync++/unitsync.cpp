@@ -284,18 +284,18 @@ bool Unitsync::ModExistsCheckHash( const std::string& hash ) const
 	return false;
 }
 
-UnitSyncMod Unitsync::GetMod( const std::string& modname )
+UnitsyncMod Unitsync::GetMod( const std::string& modname )
 {
-	UnitSyncMod m;
+	UnitsyncMod m;
 	m.name = modname;
 	m.hash = m_mods_list[modname];
 	return m;
 }
 
 
-UnitSyncMod Unitsync::GetMod( int index )
+UnitsyncMod Unitsync::GetMod( int index )
 {
-	UnitSyncMod m;
+	UnitsyncMod m;
 	m.name = m_mod_array[index];
 	m.hash = m_mods_list[m.name];
 	return m;
@@ -334,25 +334,25 @@ bool Unitsync::MapExists( const std::string& mapname, const std::string& hash ) 
 	return itor->second == hash;
 }
 
-UnitSyncMap Unitsync::GetMap( const std::string& mapname )
+UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 {
-	UnitSyncMap m;
+	UnitsyncMap m;
 	m.name = mapname;
 	m.hash = m_maps_list[mapname];
 	return m;
 }
 
-UnitSyncMap Unitsync::GetMap( int index )
+UnitsyncMap Unitsync::GetMap( int index )
 {
-	UnitSyncMap m;
+	UnitsyncMap m;
 	m.name = m_map_array[index];
 	m.hash = m_maps_list[m.name];
 	return m;
 }
 
-UnitSyncMap Unitsync::GetMapEx( int index )
+UnitsyncMap Unitsync::GetMapEx( int index )
 {
-	UnitSyncMap m;
+	UnitsyncMap m;
 	if ( index < 0 )
 		return m;
 	m.name = m_map_array[index];
@@ -440,7 +440,7 @@ Unitsync::StringVector Unitsync::GetMapDeps( const std::string& mapname )
 	return ret;
 }
 
-UnitSyncMap Unitsync::GetMapEx( const std::string& mapname )
+UnitsyncMap Unitsync::GetMapEx( const std::string& mapname )
 {
 	const int i = GetMapIndex( mapname );
 	if( i < 0 )

@@ -56,8 +56,8 @@ public:
 	bool ModExists( const std::string& modname ) const;
 	bool ModExists( const std::string& modname, const std::string& hash ) const;
     bool ModExistsCheckHash( const std::string& hash ) const;
-	UnitSyncMod GetMod( const std::string& modname );
-	UnitSyncMod GetMod( int index );
+	UnitsyncMod GetMod( const std::string& modname );
+	UnitsyncMod GetMod( int index );
 	//! this functions returns index CUSTOM ALPHBETICALLY SORTED, DO NOT USE TO ACCESS UNITSYNC DIRECTLY
 	//! use m_unsorted_mod_array for real unitsync index
 	int GetModIndex( const std::string& name ) const;
@@ -70,10 +70,10 @@ public:
 	bool MapExists( const std::string& mapname ) const;
 	bool MapExists( const std::string& mapname, const std::string& hash ) const;
 
-    UnitSyncMap GetMap( const std::string& mapname );
-	UnitSyncMap GetMap( int index );
-    UnitSyncMap GetMapEx( const std::string& mapname );
-	UnitSyncMap GetMapEx( int index );
+	UnitsyncMap GetMap( const std::string& mapname );
+	UnitsyncMap GetMap( int index );
+	UnitsyncMap GetMapEx( const std::string& mapname );
+	UnitsyncMap GetMapEx( int index );
     GameOptions GetMapOptions( const std::string& name );
     StringVector GetMapDeps( const std::string& name );
 

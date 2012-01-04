@@ -73,8 +73,10 @@ class iServer
 	virtual void DoActionChannel( const ChannelPtr channel, const std::string& msg ) = 0;
 	virtual void SayChannel( const ChannelPtr channel, const std::string& msg ) = 0;
 
-	virtual void SayPrivate( const UserPtr user, const std::string& msg ) = 0;
-	virtual void DoActionPrivate( const UserPtr user, const std::string& msg ) = 0;
+	virtual void SayPrivate( const UserPtr user, const std::string& msg ) ;
+	virtual void SayPrivate( const std::string& user, const std::string& msg ) = 0;
+	virtual void DoActionPrivate( const UserPtr user, const std::string& msg );
+	virtual void DoActionPrivate( const std::string& user, const std::string& msg ) = 0;
 
 	virtual void SayBattle( const BattlePtr battle, const std::string& msg ) = 0;
 	virtual void DoActionBattle( const BattlePtr battle, const std::string& msg ) = 0;
@@ -106,7 +108,7 @@ class iServer
 	virtual void ForceSide( const BattlePtr battle, const UserPtr user, int side ) = 0;
 	virtual void ForceTeam( const BattlePtr battle, const UserPtr user, int team ) = 0;
 	virtual void ForceAlly( const BattlePtr battle, const UserPtr user, int ally ) = 0;
-	virtual void ForceColour( const BattlePtr battle, const UserPtr user, int r, int g, int b ) = 0;
+	virtual void ForceColor( const BattlePtr battle, const UserPtr user, int r, int g, int b ) = 0;
 	virtual void ForceSpectator( const BattlePtr battle, const UserPtr user, bool spectator ) = 0;
 	void BattleKickPlayer( const BattlePtr battle, const UserPtr user );
 	virtual void SetHandicap( const BattlePtr battle, const UserPtr user, int handicap) = 0;

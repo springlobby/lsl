@@ -768,4 +768,14 @@ void iServer::OnRequestBattleStatus()
 	if(!m_battle) return;
 }
 
+void iServer::SayPrivate( const UserPtr user, const std::string& msg )
+{
+	SayPrivate( user->Nick(), msg );
+}
+
+void iServer::DoActionPrivate( const UserPtr user, const std::string& msg )
+{
+	DoActionPrivate( user->Nick(), msg );
+}
+
 } // namespace LSL

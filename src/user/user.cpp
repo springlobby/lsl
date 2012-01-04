@@ -1,6 +1,6 @@
 #include "user.h"
 #include <networking/iserver.h>
-#include <battle/ibattle.h>
+#include <battle/battle.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -37,8 +37,8 @@ void User::SetStatus( const UserStatus& status )
 	if ( m_battle ) {
 		try
 		{
-			User& user = m_battle->GetFounder();
-			if ( user.Nick() == m_nick ) {
+			UserPtr user = m_battle->GetFounder();
+			if ( user->Nick() == m_nick ) {
 				m_battle->Update();
 			}
 		}catch(...){}

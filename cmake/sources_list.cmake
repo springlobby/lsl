@@ -14,6 +14,7 @@ SET(libSpringLobbySrc
 	src/utils/crc.cpp
 	src/utils/net.cpp
 	src/battle/ibattle.cpp
+	src/battle/battle.cpp
 	src/networking/socket.cpp
 	src/networking/commands.cpp
 	src/networking/tasserverdataformats.cpp

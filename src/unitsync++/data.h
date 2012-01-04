@@ -25,9 +25,9 @@
 
 namespace LSL {
 
-struct UnitSyncMod
+struct UnitsyncMod
 {
-	UnitSyncMod() : name(std::string()),hash(std::string()) { }
+	UnitsyncMod() : name(std::string()),hash(std::string()) { }
 	std::string name;
 	std::string hash;
 };
@@ -55,9 +55,9 @@ struct MapInfo
 	std::string author;
 };
 
-struct UnitSyncMap
+struct UnitsyncMap
 {
-	UnitSyncMap() : name(std::string()),hash(std::string()) { }
+	UnitsyncMap() : name(std::string()),hash(std::string()) { }
 	std::string name;
 	std::string hash;
 	MapInfo info;

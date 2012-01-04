@@ -40,6 +40,25 @@ enum GameType
     GT_Lineage = 2
 };
 
+enum HostInfo
+{
+	HI_None = 0,
+	HI_Map = 1,
+	HI_Locked = 2,
+	HI_Spectators = 4,
+	HI_StartResources = 8,
+	HI_MaxUnits = 16,
+	HI_StartType = 32,
+	HI_GameType = 64,
+	HI_Options = 128,
+	HI_StartRects = 256,
+	HI_Restrictions = 512,
+	HI_Map_Changed = 1024,
+	HI_Mod_Changed = 2048,
+	HI_User_Positions  = 4096,
+	HI_Send_All_opts  = 8192
+};
+
 const unsigned int DEFAULT_SERVER_PORT = 8452;
 const unsigned int DEFAULT_EXTERNAL_UDP_SOURCE_PORT = 16941;
 

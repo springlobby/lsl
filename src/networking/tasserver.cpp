@@ -680,7 +680,7 @@ void TASServer::ForceAlly( const Battle* battle, const User* user, int ally )
 }
 
 
-void TASServer::ForceColour( const Battle* battle, const User* user, const Colour& col )
+void TASServer::ForceColor( const Battle* battle, const User* user, const Color& col )
 {
 	if (!battle) return;
 	if (!user) return;
@@ -992,7 +992,7 @@ void TASServer::OnClientBattleStatus( const std::string& nick, int intstatus, in
 	tasbstatus.data = intstatus;
 	bstatus = ConvTasbattlestatus( tasbstatus.tasdata );
 	color.data = colourint;
-	bstatus.colour = Colour( color.color.red, color.color.green, color.color.blue );
+	bstatus.colour = Color( color.color.red, color.color.green, color.color.blue );
 	if ( user->GetBattle() != battle ) return;
 	user->BattleStatus().color_index = status.color_index;
 	OnClientBattleStatus( battle, user, status );
@@ -1470,7 +1470,7 @@ void TASServer::OnBattleAddBot( int battleid, const std::string& nick, const std
 	tasbstatus.data =intstatus;
 	status = ConvTasbattlestatus( tasbstatus.tasdata );
 	color.data = intcolour;
-	status.colour = Colour( color.color.red, color.color.green, color.color.blue );
+	status.colour = Color( color.color.red, color.color.green, color.color.blue );
 	status.aishortname = aidll;
 	status.isbot = true;
 	User* owneruser = GetUser( owner );
@@ -1490,7 +1490,7 @@ void TASServer::OnBattleUpdateBot( int battleid, const std::string& nick, int in
 	tasbstatus.data =intstatus;
 	status = ConvTasbattlestatus( tasbstatus.tasdata );
 	color.data = intcolour;
-	status.colour = Colour( color.color.red, color.color.green, color.color.blue );
+	status.colour = Color( color.color.red, color.color.green, color.color.blue );
 	User* user = battle->GetUser( nick );
 	OnUserBattleStatusUpdated( battle, user, status );
 }
