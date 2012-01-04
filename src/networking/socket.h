@@ -6,6 +6,8 @@
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
+#include "enums.h"
+
 namespace LSL {
 
 //! a wrapper around asio tcp-socket, mostly borrowed from Engine's lobby/connection, but with signals
@@ -21,21 +23,7 @@ public:
 	//! error_msg
 	boost::signals2::signal<void (std::string)> sig_networkError;
 
-	enum SocketState
-	{
-	  SS_Closed,
-	  SS_Connecting,
-	  SS_Open
-	};
-
-	enum SocketError
-	{
-	  SE_No_Error,
-	  SE_NotConnected,
-	  SE_Resolve_Host_Failed,
-	  SE_Connect_Host_Failed
-	};
-	SocketState State() const;
+	Enum::SocketState State() const;
 
     Socket();
     virtual ~Socket();

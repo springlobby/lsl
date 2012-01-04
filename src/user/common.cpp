@@ -32,7 +32,7 @@ void CommonUser::SetStatus( const UserStatus& status )
 	m_status = status;
 }
 
-wxString UserStatus::GetDiffString ( const UserStatus& old ) const
+std::string UserStatus::GetDiffString ( const UserStatus& old ) const
 {
 	if ( old.away != away )
 		return ( away ? _("away") : _("back") );

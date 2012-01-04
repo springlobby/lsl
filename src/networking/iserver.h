@@ -5,14 +5,11 @@
 #include <map>
 #include <vector>
 #include <boost/signals2/signal.hpp>
-#include <utils/datatypes.h>
+#include <utils/type_forwards.h>
+#include "enums.h"
 #include <utils/mutexwrapper.h>
 #include <utils/crc.h>
 
-namespace boost {
-template <class T>
-class shared_ptr;
-}
 
 namespace LSL {
 
@@ -50,20 +47,9 @@ class iServer
 
 	typedef std::vector<std::string>
 		StringVector;
-	typedef boost::shared_ptr<User>
-		UserPtr;
 	typedef std::vector<UserPtr>
 		UserVector;
-	typedef boost::shared_ptr<const User>
-		ConstUserPtr;
-	typedef boost::shared_ptr<Battle::IBattle>
-		BattlePtr;
-	typedef boost::shared_ptr<const Battle::IBattle>
-		ConstBattlePtr;
-	typedef boost::shared_ptr<Channel>
-		ChannelPtr;
-	typedef boost::shared_ptr<const Channel>
-		ConstChannelPtr;
+
 	// Server interface
 
 	virtual bool ExecuteSayCommand( const std::string& cmd ) = 0;
@@ -238,8 +224,8 @@ private:
 
 
 private://defs from iserver.cpp bottom
-	void OnSocketError( const Socket::SocketError& /*unused*/ );
-	void OnProtocolError( const Protocolerror /*unused*/ );
+	void OnSocketError( const Enum::SocketError& /*unused*/ );
+	void OnProtocolError( const Enum::Protocolerror /*unused*/ );
 	void OnNewUser( const UserPtr user );
 	void OnUserStatus( const UserPtr user, UserStatus status );
 	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);
@@ -291,8 +277,6 @@ private://defs from iserver.cpp bottom
 	void OnJoinBattleFailed( const std::string& msg );
 	void OnOpenBattleFailed( const std::string& msg );
 	void OnRequestBattleStatus();
-
-
 };
 
 } //namespace LSL

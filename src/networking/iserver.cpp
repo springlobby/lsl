@@ -390,7 +390,7 @@ void iServer::OnSocketError( const Socket::SocketError& /*unused*/ )
 }
 
 
-void iServer::OnProtocolError( const Protocolerror /*unused*/ )
+void iServer::OnProtocolError( const Enum::Protocolerror /*unused*/ )
 {
 }
 

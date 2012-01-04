@@ -78,25 +78,25 @@ struct UserBattleStatus
 class CommonUser : public HasIndex< std::string >
 {
 public:
-	CommonUser(const wxString& nick, const wxString& country, const int& cpu)
-		: m_nick(wxString(nick)), m_country(wxString(country)), m_cpu(cpu)  {}
+	CommonUser(const std::string& nick, const std::string& country, const int& cpu)
+		: m_nick(std::string(nick)), m_country(std::string(country)), m_cpu(cpu)  {}
 
 	virtual ~CommonUser(){}
 
 	std::string index() const {return "dummy";}
 	static std::string className() { return "Channel"; }
 
-	const wxString& Nick() const { return m_nick; }
-	virtual void SetNick( const wxString& nick ) { m_nick = nick; }
+	const std::string& Nick() const { return m_nick; }
+	virtual void SetNick( const std::string& nick ) { m_nick = nick; }
 
-	const wxString& GetCountry() const { return m_country; }
-	virtual void SetCountry( const wxString& country ) { m_country = country; }
+	const std::string& GetCountry() const { return m_country; }
+	virtual void SetCountry( const std::string& country ) { m_country = country; }
 
 	int GetCpu() const { return m_cpu; }
 	void SetCpu( const int& cpu ) { m_cpu = cpu; }
 
-	const wxString& GetID() const { return m_id; }
-	void SetID( const wxString& id ) { m_id = id; }
+	const std::string& GetID() const { return m_id; }
+	void SetID( const std::string& id ) { m_id = id; }
 
 	UserStatus& Status() { return m_status; }
 
@@ -116,13 +116,13 @@ public:
 	//void SetBattleStatus( const UserBattleStatus& status );/// dont use this to avoid overwriting data like ip and port, use following method.
 	void UpdateBattleStatus( const UserBattleStatus& status );
 
-	bool Equals( const CommonUser& other ) const { return ( m_nick == other.GetNick() ); }
+	bool Equals( const CommonUser& other ) const { return ( m_nick == other.Nick() ); }
 
 
 protected:
-	wxString m_nick;
-	wxString m_country;
-	wxString m_id;
+	std::string m_nick;
+	std::string m_country;
+	std::string m_id;
 	int m_cpu;
 	UserStatus m_status;
 	UserBattleStatus m_bstatus;
