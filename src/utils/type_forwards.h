@@ -17,7 +17,7 @@ class Server;
 
 //typedef std::map< std::string, std::string> StringMap;
 //typedef std::vector< std::string > StringVector;
-//typedef std::vector< User* > UserVector;
+//typedef std::vector< UserPtr > UserVector;
 
 typedef boost::shared_ptr< User > UserPtr;
 typedef boost::shared_ptr< const User > ConstUserPtr;

@@ -101,7 +101,7 @@ std::string Socket::GetHandle() const
         if (dwStatus != NO_ERROR) return _T(""); // Check status
     for (unsigned int i=0; i<std::min( (unsigned int)6, (unsigned int)AdapterInfo[0].AddressLength); i++)
     {
-        handle += TowxString(((unsigned int)AdapterInfo[0].Address[i])&255);
+        handle += Tostd::string(((unsigned int)AdapterInfo[0].Address[i])&255);
         if (i != 5) handle += _T(':');
     }
     #elif defined(linux)
@@ -143,7 +143,7 @@ std::string Socket::GetHandle() const
 
     for (int i=0; i<6; i++)
     {
-        handle += TowxString(((unsigned int)dev.ifr_hwaddr.sa_data[i])&255);
+        handle += Tostd::string(((unsigned int)dev.ifr_hwaddr.sa_data[i])&255);
         if (i != 5) handle += _T(':');
     }
     close(sock);

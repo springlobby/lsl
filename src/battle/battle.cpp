@@ -47,7 +47,7 @@ void Battle::SendHostInfo( HostInfo update )
 }
 
 
-void Battle::SendHostInfo( const wxString& Tag )
+void Battle::SendHostInfo( const std::string& Tag )
 {
     m_serv.SendHostInfo( Tag );
 }
@@ -55,17 +55,17 @@ void Battle::SendHostInfo( const wxString& Tag )
 
 void Battle::Update()
 {
-    BattleEvents::GetBattleEventSender( BattleEvents::BattleInfoUpdate ).SendEvent( std::make_pair(this,wxString()) );
+    BattleEvents::GetBattleEventSender( BattleEvents::BattleInfoUpdate ).SendEvent( std::make_pair(this,std::string()) );
 }
 
 
-void Battle::Update( const wxString& Tag )
+void Battle::Update( const std::string& Tag )
 {
     BattleEvents::GetBattleEventSender( BattleEvents::BattleInfoUpdate ).SendEvent( std::make_pair(this,Tag) );
 }
 
 
-void Battle::Join( const wxString& password )
+void Battle::Join( const std::string& password )
 {
     m_serv.JoinBattle( m_opts.battleid, password );
     m_is_self_in = true;
@@ -122,18 +122,18 @@ void Battle::SetImReady( bool ready )
 }*/
 
 
-void Battle::Say( const wxString& msg )
+void Battle::Say( const std::string& msg )
 {
     m_serv.SayBattle( m_opts.battleid, msg );
 }
 
 
-void Battle::DoAction( const wxString& msg )
+void Battle::DoAction( const std::string& msg )
 {
     m_serv.DoActionBattle( m_opts.battleid, msg );
 }
 
-void Battle::SetLocalMap( const UnitSyncMap& map )
+void Battle::SetLocalMap( const UnitsyncMap& map )
 {
     IBattle::SetLocalMap( map );
     if ( IsFounderMe() )  LoadMapDefaults( map.name );
@@ -152,8 +152,8 @@ const User& Battle::GetMe() const
 void Battle::SaveMapDefaults()
 {
     // save map preset
-    wxString mapname = LoadMap().name;
-    wxString startpostype = CustomBattleOptions().getSingleValue( _T("startpostype"), OptionsWrapper::EngineOption );
+    std::string mapname = LoadMap().name;
+    std::string startpostype = CustomBattleOptions().getSingleValue( _T("startpostype"), OptionsWrapper::EngineOption );
     sett().SetMapLastStartPosType( mapname, startpostype);
     std::vector<Settings::SettStartBox> rects;
     for( unsigned int i = 0; i <= GetLastRectIdx(); ++i )
@@ -173,7 +173,7 @@ void Battle::SaveMapDefaults()
     sett().SetMapLastRectPreset( mapname, rects );
 }
 
-void Battle::LoadMapDefaults( const wxString& mapname )
+void Battle::LoadMapDefaults( const std::string& mapname )
 {
     CustomBattleOptions().setSingleOption( _T("startpostype"), sett().GetMapLastStartPosType( mapname ), OptionsWrapper::EngineOption );
     SendHostInfo( wxFormat( _T("%d_startpostype") ) % OptionsWrapper::EngineOption );
@@ -261,7 +261,7 @@ void Battle::OnUserBattleStatusUpdated( User &user, UserBattleStatus status )
     if ( status.handicap != 0 )
     {
         UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                    UiEvents::OnBattleActionData( wxString(_T(" ")) , ( _T("Warning: user ") + user.GetNick() + _T(" got bonus ") ) << status.handicap )
+                    UiEvents::OnBattleActionData( std::string(_T(" ")) , ( _T("Warning: user ") + user.GetNick() + _T(" got bonus ") ) << status.handicap )
                     );
     }
     if ( IsFounderMe() )
@@ -327,9 +327,9 @@ void Battle::RingPlayer( const User& u )
     m_serv.Ring( u.GetNick() );
 }
 
-bool Battle::ExecuteSayCommand( const wxString& cmd )
+bool Battle::ExecuteSayCommand( const std::string& cmd )
 {
-    wxString cmd_name=cmd.BeforeFirst(' ').Lower();
+    std::string cmd_name=cmd.BeforeFirst(' ').Lower();
     if ( cmd_name == _T("/me") )
     {
         m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
@@ -337,7 +337,7 @@ bool Battle::ExecuteSayCommand( const wxString& cmd )
     }
     if ( cmd_name == _T("/replacehostip") )
     {
-        wxString ip = cmd.AfterFirst(' ');
+        std::string ip = cmd.AfterFirst(' ');
         if ( ip.IsEmpty() ) return false;
         m_opts.ip = ip;
         return true;
@@ -347,7 +347,7 @@ bool Battle::ExecuteSayCommand( const wxString& cmd )
     {
         if ( cmd_name == _T("/ban") )
         {
-            wxString nick=cmd.AfterFirst(' ');
+            std::string nick=cmd.AfterFirst(' ');
             m_banned_users.insert(nick);
             try
             {
@@ -356,7 +356,7 @@ bool Battle::ExecuteSayCommand( const wxString& cmd )
             }
             catch( assert_exception ) {}
             UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                        UiEvents::OnBattleActionData( wxString(_T(" ")) , nick+_T(" banned") )
+                        UiEvents::OnBattleActionData( std::string(_T(" ")) , nick+_T(" banned") )
                         );
 
             //m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
@@ -364,10 +364,10 @@ bool Battle::ExecuteSayCommand( const wxString& cmd )
         }
         if ( cmd_name == _T("/unban") )
         {
-            wxString nick=cmd.AfterFirst(' ');
+            std::string nick=cmd.AfterFirst(' ');
             m_banned_users.erase(nick);
             UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                        UiEvents::OnBattleActionData( wxString(_T(" ")) , nick+_T(" unbanned") )
+                        UiEvents::OnBattleActionData( std::string(_T(" ")) , nick+_T(" unbanned") )
                         );
             //m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
             return true;
@@ -375,19 +375,19 @@ bool Battle::ExecuteSayCommand( const wxString& cmd )
         if ( cmd_name == _T("/banlist") )
         {
             UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                        UiEvents::OnBattleActionData( wxString(_T(" ")) , _T("banlist:") )
+                        UiEvents::OnBattleActionData( std::string(_T(" ")) , _T("banlist:") )
                         );
 
-            for (std::set<wxString>::const_iterator i=m_banned_users.begin();i!=m_banned_users.end();++i)
+            for (std::set<std::string>::const_iterator i=m_banned_users.begin();i!=m_banned_users.end();++i)
             {
                 UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                            UiEvents::OnBattleActionData( wxString(_T(" ")) , *i )
+                            UiEvents::OnBattleActionData( std::string(_T(" ")) , *i )
                             );
             }
-            for (std::set<wxString>::iterator i=m_banned_ips.begin();i!=m_banned_ips.end();++i)
+            for (std::set<std::string>::iterator i=m_banned_ips.begin();i!=m_banned_ips.end();++i)
             {
                 UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                            UiEvents::OnBattleActionData( wxString(_T(" ")) , *i )
+                            UiEvents::OnBattleActionData( std::string(_T(" ")) , *i )
                             );
 
             }
@@ -395,11 +395,11 @@ bool Battle::ExecuteSayCommand( const wxString& cmd )
         }
         if ( cmd_name == _T("/unban") )
         {
-            wxString nick=cmd.AfterFirst(' ');
+            std::string nick=cmd.AfterFirst(' ');
             m_banned_users.erase(nick);
             m_banned_ips.erase(nick);
             UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                        UiEvents::OnBattleActionData( wxString(_T(" ")) , nick+_T(" unbanned") )
+                        UiEvents::OnBattleActionData( std::string(_T(" ")) , nick+_T(" unbanned") )
                         );
 
             //m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
@@ -407,10 +407,10 @@ bool Battle::ExecuteSayCommand( const wxString& cmd )
         }
         if ( cmd_name == _T("/ipban") )
         {
-            wxString nick=cmd.AfterFirst(' ');
+            std::string nick=cmd.AfterFirst(' ');
             m_banned_users.insert(nick);
             UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                        UiEvents::OnBattleActionData( wxString(_T(" ")) , nick+_T(" banned") )
+                        UiEvents::OnBattleActionData( std::string(_T(" ")) , nick+_T(" banned") )
                         );
 
             if (UserExists(nick))
@@ -420,7 +420,7 @@ bool Battle::ExecuteSayCommand( const wxString& cmd )
                 {
                     m_banned_ips.insert(user.BattleStatus().ip);
                     UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                                UiEvents::OnBattleActionData( wxString(_T(" ")) , user.BattleStatus().ip+_T(" banned") )
+                                UiEvents::OnBattleActionData( std::string(_T(" ")) , user.BattleStatus().ip+_T(" banned") )
                                 );
                 }
                 m_serv.BattleKickPlayer( m_opts.battleid, user );
@@ -445,14 +445,14 @@ bool Battle::CheckBan(User &user)
         {
             KickPlayer(user);
             UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                        UiEvents::OnBattleActionData( wxString(_T(" ")) , user.GetNick()+_T(" is banned, kicking") )
+                        UiEvents::OnBattleActionData( std::string(_T(" ")) , user.GetNick()+_T(" is banned, kicking") )
                         );
             return true;
         }
         else if (m_banned_ips.count(user.BattleStatus().ip)>0)
         {
             UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                        UiEvents::OnBattleActionData( wxString(_T(" ")) , user.BattleStatus().ip+_T(" is banned, kicking") )
+                        UiEvents::OnBattleActionData( std::string(_T(" ")) , user.BattleStatus().ip+_T(" is banned, kicking") )
                         );
             KickPlayer(user);
             return true;
@@ -485,7 +485,7 @@ bool Battle::GetLockExternalBalanceChanges()
 }
 
 
-void Battle::AddBot( const wxString& nick, UserBattleStatus status )
+void Battle::AddBot( const std::string& nick, UserBattleStatus status )
 {
     m_serv.AddBot( m_opts.battleid, nick, status );
 }
@@ -603,10 +603,10 @@ void Battle::StartHostedBattle()
                 if ( UserExists( GetProxy() ) && !GetUser(GetProxy()).Status().in_game )
                 {
                     // DON'T set m_generating_script here, it will trick the script generating code to think we're the host
-                    wxString hostscript = spring().WriteScriptTxt( *this );
+                    std::string hostscript = spring().WriteScriptTxt( *this );
                     try
                     {
-                        wxString path = sett().GetCurrentUsedDataDir() + wxFileName::GetPathSeparator() + _T("relayhost_script.txt");
+                        std::string path = sett().GetCurrentUsedDataDir() + wxFileName::GetPathSeparator() + _T("relayhost_script.txt");
                         if ( !wxFile::Access( path, wxFile::write ) ) {
                             wxLogError( _T("Access denied to script.txt.") );
                         }
@@ -664,7 +664,7 @@ void Battle::OnTimer( wxTimerEvent&  )
         if ( status.IsBot() || status.spectator ) continue;
         if ( status.sync && status.ready ) continue;
         if ( &usr == &GetMe() ) continue;
-        std::map<wxString, time_t>::const_iterator itor = m_ready_up_map.find( usr.GetNick() );
+        std::map<std::string, time_t>::const_iterator itor = m_ready_up_map.find( usr.GetNick() );
         if ( itor != m_ready_up_map.end() )
         {
             if ( ( now - itor->second ) > autospect_trigger_time )
@@ -771,7 +771,7 @@ struct Alliance
 
 struct ControlTeam
 {
-    std::vector<User*> players;
+    std::vector<UserPtr> players;
     float ranksum;
     int teamnum;
     ControlTeam(): ranksum(0), teamnum(-1) {}
@@ -786,7 +786,7 @@ struct ControlTeam
     }
     void AddTeam( ControlTeam &other )
     {
-        for ( std::vector<User*>::const_iterator i = other.players.begin(); i != other.players.end(); ++i ) AddPlayer( *i );
+        for ( std::vector<UserPtr>::const_iterator i = other.players.begin(); i != other.players.end(); ++i ) AddPlayer( *i );
     }
     bool operator < (const ControlTeam &other) const
     {
@@ -811,14 +811,14 @@ void shuffle(std::vector<User *> &players) // proper shuffle.
 }
 
 /*
-bool ClanRemovalFunction(const std::map<wxString, Alliance>::value_type &v){
+bool ClanRemovalFunction(const std::map<std::string, Alliance>::value_type &v){
   return v.second.players.size()<2;
 }
 */
 /*
 struct ClannersRemovalPredicate{
-  std::map<wxString, Alliance> &clans;
-  PlayerRemovalPredicate(std::map<wxString, Alliance> &clans_):clans(clans_)
+  std::map<std::string, Alliance> &clans;
+  PlayerRemovalPredicate(std::map<std::string, Alliance> &clans_):clans(clans_)
   {
   }
   bool operator()(User *u) const{
@@ -861,7 +861,7 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
 
     wxLogMessage( _T("number of alliances: %u"), alliances.size() );
 
-    std::vector<User*> players_sorted;
+    std::vector<UserPtr> players_sorted;
     players_sorted.reserve( GetNumUsers() );
 
     for ( size_t i = 0; i < GetNumUsers(); ++i )
@@ -874,26 +874,26 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
     }
 
     // remove players in the same team so only one remains
-    std::map< int, User*> dedupe_teams;
-    for ( std::vector<User*>::const_iterator it = players_sorted.begin(); it != players_sorted.end(); ++it )
+    std::map< int, UserPtr> dedupe_teams;
+    for ( std::vector<UserPtr>::const_iterator it = players_sorted.begin(); it != players_sorted.end(); ++it )
     {
         dedupe_teams[(*it)->BattleStatus().team] = *it;
     }
     players_sorted.clear();
     players_sorted.reserve( dedupe_teams.size() );
-    for ( std::map<int, User*>::const_iterator it = dedupe_teams.begin(); it != dedupe_teams.end(); ++it )
+    for ( std::map<int, UserPtr>::const_iterator it = dedupe_teams.begin(); it != dedupe_teams.end(); ++it )
     {
         players_sorted.push_back( it->second );
     }
 
     shuffle( players_sorted );
 
-    std::map<wxString, Alliance> clan_alliances;
+    std::map<std::string, Alliance> clan_alliances;
     if ( support_clans )
     {
         for ( size_t i=0; i < players_sorted.size(); ++i )
         {
-            wxString clan = players_sorted[i]->GetClan();
+            std::string clan = players_sorted[i]->GetClan();
             if ( !clan.empty() )
             {
                 clan_alliances[clan].AddPlayer( players_sorted[i] );
@@ -905,7 +905,7 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
 
     if ( support_clans )
     {
-        std::map<wxString, Alliance>::iterator clan_it = clan_alliances.begin();
+        std::map<std::string, Alliance>::iterator clan_it = clan_alliances.begin();
         while ( clan_it != clan_alliances.end() )
         {
             Alliance &clan = (*clan_it).second;
@@ -913,7 +913,7 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
             if ( ( clan.players.size() < 2 ) || ( !strong_clans && ( clan.players.size() > ( ( players_sorted.size() + alliances.size() -1 ) / alliances.size() ) ) ) )
             {
                 wxLogMessage( _T("removing clan %s"), (*clan_it).first.c_str() );
-                std::map<wxString, Alliance>::iterator next = clan_it;
+                std::map<std::string, Alliance>::iterator next = clan_it;
                 ++next;
                 clan_alliances.erase( clan_it );
                 clan_it = next;
@@ -1035,7 +1035,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
 
     wxLogMessage(_T("number of teams: %u"), control_teams.size() );
 
-    std::vector<User*> players_sorted;
+    std::vector<UserPtr> players_sorted;
     players_sorted.reserve( GetNumUsers() );
 
     int player_team_counter = 0;
@@ -1053,12 +1053,12 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
 
     shuffle( players_sorted );
 
-    std::map<wxString, ControlTeam> clan_teams;
+    std::map<std::string, ControlTeam> clan_teams;
     if ( support_clans )
     {
         for ( size_t i = 0; i < players_sorted.size(); ++i )
         {
-            wxString clan = players_sorted[i]->GetClan();
+            std::string clan = players_sorted[i]->GetClan();
             if ( !clan.empty() )
             {
                 clan_teams[clan].AddPlayer( players_sorted[i] );
@@ -1070,7 +1070,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
 
     if ( support_clans )
     {
-        std::map<wxString, ControlTeam>::iterator clan_it = clan_teams.begin();
+        std::map<std::string, ControlTeam>::iterator clan_it = clan_teams.begin();
         while ( clan_it != clan_teams.end() )
         {
             ControlTeam &clan = (*clan_it).second;
@@ -1078,7 +1078,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
             if ( ( clan.players.size() < 2 ) || ( !strong_clans && ( clan.players.size() >  ( ( players_sorted.size() + control_teams.size() -1 ) / control_teams.size() ) ) ) )
             {
                 wxLogMessage(_T("removing clan %s"),(*clan_it).first.c_str());
-                std::map<wxString, ControlTeam>::iterator next = clan_it;
+                std::map<std::string, ControlTeam>::iterator next = clan_it;
                 ++next;
                 clan_teams.erase( clan_it );
                 clan_it = next;
@@ -1135,7 +1135,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
         for ( size_t j = 0; j < control_teams[i].players.size(); ++j )
         {
             ASSERT_LOGIC( control_teams[i].players[j], _T("fail in Autobalance teams, NULL player") );
-            wxString msg = wxFormat( _T("setting player %s to team and ally %d") ) % control_teams[i].players[j]->GetNick() % i;
+            std::string msg = wxFormat( _T("setting player %s to team and ally %d") ) % control_teams[i].players[j]->GetNick() % i;
             wxLogMessage( _T("%s"), msg.c_str() );
             ForceTeam( *control_teams[i].players[j], control_teams[i].teamnum );
             ForceAlly( *control_teams[i].players[j], control_teams[i].teamnum );
