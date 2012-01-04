@@ -23,7 +23,6 @@ struct conversion : public base {
    conversion(const std::string& msg) : base("conversion failed: " + msg) {}
 };
 struct battle : public base {
-	template < class BattleType >
    battle(const std::string& msg) : base( "battle exception: " + msg) {}
 };
 struct function_missing : public unitsync {

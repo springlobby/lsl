@@ -55,8 +55,13 @@ typename ContainerBase<T>::MapType::size_type ContainerBase<T>::size() const
 }
 
 template < class T >
-ContainerBase<T>::MissingItemException::MissingItemException( const typename ContainerBase<T>::KeyType& index )
-    :std::out_of_range( (boost::format( "No %s found in list for item %s" ) % T::className() % index).str() )
+ContainerBase<T>::MissingItemException::MissingItemException( const typename ContainerBase<T>::KeyType& key )
+    : std::runtime_error( (boost::format( "No %s found in list for item with key %s" ) % T::className() % key).str() )
+{}
+
+template < class T >
+ContainerBase<T>::MissingItemException::MissingItemException( const typename ContainerBase<T>::MapType::size_type& index )
+    : std::runtime_error( (boost::format( "No %s found in list for item with pseudo index %s" ) % T::className() % index).str() )
 {}
 
 template < class T >

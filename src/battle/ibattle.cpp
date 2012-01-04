@@ -4,8 +4,9 @@
 #include <utils/misc.h>
 
 #include <algorithm>
+#include <boost/typeof/typeof.hpp>
 
-#define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( batle, msg ); } } while (0)
+#define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( battle, msg ); } } while (0)
 
 namespace LSL {
 namespace Battle {
@@ -79,15 +80,13 @@ lslColor IBattle::GetFixColour(int i) const
 
 int IBattle::GetPlayerNum( const ConstUserPtr user ) const
 {
-	size_t i = 0;
-	BOOST_FOREACH( const ConstUserPtr, m_userlist )
+	for ( size_t i = 0; i < m_userlist.size(); ++i )
 	{
-		if ( &m_userlist.Get(i) == &user ) return i;
-		++i;
+		if ( m_userlist.At(i) == user ) return i;
 	}
-	const size_t ret = Util::IndexInSequence( m_userlist, user );
-//	ASSERT_EXCEPTION(false, _T("The player is not in this game.") );
-	return ret;
+
+	ASSERT_EXCEPTION(false, "The player is not in this game.");
+	return lslNotFound;
 }
 
 class DismissColor {
@@ -126,7 +125,7 @@ lslColor IBattle::GetFreeColour( const ConstUserPtr user) const
 
 	ColorVec current_used_colors;
 	for ( size_t i = 0; i < m_userlist.size(); ++i ) {
-		const UserBattleStatus& bs = m_userlist.Get( i )->BattleStatus();
+		const UserBattleStatus& bs = m_userlist.At( i )->BattleStatus();
 		current_used_colors.push_back( bs.color );
 	}
 
@@ -160,7 +159,7 @@ int IBattle::GetFreeTeam( bool excludeme ) const
 		changed = false;
 		for ( size_t i = 0; i < m_userlist.size(); i++ )
 		{
-			UserPtr user = m_userlist.Get( i );
+			UserPtr user = m_userlist.At( i );
 			if ( ( user == GetMe() ) && excludeme ) continue;
 			if ( user->BattleStatus().spectator ) continue;
 			if ( user->BattleStatus().team == lowest )
@@ -177,14 +176,11 @@ int IBattle::GetClosestFixColour(const lslColor &col, const std::vector<int> &ex
 {
 	std::vector<lslColor> palette = GetFixColoursPalette( m_teams_sizes.size() + 1 );
 	int result=0;
-	int t1=palette.size();
-	int t2=excludes.size();
-	wxLogMessage(_T("GetClosestFixColour %d %d"),t1,t2);
 	for (size_t i=0;i<palette.size();++i)
 	{
 		if ((i>=excludes.size()) || (!excludes[i]))
 		{
-			if (AreColoursSimilar( palette[i],col, difference ))
+			if (Util::AreColoursSimilar( palette[i],col, difference ))
 			{
 				return i;
 			}
@@ -194,7 +190,7 @@ int IBattle::GetClosestFixColour(const lslColor &col, const std::vector<int> &ex
 }
 
 
-void IBattle::SendHostInfo( HostInfo /*unused*/ )
+void IBattle::SendHostInfo( Enum::HostInfo /*unused*/ )
 {
 }
 
@@ -208,15 +204,16 @@ void IBattle::Update ( const std::string& /*unused*/)
 
 UserPtr IBattle::OnUserAdded( UserPtr user )
 {
-	UserList::AddUser( user );
-	UserBattleStatus& bs = user.BattleStatus();
+	m_userlist.Add( user );
+	UserBattleStatus& bs = user->BattleStatus();
 	bs.spectator = false;
 	bs.ready = false;
 	bs.sync = SYNC_UNKNOWN;
-	if ( !bs.IsBot() && IsFounderMe() && GetBattleType() == BT_Played )
+	if ( !bs.IsBot() && IsFounderMe()
+		 && GetBattleType() == Enum::BT_Played )
 	{
-		bs.team = GetFreeTeam( &user == &GetMe() );
-		bs.ally = GetFreeAlly( &user == &GetMe() );
+		bs.team = GetFreeTeam( user == GetMe() );
+		bs.ally = GetFreeAlly( user == GetMe() );
 		bs.colour = GetFreeColour( user );
 	}
 	if ( IsFounderMe() && ( ( bs.pos.x < 0 ) || ( bs.pos.y < 0 ) ) )
@@ -235,7 +232,7 @@ UserPtr IBattle::OnUserAdded( UserPtr user )
 	{
 		if ( bs.ready ) m_players_ready++;
 		if ( bs.sync) m_players_sync++;
-		if ( !bs.ready || !bs.sync ) m_ready_up_map[user.GetNick()] = time(0);
+		if ( !bs.ready || !bs.sync ) m_ready_up_map[user->GetNick()] = time(0);
 		if ( bs.ready && bs.sync ) m_players_ok++;
 	}
 	return user;
@@ -245,7 +242,7 @@ UserPtr IBattle::OnBotAdded( const std::string& nick, const UserBattleStatus& bs
 {
 	m_internal_bot_list[nick] = User( nick );
 	UserPtr user = m_internal_bot_list[nick];
-	user.UpdateBattleStatus( bs );
+	user->UpdateBattleStatus( bs );
 	UserPtr usr = OnUserAdded( user );
 	return usr;
 }
@@ -268,9 +265,9 @@ unsigned int IBattle::GetNumActivePlayers() const
 void IBattle::OnUserBattleStatusUpdated( User &user, UserBattleStatus status )
 {
 
-	UserBattleStatus previousstatus = user.BattleStatus();
+	UserBattleStatus previousstatus = user->BattleStatus();
 
-	user.UpdateBattleStatus( status );
+	user->UpdateBattleStatus( status );
 	unsigned int oldspeccount = m_opts.spectators;
 	m_opts.spectators = 0;
 	m_players_sync = 0;
@@ -281,7 +278,7 @@ void IBattle::OnUserBattleStatusUpdated( User &user, UserBattleStatus status )
 	for ( unsigned int i = 0; i < m_userlist.size(); i++ )
 	{
 		UserPtr loopuser = m_userlist.Get( i );
-		UserBattleStatus& loopstatus = loopuser.BattleStatus();
+		UserBattleStatus& loopstatus = loopuser->BattleStatus();
 		if ( loopstatus.spectator ) m_opts.spectators++;
 		if ( !loopstatus.IsBot() )
 		{
@@ -303,7 +300,7 @@ void IBattle::OnUserBattleStatusUpdated( User &user, UserBattleStatus status )
 	{
 		if ( ( status.ready && status.sync ) || status.spectator )
 		{
-			std::map<std::string, time_t>::iterator itor = m_ready_up_map.find( user.GetNick() );
+			std::map<std::string, time_t>::iterator itor = m_ready_up_map.find( user->GetNick() );
 			if ( itor != m_ready_up_map.end() )
 			{
 				m_ready_up_map.erase( itor );
@@ -311,10 +308,10 @@ void IBattle::OnUserBattleStatusUpdated( User &user, UserBattleStatus status )
 		}
 		if ( ( !status.ready || !status.sync ) && !status.spectator )
 		{
-			std::map<std::string, time_t>::iterator itor = m_ready_up_map.find( user.GetNick() );
+			std::map<std::string, time_t>::iterator itor = m_ready_up_map.find( user->GetNick() );
 			if ( itor == m_ready_up_map.end() )
 			{
-				m_ready_up_map[user.GetNick()] = time(0);
+				m_ready_up_map[user->GetNick()] = time(0);
 			}
 		}
 	}
@@ -330,7 +327,7 @@ bool IBattle::ShouldAutoStart() const
 
 void IBattle::OnUserRemoved( UserPtr user )
 {
-	UserBattleStatus& bs = user.BattleStatus();
+	UserBattleStatus& bs = user->BattleStatus();
 	if ( !bs.spectator )
 	{
 		PlayerLeftTeam( bs.team );
@@ -351,12 +348,12 @@ void IBattle::OnUserRemoved( UserPtr user )
 	{
 		OnSelfLeftBattle();
 	}
-	UserList::RemoveUser( user.GetNick() );
+	UserList::RemoveUser( user->GetNick() );
 	if ( !bs.IsBot() )
-		user.SetBattle( 0 );
+		user->SetBattle( 0 );
 	else
 	{
-		UserVecIter itor = m_internal_bot_list.find( user.GetNick() );
+		UserVecIter itor = m_internal_bot_list.find( user->GetNick() );
 		if ( itor != m_internal_bot_list.end() )
 		{
 			m_internal_bot_list.erase( itor );
@@ -506,22 +503,22 @@ void IBattle::ClearStartRects()
 
 void IBattle::ForceSide( UserPtr user, int side )
 {
-	if ( IsFounderMe() || user.BattleStatus().IsBot() )
+	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
-		user.BattleStatus().side = side;
+		user->BattleStatus().side = side;
 	}
 }
 
 void IBattle::ForceTeam( UserPtr user, int team )
 {
-	if ( IsFounderMe() || user.BattleStatus().IsBot() )
+	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
-		if ( !user.BattleStatus().spectator )
+		if ( !user->BattleStatus().spectator )
 		{
-			PlayerLeftTeam( user.BattleStatus().team );
+			PlayerLeftTeam( user->BattleStatus().team );
 			PlayerJoinedTeam( team );
 		}
-		user.BattleStatus().team = team;
+		user->BattleStatus().team = team;
 	}
 }
 
@@ -529,14 +526,14 @@ void IBattle::ForceTeam( UserPtr user, int team )
 void IBattle::ForceAlly( UserPtr user, int ally )
 {
 
-	if ( IsFounderMe() || user.BattleStatus().IsBot() )
+	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
-		if ( !user.BattleStatus().spectator )
+		if ( !user->BattleStatus().spectator )
 		{
-			PlayerLeftAlly( user.BattleStatus().ally );
+			PlayerLeftAlly( user->BattleStatus().ally );
 			PlayerJoinedAlly( ally );
 		}
-		user.BattleStatus().ally = ally;
+		user->BattleStatus().ally = ally;
 	}
 
 }
@@ -544,9 +541,9 @@ void IBattle::ForceAlly( UserPtr user, int ally )
 
 void IBattle::ForceColour( UserPtr user, const lslColor& col )
 {
-	if ( IsFounderMe() || user.BattleStatus().IsBot() )
+	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
-		user.BattleStatus().colour = col;
+		user->BattleStatus().colour = col;
 	}
 
 }
@@ -593,9 +590,9 @@ void IBattle::PlayerLeftAlly( int ally )
 
 void IBattle::ForceSpectator( UserPtr user, bool spectator )
 {
-	if ( IsFounderMe() || user.BattleStatus().IsBot() )
+	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
-		UserBattleStatus& status = user.BattleStatus();
+		UserBattleStatus& status = user->BattleStatus();
 
 		if ( !status.spectator ) // leaving spectator status
 		{
@@ -626,22 +623,22 @@ void IBattle::ForceSpectator( UserPtr user, bool spectator )
 				SendHostInfo( HI_Spectators );
 			}
 		}
-		user.BattleStatus().spectator = spectator;
+		user->BattleStatus().spectator = spectator;
 	}
 }
 
 void IBattle::SetHandicap( UserPtr user, int handicap)
 {
-	if ( IsFounderMe() || user.BattleStatus().IsBot() )
+	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
-		user.BattleStatus().handicap = handicap;
+		user->BattleStatus().handicap = handicap;
 	}
 }
 
 
 void IBattle::KickPlayer( UserPtr user )
 {
-	if ( IsFounderMe() || user.BattleStatus().IsBot() )
+	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
 		OnUserRemoved( user );
 	}
@@ -658,8 +655,8 @@ int IBattle::GetFreeAlly( bool excludeme ) const
 		{
 			UserPtr user = m_userlist.Get( i );
 			if ( ( &user == &GetMe() ) && excludeme ) continue;
-			if ( user.BattleStatus().spectator ) continue;
-			if ( user.BattleStatus().ally == lowest )
+			if ( user->BattleStatus().spectator ) continue;
+			if ( user->BattleStatus().ally == lowest )
 			{
 				lowest++;
 				changed = true;
@@ -679,7 +676,7 @@ UserPosition IBattle::GetFreePosition()
 		for ( unsigned int bi = 0; bi < m_userlist.size(); bi++ )
 		{
 			UserPtr user = m_userlist.Get( bi );
-			UserBattleStatus& status = user.BattleStatus();
+			UserBattleStatus& status = user->BattleStatus();
 			if ( status.spectator ) continue;
 			if ( ( map.info.positions[i].x == status.pos.x ) && ( map.info.positions[i].y == status.pos.y ) )
 			{
@@ -1052,9 +1049,9 @@ void IBattle::UserPositionChanged( const UserPtr /*unused*/ )
 
 void IBattle::AddUserFromDemo( UserPtr user )
 {
-	user.BattleStatus().isfromdemo = true;
-	m_internal_user_list[user.GetNick()] = user;
-	UserList::AddUser( m_internal_user_list[user.GetNick()] );
+	user->BattleStatus().isfromdemo = true;
+	m_internal_user_list[user->GetNick()] = user;
+	UserList::AddUser( m_internal_user_list[user->GetNick()] );
 }
 
 void IBattle::SetProxy( const std::string& value )
@@ -1174,10 +1171,10 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 			{
 				if ( bot.ok() ) player = bot;
 				User user ( player->GetString( _T("Name") ), (player->GetString( _T("CountryCode")).Upper() ), 0);
-				UserBattleStatus& status = user.BattleStatus();
+				UserBattleStatus& status = user->BattleStatus();
 				status.isfromdemo = true;
 				status.spectator = player->GetInt( _T("Spectator"), 0 );
-				opts.spectators += user.BattleStatus().spectator;
+				opts.spectators += user->BattleStatus().spectator;
 				status.team = player->GetInt( _T("Team") );
 				if ( !status.spectator )
 				{
@@ -1197,7 +1194,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 				}
 
 				//! (koshi) changed this from ServerRankContainer to RankContainer
-				user.Status().rank = (UserStatus::RankContainer)player->GetInt( _T("Rank"), -1 );
+				user->Status().rank = (UserStatus::RankContainer)player->GetInt( _T("Rank"), -1 );
 
 				if ( bot.ok() )
 				{
@@ -1211,10 +1208,10 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					}
 				}
 
-				IBattle::TeamInfoContainer teaminfos = parsed_teams[user.BattleStatus().team];
+				IBattle::TeamInfoContainer teaminfos = parsed_teams[user->BattleStatus().team];
 				if ( !teaminfos.exist )
 				{
-					SL::PDataList team( replayNode->Find( _T("TEAM") + Tostd::string( user.BattleStatus().team ) ) );
+					SL::PDataList team( replayNode->Find( _T("TEAM") + Tostd::string( user->BattleStatus().team ) ) );
 					if ( team.ok() )
 					{
 						teaminfos.exist = true;
@@ -1227,7 +1224,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 						teaminfos.Handicap = team->GetInt( _T("Handicap"), 0 );
 						int sidepos = sides.Index( teaminfos.SideName );
 						teaminfos.SideNum = sidepos;
-						parsed_teams[ user.BattleStatus().team ] = teaminfos;
+						parsed_teams[ user->BattleStatus().team ] = teaminfos;
 					}
 				}
 				if ( teaminfos.exist )
@@ -1242,10 +1239,10 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 						PlayerJoinedAlly( status.ally );
 					}
 					if ( teaminfos.SideNum >= 0 ) status.side = teaminfos.SideNum;
-					IBattle::AllyInfoContainer allyinfos = parsed_allies[user.BattleStatus().ally];
+					IBattle::AllyInfoContainer allyinfos = parsed_allies[user->BattleStatus().ally];
 					if ( !allyinfos.exist )
 					{
-						SL::PDataList ally( replayNode->Find( _T("ALLYTEAM") + Tostd::string( user.BattleStatus().ally ) ) );
+						SL::PDataList ally( replayNode->Find( _T("ALLYTEAM") + Tostd::string( user->BattleStatus().ally ) ) );
 						if ( ally.ok() )
 						{
 							allyinfos.exist = true;
@@ -1254,8 +1251,8 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 							allyinfos.StartRectTop = ally->GetInt( _T("StartRectTop"), 0 );
 							allyinfos.StartRectRight = ally->GetInt( _T("StartRectRight"), 0 );
 							allyinfos.StartRectBottom = ally->GetInt( _T("StartRectBottom"), 0 );
-							parsed_allies[ user.BattleStatus().ally ] = allyinfos;
-							AddStartRect( user.BattleStatus().ally, allyinfos.StartRectTop, allyinfos.StartRectTop, allyinfos.StartRectRight, allyinfos.StartRectBottom );
+							parsed_allies[ user->BattleStatus().ally ] = allyinfos;
+							AddStartRect( user->BattleStatus().ally, allyinfos.StartRectTop, allyinfos.StartRectTop, allyinfos.StartRectRight, allyinfos.StartRectBottom );
 						}
 					}
 				}

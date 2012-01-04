@@ -21,14 +21,16 @@ public:
 	typedef boost::shared_ptr< const ItemType >
 		ConstPointerType;
 
-    //! putting this here makes it inherently distinguishable on a per *List basis
-    struct MissingItemException : public std::out_of_range {
-		MissingItemException( const KeyType& key );
-    };
-
 protected:
 	typedef std::map< const KeyType, PointerType >
-        MapType;
+		MapType;
+
+public:
+    //! putting this here makes it inherently distinguishable on a per *List basis
+	struct MissingItemException : public std::runtime_error {
+		MissingItemException( const KeyType& key );
+		MissingItemException( const typename MapType::size_type& idx );
+    };
 
 public:
     ContainerBase();
@@ -42,11 +44,13 @@ public:
 
     typename MapType::size_type size() const;
 
+private:
 	typename MapType::const_iterator begin() const { return m_map.begin(); }
 	typename MapType::iterator begin() { return m_map.begin(); }
 	typename MapType::const_iterator end() const { return m_map.end(); }
 	typename MapType::iterator end() { return m_map.end(); }
 
+public:
 	const ConstPointerType At( const typename MapType::size_type index ) const;
 	const ConstPointerType operator[]( typename MapType::size_type index ) const { return At(index); }
 
