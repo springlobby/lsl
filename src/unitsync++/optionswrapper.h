@@ -16,6 +16,8 @@ namespace LSL {
 
 class mmOptionSection;
 
+struct dummyConfig {};
+
 //! \todo needs deep copy
 class mmSectionTree
 {
@@ -34,7 +36,7 @@ class mmSectionTree
         //map key -> option
         typedef std::map< std::string, mmOptionSection > SectionMap;
         SectionMap m_section_map;
-        typedef wxFileConfig ConfigType;
+		typedef dummyConfig ConfigType;
 		boost::shared_ptr<ConfigType> m_tree;
 
         void AddSection ( const std::string& path, const mmOptionSection& section );

@@ -422,13 +422,12 @@ bool  OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, const s
 	{
         case Enum::opt_float :
 		{
-			//test if min < val < max
-			double d_val;
 			//temp set to C locale cause we get '.' as decimal seperator over the net
 			const char* old_locale = std::setlocale(LC_NUMERIC, "C");
-			bool d_conv_ok = value.ToDouble(&d_val);
+			//test if min < val < max
+			const double d_val = Util::FromString<double>( value );
 			std::setlocale(LC_NUMERIC, old_locale);
-			if( !d_conv_ok || d_val < (gameoptions.float_map)[key].min || d_val > (gameoptions.float_map)[key].max )
+			if( d_val < (gameoptions.float_map)[key].min || d_val > (gameoptions.float_map)[key].max )
 			{
                 LslDebug("received number option exceeds boundaries");
 				return false;
@@ -439,9 +438,8 @@ bool  OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, const s
 		}
         case Enum::opt_bool :
 		{
-			long l_val;
-			bool l_conv_ok = value.ToLong(&l_val);
-			if( !l_conv_ok || ( l_val != 1 && l_val != 0 ) )
+			const long l_val = Util::FromString<long>( value );
+			if( l_val != 1 && l_val != 0 )
 			{
                 LslDebug("recieved bool option that is neither 0 or 1");
 				return false;
@@ -609,91 +607,90 @@ void OptionsWrapper::ParseSectionMap( mmSectionTree& section_tree, const OptionM
 
 }
 
+const std::string tree_sep = "/";
+
 mmSectionTree::mmSectionTree()
-    : m_tree ( new wxFileConfig( "SL-temp", "", wxFileName::CreateTempFileName( "springlobby-tree_" ) ) )
-{}
+	: m_tree ( new ConfigType() )
+{
+	//this class is basically nonfunctional atm
+	assert( false );
+}
 
 mmSectionTree::~mmSectionTree()
 {
     #ifndef NDEBUG
-        m_tree->Flush();
-    #else //no need to clutter tempfile directory if we're not debugging
-        m_tree->DeleteAll();
+//		m_tree->Flush();
+	#else //no need to clutter tempfile directory if we're not debugging
+//		m_tree->DeleteAll();
     #endif
 }
 
 void mmSectionTree::AddSection ( const std::string& parentpath, const mmOptionSection& section )
 {
-    std::string fullpath = parentpath + "/" + section.key + "/";
-    m_tree->Write( fullpath + _T("key") ,section.key );
-    #ifndef NDEBUG
-        m_tree->Flush();
-    #endif
+	std::string fullpath = parentpath + tree_sep + section.key + tree_sep;
+//	m_tree->Write( fullpath + "key", section.key );
+	#ifndef NDEBUG
+//		m_tree->Flush();
+	#endif
+}
+void mmSectionTree::AddSection( const mmOptionSection& section)
+{
+	m_section_map[section.key] = section;
+	std::string name = section.section;
+	if ( section.section == Constants::nosection_name )
+	{
+		AddSection( tree_sep, section );
+	}
+	else
+	{
+		std::string parent = FindParentpath( section.section );
+		AddSection( parent, section );
+	}
 }
 
 bool mmSectionTree::FindRecursive( const std::string& parent_key, std::string& path )
 {
-    std::string current;
-    long cur_index;
+//    std::string current;
+//    long cur_index;
 
-    //search current level first before recursing
-    bool cont = m_tree->GetFirstGroup( current, cur_index );
-    while ( cont )
-    {
-        if ( current.EndsWith( parent_key ) ) {
-            path = current;
-            return true;
-        }
-        cont = m_tree->GetNextGroup( current, cur_index );
-    }
+//    //search current level first before recursing
+//    bool cont = m_tree->GetFirstGroup( current, cur_index );
+//    while ( cont )
+//    {
+//        if ( current.EndsWith( parent_key ) ) {
+//            path = current;
+//            return true;
+//        }
+//        cont = m_tree->GetNextGroup( current, cur_index );
+//    }
 
-    //we need to recurse into sub-paths
-    cont = m_tree->GetFirstGroup( current, cur_index );
-    while ( cont )
-    {
-        std::string old_path = m_tree->GetPath();
-        m_tree->SetPath( old_path + "/" + current );
-        if ( FindRecursive( parent_key,  path ) )
-            return true;
-        m_tree->SetPath( old_path );
-        cont = m_tree->GetNextGroup( current, cur_index );
-    }
+//    //we need to recurse into sub-paths
+//    cont = m_tree->GetFirstGroup( current, cur_index );
+//    while ( cont )
+//    {
+//        std::string old_path = m_tree->GetPath();
+//        m_tree->SetPath( old_path + "/" + current );
+//        if ( FindRecursive( parent_key,  path ) )
+//            return true;
+//        m_tree->SetPath( old_path );
+//        cont = m_tree->GetNextGroup( current, cur_index );
+//    }
     return false;
 }
 
 std::string mmSectionTree::FindParentpath ( const std::string& parent_key )
 {
-    std::string path = "/";
+	std::string path = tree_sep;
     if ( FindRecursive( parent_key, path ) )
         return path;
     else
         return "";
 }
 
-void mmSectionTree::AddSection( const mmOptionSection& section)
-{
-    m_section_map[section.key] = section;
-    std::string name = section.section;
-    if ( section.section == SLGlobals::nosection_name )
-    {
-        AddSection( "/", section );
-    }
-    else
-    {
-        std::string parent = FindParentpath( section.section );
-        AddSection( parent , section );
-    }
-}
-
-//mmSectionTree::SectionVector mmSectionTree::GetSectionVector()
-//{
-//
-//}
-
 void mmSectionTree::Clear()
 {
     m_section_map.clear();
-    m_tree->DeleteAll();
+//    m_tree->DeleteAll();
 }
 
 } // namespace LSL {
