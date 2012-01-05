@@ -2,6 +2,7 @@
 
 #include <utils/debug.h>
 #include <utils/misc.h>
+#include <utils/conversion.h>
 
 #include <algorithm>
 #include <boost/typeof/typeof.hpp>
@@ -679,8 +680,8 @@ UserPosition IBattle::GetFreePosition()
 		}
 		if ( !taken )
 		{
-			ret.x = clamp(map.info.positions[i].x, 0, map.info.width);
-			ret.y = clamp(map.info.positions[i].y, 0, map.info.height);
+			ret.x = Util::Clamp(map.info.positions[i].x, 0, map.info.width);
+			ret.y = Util::Clamp(map.info.positions[i].y, 0, map.info.height);
 			return ret;
 		}
 	}
@@ -923,7 +924,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 				if ( usync().MapExists( options["mapname"] ) ) {
 					UnitsyncMap map = usync().GetMapEx( options["mapname"] );
 					SetLocalMap( map );
-					SendHostInfo( HI_Map );
+					SendHostInfo( Enum::HI_Map );
 				}
 				else if ( !ui().OnPresetRequiringMap( options["mapname"] ) ) {
 					//user didn't want to download the missing map, so set to empty to not have it tried to be loaded again
@@ -938,28 +939,32 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			}
 			SendHostInfo( Enum::HI_StartRects );
 
-			unsigned int rectcount = s2l( options["numrects"] );
+			unsigned int rectcount = Util::FromString<long>( options["numrects"] );
 			for ( unsigned int loadrect = 0; loadrect < rectcount; loadrect++)
 			{
-				int ally = s2l(options["rect_" + Tostd::string(loadrect) + "_ally"]);
+				int ally = Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_ally"]);
 				if ( ally == 0 ) continue;
-				AddStartRect( ally - 1, s2l(options["rect_" + Tostd::string(loadrect) + "_left"]), s2l(options["rect_" + Tostd::string(loadrect) + "_top"]), s2l(options["rect_" + Tostd::string(loadrect) + "_right"]), s2l(options["rect_" + Tostd::string(loadrect) + "_bottom"]) );
+				AddStartRect( ally - 1, Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_left"]),
+							  Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_top"]),
+							  Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_right"]),
+							  Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_bottom"]) );
 			}
-			SendHostInfo( HI_StartRects );
+			SendHostInfo( Enum::HI_StartRects );
 
-			std::stringTokenizer tkr( options["restrictions"], '\t') );
+			std::stringTokenizer tkr( options["restrictions"], '\t' );
 			m_restricted_units.clear();
 			while( tkr.HasMoreTokens() )
 			{
 				std::string unitinfo = tkr.GetNextToken();
-				RestrictUnit( unitinfo.BeforeLast('=')), s2l( unitinfo.AfterLast('=')) ) );
+				RestrictUnit( Util::BeforeLast(unitinfo,'='),
+						Util::FromString<long>( Util::AfterLast(unitinfo,'=') ) );
 			}
-			SendHostInfo( HI_Restrictions );
+			SendHostInfo( Enum::HI_Restrictions );
 			Update( boost::format( "%d_restrictions" ) % OptionsWrapper::PrivateOptions );
 
 		}
 	}
-	SendHostInfo( HI_Send_All_opts );
+	SendHostInfo( Enum::HI_Send_All_opts );
 	ui().ReloadPresetList();
 	return true;
 }
@@ -967,6 +972,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 
 void IBattle::SaveOptionsPreset( const std::string& name )
 {
+	//TODO presets needs to be modeled in a class of their own
 	m_preset = FixPresetName(name);
 	if (m_preset == "") m_preset = name; //new preset
 
@@ -981,7 +987,8 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 			std::map<std::string,std::string> opts;
 			opts["mapname"] = GetHostMapName();
 			unsigned int validrectcount = 0;
-			if ( s2l (CustomBattleOptions().getSingleValue( "startpostype", OptionsWrapper::EngineOption ) ) == ST_Choose )
+			if ( Util::FromString<long> (CustomBattleOptions().getSingleValue( "startpostype", OptionsWrapper::EngineOption ) )
+				 == Enum::ST_Choose )
 			{
 				unsigned int boxcount = GetLastRectIdx();
 				for ( unsigned int boxnum = 0; boxnum <= boxcount; boxnum++ )
@@ -989,21 +996,21 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 					BattleStartRect rect = GetStartRect( boxnum );
 					if ( rect.IsOk() )
 					{
-						opts["rect_" + Tostd::string(validrectcount) + "_ally"] = Tostd::string( rect.ally + 1 );
-						opts["rect_" + Tostd::string(validrectcount) + "_left"] = Tostd::string( rect.left );
-						opts["rect_" + Tostd::string(validrectcount) + "_top"] = Tostd::string( rect.top );
-						opts["rect_" + Tostd::string(validrectcount) + "_bottom"] = Tostd::string( rect.bottom );
-						opts["rect_" + Tostd::string(validrectcount) + "_right"] = Tostd::string( rect.right );
+						opts["rect_" + Util::ToString(validrectcount) + "_ally"] = Util::ToString( rect.ally + 1 );
+						opts["rect_" + Util::ToString(validrectcount) + "_left"] = Util::ToString( rect.left );
+						opts["rect_" + Util::ToString(validrectcount) + "_top"] = Util::ToString( rect.top );
+						opts["rect_" + Util::ToString(validrectcount) + "_bottom"] = Util::ToString( rect.bottom );
+						opts["rect_" + Util::ToString(validrectcount) + "_right"] = Util::ToString( rect.right );
 						validrectcount++;
 					}
 				}
 			}
-			opts["numrects"] = Tostd::string( validrectcount );
+			opts["numrects"] = Util::ToString( validrectcount );
 
 			std::string restrictionsstring;
 			for ( std::map<std::string, int>::const_iterator itor = m_restricted_units.begin(); itor != m_restricted_units.end(); itor++ )
 			{
-				restrictionsstring << itor->first << '=') << Tostd::string(itor->second) << '\t');
+				restrictionsstring << itor->first << '=' << Util::ToString(itor->second) << '\t';
 			}
 			opts["restrictions"] = restrictionsstring;
 
@@ -1156,8 +1163,8 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 		//[PLAYERX] sections
 		for ( int i = 0; i < playernum ; ++i )
 		{
-			SL::PDataList player ( replayNode->Find( "PLAYER" + Tostd::string(i) ) );
-			SL::PDataList bot ( replayNode->Find( "AI" + Tostd::string(i) ) );
+			SL::PDataList player ( replayNode->Find( "PLAYER" + Util::ToString(i) ) );
+			SL::PDataList bot ( replayNode->Find( "AI" + Util::ToString(i) ) );
 			if ( player.ok() || bot.ok() )
 			{
 				if ( bot.ok() ) player = bot;
@@ -1192,7 +1199,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					status.aishortname = bot->GetString( "ShortName" );
 					status.aiversion = bot->GetString( "Version" );
 					int ownerindex = bot->GetInt( "Host" );
-					SL::PDataList aiowner ( replayNode->Find( "PLAYER" + Tostd::string(ownerindex) ) );
+					SL::PDataList aiowner ( replayNode->Find( "PLAYER" + Util::ToString(ownerindex) ) );
 					if ( aiowner.ok() )
 					{
 						status.owner = aiowner->GetString( "Name" );
@@ -1202,7 +1209,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 				IBattle::TeamInfoContainer teaminfos = parsed_teams[user->BattleStatus().team];
 				if ( !teaminfos.exist )
 				{
-					SL::PDataList team( replayNode->Find( "TEAM" + Tostd::string( user->BattleStatus().team ) ) );
+					SL::PDataList team( replayNode->Find( "TEAM" + Util::ToString( user->BattleStatus().team ) ) );
 					if ( team.ok() )
 					{
 						teaminfos.exist = true;
@@ -1233,7 +1240,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					IBattle::AllyInfoContainer allyinfos = parsed_allies[user->BattleStatus().ally];
 					if ( !allyinfos.exist )
 					{
-						SL::PDataList ally( replayNode->Find( "ALLYTEAM" + Tostd::string( user->BattleStatus().ally ) ) );
+						SL::PDataList ally( replayNode->Find( "ALLYTEAM" + Util::ToString( user->BattleStatus().ally ) ) );
 						if ( ally.ok() )
 						{
 							allyinfos.exist = true;

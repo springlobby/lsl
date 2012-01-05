@@ -5,20 +5,15 @@
 // Class: Battle
 //
 #include "battle.h"
-#include "springunitsync.h"
-#include "server.h"
-#include "user.h"
-#include "utils/misc.h"
-#include "utils/debug.h"
-#include "utils/conversion.h"
-#include "utils/math.h"
-#include "settings.h"
-#include "useractions.h"
-#include "utils/customdialogs.h"
-#include "springunitsynclib.h"
-#include "iconimagelist.h"
-#include "spring.h"
+#include <networking/iserver.h>
+#include <user/user.h>
+#include <utils/misc.h>
+#include <utils/debug.h>
+#include <utils/conversion.h>
 
+#include <lslconfig.h>
+
+//#include "spring.h"
 
 const unsigned int TIMER_INTERVAL         = 1000;
 const unsigned int TIMER_ID               = 101;
@@ -46,24 +41,20 @@ void Battle::SendHostInfo( HostInfo update )
     m_serv.SendHostInfo( update );
 }
 
-
 void Battle::SendHostInfo( const std::string& Tag )
 {
     m_serv.SendHostInfo( Tag );
 }
-
 
 void Battle::Update()
 {
     BattleEvents::GetBattleEventSender( BattleEvents::BattleInfoUpdate ).SendEvent( std::make_pair(this,std::string()) );
 }
 
-
 void Battle::Update( const std::string& Tag )
 {
     BattleEvents::GetBattleEventSender( BattleEvents::BattleInfoUpdate ).SendEvent( std::make_pair(this,Tag) );
 }
-
 
 void Battle::Join( const std::string& password )
 {
@@ -71,12 +62,10 @@ void Battle::Join( const std::string& password )
     m_is_self_in = true;
 }
 
-
 void Battle::Leave()
 {
     m_serv.LeaveBattle( m_opts.battleid );
 }
-
 
 void Battle::OnRequestBattleStatus()
 {
@@ -92,7 +81,6 @@ void Battle::OnRequestBattleStatus()
     SendMyBattleStatus();
 }
 
-
 void Battle::SendMyBattleStatus()
 {
     UserBattleStatus& bs = m_serv.GetMe().BattleStatus();
@@ -100,7 +88,6 @@ void Battle::SendMyBattleStatus()
     else bs.sync = SYNC_UNSYNCED;
     m_serv.SendMyBattleStatus( bs );
 }
-
 
 void Battle::SetImReady( bool ready )
 {
@@ -112,21 +99,15 @@ void Battle::SetImReady( bool ready )
     SendMyBattleStatus();
 }
 
-
-
-
-
 /*bool Battle::HasMod()
 {
   return usync().ModExists( m_opts.modname );
 }*/
 
-
 void Battle::Say( const std::string& msg )
 {
     m_serv.SayBattle( m_opts.battleid, msg );
 }
-
 
 void Battle::DoAction( const std::string& msg )
 {
@@ -279,14 +260,12 @@ void Battle::OnUserBattleStatusUpdated( User &user, UserBattleStatus status )
     ui().OnUserBattleStatus( *this, user );
 }
 
-
 void Battle::OnUserRemoved( User& user )
 {
     m_ah.OnUserRemoved(user);
     IBattle::OnUserRemoved( user );
     ShouldAutoUnspec();
 }
-
 
 void Battle::RingNotReadyPlayers()
 {
@@ -434,6 +413,7 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
     //>
     return false;
 }
+
 ///< quick hotfix for bans
 /// returns true if user is banned (and hence has been kicked)
 bool Battle::CheckBan(User &user)

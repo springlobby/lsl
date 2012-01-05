@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <boost/noncopyable.hpp>
-#include <boost/algorithm/string/find.hpp>
+#include <boost/algorithm/string.hpp>
 
 #define LSLUNUSED(identifier)
 
@@ -23,10 +23,31 @@ static const int lslNotFound = -1;
 
 namespace Util {
 
+namespace Predicates {
+struct CaseInsensitive {
+	const std::string m_ref;
+	CaseInsensitive( const std::string r ) : m_ref(boost::to_lower_copy(r)){}
+	bool operator () ( const std::string& o ) {
+		return boost::to_lower_copy( o ) == m_ref;
+	}
+};
+} //namespace Predicates {
+
 //! delegate to boost::filesystem::exists
 bool FileExists( const std::string path );
 //! create temporary filestream, return is_open()
 bool FileCanOpen( const std::string path );
+
+template <typename T> T Clamp(const T var,const T min,const T max)
+{
+	return ( (var < min) ? min : ( var > max ) ? max : var );
+}
+
+template<typename T>
+T Min(T a, T b, T c)
+{
+	return std::min(a, std::min(b, c));
+}
 
 /** @brief Array with runtime determined size which is not initialized on creation.
 
@@ -56,12 +77,25 @@ class uninitialized_array : public boost::noncopyable
 	T* elems;
 };
 
+
+
 template < class StlContainer >
 inline int IndexInSequence( const StlContainer& ct,
 							const typename StlContainer::value_type& val )
 {
 	typename StlContainer::const_iterator result =
 			std::find( ct.begin(), ct.end(), val );
+	if ( result == ct.end() )
+		return lslNotFound;
+	return std::distance( ct.begin(), result );
+}
+
+template < class StlContainer, class Predicate >
+inline int IndexInSequenceIf( const StlContainer& ct,
+							const Predicate pred )
+{
+	typename StlContainer::const_iterator result =
+			std::find_if( ct.begin(), ct.end(), pred );
 	if ( result == ct.end() )
 		return lslNotFound;
 	return std::distance( ct.begin(), result );
