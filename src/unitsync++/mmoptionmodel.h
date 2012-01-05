@@ -4,23 +4,14 @@
 #include <string>
 #include <vector>
 
+#include "enum.h"
+
 namespace LSL {
 
 namespace Constants {
 	const std::string nosection_name("none");
 	const std::string nostyle_name("none");
 }
-
-//! enum that lets us differentiate option types at runtime
-/*! opt_undefined will be returned/set if the type could not be determined, others respectively */
-enum OptionType {
-	opt_undefined  = 0,
-	opt_bool       = 1,
-	opt_list       = 2,
-	opt_float      = 3,
-	opt_string     = 4,
-	opt_section    = 5
-};
 
 //! used to hold an item in an option list
 /*! An option list is made of a variable number of theses items.
@@ -45,26 +36,20 @@ typedef std::vector<listItem> ListItemVec;
  */
 struct mmOptionModel
 {
-    enum ControlType{
-        ct_undefined,
-        ct_someothers
-    };
-
-
 	//! sets members accordingly
 	///* this ctor sets controltype enum according to string *///
-	mmOptionModel(std::string name_, std::string key_, std::string description_, OptionType type_ = opt_undefined,
+	mmOptionModel(std::string name_, std::string key_, std::string description_, Enum::OptionType type_ = Enum::opt_undefined,
 				std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
-    mmOptionModel(std::string name_, std::string key_, std::string description_, OptionType type_ = opt_undefined,
-				std::string section_ = Constants::nosection_name, ControlType style_ = ct_undefined);
+	mmOptionModel(std::string name_, std::string key_, std::string description_, Enum::OptionType type_ = Enum::opt_undefined,
+				std::string section_ = Constants::nosection_name, Enum::OptionControlType style_ = Enum::oct_undefined);
 
 	virtual ~mmOptionModel();
 	//! all members are set to empty strings, type to opt_undefined
 	mmOptionModel();
 
 	std::string name, key, description;
-	OptionType type;
-	ControlType ct_type;
+	Enum::OptionType type;
+	Enum::OptionControlType ct_type;
 	std::string section;
 	//! control style string, as of yet undefined
 	std::string ct_type_string;

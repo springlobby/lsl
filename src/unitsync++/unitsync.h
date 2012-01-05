@@ -5,6 +5,7 @@
 #include "mmoptionmodel.h"
 #include "data.h"
 #include "mru_cache.h"
+#include <utils/type_forwards.h>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/signals2/signal.hpp>
@@ -32,24 +33,6 @@ public:
 
 	Unitsync();
 	virtual ~Unitsync();
-
-	typedef std::map<std::string,mmOptionBool> OptionMapBool;
-	typedef std::map<std::string,mmOptionFloat> OptionMapFloat;
-	typedef std::map<std::string,mmOptionString> OptionMapString;
-	typedef std::map<std::string,mmOptionList> OptionMapList;
-	typedef std::map<std::string,mmOptionSection> OptionMapSection;
-
-	typedef std::map<std::string,mmOptionBool>::iterator OptionMapBoolIter;
-	typedef std::map<std::string,mmOptionFloat>::iterator OptionMapFloatIter;
-	typedef std::map<std::string,mmOptionString>::iterator OptionMapStringIter;
-	typedef std::map<std::string,mmOptionList>::iterator OptionMapListIter;
-	typedef std::map<std::string,mmOptionSection>::iterator OptionMapSectionIter;
-
-	typedef std::map<std::string,mmOptionBool>::const_iterator OptionMapBoolConstIter;
-	typedef std::map<std::string,mmOptionFloat>::const_iterator OptionMapFloatConstIter;
-	typedef std::map<std::string,mmOptionString>::const_iterator OptionMapStringConstIter;
-	typedef std::map<std::string,mmOptionList>::const_iterator OptionMapListConstIter;
-	typedef std::map<std::string,mmOptionSection>::const_iterator OptionMapSectionConstIter;
 
 	int GetNumMods() const;
     StringVector GetModList() const;
@@ -227,11 +210,11 @@ Unitsync& usync();
 
 struct GameOptions
 {
-  Unitsync::OptionMapBool bool_map;
-  Unitsync::OptionMapFloat float_map;
-  Unitsync::OptionMapString string_map;
-  Unitsync::OptionMapList list_map;
-  Unitsync::OptionMapSection section_map;
+  OptionMapBool bool_map;
+  OptionMapFloat float_map;
+  OptionMapString string_map;
+  OptionMapList list_map;
+  OptionMapSection section_map;
 };
 
 /// Helper class for managing async operations safely

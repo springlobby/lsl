@@ -371,7 +371,7 @@ void GetOptionEntry( UnitsyncLib* const susynclib, const int i, GameOptions& ret
 	const std::string section_str = boost::algorithm::to_lower_copy( susynclib->GetOptionSection(i) );
 	switch (susynclib->GetOptionType(i))
 	{
-	case opt_float:
+	case Enum::opt_float:
 	{
 		ret.float_map[key] = mmOptionFloat( name, key,
 											susynclib->GetOptionDesc(i), susynclib->GetOptionNumberDef(i),
@@ -380,14 +380,14 @@ void GetOptionEntry( UnitsyncLib* const susynclib, const int i, GameOptions& ret
 											section_str, susynclib->GetOptionStyle(i) );
 		break;
 	}
-	case opt_bool:
+	case Enum::opt_bool:
 	{
 		ret.bool_map[key] = mmOptionBool( name, key,
 										  susynclib->GetOptionDesc(i), susynclib->GetOptionBoolDef(i),
 										  section_str, susynclib->GetOptionStyle(i) );
 		break;
 	}
-	case opt_string:
+	case Enum::opt_string:
 	{
 		ret.string_map[key] = mmOptionString( name, key,
 											  susynclib->GetOptionDesc(i), susynclib->GetOptionStringDef(i),
@@ -395,7 +395,7 @@ void GetOptionEntry( UnitsyncLib* const susynclib, const int i, GameOptions& ret
 											  section_str, susynclib->GetOptionStyle(i) );
 		break;
 	}
-	case opt_list:
+	case Enum::opt_list:
 	{
 		ret.list_map[key] = mmOptionList(name,key,
 										 susynclib->GetOptionDesc(i),susynclib->GetOptionListDef(i),
@@ -409,7 +409,7 @@ void GetOptionEntry( UnitsyncLib* const susynclib, const int i, GameOptions& ret
 		}
 		break;
 	}
-	case opt_section:
+	case Enum::opt_section:
 	{
 		ret.section_map[key] = mmOptionSection( name, key, susynclib->GetOptionDesc(i),
 												section_str, susynclib->GetOptionStyle(i) );
