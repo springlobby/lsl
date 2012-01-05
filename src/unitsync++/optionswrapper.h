@@ -1,11 +1,9 @@
-#ifndef MMOPTIONSORAPPER_H_
-#define MMOPTIONSORAPPER_H_
-
-#include "springunitsync.h"
+#ifndef LSL_MMOPTIONSORAPPER_H_
+#define LSL_MMOPTIONSORAPPER_H_
 
 #include <vector>
 #include <utility>
-#include <wx/string.h>
+#include <string>
 #include <boost/shared_ptr.hpp>
 
 struct GameOptions;
@@ -15,7 +13,6 @@ class wxFileConfig;
 //! \todo needs deep copy
 class mmSectionTree
 {
-
     public:
         mmSectionTree();
         ~mmSectionTree();
@@ -24,9 +21,7 @@ class mmSectionTree
         mmOptionSection GetSection( const wxString& key );
 
         typedef std::vector< mmOptionSection > SectionVector;
-
 //        SectionVector GetSectionVector();
-
         void Clear();
 
     protected:
@@ -39,7 +34,6 @@ class mmSectionTree
         void AddSection ( const wxString& path, const mmOptionSection& section );
         wxString FindParentpath ( const wxString& parent_key );
         bool FindRecursive( const wxString& parent_key, wxString& path );
-
 };
 
 class OptionsWrapper
@@ -178,7 +172,7 @@ protected:
 
 };
 
-#endif /*MMOPTIONSORAPPER_H_*/
+#endif /*LSL_MMOPTIONSORAPPER_H_*/
 
 /**
     This file is part of SpringLobby,

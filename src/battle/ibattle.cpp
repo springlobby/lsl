@@ -826,8 +826,6 @@ bool IBattle::ModExists() const
 	//return usync().ModExists( m_mod_name );
 }
 
-
-
 void IBattle::RestrictUnit( const std::string& unitname, int count )
 {
 	m_restricted_units[ unitname ] = count;
@@ -887,8 +885,6 @@ void IBattle::OnUnitsyncReloaded()
 	else  m_map_exists = usync().MapExists( m_host_map.name );
 }
 
-
-
 static std::string FixPresetName( const std::string& name )
 {
 	// look name up case-insensitively
@@ -899,7 +895,6 @@ static std::string FixPresetName( const std::string& name )
 	// set preset to the actual name, with correct case
 	return presetList[index];
 }
-
 
 bool IBattle::LoadOptionsPreset( const std::string& name )
 {
@@ -969,7 +964,6 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 	return true;
 }
 
-
 void IBattle::SaveOptionsPreset( const std::string& name )
 {
 	//TODO presets needs to be modeled in a class of their own
@@ -1021,12 +1015,10 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 	ui().ReloadPresetList();
 }
 
-
 std::string IBattle::GetCurrentPreset()
 {
 	return m_preset;
 }
-
 
 void IBattle::DeletePreset( const std::string& name )
 {

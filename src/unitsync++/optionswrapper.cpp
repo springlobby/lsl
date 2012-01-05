@@ -1,16 +1,11 @@
-#include "mmoptionswrapper.h"
+#include "optionswrapper.h"
 
-#include "springunitsync.h"
-#include "utils/conversion.h"
-#include "utils/customdialogs.h"
-#include "utils/debug.h"
+#include "unitsync.h"
+#include <utils/conversion.h>
+#include <utils/debug.h>
 
 #include <stdexcept>
 #include <clocale>
-#include <wx/intl.h>
-#include <wx/log.h>
-#include <wx/fileconf.h>
-#include <wx/filename.h>
 
 OptionsWrapper::OptionsWrapper()
 {

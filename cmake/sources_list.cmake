@@ -27,6 +27,7 @@ SET(libUnitsync++Src
 	src/unitsync++/loader.cpp
 	src/unitsync++/thread.cpp 
 	src/unitsync++/mmoptionmodel.cpp
+	src/unitsync++/optionswrapper.cpp
 	src/unitsync++/unitsync.cpp
 	)
 SET(commonSrc
