@@ -6,7 +6,7 @@
 
 #include "data.h"
 #include "signatures.h"
-#include <utils/datatypes.h>
+#include <utils/type_forwards.h>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 

@@ -91,10 +91,38 @@ bool AreColoursSimilar( const lslColor& col1, const lslColor& col2, int mindiff 
 	return difference < mindiff;
 }
 
+typedef std::vector<double> huevec;
+
+void hue(huevec& out, int amount, int level)
+{
+	if (level <= 1) {
+		if (long(out.size()) < amount)
+			out.push_back(0.0);
+		if (long(out.size()) < amount)
+			out.push_back(0.5);
+	}
+	else {
+		hue(out, amount, level - 1);
+		const int lower = out.size();
+		hue(out, amount, level - 1);
+		const int upper = out.size();
+		for (int i = lower; i < upper; ++i)
+			out.at(i) += 1.0 / (1 << level);
+	}
+}
+
+void hue(huevec& out, int amount)
+{
+	int level = 0;
+	while ((1 << level) < amount) ++level;
+
+	out.reserve(amount);
+	hue(out, amount, level);
+}
+
 std::vector<lslColor>& GetBigFixColoursPalette( int numteams )
 {
 	static std::vector<lslColor> result;
-	wxLogDebugFunc( Tostd::string(numteams) );
 	huevec huevector;
 	static int satvalbifurcatepos;
 	static std::vector<double> satvalsplittings;
@@ -131,9 +159,11 @@ std::vector<lslColor>& GetBigFixColoursPalette( int numteams )
 		}
 		hue += 0.17; // use as starting point a zone where color band is narrow so that small variations means high change in visual effect
 		if ( hue > 1 ) hue-= 1;
-		wxImage::HSVValue hsvcolor( hue, saturation, value );
-		wxImage::RGBValue rgbvalue = wxImage::HSVtoRGB( hsvcolor );
-		lslColor col( rgbvalue.red, rgbvalue.green, rgbvalue.blue );
+//		wxImage::HSVValue hsvcolor( hue, saturation, value );
+//		wxImage::RGBValue rgbvalue = wxImage::HSVtoRGB( hsvcolor );
+//		lslColor col( rgbvalue.red, rgbvalue.green, rgbvalue.blue );
+		assert( false );//conversion needs implementing
+		lslColor col;
 		result.push_back( col );
 	}
 	return result;

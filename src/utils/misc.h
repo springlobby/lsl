@@ -111,7 +111,7 @@ private:
 	T r,g,b,a;
 public:
 	lslColorBase():r(0),g(0),b(0),a(0){}
-	lslColorBase(T _r, T _g, T _b, T _a = 0)
+	explicit lslColorBase(T _r, T _g, T _b, T _a = 0)
 		:r(_r),g(_g),b(_b),a(_a){}
 
 	bool operator == (const lslColor o) const {
