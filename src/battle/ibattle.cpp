@@ -892,9 +892,9 @@ static std::string FixPresetName( const std::string& name )
 {
 	// look name up case-insensitively
 	const StringVector& presetList = sett().GetPresetList();
-	int index = presetList.Index( name, false /*case insensitive*/ );
-	if ( index == -1 ) return _T("");
-
+	const int index = Util::IndexInSequenceIf( presetList, Util::Predicates::CaseInsensitive( name ) );
+	if ( index == lslNotFound )
+		return "";
 	// set preset to the actual name, with correct case
 	return presetList[index];
 }
@@ -903,7 +903,7 @@ static std::string FixPresetName( const std::string& name )
 bool IBattle::LoadOptionsPreset( const std::string& name )
 {
 	std::string preset = FixPresetName(name);
-	if (preset == _T("")) return false; //preset not found
+	if (preset == "") return false; //preset not found
 	m_preset = preset;
 
 	for ( unsigned int i = 0; i < OptionsWrapper::LastOption; i++)
@@ -913,22 +913,21 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 		{
 			for ( std::map<std::string,std::string>::const_iterator itor = options.begin(); itor != options.end(); itor++ )
 			{
-				wxLogWarning( itor->first + _T(" ::: ") + itor->second );
 				CustomBattleOptions().setSingleOption( itor->first, itor->second, (OptionsWrapper::GameOption)i );
 			}
 		}
 		else
 		{
-			if ( !options[_T("mapname")].empty() )
+			if ( !options["mapname"].empty() )
 			{
-				if ( usync().MapExists( options[_T("mapname")] ) ) {
-					UnitsyncMap map = usync().GetMapEx( options[_T("mapname")] );
+				if ( usync().MapExists( options["mapname"] ) ) {
+					UnitsyncMap map = usync().GetMapEx( options["mapname"] );
 					SetLocalMap( map );
 					SendHostInfo( HI_Map );
 				}
-				else if ( !ui().OnPresetRequiringMap( options[_T("mapname")] ) ) {
+				else if ( !ui().OnPresetRequiringMap( options["mapname"] ) ) {
 					//user didn't want to download the missing map, so set to empty to not have it tried to be loaded again
-					options[_T("mapname")] = _T("");
+					options["mapname"] = "";
 					sett().SetHostingPreset( m_preset, i, options );
 				}
 			}
@@ -939,24 +938,24 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			}
 			SendHostInfo( Enum::HI_StartRects );
 
-			unsigned int rectcount = s2l( options[_T("numrects")] );
+			unsigned int rectcount = s2l( options["numrects"] );
 			for ( unsigned int loadrect = 0; loadrect < rectcount; loadrect++)
 			{
-				int ally = s2l(options[_T("rect_") + Tostd::string(loadrect) + _T("_ally")]);
+				int ally = s2l(options["rect_" + Tostd::string(loadrect) + "_ally"]);
 				if ( ally == 0 ) continue;
-				AddStartRect( ally - 1, s2l(options[_T("rect_") + Tostd::string(loadrect) + _T("_left")]), s2l(options[_T("rect_") + Tostd::string(loadrect) + _T("_top")]), s2l(options[_T("rect_") + Tostd::string(loadrect) + _T("_right")]), s2l(options[_T("rect_") + Tostd::string(loadrect) + _T("_bottom")]) );
+				AddStartRect( ally - 1, s2l(options["rect_" + Tostd::string(loadrect) + "_left"]), s2l(options["rect_" + Tostd::string(loadrect) + "_top"]), s2l(options["rect_" + Tostd::string(loadrect) + "_right"]), s2l(options["rect_" + Tostd::string(loadrect) + "_bottom"]) );
 			}
 			SendHostInfo( HI_StartRects );
 
-			std::stringTokenizer tkr( options[_T("restrictions")], _T('\t') );
+			std::stringTokenizer tkr( options["restrictions"], '\t') );
 			m_restricted_units.clear();
 			while( tkr.HasMoreTokens() )
 			{
 				std::string unitinfo = tkr.GetNextToken();
-				RestrictUnit( unitinfo.BeforeLast(_T('=')), s2l( unitinfo.AfterLast(_T('=')) ) );
+				RestrictUnit( unitinfo.BeforeLast('=')), s2l( unitinfo.AfterLast('=')) ) );
 			}
 			SendHostInfo( HI_Restrictions );
-			Update( wxFormat( _T("%d_restrictions") ) % OptionsWrapper::PrivateOptions );
+			Update( boost::format( "%d_restrictions" ) % OptionsWrapper::PrivateOptions );
 
 		}
 	}
@@ -969,7 +968,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 void IBattle::SaveOptionsPreset( const std::string& name )
 {
 	m_preset = FixPresetName(name);
-	if (m_preset == _T("")) m_preset = name; //new preset
+	if (m_preset == "") m_preset = name; //new preset
 
 	for ( int i = 0; i < (int)OptionsWrapper::LastOption; i++)
 	{
@@ -980,9 +979,9 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 		else
 		{
 			std::map<std::string,std::string> opts;
-			opts[_T("mapname")] = GetHostMapName();
+			opts["mapname"] = GetHostMapName();
 			unsigned int validrectcount = 0;
-			if ( s2l (CustomBattleOptions().getSingleValue( _T("startpostype"), OptionsWrapper::EngineOption ) ) == ST_Choose )
+			if ( s2l (CustomBattleOptions().getSingleValue( "startpostype", OptionsWrapper::EngineOption ) ) == ST_Choose )
 			{
 				unsigned int boxcount = GetLastRectIdx();
 				for ( unsigned int boxnum = 0; boxnum <= boxcount; boxnum++ )
@@ -990,23 +989,23 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 					BattleStartRect rect = GetStartRect( boxnum );
 					if ( rect.IsOk() )
 					{
-						opts[_T("rect_") + Tostd::string(validrectcount) + _T("_ally")] = Tostd::string( rect.ally + 1 );
-						opts[_T("rect_") + Tostd::string(validrectcount) + _T("_left")] = Tostd::string( rect.left );
-						opts[_T("rect_") + Tostd::string(validrectcount) + _T("_top")] = Tostd::string( rect.top );
-						opts[_T("rect_") + Tostd::string(validrectcount) + _T("_bottom")] = Tostd::string( rect.bottom );
-						opts[_T("rect_") + Tostd::string(validrectcount) + _T("_right")] = Tostd::string( rect.right );
+						opts["rect_" + Tostd::string(validrectcount) + "_ally"] = Tostd::string( rect.ally + 1 );
+						opts["rect_" + Tostd::string(validrectcount) + "_left"] = Tostd::string( rect.left );
+						opts["rect_" + Tostd::string(validrectcount) + "_top"] = Tostd::string( rect.top );
+						opts["rect_" + Tostd::string(validrectcount) + "_bottom"] = Tostd::string( rect.bottom );
+						opts["rect_" + Tostd::string(validrectcount) + "_right"] = Tostd::string( rect.right );
 						validrectcount++;
 					}
 				}
 			}
-			opts[_T("numrects")] = Tostd::string( validrectcount );
+			opts["numrects"] = Tostd::string( validrectcount );
 
 			std::string restrictionsstring;
 			for ( std::map<std::string, int>::const_iterator itor = m_restricted_units.begin(); itor != m_restricted_units.end(); itor++ )
 			{
-				restrictionsstring << itor->first << _T('=') << Tostd::string(itor->second) << _T('\t');
+				restrictionsstring << itor->first << '=') << Tostd::string(itor->second) << '\t');
 			}
-			opts[_T("restrictions")] = restrictionsstring;
+			opts["restrictions"] = restrictionsstring;
 
 			sett().SetHostingPreset( m_preset, (OptionsWrapper::GameOption)i, opts );
 		}
@@ -1025,7 +1024,7 @@ std::string IBattle::GetCurrentPreset()
 void IBattle::DeletePreset( const std::string& name )
 {
 	std::string preset = FixPresetName(name);
-	if ( m_preset == preset ) m_preset = _T("");
+	if ( m_preset == preset ) m_preset = "";
 	sett().DeletePreset( preset );
 	ui().ReloadPresetList();
 }
@@ -1117,31 +1116,31 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 	std::stringstream ss ( (const char *)GetScript().mb_str(wxConvUTF8) );// no need to convert wxstring-->std::string-->std::stringstream, convert directly.
 	SL::PDataList script( ParseTDF(ss) );
 
-	SL::PDataList replayNode ( script->Find(_T("GAME") ) );
+	SL::PDataList replayNode ( script->Find("GAME" ) );
 	if ( replayNode.ok() )
 	{
 
-		std::string modname = replayNode->GetString( _T("GameType") );
-		std::string modhash = replayNode->GetString( _T("ModHash") );
+		std::string modname = replayNode->GetString( "GameType" );
+		std::string modhash = replayNode->GetString( "ModHash" );
 		if ( !modhash.empty() ) modhash = MakeHashUnsigned( modhash );
 		SetHostMod( modname, modhash );
 
 		//don't have the maphash, what to do?
 		//ui download function works with mapname if hash is empty, so works for now
-		std::string mapname    = replayNode->GetString( _T("MapName") );
-		std::string maphash    = replayNode->GetString( _T("MapHash") );
+		std::string mapname    = replayNode->GetString( "MapName" );
+		std::string maphash    = replayNode->GetString( "MapHash" );
 		if ( !maphash.empty() ) maphash = MakeHashUnsigned( maphash );
 		SetHostMap( mapname, maphash );
 
-		//        opts.ip         = replayNode->GetString( _T("HostIP") );
-		//        opts.port       = replayNode->GetInt  ( _T("HostPort"), DEFAULT_EXTERNAL_UDP_SOURCE_PORT );
+		//        opts.ip         = replayNode->GetString( "HostIP" );
+		//        opts.port       = replayNode->GetInt  ( "HostPort", DEFAULT_EXTERNAL_UDP_SOURCE_PORT );
 		opts.spectators = 0;
 
-		int playernum = replayNode->GetInt  ( _T("NumPlayers"), 0);
-		int usersnum = replayNode->GetInt  ( _T("NumUsers"), 0);
+		int playernum = replayNode->GetInt  ( "NumPlayers", 0);
+		int usersnum = replayNode->GetInt  ( "NumUsers", 0);
 		if ( usersnum > 0 ) playernum = usersnum;
-		//        int allynum = replayNode->GetInt  ( _T("NumAllyTeams"), 1);
-		//        int teamnum = replayNode->GetInt  ( _T("NumTeams"), 1);
+		//        int allynum = replayNode->GetInt  ( "NumAllyTeams", 1);
+		//        int teamnum = replayNode->GetInt  ( "NumTeams", 1);
 
 
 
@@ -1157,17 +1156,17 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 		//[PLAYERX] sections
 		for ( int i = 0; i < playernum ; ++i )
 		{
-			SL::PDataList player ( replayNode->Find( _T("PLAYER") + Tostd::string(i) ) );
-			SL::PDataList bot ( replayNode->Find( _T("AI") + Tostd::string(i) ) );
+			SL::PDataList player ( replayNode->Find( "PLAYER" + Tostd::string(i) ) );
+			SL::PDataList bot ( replayNode->Find( "AI" + Tostd::string(i) ) );
 			if ( player.ok() || bot.ok() )
 			{
 				if ( bot.ok() ) player = bot;
-				User user ( player->GetString( _T("Name") ), (player->GetString( _T("CountryCode")).Upper() ), 0);
+				User user ( player->GetString( "Name" ), (player->GetString( "CountryCode").Upper() ), 0);
 				UserBattleStatus& status = user->BattleStatus();
 				status.isfromdemo = true;
-				status.spectator = player->GetInt( _T("Spectator"), 0 );
+				status.spectator = player->GetInt( "Spectator", 0 );
 				opts.spectators += user->BattleStatus().spectator;
-				status.team = player->GetInt( _T("Team") );
+				status.team = player->GetInt( "Team" );
 				if ( !status.spectator )
 				{
 					PlayerJoinedTeam( status.team );
@@ -1186,34 +1185,34 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 				}
 
 				//! (koshi) changed this from ServerRankContainer to RankContainer
-				user->Status().rank = (UserStatus::RankContainer)player->GetInt( _T("Rank"), -1 );
+				user->Status().rank = (UserStatus::RankContainer)player->GetInt( "Rank", -1 );
 
 				if ( bot.ok() )
 				{
-					status.aishortname = bot->GetString( _T("ShortName" ) );
-					status.aiversion = bot->GetString( _T("Version" ) );
-					int ownerindex = bot->GetInt( _T("Host" ) );
-					SL::PDataList aiowner ( replayNode->Find( _T("PLAYER") + Tostd::string(ownerindex) ) );
+					status.aishortname = bot->GetString( "ShortName" );
+					status.aiversion = bot->GetString( "Version" );
+					int ownerindex = bot->GetInt( "Host" );
+					SL::PDataList aiowner ( replayNode->Find( "PLAYER" + Tostd::string(ownerindex) ) );
 					if ( aiowner.ok() )
 					{
-						status.owner = aiowner->GetString( _T("Name") );
+						status.owner = aiowner->GetString( "Name" );
 					}
 				}
 
 				IBattle::TeamInfoContainer teaminfos = parsed_teams[user->BattleStatus().team];
 				if ( !teaminfos.exist )
 				{
-					SL::PDataList team( replayNode->Find( _T("TEAM") + Tostd::string( user->BattleStatus().team ) ) );
+					SL::PDataList team( replayNode->Find( "TEAM" + Tostd::string( user->BattleStatus().team ) ) );
 					if ( team.ok() )
 					{
 						teaminfos.exist = true;
-						teaminfos.TeamLeader = team->GetInt( _T("TeamLeader"), 0 );
-						teaminfos.StartPosX = team->GetInt( _T("StartPosX"), -1 );
-						teaminfos.StartPosY = team->GetInt( _T("StartPosY"), -1 );
-						teaminfos.AllyTeam = team->GetInt( _T("AllyTeam"), 0 );
-						teaminfos.RGBColor = GetColorFromFloatStrng( team->GetString( _T("RGBColor") ) );
-						teaminfos.SideName = team->GetString( _T("Side"), _T("") );
-						teaminfos.Handicap = team->GetInt( _T("Handicap"), 0 );
+						teaminfos.TeamLeader = team->GetInt( "TeamLeader", 0 );
+						teaminfos.StartPosX = team->GetInt( "StartPosX", -1 );
+						teaminfos.StartPosY = team->GetInt( "StartPosY", -1 );
+						teaminfos.AllyTeam = team->GetInt( "AllyTeam", 0 );
+						teaminfos.RGBColor = GetColorFromFloatStrng( team->GetString( "RGBColor" ) );
+						teaminfos.SideName = team->GetString( "Side", "" );
+						teaminfos.Handicap = team->GetInt( "Handicap", 0 );
 						int sidepos = sides.Index( teaminfos.SideName );
 						teaminfos.SideNum = sidepos;
 						parsed_teams[ user->BattleStatus().team ] = teaminfos;
@@ -1234,15 +1233,15 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					IBattle::AllyInfoContainer allyinfos = parsed_allies[user->BattleStatus().ally];
 					if ( !allyinfos.exist )
 					{
-						SL::PDataList ally( replayNode->Find( _T("ALLYTEAM") + Tostd::string( user->BattleStatus().ally ) ) );
+						SL::PDataList ally( replayNode->Find( "ALLYTEAM" + Tostd::string( user->BattleStatus().ally ) ) );
 						if ( ally.ok() )
 						{
 							allyinfos.exist = true;
-							allyinfos.NumAllies = ally->GetInt( _T("NumAllies"), 0 );
-							allyinfos.StartRectLeft = ally->GetInt( _T("StartRectLeft"), 0 );
-							allyinfos.StartRectTop = ally->GetInt( _T("StartRectTop"), 0 );
-							allyinfos.StartRectRight = ally->GetInt( _T("StartRectRight"), 0 );
-							allyinfos.StartRectBottom = ally->GetInt( _T("StartRectBottom"), 0 );
+							allyinfos.NumAllies = ally->GetInt( "NumAllies", 0 );
+							allyinfos.StartRectLeft = ally->GetInt( "StartRectLeft", 0 );
+							allyinfos.StartRectTop = ally->GetInt( "StartRectTop", 0 );
+							allyinfos.StartRectRight = ally->GetInt( "StartRectRight", 0 );
+							allyinfos.StartRectBottom = ally->GetInt( "StartRectBottom", 0 );
 							parsed_allies[ user->BattleStatus().ally ] = allyinfos;
 							AddStartRect( user->BattleStatus().ally, allyinfos.StartRectTop, allyinfos.StartRectTop, allyinfos.StartRectRight, allyinfos.StartRectBottom );
 						}
@@ -1259,8 +1258,8 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 		//MMoptions, this'll fail unless loading map/mod into wrapper first
 		if ( loadmapmod )
 		{
-			LoadScriptMMOpts( _T("mapoptions"), replayNode );
-			LoadScriptMMOpts( _T("modoptions"), replayNode );
+			LoadScriptMMOpts( "mapoptions", replayNode );
+			LoadScriptMMOpts( "modoptions", replayNode );
 		}
 
 		opts.maxplayers = playernum ;
