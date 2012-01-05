@@ -432,7 +432,7 @@ void TASServer::SendHostInfo( HostInfo update )
 	int relayhostmessagesize = 0;
 	if (m_relay_host_bot)
 	{
-		relayhostmessagesize = m_relay_host_bot.GetNick() + 10 + 1 + 1 + 14 + 1; // bot name + SAYPRIVATE + space + "!" + SETSCRIPTTAGS + \n
+		relayhostmessagesize = m_relay_host_bot.Nick() + 10 + 1 + 1 + 14 + 1; // bot name + SAYPRIVATE + space + "!" + SETSCRIPTTAGS + \n
 	}
 	if ( ( update & IBattle::HI_Send_All_opts ) > 0 )
 	{
@@ -579,9 +579,9 @@ void TASServer::SendMyBattleStatus( UserBattleStatus& bs )
 	UTASBattleStatus tasbs;
 	tasbs.tasdata = ConvTasbattlestatus( bs );
 	UTASColor tascl;
-	tascl.color.red = bs.colour.Red();
-	tascl.color.green = bs.colour.Green();
-	tascl.color.blue = bs.colour.Blue();
+	tascl.color.red = bs.color.Red();
+	tascl.color.green = bs.color.Green();
+	tascl.color.blue = bs.color.Blue();
 	tascl.color.zero = 0;
 	//MYBATTLESTATUS battlestatus myteamcolor
 	SendCmd( "MYBATTLESTATUS", ToString(tasbs.data) + " " + tascl.data );
@@ -650,7 +650,7 @@ void TASServer::ForceTeam( const BattlePtr battle, const UserPtr user, int team 
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	//FORCETEAMNO username teamno
-	RelayCmd( "FORCETEAMNO"), user->GetNick() + " " + ToString(team) );
+	RelayCmd( "FORCETEAMNO"), user->Nick() + " " + ToString(team) );
 }
 
 
@@ -676,7 +676,7 @@ void TASServer::ForceAlly( const BattlePtr battle, const UserPtr user, int ally 
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	//FORCEALLYNO username teamno
-	else RelayCmd( "FORCEALLYNO"), user.GetNick() + " " ToString(ally) );
+	else RelayCmd( "FORCEALLYNO"), user.Nick() + " " ToString(ally) );
 }
 
 
@@ -688,13 +688,13 @@ void TASServer::ForceColor( const BattlePtr battle, const UserPtr user, const Co
 
 	if ( status.IsBot() )
 	{
-		status.colour = col;
+		status.color = col;
 		UpdateBot( battle, user, status );
 		return;
 	}
 	if ( user == m_me )
 	{
-		status.colour = col;
+		status.color = col;
 		SendMyBattleStatus( status );
 		return;
 	}
@@ -706,7 +706,7 @@ void TASServer::ForceColor( const BattlePtr battle, const UserPtr user, const Co
 	tascl.color.blue = col.Blue();
 	tascl.color.zero = 0;
 	//FORCETEAMCOLOR username color
-	RelayCmd( "FORCETEAMCOLOR", user.GetNick() + " " + ToString( tascl.data ) );
+	RelayCmd( "FORCETEAMCOLOR", user.Nick() + " " + ToString( tascl.data ) );
 }
 
 
@@ -731,7 +731,7 @@ void TASServer::ForceSpectator( const BattlePtr battle, const UserPtr user, bool
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	//FORCESPECTATORMODE username
-	RelayCmd( "FORCESPECTATORMODE", user.GetNick() );
+	RelayCmd( "FORCESPECTATORMODE", user.Nick() );
 }
 
 
@@ -754,7 +754,7 @@ void TASServer::BattleKickPlayer( int battleid, User& user )
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	//KICKFROMBATTLE username
-	RelayCmd( "KICKFROMBATTLE", user.GetNick() );
+	RelayCmd( "KICKFROMBATTLE", user.Nick() );
 }
 
 void TASServer::SetHandicap( const BattlePtr battle, const UserPtr user, int handicap)
@@ -773,7 +773,7 @@ void TASServer::SetHandicap( const BattlePtr battle, const UserPtr user, int han
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	//HANDICAP username value
-	RelayCmd( "HANDICAP"), user.GetNick() + " " + ToString(handicap) );
+	RelayCmd( "HANDICAP"), user.Nick() + " " + ToString(handicap) );
 }
 
 
@@ -784,9 +784,9 @@ void TASServer::AddBot( const BattlePtr battle, const std::string& nick, UserBat
 	UTASBattleStatus tasbs;
 	tasbs.tasdata = ConvTasbattlestatus( status );
 	UTASColor tascl;
-	tascl.color.red = status.colour.Red();
-	tascl.color.green = status.colour.Green();
-	tascl.color.blue = status.colour.Blue();
+	tascl.color.red = status.color.Red();
+	tascl.color.green = status.color.Green();
+	tascl.color.blue = status.color.Blue();
 	tascl.color.zero = 0;
 	//ADDBOT name battlestatus teamcolor {AIDLL}
 	std::string msg;
@@ -804,7 +804,7 @@ void TASServer::RemoveBot( const BattlePtr battle, const UserPtr user )
 	if (!status.IsBot()) return;
 
 	//REMOVEBOT name
-	RelayCmd( "REMOVEBOT", user.GetNick() );
+	RelayCmd( "REMOVEBOT", user.Nick() );
 }
 
 
@@ -818,12 +818,12 @@ void TASServer::UpdateBot( const BattlePtr battle, const UserPtr user, UserBattl
 	UTASBattleStatus tasbs;
 	tasbs.tasdata = ConvTasbattlestatus( status );
 	UTASColor tascl;
-	tascl.color.red = status.colour.Red();
-	tascl.color.green = status.colour.Green();
-	tascl.color.blue = status.colour.Blue();
+	tascl.color.red = status.color.Red();
+	tascl.color.green = status.color.Green();
+	tascl.color.blue = status.color.Blue();
 	tascl.color.zero = 0;
 	//UPDATEBOT name battlestatus teamcolor
-	RelayCmd( "UPDATEBOT"), bot.GetNick() + " " + ToString(tasbs.data) + " " ToString(tascl.data ) );
+	RelayCmd( "UPDATEBOT"), bot.Nick() + " " + ToString(tasbs.data) + " " ToString(tascl.data ) );
 }
 
 
@@ -980,7 +980,7 @@ void TASServer::OnStartHostedBattle()
 	OnBattleStarted( battle );
 }
 
-void TASServer::OnClientBattleStatus( const std::string& nick, int intstatus, int colourint )
+void TASServer::OnClientBattleStatus( const std::string& nick, int intstatus, int colorint )
 {
 	BattlePtr battle = m_battle;
 	UserPtr user = GetUser( nick );
@@ -991,8 +991,8 @@ void TASServer::OnClientBattleStatus( const std::string& nick, int intstatus, in
 	UTASColor color;
 	tasbstatus.data = intstatus;
 	bstatus = ConvTasbattlestatus( tasbstatus.tasdata );
-	color.data = colourint;
-	bstatus.colour = Color( color.color.red, color.color.green, color.color.blue );
+	color.data = colorint;
+	bstatus.color = Color( color.color.red, color.color.green, color.color.blue );
 	if ( user->GetBattle() != battle ) return;
 	user->BattleStatus().color_index = status.color_index;
 	OnClientBattleStatus( battle, user, status );
@@ -1460,7 +1460,7 @@ void TASServer::OnRequestBattleStatus()
 
 
 
-void TASServer::OnBattleAddBot( int battleid, const std::string& nick, const std::string& owner, int intstatus, int intcolour, const std::string& aidll)
+void TASServer::OnBattleAddBot( int battleid, const std::string& nick, const std::string& owner, int intstatus, int intcolor, const std::string& aidll)
 {
 	BattlePtr battle = GetBattle(battleid);
 	if (!battle) return;
@@ -1469,8 +1469,8 @@ void TASServer::OnBattleAddBot( int battleid, const std::string& nick, const std
 	UTASColor color;
 	tasbstatus.data =intstatus;
 	status = ConvTasbattlestatus( tasbstatus.tasdata );
-	color.data = intcolour;
-	status.colour = Color( color.color.red, color.color.green, color.color.blue );
+	color.data = intcolor;
+	status.color = Color( color.color.red, color.color.green, color.color.blue );
 	status.aishortname = aidll;
 	status.isbot = true;
 	UserPtr owneruser = GetUser( owner );
@@ -1480,7 +1480,7 @@ void TASServer::OnBattleAddBot( int battleid, const std::string& nick, const std
 	OnUserBattleStatusUpdated( battle, user, status );
 }
 
-void TASServer::OnBattleUpdateBot( int battleid, const std::string& nick, int intstatus, int intcolour )
+void TASServer::OnBattleUpdateBot( int battleid, const std::string& nick, int intstatus, int intcolor )
 {
 	BattlePtr battle = GetBattle(battleid);
 	if (!battle) return;
@@ -1489,8 +1489,8 @@ void TASServer::OnBattleUpdateBot( int battleid, const std::string& nick, int in
 	UTASColor color;
 	tasbstatus.data =intstatus;
 	status = ConvTasbattlestatus( tasbstatus.tasdata );
-	color.data = intcolour;
-	status.colour = Color( color.color.red, color.color.green, color.color.blue );
+	color.data = intcolor;
+	status.color = Color( color.color.red, color.color.green, color.color.blue );
 	UserPtr user = battle->GetUser( nick );
 	OnUserBattleStatusUpdated( battle, user, status );
 }

@@ -52,6 +52,7 @@ private:
 
 public:
 	const ConstPointerType At( const typename MapType::size_type index ) const;
+	const PointerType At( const typename MapType::size_type index );
 	const ConstPointerType operator[]( typename MapType::size_type index ) const { return At(index); }
 
 private:

@@ -142,7 +142,7 @@ public:
 
 	virtual BattleStartRect GetStartRect( unsigned int allyno ) const;
 	UserPtr OnUserAdded( UserPtr user );
-	void OnUserBattleStatusUpdated( User &user, UserBattleStatus status );
+	void OnUserBattleStatusUpdated(UserPtr user, UserBattleStatus status );
 	void OnUserRemoved( UserPtr user );
 
 	bool IsEveryoneReady() const;
@@ -259,7 +259,7 @@ public:
 	// virtual void SetModname( const std::string& mod ) { m_opts.modname = mod; }
 
 
-	typedef std::map<std::string, User> UserVec;
+	typedef std::map<std::string, UserPtr> UserVec;
 	typedef UserVec::const_iterator UserVecCIter;
 	typedef UserVec::iterator UserVecIter;
 

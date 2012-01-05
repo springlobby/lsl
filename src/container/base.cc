@@ -11,6 +11,7 @@ template < class T >
 void ContainerBase<T>::Add( PointerType item )
 {
     m_map[item->index()] = item;
+    m_seekpos = SEEKPOS_INVALID;
 }
 
 template < class T >
@@ -19,8 +20,10 @@ void ContainerBase<T>::Remove( const KeyType& index )
     typename ContainerBase<T>::MapType::iterator
         it = m_map.find( index );
     const bool found = it != m_map.end();
-    if ( found )
+    if ( found ) {
         m_map.erase( it );
+        m_seekpos = SEEKPOS_INVALID;
+    }
 }
 
 template < class T >
@@ -32,6 +35,7 @@ const typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const KeyTyp
         throw MissingItemException( index );
     return it->second;
 }
+
 template < class T >
 typename ContainerBase<T>::PointerType ContainerBase<T>::Get( const KeyType& index )
 {
@@ -67,6 +71,19 @@ ContainerBase<T>::MissingItemException::MissingItemException( const typename Con
 template < class T >
 const typename ContainerBase<T>::ConstPointerType
 ContainerBase<T>::At( const typename ContainerBase<T>::MapType::size_type index) const
+{
+    if ((m_seekpos == SEEKPOS_INVALID) || (m_seekpos > index)) {
+        m_seek = m_map.begin();
+        m_seekpos = 0;
+    }
+    std::advance( m_seek, index - m_seekpos );
+    m_seekpos = index;
+    return *m_seek->second;
+}
+
+template < class T >
+const typename ContainerBase<T>::PointerType
+ContainerBase<T>::At( const typename ContainerBase<T>::MapType::size_type index)
 {
     if ((m_seekpos == SEEKPOS_INVALID) || (m_seekpos > index)) {
         m_seek = m_map.begin();

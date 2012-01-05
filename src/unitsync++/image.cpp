@@ -154,15 +154,15 @@ void UnitsyncImage::Load(const std::string &path) const
 	m_data_ptr->load( path.c_str() );
 }
 
-UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *colours, int width, int height)
+UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *colors, int width, int height)
 {
 	DEFINE_PTR(img_p);
 	PrivateImageType& img = *img_p;
 	cimg_forXY(img,x,y) {
 		int at = x+(y*width);
-		img(x,y,0,0) = (unsigned char)( (( colours[at] >> 11 )/31.0)*255.0 );
-		img(x,y,0,1) = (unsigned char)( (( (colours[at] >> 5) & 63 )/63.0)*255.0 );
-		img(x,y,0,2) = (unsigned char)( (( colours[at] & 31 )/31.0)*255.0 );
+		img(x,y,0,0) = (unsigned char)( (( colors[at] >> 11 )/31.0)*255.0 );
+		img(x,y,0,1) = (unsigned char)( (( (colors[at] >> 5) & 63 )/63.0)*255.0 );
+		img(x,y,0,2) = (unsigned char)( (( colors[at] & 31 )/31.0)*255.0 );
 	}
 	PrivateImagePtrType ptr( img_p );
 	return UnitsyncImage( ptr );
@@ -198,7 +198,7 @@ UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<u
 	if (min == max)
 		return UnitsyncImage( 1, 1 );
 
-	// perform the mapping From 16 bit grayscale to 24 bit true colour
+	// perform the mapping From 16 bit grayscale to 24 bit true color
 	const double range = max - min + 1;
 //	for ( int i = 0; i < width*height; i++ ) {
 	cimg_forXY(img,x,y) {

@@ -471,10 +471,10 @@ UnitsyncImage UnitsyncLib::GetMinimap( const std::string& mapFileName )
 	const int width  = 1024 >> miplevel;
 	const int height = 1024 >> miplevel;
 	// this unitsync call returns a pointer to a static buffer
-	unsigned short* colours = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
-	if (!colours)
+	unsigned short* colors = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
+	if (!colors)
 		LSL_THROW( unitsync, "Get minimap failed");
-	return UnitsyncImage::FromMinimapData( colours, width, height );
+	return UnitsyncImage::FromMinimapData( colors, width, height );
 }
 
 UnitsyncImage UnitsyncLib::GetMetalmap( const std::string& mapFileName )

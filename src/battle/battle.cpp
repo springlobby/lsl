@@ -84,10 +84,10 @@ void Battle::OnRequestBattleStatus()
     bs.team = GetFreeTeam( true );
     bs.ally = GetFreeAlly( true );
     bs.spectator = false;
-    bs.colour = sett().GetBattleLastColor();
+    bs.color = sett().GetBattleLastColor();
     bs.side = sett().GetBattleLastSideSel( GetHostModName() );
     // theres some highly annoying bug with color changes on player join/leave.
-    if ( !bs.colour.IsOk() ) bs.colour = GetFreeColor( GetMe() );
+    if ( !bs.color.IsOk() ) bs.color = GetFreeColor( GetMe() );
 
     SendMyBattleStatus();
 }
@@ -208,12 +208,12 @@ User& Battle::OnUserAdded( User& user )
         {
             if ( m_opts.rankneeded > UserStatus::RANK_1 && user.GetStatus().rank < m_opts.rankneeded )
             {
-                DoAction( _T("Rank limit autospec: ") + user.GetNick() );
+                DoAction( _T("Rank limit autospec: ") + user.Nick() );
                 ForceSpectator( user, true );
             }
             else if ( m_opts.rankneeded < UserStatus::RANK_1 && user.GetStatus().rank > ( -m_opts.rankneeded - 1 ) )
             {
-                DoAction( _T("Rank limit autospec: ") + user.GetNick() );
+                DoAction( _T("Rank limit autospec: ") + user.Nick() );
                 ForceSpectator( user, true );
             }
         }
@@ -233,12 +233,12 @@ void Battle::OnUserBattleStatusUpdated( User &user, UserBattleStatus status )
         {
             if ( m_opts.rankneeded > UserStatus::RANK_1 && user.GetStatus().rank < m_opts.rankneeded )
             {
-                DoAction( _T("Rank limit autospec: ") + user.GetNick() );
+                DoAction( _T("Rank limit autospec: ") + user.Nick() );
                 ForceSpectator( user, true );
             }
             else if ( m_opts.rankneeded < UserStatus::RANK_1 && user.GetStatus().rank > ( -m_opts.rankneeded - 1 ) )
             {
-                DoAction( _T("Rank limit autospec: ") + user.GetNick() );
+                DoAction( _T("Rank limit autospec: ") + user.Nick() );
                 ForceSpectator( user, true );
             }
         }
@@ -261,7 +261,7 @@ void Battle::OnUserBattleStatusUpdated( User &user, UserBattleStatus status )
     if ( status.handicap != 0 )
     {
         UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                    UiEvents::OnBattleActionData( std::string(_T(" ")) , ( _T("Warning: user ") + user.GetNick() + _T(" got bonus ") ) << status.handicap )
+                    UiEvents::OnBattleActionData( std::string(_T(" ")) , ( _T("Warning: user ") + user.Nick() + _T(" got bonus ") ) << status.handicap )
                     );
     }
     if ( IsFounderMe() )
@@ -295,7 +295,7 @@ void Battle::RingNotReadyPlayers()
         User& u = GetUser(i);
         UserBattleStatus& bs = u.BattleStatus();
         if ( bs.IsBot() ) continue;
-        if ( !bs.ready && !bs.spectator ) m_serv.Ring( u.GetNick() );
+        if ( !bs.ready && !bs.spectator ) m_serv.Ring( u.Nick() );
     }
 }
 
@@ -306,7 +306,7 @@ void Battle::RingNotSyncedPlayers()
         User& u = GetUser(i);
         UserBattleStatus& bs = u.BattleStatus();
         if ( bs.IsBot() ) continue;
-        if ( !bs.sync && !bs.spectator ) m_serv.Ring( u.GetNick() );
+        if ( !bs.sync && !bs.spectator ) m_serv.Ring( u.Nick() );
     }
 }
 
@@ -317,14 +317,14 @@ void Battle::RingNotSyncedAndNotReadyPlayers()
         User& u = GetUser(i);
         UserBattleStatus& bs = u.BattleStatus();
         if ( bs.IsBot() ) continue;
-        if ( ( !bs.sync || !bs.ready ) && !bs.spectator ) m_serv.Ring( u.GetNick() );
+        if ( ( !bs.sync || !bs.ready ) && !bs.spectator ) m_serv.Ring( u.Nick() );
     }
 }
 
 void Battle::RingPlayer( const User& u )
 {
     if ( u.BattleStatus().IsBot() ) return;
-    m_serv.Ring( u.GetNick() );
+    m_serv.Ring( u.Nick() );
 }
 
 bool Battle::ExecuteSayCommand( const std::string& cmd )
@@ -440,12 +440,12 @@ bool Battle::CheckBan(User &user)
 {
     if (IsFounderMe())
     {
-        if (m_banned_users.count(user.GetNick())>0
-                || useractions().DoActionOnUser(UserActions::ActAutokick, user.GetNick() ) )
+        if (m_banned_users.count(user.Nick())>0
+                || useractions().DoActionOnUser(UserActions::ActAutokick, user.Nick() ) )
         {
             KickPlayer(user);
             UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-                        UiEvents::OnBattleActionData( std::string(_T(" ")) , user.GetNick()+_T(" is banned, kicking") )
+                        UiEvents::OnBattleActionData( std::string(_T(" ")) , user.Nick()+_T(" is banned, kicking") )
                         );
             return true;
         }
@@ -588,7 +588,7 @@ void Battle::SendScriptToClients()
 
 void Battle::StartHostedBattle()
 {
-    if ( UserExists( GetMe().GetNick() ) )
+    if ( UserExists( GetMe().Nick() ) )
     {
         if ( IsFounderMe() )
         {
@@ -637,7 +637,7 @@ void Battle::StartHostedBattle()
 
 void Battle::StartSpring()
 {
-    if ( UserExists( GetMe().GetNick() ) && !GetMe().Status().in_game )
+    if ( UserExists( GetMe().Nick() ) && !GetMe().Status().in_game )
     {
         GetMe().BattleStatus().ready = false;
         SendMyBattleStatus();
@@ -664,7 +664,7 @@ void Battle::OnTimer( wxTimerEvent&  )
         if ( status.IsBot() || status.spectator ) continue;
         if ( status.sync && status.ready ) continue;
         if ( &usr == &GetMe() ) continue;
-        std::map<std::string, time_t>::const_iterator itor = m_ready_up_map.find( usr.GetNick() );
+        std::map<std::string, time_t>::const_iterator itor = m_ready_up_map.find( usr.Nick() );
         if ( itor != m_ready_up_map.end() )
         {
             if ( ( now - itor->second ) > autospect_trigger_time )
@@ -686,7 +686,7 @@ void Battle::SetInGame( bool value )
             UserBattleStatus& status = user.BattleStatus();
             if ( status.IsBot() || status.spectator ) continue;
             if ( status.ready && status.sync ) continue;
-            m_ready_up_map[user.GetNick()] = now;
+            m_ready_up_map[user.Nick()] = now;
         }
     }
     IBattle::SetInGame( value );
@@ -700,7 +700,7 @@ void Battle::FixColors()
     std::vector<lslColor> &palette = GetFixColorsPalette( m_teams_sizes.size() + 1 );
     std::vector<int> palette_use( palette.size(), 0 );
 
-    lslColor my_col = GetMe().BattleStatus().colour; // Never changes color of founder (me) :-)
+    lslColor my_col = GetMe().BattleStatus().color; // Never changes color of founder (me) :-)
     int my_diff = 0;
     int my_col_i = GetClosestFixColor( my_col, palette_use,my_diff );
     palette_use[my_col_i]++;
@@ -715,7 +715,7 @@ void Battle::FixColors()
         if ( parsed_teams.find( status.team ) != parsed_teams.end() ) continue; // skip duplicates
         parsed_teams.insert( status.team );
 
-        lslColor &user_col=status.colour;
+        lslColor &user_col=status.color;
         int user_col_i=GetClosestFixColor(user_col,palette_use, 60);
         palette_use[user_col_i]++;
         for ( user_map_t::size_type j = 0; j < GetNumUsers(); j++ )
@@ -939,7 +939,7 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
         // skip clanners, those have been added already.
         if ( clan_alliances.count( players_sorted[i]->GetClan() ) > 0 )
         {
-            wxLogMessage( _T("clanner already added, nick=%s"), players_sorted[i]->GetNick().c_str() );
+            wxLogMessage( _T("clanner already added, nick=%s"), players_sorted[i]->Nick().c_str() );
             continue;
         }
 
@@ -1104,7 +1104,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
         // skip clanners, those have been added already.
         if ( clan_teams.count( players_sorted[i]->GetClan() ) > 0 )
         {
-            wxLogMessage( _T("clanner already added, nick=%s"),players_sorted[i]->GetNick().c_str() );
+            wxLogMessage( _T("clanner already added, nick=%s"),players_sorted[i]->Nick().c_str() );
             continue;
         }
 
@@ -1135,7 +1135,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
         for ( size_t j = 0; j < control_teams[i].players.size(); ++j )
         {
             ASSERT_LOGIC( control_teams[i].players[j], _T("fail in Autobalance teams, NULL player") );
-            std::string msg = wxFormat( _T("setting player %s to team and ally %d") ) % control_teams[i].players[j]->GetNick() % i;
+            std::string msg = wxFormat( _T("setting player %s to team and ally %d") ) % control_teams[i].players[j]->Nick() % i;
             wxLogMessage( _T("%s"), msg.c_str() );
             ForceTeam( *control_teams[i].players[j], control_teams[i].teamnum );
             ForceAlly( *control_teams[i].players[j], control_teams[i].teamnum );
