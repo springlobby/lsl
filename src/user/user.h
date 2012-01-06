@@ -47,8 +47,8 @@ public:
 	UserStatus::RankContainer GetRank();
 	std::string GetClan();
 
-	//bool operator< ( const User& other ) const { return m_nick < other.GetNick() ; }
-	//User& operator= ( const User& other );
+	//bool operator< ( const ConstUserPtr other ) const { return m_nick < other.GetNick() ; }
+	//User& operator= ( const ConstUserPtr other );
 protected:
 	// User variables
 

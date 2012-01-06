@@ -1,6 +1,8 @@
 #ifndef LSL_CONVERSION_H
 #define LSL_CONVERSION_H
 
+#include <sstream>
+
 namespace LSL {
 namespace Util {
 

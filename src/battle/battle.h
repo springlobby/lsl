@@ -5,6 +5,7 @@
 
 #include <utils/type_forwards.h>
 #include "ibattle.h"
+#include "enum.h"
 
 namespace LSL {
 
@@ -20,13 +21,13 @@ namespace Battle {
 class Battle : public IBattle
 {
 public:
-    Battle( Server& serv, int id );
+	Battle(iServer &serv, int id );
     ~Battle();
     int key() const { return m_id; }
 
-    Server& GetServer() { return m_serv; }
+	iServer& GetServer() { return m_serv; }
 
-    void SendHostInfo( HostInfo update );
+	void SendHostInfo( Enum::HostInfo update );
     void SendHostInfo( const std::string& Tag );
 
     void Update();
@@ -63,7 +64,7 @@ public:
     void SetHandicap( const UserPtr user, int handicap);
 
     const UserPtr OnUserAdded( const UserPtr user );
-    void OnUserBattleStatusUpdated( User &user, UserBattleStatus status );
+	void OnUserBattleStatusUpdated(const UserPtr user, UserBattleStatus status );
     void OnUserRemoved( const UserPtr user );
 
     void ForceUnsyncedToSpectate();
@@ -118,7 +119,7 @@ private:
     std::set<std::string> m_banned_ips;
     ///>
 
-    Server& m_serv;
+	iServer& m_serv;
     bool m_autolock_on_start;
     bool m_auto_unspec;
     const int m_id;

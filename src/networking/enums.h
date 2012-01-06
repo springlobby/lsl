@@ -1,5 +1,5 @@
-#ifndef LSL_ENUMS_H
-#define LSL_ENUMS_H
+#ifndef LSL_NET_ENUMS_H
+#define LSL_NET_ENUMS_H
 
 namespace LSL {
 namespace Enum {
@@ -25,4 +25,4 @@ typedef int Protocolerror;
 } //namespace LSL {
 
 
-#endif // LSL_ENUMS_H
+#endif // LSL_NET_ENUMS_H

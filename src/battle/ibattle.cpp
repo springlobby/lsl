@@ -4,6 +4,10 @@
 #include <utils/misc.h>
 #include <utils/conversion.h>
 #include <unitsync++/unitsync.h>
+#include <unitsync++/optionswrapper.h>
+#include "signals.h"
+#include <lslconfig.h>
+#include "tdfcontainer.h"
 
 #include <algorithm>
 #include <boost/typeof/typeof.hpp>
@@ -703,10 +707,8 @@ void IBattle::SetHostMap(const std::string& mapname, const std::string& hash)
 			m_map_exists = usync().MapExists( m_host_map.name, m_host_map.hash );
 		else
 			m_map_exists = usync().MapExists( m_host_map.name );
-#ifndef __WXMSW__ //!TODO why not on win?
-		if ( m_map_exists && !spring().IsRunning() )
+		if ( m_map_exists )
 			usync().PrefetchMap( m_host_map.name );
-#endif
 	}
 }
 
@@ -720,10 +722,8 @@ void IBattle::SetLocalMap(const UnitsyncMap& map)
 			m_map_exists = usync().MapExists( m_host_map.name, m_host_map.hash );
 		else
 			m_map_exists = usync().MapExists( m_host_map.name );
-#ifndef __WXMSW__
-		if ( m_map_exists && !spring().IsRunning() )
+		if ( m_map_exists )
 			usync().PrefetchMap( m_host_map.name );
-#endif
 		if ( IsFounderMe() ) // save all rects infos
 		{
 
@@ -731,14 +731,13 @@ void IBattle::SetLocalMap(const UnitsyncMap& map)
 	}
 }
 
-
 const UnitsyncMap& IBattle::LoadMap()
 {
 	if ( !m_map_loaded ) {
 		try {
 			ASSERT_EXCEPTION( m_map_exists, "Map does not exist." );
 			m_local_map = usync().GetMapEx( m_host_map.name );
-			bool options_loaded = CustomBattleOptions().loadOptions( OptionsWrapper::MapOption, m_host_map.name );
+			bool options_loaded = CustomBattleOptions()->loadOptions( OptionsWrapper::MapOption, m_host_map.name );
 			ASSERT_EXCEPTION( options_loaded, "couldn't load the map options" );
 			m_map_loaded = true;
 
@@ -747,18 +746,15 @@ const UnitsyncMap& IBattle::LoadMap()
 	return m_local_map;
 }
 
-
 std::string IBattle::GetHostMapName() const
 {
 	return m_host_map.name;
 }
 
-
 std::string IBattle::GetHostMapHash() const
 {
 	return m_host_map.hash;
 }
-
 
 void IBattle::SetHostMod( const std::string& modname, const std::string& hash )
 {
@@ -772,7 +768,6 @@ void IBattle::SetHostMod( const std::string& modname, const std::string& hash )
 	}
 }
 
-
 void IBattle::SetLocalMod( const UnitsyncMod& mod )
 {
 	if ( mod.name != m_local_mod.name || mod.hash != m_local_mod.hash )
@@ -785,7 +780,6 @@ void IBattle::SetLocalMod( const UnitsyncMod& mod )
 	}
 }
 
-
 const UnitsyncMod& IBattle::LoadMod()
 {
 	if ( !m_mod_loaded )
@@ -793,14 +787,13 @@ const UnitsyncMod& IBattle::LoadMod()
 		try {
 			ASSERT_EXCEPTION( m_mod_exists, "Mod does not exist." );
 			m_local_mod = usync().GetMod( m_host_mod.name );
-			bool options_loaded = CustomBattleOptions().loadOptions( OptionsWrapper::ModOption, m_host_mod.name );
+			bool options_loaded = CustomBattleOptions()->loadOptions( OptionsWrapper::ModOption, m_host_mod.name );
 			ASSERT_EXCEPTION( options_loaded, "couldn't load the mod options" );
 			m_mod_loaded = true;
 		} catch (...) {}
 	}
 	return m_local_mod;
 }
-
 
 std::string IBattle::GetHostModName() const
 {
@@ -820,7 +813,6 @@ bool IBattle::MapExists() const
 	//return usync().MapExists( m_map_name, m_map.hash );
 }
 
-
 bool IBattle::ModExists() const
 {
 	return m_mod_exists;
@@ -832,7 +824,6 @@ void IBattle::RestrictUnit( const std::string& unitname, int count )
 	m_restricted_units[ unitname ] = count;
 }
 
-
 void IBattle::UnrestrictUnit( const std::string& unitname )
 {
 	std::map<std::string,int>::iterator pos = m_restricted_units.find( unitname );
@@ -840,12 +831,10 @@ void IBattle::UnrestrictUnit( const std::string& unitname )
 	m_restricted_units.erase( pos );
 }
 
-
 void IBattle::UnrestrictAllUnits()
 {
 	m_restricted_units.clear();
 }
-
 
 std::map<std::string,int> IBattle::RestrictedUnits() const
 {
@@ -854,18 +843,18 @@ std::map<std::string,int> IBattle::RestrictedUnits() const
 
 void IBattle::OnSelfLeftBattle()
 {
-	GetMe().BattleStatus().spectator = false; // always reset back yourself to player when rejoining
+	GetMe()->BattleStatus().spectator = false; // always reset back yourself to player when rejoining
 	if ( m_timer ) m_timer->Stop();
 	delete m_timer;
 	m_timer = 0;
 	m_is_self_in = false;
 	for( size_t j = 0; j < m_userlist.size(); ++j  )
 	{
-		UserPtr u = m_userlist.At( j );
-		if ( u.GetBattleStatus().IsBot() )
+		ConstUserPtr u = m_userlist.At( j );
+		if ( u->GetBattleStatus().IsBot() )
 		{
 			OnUserRemoved( u );
-			ui().OnUserLeftBattle( *this, u, true );
+			Signals::sig_UserLeftBattle( boost::shared_ptr<const IBattle>( this ), u, true );
 			j--;
 		}
 	}
@@ -910,7 +899,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 		{
 			for ( std::map<std::string,std::string>::const_iterator itor = options.begin(); itor != options.end(); itor++ )
 			{
-				CustomBattleOptions().setSingleOption( itor->first, itor->second, (OptionsWrapper::GameOption)i );
+				CustomBattleOptions()->setSingleOption( itor->first, itor->second, (OptionsWrapper::GameOption)i );
 			}
 		}
 		else
@@ -922,11 +911,11 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 					SetLocalMap( map );
 					SendHostInfo( Enum::HI_Map );
 				}
-				else if ( !ui().OnPresetRequiringMap( options["mapname"] ) ) {
-					//user didn't want to download the missing map, so set to empty to not have it tried to be loaded again
-					options["mapname"] = "";
-					sett().SetHostingPreset( m_preset, i, options );
-				}
+//				else if ( !ui().OnPresetRequiringMap( options["mapname"] ) ) {
+//					//user didn't want to download the missing map, so set to empty to not have it tried to be loaded again
+//					options["mapname"] = "";
+//					sett().SetHostingPreset( m_preset, i, options );
+//				}
 			}
 
 			for( unsigned int j = 0; j <= GetLastRectIdx(); ++j ) {
@@ -956,12 +945,12 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 						Util::FromString<long>( Util::AfterLast(unitinfo,'=') ) );
 			}
 			SendHostInfo( Enum::HI_Restrictions );
-			Update( boost::format( "%d_restrictions" ) % OptionsWrapper::PrivateOptions );
+			Update( (boost::format( "%d_restrictions" ) % OptionsWrapper::PrivateOptions).str() );
 
 		}
 	}
 	SendHostInfo( Enum::HI_Send_All_opts );
-	ui().ReloadPresetList();
+//	ui().ReloadPresetList();
 	return true;
 }
 
@@ -975,14 +964,14 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 	{
 		if ( (OptionsWrapper::GameOption)i != OptionsWrapper::PrivateOptions )
 		{
-			sett().SetHostingPreset( m_preset, (OptionsWrapper::GameOption)i, CustomBattleOptions().getOptionsMap( (OptionsWrapper::GameOption)i ) );
+			sett().SetHostingPreset( m_preset, (OptionsWrapper::GameOption)i, CustomBattleOptions()->getOptionsMap( (OptionsWrapper::GameOption)i ) );
 		}
 		else
 		{
 			std::map<std::string,std::string> opts;
 			opts["mapname"] = GetHostMapName();
 			unsigned int validrectcount = 0;
-			if ( Util::FromString<long> (CustomBattleOptions().getSingleValue( "startpostype", OptionsWrapper::EngineOption ) )
+			if ( Util::FromString<long> (CustomBattleOptions()->getSingleValue( "startpostype", OptionsWrapper::EngineOption ) )
 				 == Enum::ST_Choose )
 			{
 				unsigned int boxcount = GetLastRectIdx();
@@ -1002,18 +991,18 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 			}
 			opts["numrects"] = Util::ToString( validrectcount );
 
-			std::string restrictionsstring;
+			std::stringstream restrictionsstring;
 			for ( std::map<std::string, int>::const_iterator itor = m_restricted_units.begin(); itor != m_restricted_units.end(); itor++ )
 			{
 				restrictionsstring << itor->first << '=' << Util::ToString(itor->second) << '\t';
 			}
-			opts["restrictions"] = restrictionsstring;
+			opts["restrictions"] = restrictionsstring.str();
 
 			sett().SetHostingPreset( m_preset, (OptionsWrapper::GameOption)i, opts );
 		}
 	}
 	sett().SaveSettings();
-	ui().ReloadPresetList();
+//	ui().ReloadPresetList();
 }
 
 std::string IBattle::GetCurrentPreset()
@@ -1026,7 +1015,7 @@ void IBattle::DeletePreset( const std::string& name )
 	std::string preset = FixPresetName(name);
 	if ( m_preset == preset ) m_preset = "";
 	sett().DeletePreset( preset );
-	ui().ReloadPresetList();
+//	ui().ReloadPresetList();
 }
 
 StringVector IBattle::GetPresetList()
@@ -1042,7 +1031,7 @@ void IBattle::AddUserFromDemo( UserPtr user )
 {
 	user->BattleStatus().isfromdemo = true;
 	m_internal_user_list[user->Nick()] = user;
-	UserList::AddUser( m_internal_user_list[user->Nick()] );
+	m_userlist.Add( m_internal_user_list[user->Nick()] );
 }
 
 void IBattle::SetProxy( const std::string& value )
@@ -1062,12 +1051,12 @@ std::string IBattle::GetProxy() const
 
 bool IBattle::IsFounderMe() const
 {
-	return ( ( m_opts.founder == GetMe().Nick() ) || ( IsProxy()  && !m_generating_script ) );
+	return ( ( m_opts.founder == GetMe()->Nick() ) || ( IsProxy()  && !m_generating_script ) );
 }
 
 bool IBattle::IsFounder( const UserPtr user ) const
 {
-	if ( UserExists( m_opts.founder ) ) {
+	if ( m_userlist.Exists( m_opts.founder ) ) {
 		try
 		{
 			return &GetFounder() == &user;
@@ -1086,7 +1075,7 @@ int IBattle::GetMyPlayerNum() const
 void IBattle::LoadScriptMMOpts( const std::string& sectionname, const SL::PDataList& node )
 {
 	if ( !node.ok() ) return;
-	SL::PDataList section ( node->Find(sectionname) );
+	PDataList section ( node->Find(sectionname) );
 	if ( !section.ok() ) return;
 	OptionsWrapper& opts = CustomBattleOptions();
 	for ( SL::PNode n = section->First(); n != section->Last(); n = section->Next( n ) )

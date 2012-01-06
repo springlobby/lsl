@@ -336,7 +336,6 @@ private:
 	std::map<std::string, int> m_restricted_units;
 
 	OptionsWrapperPtr m_opt_wrap;
-	BattleOptions m_opts;
 
 	bool m_ingame;
 	bool m_auto_unspec; // unspec as soon as there's a free slot
@@ -354,7 +353,6 @@ private:
 
 	std::string m_preset;
 
-	bool m_is_self_in;
 	UserVec m_internal_bot_list;
 
 	/// replay&savegame stuff
@@ -364,7 +362,12 @@ private:
 	AllyVec m_parsed_allies;
 	UserVec m_internal_user_list; /// to store users from savegame/replay
 	long m_start_time;
+
+protected:
+	BattleOptions m_opts;
+	bool m_is_self_in;
 	UserList m_userlist;
+
 };
 
 } // namespace Battle

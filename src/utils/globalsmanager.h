@@ -2,19 +2,21 @@
 #define GLOBALSMANAGER_H
 
 #include <stdexcept>
+#include <assert.h>
 #include "utils/conversion.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define AT __FILE__ ":" TOSTRING(__LINE__)
 
+namespace LSL {
+
 template < class T >
 struct LineInfo {
     LineInfo(const char* at )
-     :   m(TowxString( at ))
-
+        : m( at )
     {}
-    wxString   m;
+    std::string  m;
 };
 
 class GlobalDestroyedError: public std::runtime_error
@@ -53,21 +55,15 @@ class GlobalObjectHolder: public IGlobalObjectHolder
     T *public_ptr;
     bool constructing;
     static int count;
+
 public:
-#if wxUSE_LOG_DEBUG
-    GlobalObjectHolder(I i):
-#else
-	GlobalObjectHolder(I ):
-#endif
-            private_ptr( NULL ),
-            public_ptr( NULL ),
-            constructing( true )
+	GlobalObjectHolder(I )
+		: private_ptr( NULL )
+		, public_ptr( NULL )
+		, constructing( true )
     {
         GlobalObjectHolder<T,I>::count += 1;
         assert( (GlobalObjectHolder<T,I>::count) == 1 );
-#if wxUSE_LOG_DEBUG
-		wxLogDebug( _T("GOBAL_LINE: ") + i.m ) ;
-#endif
         if ( RegisterSelf() )
         {
             private_ptr = new T;
@@ -108,6 +104,9 @@ public:
 };
 template<class T, class I >
 int GlobalObjectHolder<T,I>::count = 0;
+
+} // namespace LSL {
+
 #endif // GLOBALSMANAGER_H
 
 /**

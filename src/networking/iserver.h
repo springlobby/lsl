@@ -9,6 +9,7 @@
 #include "enums.h"
 #include <utils/mutexwrapper.h>
 #include <utils/crc.h>
+#include <battle/enum.h>
 
 
 namespace LSL {
@@ -23,7 +24,6 @@ class PingThread {};
 class ServerEvents;
 class Channel;
 class User;
-class HostInfo;
 class UserBattleStatus;
 class Socket;
 class PingThread;
@@ -117,10 +117,10 @@ class iServer
 	virtual void RemoveBot( const BattlePtr battle, const UserPtr user ) = 0;
 	virtual void UpdateBot( const BattlePtr battle, const UserPtr user, UserBattleStatus& status ) = 0;
 
-	virtual void SendHostInfo( HostInfo update ) = 0;
+	virtual void SendHostInfo( Enum::HostInfo update ) = 0;
 	virtual void SendHostInfo( const std::string& Tag ) = 0;
 	virtual void SendRaw( const std::string& raw ) = 0;
-	virtual void SendUserPosition( const User& usr ) = 0;
+	virtual void SendUserPosition( const ConstUserPtr usr ) = 0;
 	virtual void SendCmd( const std::string& command, const std::string& param ) = 0;
 
 	virtual void RequestInGameTime( const std::string& nick ) = 0;

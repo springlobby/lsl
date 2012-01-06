@@ -163,7 +163,7 @@ void Socket::SetSendRateLimit(int Bps)
     m_rate = Bps;
 }
 
-Socket::SocketState Socket::State() const
+Enum::SocketState Socket::State() const
 {
     return SS_Open;
 }
