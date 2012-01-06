@@ -875,8 +875,6 @@ void TASServer::OnUserStatusChanged( const std::string& nick, int intstatus )
 	}
 }
 
-
-
 void TASServer::OnHostedBattle( int battleid )
 {
 	BattlePtr battle = GetBattle( battleid );
@@ -885,8 +883,6 @@ void TASServer::OnHostedBattle( int battleid )
 	OnSelfJoinedBattle(battle);
 }
 
-
-
 int TASServer::GetNewUserId()
 {
 	// if server didn't send any account id to us, fill with an always increasing number
@@ -894,15 +890,12 @@ int TASServer::GetNewUserId()
 	return m_account_id_count;
 }
 
-
-
-void TASServer::OnUserQuit(const UserPtr &nick )
+void TASServer::OnUserQuit(const std::string &nick )
 {
 	UserPtr user = GetUser( nick );
 	if ( !user ) return;
 	OnUserQuit( user );
 }
-
 
 void TASServer::OnSelfJoinedBattle( int battleid, const std::string& hash )
 {
@@ -942,7 +935,6 @@ void TASServer::OnClientBattleStatus( const std::string& nick, int intstatus, in
 	OnClientBattleStatus( battle, user, status );
 }
 
-
 void TASServer::OnUserJoinedBattle( int battleid, const std::string& nick, const std::string& userScriptPassword )
 {
 	UserPtr user = GetUser(nick);
@@ -964,10 +956,7 @@ void TASServer::OnUserJoinedBattle( int battleid, const std::string& nick, const
 			OnBattleStarted(battle);
 		}
 	}
-
-
 }
-
 
 void TASServer::OnUserLeftBattle( int battleid, const std::string& nick )
 {
@@ -982,8 +971,6 @@ void TASServer::OnUserLeftBattle( int battleid, const std::string& nick )
 	OnUserLeftBattle(battle, user);
 	if ( user == m_me ) m_battle = 0;
 }
-
-
 
 void TASServer::OnBattleInfoUpdated( int battleid, int spectators, bool locked, const std::string& maphash, const std::string& map )
 {
@@ -1039,7 +1026,8 @@ void TASServer::OnSetBattleOption( const std::string& key, const std::string& va
 			}
 		}
 	}
-	else iServer::OnSetBattleOption(battle, const std::string& param, const std::string& value );
+	else
+		OnSetBattleOption(battle, const std::string& param, const std::string& value );
 }
 
 void TASServer::OnSetBattleInfo( const std::string& infos )
@@ -1054,8 +1042,6 @@ void TASServer::OnSetBattleInfo( const std::string& infos )
 		OnSetBattleOption( key, value );
 	}
 }
-
-
 
 void TASServer::OnBattleClosed( int battleid )
 {
@@ -1087,10 +1073,9 @@ void TASServer::OnBattleEnableUnits( const std::string& unitnames )
 {
 	BattlePtr battle = m_battle;
 	if (!battle) return;
-	StringVector unitlist = StringTokenize(unitnames," ")
+	StringVector unitlist = StringTokenize(unitnames," ");
 	OnBattleEnableUnits( battle, unitlist );
 }
-
 
 void TASServer::OnBattleEnableAllUnits( int battleid )
 {
@@ -1109,7 +1094,6 @@ void TASServer::OnJoinChannel( const std::string& channel )
 
 void TASServer::OnJoinChannelFailed( const std::string& channel, const std::string& reason )
 {
-
 	Channel* chan = GetChannel( "#" + channel );
 	if(!channel) chan = AddChannel( "#" + channel );
 	OnJoinChannelFailed( chan, reason );
@@ -1130,7 +1114,7 @@ void TASServer::OnChannelJoinUserList( const std::string& channel, const std::st
 	if(!channel) return;
 	StringVector usernicks = stringtokenize(users," ");
 	UserVector users;
-	for ( StringVector::iterator itor = usernicks.begin();itor != usernicks.end;itor++)
+	for ( StringVector::iterator itor = usernicks.begin();itor != usernicks.end;itor++) {
 		UserPtr user = GetUser( *itor );
 		if(!user) continue;
 		users.push_back(user);
@@ -1187,7 +1171,7 @@ void TASServer::OnChannelAction( const std::string& channel, const std::string& 
 	OnChannelAction( channel, user, message );
 }
 
-Channel* TASServer::GetCreatePrivateChannel( const UserPtr user )
+ChannelPtr TASServer::GetCreatePrivateChannel( const UserPtr user )
 {
 	if (!user) return;
 	std::string channame = "U" + Util::ToString(user->GetID());
@@ -1263,9 +1247,8 @@ void TASServer::OnBattleStartRectAdd( int allyno, int left, int top, int right, 
 {
 	BattlePtr battle = m_battle;
 	if ( !battle ) return;
-	OnBattleStartRectAdd(battle, allyno, left, top, right, bottom)
+	OnBattleStartRectAdd(battle, allyno, left, top, right, bottom);
 }
-
 
 void TASServer::OnBattleStartRectRemove( int allyno )
 {
@@ -1273,7 +1256,6 @@ void TASServer::OnBattleStartRectRemove( int allyno )
 	if ( !battle ) return;
 	OnBattleStartRectRemove(battle, allyno);
 }
-
 
 void TASServer::OnScriptStart()
 {
@@ -1319,16 +1301,12 @@ void TASServer::OnMutelistEnd()
 	OnMuteList(chan, m_mutelist);
 }
 
-
 void TASServer::OnChannelMessage( const std::string& channel, const std::string& msg )
 {
 	Channel* chan = GetChannel(channel);
 	if (!chan) return;
 	OnChannelMessage( chan, msg );
 }
-
-
-
 
 void TASServer::OnRing( const std::string& from )
 {
@@ -1354,12 +1332,10 @@ void TASServer::OnMyInternalUdpSourcePort( const unsigned int udpport )
 	OnUserInternalUdpPort( m_me, udpport );
 }
 
-
 void TASServer::OnMyExternalUdpSourcePort( const unsigned int udpport )
 {
 	OnUserExternalUdpPort( m_me, udpport );
 }
-
 
 void TASServer::OnClientIPPort( const std::string &username, const std::string &ip, unsigned int udpport )
 {
@@ -1367,9 +1343,8 @@ void TASServer::OnClientIPPort( const std::string &username, const std::string &
 	if (!user) return;
 
 	OnUserIP( user, ip );
-	OnUserExternalUdpPort( user, udpport )
+	OnUserExternalUdpPort( user, udpport );
 }
-
 
 void TASServer::OnHostExternalUdpPort( const int udpport )
 {
@@ -1390,7 +1365,6 @@ void TASServer::OnChannelListEntry( const std::string& channel, const int& numus
 	chan->SetTopic(topic);
 }
 
-
 void TASServer::OnAgreenmentLine( const std::string& line )
 {
 	m_agreement += line + "\n";
@@ -1400,8 +1374,6 @@ void TASServer::OnRequestBattleStatus()
 {
 	OnRequestBattleStatus(m_battle);
 }
-
-
 
 void TASServer::OnBattleAddBot( int battleid, const std::string& nick, const std::string& owner, int intstatus, int intcolor, const std::string& aidll)
 {
@@ -1438,7 +1410,6 @@ void TASServer::OnBattleUpdateBot( int battleid, const std::string& nick, int in
 	OnUserBattleStatusUpdated( battle, user, status );
 }
 
-
 void TASServer::OnBattleRemoveBot( int battleid, const std::string& nick )
 {
 	BattlePtr battle = GetBattle(battleid);
@@ -1449,7 +1420,7 @@ void TASServer::OnBattleRemoveBot( int battleid, const std::string& nick )
 	if (user->BattleStatus().isbot) OnUserQuit( user );
 }
 
-void iServer::OnFileDownload( int intdata, const std::string& FileName, const std::string& url, const std::string& description )
+void TASServer::OnFileDownload( int intdata, const std::string& FileName, const std::string& url, const std::string& description )
 {
 	UTASOfferFileData parsingdata;
 	parsingdata.data = intdata;

@@ -73,11 +73,32 @@ public:
 	void UpdateBot(const BattlePtr battle, const UserPtr user, UserBattleStatus &status);
 	void SendScriptToClients(const std::string &script);
 	void RequestSpringUpdate(std::string &currentspringversion);
+
+
+	std::string GetBattleChannelName(const BattlePtr battle);
+	void OnBattleOpened(int id, Enum::BattleType type, Enum::NatType nat, const std::string &nick, const std::string &host, int port, int maxplayers, bool haspass, int rank, const std::string &maphash, const std::string &map, const std::string &title, const std::string &mod);
+	void OnUserStatusChanged(const std::string &nick, int intstatus);
+	void OnHostedBattle(int battleid);
+	int GetNewUserId();
+	void OnUserQuit(const UserPtr &nick);
+	void OnSelfJoinedBattle(int battleid, const std::string &hash);
+	void OnStartHostedBattle();
+	void OnClientBattleStatus(const std::string &nick, int intstatus, int colorint);
+	void OnUserJoinedBattle(int battleid, const std::string &nick, const std::string &userScriptPassword);
+	void OnUserLeftBattle(int battleid, const std::string &nick);
+	void OnBattleInfoUpdated(int battleid, int spectators, bool locked, const std::string &maphash, const std::string &map);
+	void OnSetBattleOption(const std::string &key, const std::string &value);
+	void OnSetBattleInfo(const std::string &infos);
 	void OnAcceptAgreement();
+	void OnBattleClosed(int battleid);
+	void OnBattleDisableUnits(const std::string &unitlist);
 private:
-	void OnNewUser( const std::string& nick, const std::string& country, int cpu, int id );
 	void ExecuteCommand( const std::string& cmd, std::string& inparams );
 	void ExecuteCommand( const std::string& cmd, std::string& inparams, int replyid );
+
+	void OnNewUser( const std::string& nick, const std::string& country, int cpu, int id );
+
+
 	void SendCmd( const std::string& command, const std::string& param = "" );
 	void SendCmd( const std::string& command, const boost::format& param );
 	void SendUserPosition(const UserPtr user);
