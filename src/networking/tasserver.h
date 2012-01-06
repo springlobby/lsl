@@ -57,12 +57,33 @@ public:
 
 	virtual void LeaveBattle( const IBattlePtr battle );
 	virtual void StartHostedBattle();
+	void SendHostInfo(Enum::HostInfo update);
+	void SendHostInfo(int type, const std::string &key);
+	void SendMyBattleStatus(UserBattleStatus &bs);
+	void SendMyUserStatus();
+	void ForceSide(const BattlePtr battle, const UserPtr user, int side);
+	void ForceTeam(const BattlePtr battle, const UserPtr user, int team);
+	void ForceAlly(const BattlePtr battle, const UserPtr user, int ally);
+	void ForceColor(const BattlePtr battle, const UserPtr user, int r, int g, int b);
+	void ForceSpectator(const BattlePtr battle, const UserPtr user, bool spectator);
+	void BattleKickPlayer(int battleid, User &user);
+	void SetHandicap(const BattlePtr battle, const UserPtr user, int handicap);
+	void AddBot(const BattlePtr battle, const std::string &nick, UserBattleStatus &status);
+	void RemoveBot(const BattlePtr battle, const UserPtr user);
+	void UpdateBot(const BattlePtr battle, const UserPtr user, UserBattleStatus &status);
+	void SendScriptToClients(const std::string &script);
+	void RequestSpringUpdate(std::string &currentspringversion);
+	void OnAcceptAgreement();
 private:
-	void OnNewUser( std::string nick, std::string country, int cpu, int id );
+	void OnNewUser( const std::string& nick, const std::string& country, int cpu, int id );
 	void ExecuteCommand( const std::string& cmd, std::string& inparams );
 	void ExecuteCommand( const std::string& cmd, std::string& inparams, int replyid );
 	void SendCmd( const std::string& command, const std::string& param = "" );
 	void SendCmd( const std::string& command, const boost::format& param );
+	void SendUserPosition(const UserPtr user);
+	void SendRaw(const std::string &raw);
+	void RequestInGameTime(const std::string &nick);
+
 	virtual void JoinChannel( const std::string& channel, const std::string& key );
 	virtual void PartChannel( const std::string& channel );
 
@@ -80,6 +101,7 @@ private:
 	virtual void _Ping();
 	virtual void _JoinChannel( const std::string& channel, const std::string& key );
 	virtual void _JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword );
+	virtual void _HostBattle( Battle::BattleOptions bo );
 
     friend class CommandDictionary;
     CommandDictionary* m_cmd_dict;

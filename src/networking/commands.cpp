@@ -30,10 +30,9 @@ CommandDictionary::CommandDictionary( TASServer* tas )
 	using namespace LSL;
 	using namespace LSL::Tokens;
 	NEWCMD("ADDUSER",OnNewUser,Word,Word,Int,Int);
-//    NEWCMD("TASSERVER",OnConnected,Word,Int,Word,Int);
-//    NEWCMD("ACCEPTED",OnLogin,Word);
-//    NEWCMD("MOTD",OnMotd,All);
-//    NEWCMD("ADDUSER",OnNewUser,Word,Word,Int,Int);
+	NEWCMD("TASSERVER",OnConnected,Word,Int,Word,Int);
+	NEWCMD("ACCEPTED",OnLogin,Word);
+	NEWCMD("MOTD",OnMotd,All);
 //    NEWCMD("CLIENTSTATUS",OnUserStatusChanged,Word,Int);
 //	//meh on 14 args >_>
 ////    NEWCMD("BATTLEOPENED",OnBattleOpened,Int,Int,Int,Word,Word,Int,Int,Int,Int,Word,Sentence,Sentence,Sentence,Sentence);

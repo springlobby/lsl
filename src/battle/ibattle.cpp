@@ -850,11 +850,13 @@ void IBattle::OnSelfLeftBattle()
 	m_is_self_in = false;
 	for( size_t j = 0; j < m_userlist.size(); ++j  )
 	{
-		UserPtr u = m_userlist.At( j );
+		ConstUserPtr u = m_userlist.At( j );
 		if ( u->GetBattleStatus().IsBot() )
 		{
 			OnUserRemoved( u );
-			Signals::sig_UserLeftBattle( boost::shared_ptr<const IBattle>( this ), u, true );
+			ConstIBattlePtr bp( this );
+			ConstUserPtr up(u);
+			Signals::sig_UserLeftBattle( bp, up, true );
 			j--;
 		}
 	}
@@ -951,7 +953,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 		}
 	}
 	SendHostInfo( Enum::HI_Send_All_opts );
-	sig_ReloadPresetList();
+	Signals::sig_ReloadPresetList();
 	return true;
 }
 

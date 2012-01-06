@@ -435,9 +435,9 @@ void iServer::OnUserStatus( const UserPtr user, UserStatus status )
 	//TODO: event
 }
 
-void iServer::OnBattleStarted( const IBattlePtr battle )
+void iServer::OnBattleStarted(const int battle_id )
 {
-	if (!battle) return;
+	if (!battle_id) return;
 	//TODO: event
 }
 
@@ -446,11 +446,12 @@ void iServer::OnDisconnected( bool wasonline )
 	//TODO: event
 }
 
-void iServer::OnLogin( const UserPtr user )
+void iServer::OnLogin(const std::string &user )
 {
-	if (m_online) return;
+	if (m_online)
+		return;
 	m_online = true;
-	m_me = user;
+	m_me = m_users.Get( user );
 	m_ping_thread = new PingThread( *this, m_ping_interval*1000 );
 	m_ping_thread->Init();
 	//TODO: event
@@ -482,17 +483,19 @@ void iServer::OnPong( long long ping_time )
 	//TODO: event
 }
 
-void iServer::OnUserQuit( const UserPtr user )
+void iServer::OnUserQuit(const std::string& nick )
 {
+	UserPtr user = m_users.Get( nick );
 	if ( !user ) return;
 	if (user == m_me) return;
 	RemoveUser( user );
 	//TODO: event
 }
 
-void iServer::OnBattleOpened( const IBattlePtr battle )
+void iServer::OnBattleOpened(const int battle_id )
 {
-	if ( battle->GetFounder() == m_relay_host_bot )
+	IBattlePtr battle = m_battles.Get( battle_id );
+	if ( battle && battle->GetFounder() == m_relay_host_bot )
 	{
 		battle->SetProxy( m_relay_host_bot->Nick() );
 		JoinBattle( battle, m_last_relay_host_password ); // autojoin relayed host battles
@@ -602,7 +605,7 @@ void iServer::OnBattleDisableUnit( const IBattlePtr battle, const std::string& u
 
 void iServer::OnBattleEnableUnit( int battleid, const StringVector& unitnames )
 {
-	BattlePtr battle = m_battles.Get( battleid );
+	IBattlePtr battle = m_battles.Get( battleid );
 	if (!battle) return;
 	BOOST_FOREACH( const std::string unit, unitnames )
 	{
@@ -613,7 +616,7 @@ void iServer::OnBattleEnableUnit( int battleid, const StringVector& unitnames )
 
 void iServer::OnBattleEnableAllUnits( int battleid )
 {
-	BattlePtr battle = m_battles.Get( battleid );
+	IBattlePtr battle = m_battles.Get( battleid );
 	if (!battle) return;
 	battle->UnrestrictAllUnits();
 	//TODO: event

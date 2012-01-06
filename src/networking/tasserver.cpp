@@ -266,7 +266,7 @@ void TASServer::DoActionBattle( int /*unused*/, const std::string& msg )
 
 void TASServer::Ring( const std::string& nick )
 {
-	if ( m_current_battle && m_current_battle.IsProxy() )
+	if ( m_current_battle && m_current_battle->IsProxy() )
 		RelayCmd( "RING", nick );
 	else
 		SendCmd( "RING", nick );
@@ -274,9 +274,7 @@ void TASServer::Ring( const std::string& nick )
 
 void TASServer::ModeratorSetChannelTopic( const std::string& channel, const std::string& topic )
 {
-	std::string msgcopy = topic;
-	boost::replace_all( msgcopy, "\n", "\\n" );
-	SendCmd( "CHANNELTOPIC", channel + " " + msgcopy );
+	SendCmd( "CHANNELTOPIC", channel + " " + boost::replace_all_copy( topic, "\n", "\\n" ) );
 }
 
 void TASServer::ModeratorSetChannelKey( const std::string& channel, const std::string& key)
@@ -350,12 +348,12 @@ void TASServer::AdminSetBotMode( const std::string& nick, bool isbot )
 void TASServer::_HostBattle( Battle::BattleOptions bo )
 {
 	std::stringstream cmd;
-	cmd << boost::format( "0 %d ") % nat_type
+	cmd << boost::format( "0 %d ") % bo.nat_type
 		<< (!bo.password.length())?"*":password
 		<< boost::format( " %d %d " ) % bo.port % bo.maxplayers
-		<< MakeHashSigned( bo.modhash )
+		<< Util::MakeHashSigned( bo.modhash )
 		<< boost::format( " %d " ) % bo.rankneeded
-		<< MakeHashSigned( bo.maphash ) + " "
+		<< Util::MakeHashSigned( bo.maphash ) + " "
 		<< bo.mapname + "\t"
 		<< bo.description + "\t"
 		<< bo.modname;
@@ -373,9 +371,9 @@ void TASServer::_HostBattle( Battle::BattleOptions bo )
 	// OPENBATTLE type natType password port maphash {map} {title} {modname}
 }
 
-void TASServer::_JoinBattle( const int& battleid, const std::string& password, const std::string& scriptpassword )
+void TASServer::_JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword )
 {
-	SendCmd( "JOINBATTLE", Util::ToString(battleid) + " " + password + " " + scriptpassword );
+	SendCmd( "JOINBATTLE", Util::ToString(battle->ID()) + " " + password + " " + scriptpassword );
 }
 
 void TASServer::LeaveBattle( const int& /*unused*/ )
@@ -389,11 +387,11 @@ void TASServer::SendHostInfo( Enum::HostInfo update )
 	if (!m_current_battle) return;
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
-	if ( ( update & ( IBattle::HI_Map | IBattle::HI_Locked | IBattle::HI_Spectators ) ) > 0 )
+	if ( ( update & ( Enum::HI_Map | Enum::HI_Locked | Enum::HI_Spectators ) ) > 0 )
 	{
 		// UPDATEBATTLEINFO SpectatorCount locked maphash {mapname}
-		std::string cmd = (boost::format( "%d %d ") % m_current_battle->GetSpectators() % m_current_battle->IsLocked() );
-		cmd += MakeHashSigned( m_current_battle->LoadMap().hash ) + " ";
+		std::string cmd = (boost::format( "%d %d ") % m_current_battle->GetSpectators() % m_current_battle->IsLocked() ).str();
+		cmd += Util::MakeHashSigned( m_current_battle->LoadMap().hash ) + " ";
 		cmd += m_current_battle->LoadMap().name;
 		RelayCmd( "UPDATEBATTLEINFO", cmd );
 	}
@@ -634,7 +632,7 @@ void TASServer::ForceAlly( const BattlePtr battle, const UserPtr user, int ally 
 	else RelayCmd( "FORCEALLYNO", user->Nick() + " " + Util::ToString(ally) );
 }
 
-void TASServer::ForceColor( const BattlePtr battle, const UserPtr user, const Color& col )
+void TASServer::ForceColor(const BattlePtr battle, const UserPtr user, int r , int g, int b)
 {
 	if (!battle) return;
 	if (!user) return;
@@ -642,22 +640,22 @@ void TASServer::ForceColor( const BattlePtr battle, const UserPtr user, const Co
 
 	if ( status.IsBot() )
 	{
-		status.color = col;
+		status.color = r;
 		UpdateBot( battle, user, status );
 		return;
 	}
 	if ( user == m_me )
 	{
-		status.color = col;
+		status.color = r;
 		SendMyBattleStatus( status );
 		return;
 	}
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	UTASColor tascl;
-	tascl.color.red = col.Red();
-	tascl.color.green = col.Green();
-	tascl.color.blue = col.Blue();
+	tascl.color.red = r.Red();
+	tascl.color.green = r.Green();
+	tascl.color.blue = r.Blue();
 	tascl.color.zero = 0;
 	//FORCETEAMCOLOR username color
 	RelayCmd( "FORCETEAMCOLOR", user.Nick() + " " + Util::ToString( tascl.data ) );
@@ -772,7 +770,7 @@ void TASServer::UpdateBot( const BattlePtr battle, const UserPtr user, UserBattl
 	tascl.color.blue = status.color.Blue();
 	tascl.color.zero = 0;
 	//UPDATEBOT name battlestatus teamcolor
-	RelayCmd( "UPDATEBOT", bot.Nick() + " " + Util::ToString(tasbs.data) + " " Util::ToString(tascl.data ) );
+	RelayCmd( "UPDATEBOT", bot.Nick() + " " + Util::ToString(tasbs.data) + " " + Util::ToString(tascl.data ) );
 }
 
 void TASServer::SendScriptToClients( const std::string& script )

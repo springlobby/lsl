@@ -69,6 +69,22 @@ struct Signature<Tuple,2> {
 	}
 };
 
+template < class Tuple >
+struct Signature<Tuple,1> {
+	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&) > Type; //call traits ftw
+	template < class F, class T >
+	static Type make( F f, T* x )
+	{
+		return Type( boost::bind( f, x, _1 ) );
+	}
+
+	static void call( Type& func, std::string& params )
+	{
+		PARSED_VAR(0);
+		func( t0 );
+	}
+};
+
 
 } // namespace LSL {
 

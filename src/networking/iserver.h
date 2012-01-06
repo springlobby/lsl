@@ -155,7 +155,6 @@ class iServer
 	std::string GetRequiredSpring() const { return m_min_required_spring_ver; }
 	void SetRequiredSpring( const std::string& version ) { m_min_required_spring_ver = version; }
 
-	virtual void OnConnected( Socket* sock ) = 0;
 	virtual void OnDisconnected( Socket* sock ) = 0;
 
 	const UserPtr GetMe() const {return m_me;}
@@ -235,22 +234,22 @@ private:
 	void OpenBattle( Battle::BattleOptions bo );
 	void Ping();
 
-private://defs from iserver.cpp bottom
+protected://defs from iserver.cpp bottom
 	void OnSocketError( const Enum::SocketError& /*unused*/ );
 	void OnProtocolError( const Enum::Protocolerror /*unused*/ );
 	void OnNewUser( const UserPtr user );
 	void OnUserStatus( const UserPtr user, UserStatus status );
 	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);
-	void OnBattleStarted( const IBattlePtr battle );
+	void OnBattleStarted( const int battle_id );
 	void OnDisconnected( bool wasonline );
-	void OnLogin( const UserPtr user );
+	void OnLogin( const std::string& user );
 	void OnLogout();
 	void OnLoginInfoComplete();
 	void OnUnknownCommand( const std::string& command, const std::string& params );
 	void OnMotd( const std::string& msg );
 	void OnPong( long long ping_time );
-	void OnUserQuit( const UserPtr user );
-	void OnBattleOpened( const IBattlePtr battle );
+	void OnUserQuit( const std::string& user );
+	void OnBattleOpened( const int battle_id );
 	void OnBattleMapChanged(const IBattlePtr battle,UnitsyncMap map);
 	void OnBattleModChanged( const IBattlePtr battle, UnitsyncMod mod );
 	void OnBattleMaxPlayersChanged( const IBattlePtr battle, int maxplayers );
@@ -290,6 +289,9 @@ private://defs from iserver.cpp bottom
 	void OnOpenBattleFailed( const std::string& msg );
 	void OnRequestBattleStatus();
 
+	virtual void OnConnected( const std::string&, const int, const std::string&, const int) = 0;
+
+private:
 	virtual void _Disconnect(const std::string& reason) = 0;
 	virtual void _Ping() = 0;
 	virtual void _JoinChannel( const std::string& channel, const std::string& key ) = 0;
