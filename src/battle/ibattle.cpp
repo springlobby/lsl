@@ -3,6 +3,7 @@
 #include <utils/debug.h>
 #include <utils/misc.h>
 #include <utils/conversion.h>
+#include <unitsync++/unitsync.h>
 
 #include <algorithm>
 #include <boost/typeof/typeof.hpp>

@@ -17,6 +17,7 @@
 #include "utils/debug.h"
 #include "utils/conversion.h"
 #include "utils/misc.h"
+#include "utils/globalsmanager.h"
 #include "image.h"
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
@@ -24,14 +25,6 @@
 #define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( unitsync, msg ); } } while (0)
 
 namespace LSL {
-
-//Unitsync& usync()
-//{
-//	static LineInfo<Unitsync> m( AT );
-//	static GlobalObjectHolder<Unitsync, LineInfo<Unitsync> > m_sync( m );
-//	return m_sync;
-//}
-
 
 Unitsync::Unitsync()
 	: m_susynclib( new UnitsyncLib() )
@@ -1218,9 +1211,9 @@ void Unitsync::AddReloadEvent(  )
 }
 
 Unitsync& usync() {
-	static Unitsync us;
-	return us;
+	static LineInfo<Unitsync> m( AT );
+	static GlobalObjectHolder<Unitsync, LineInfo<Unitsync> > m_sync( m );
+	return m_sync;
 }
-
 
 } // namespace LSL
