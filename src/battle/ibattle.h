@@ -121,14 +121,12 @@ public:
 	virtual void SetProxy( const std::string& proxyhost );
 	virtual std::string GetProxy() const;
 	virtual bool IsProxy() const;
-
 	virtual bool IsSynced(); //cannot be const
-
 	virtual bool IsFounderMe() const;
 	virtual bool IsFounder( const UserPtr user ) const;
+	bool IsEveryoneReady() const;
 
 	virtual int GetMyPlayerNum() const;
-
 	virtual int GetPlayerNum(const ConstUserPtr user ) const;
 
 	virtual void SetHostMod( const std::string& modname, const std::string& hash );
@@ -141,20 +139,17 @@ public:
 	virtual bool ModExists() const;
 
 	virtual BattleStartRect GetStartRect( unsigned int allyno ) const;
-	UserPtr OnUserAdded( UserPtr user );
+	UserPtr OnUserAdded( const UserPtr user );
 	void OnUserBattleStatusUpdated(UserPtr user, UserBattleStatus status );
 	void OnUserRemoved( UserPtr user );
 
-	bool IsEveryoneReady() const;
-
-	void ForceSide( UserPtr user, int side );
-	void ForceAlly( UserPtr user, int ally );
-	void ForceTeam( UserPtr user, int team );
-	void ForceColour( UserPtr user, const lslColor& col );
-	void ForceSpectator( UserPtr user, bool spectator );
-	void SetHandicap( UserPtr user, int handicap);
-	void KickPlayer( UserPtr user );
-
+	void ForceSide(const UserPtr user, int side );
+	void ForceAlly( const UserPtr user, int ally );
+	void ForceTeam(const UserPtr user, int team );
+	void ForceColour( const UserPtr user, const lslColor& col );
+	void ForceSpectator( const UserPtr user, bool spectator );
+	void SetHandicap( const UserPtr user, int handicap);
+	void KickPlayer( const UserPtr user );
 
 	virtual void AddStartRect( unsigned int allyno, unsigned int left, unsigned int top, unsigned int right, unsigned int bottom );
 	virtual void RemoveStartRect( unsigned int allyno );
@@ -209,6 +204,7 @@ public:
 
 	bool IsFull() const { return GetMaxPlayers() == GetNumActivePlayers(); }
 
+	ConstUserVector Players() const { return m_userlist.Vectorize(); }
 	virtual unsigned int GetNumPlayers() const;
 	virtual unsigned int GetNumActivePlayers() const;
 
@@ -219,7 +215,7 @@ public:
 	virtual int GetBattleId() const { return m_opts.battleid; }
 
 	virtual void SetInGame( bool ingame );
-	virtual bool GetInGame() const { return m_ingame; }
+	bool InGame() const { return m_ingame; }
 
 	virtual void SetBattleType( Enum::BattleType type ) { m_opts.battletype = type; }
 	virtual Enum::BattleType GetBattleType() { return m_opts.battletype; }
@@ -284,7 +280,7 @@ public:
 
 	const BattleOptions& GetBattleOptions() const { return m_opts; }
 
-	bool Equals( const IBattle& other ) const { return m_opts.battleid == other.GetBattleOptions().battleid; }
+	bool Equals( const ConstIBattlePtr other ) const { return m_opts.battleid == other->GetBattleOptions().battleid; }
 
 	virtual void DisableHostStatusInProxyMode( bool value ) { m_generating_script = value; }
 

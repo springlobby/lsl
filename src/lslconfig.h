@@ -4,6 +4,7 @@
 #define STR_DUMMY(name) std::string name () const { return std::string(); }
 
 #include <string>
+#include <utils/type_forwards.h>
 
 namespace LSL {
 
@@ -15,6 +16,8 @@ public:
     STR_DUMMY( GetForcedSpringConfigFilePath )
     STR_DUMMY( GetCurrentUsedUnitSync )
     std::string GetCurrentUsedUnitSync() { return "/usr/lib/spring/libunitsync.so";}
+	StringVector GetPresetList() { return StringVector(); }
+	StringMap GetHostingPreset() { return StringMap(); }
 };
 
 Config& sett();

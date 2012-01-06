@@ -1,5 +1,8 @@
 //#include "../utils/base64.h"
-#include "../utils/md5.h"
+#include <boost/algorithm/string.hpp>
+
+#include <utils/md5.h>
+#include <utils/conversion.h>
 #include "tasserver.h"
 #include "socket.h"
 #include "commands.h"
@@ -48,7 +51,7 @@ void TASServer::GetBanList()
 
 void TASServer::SetChannelTopic(const std::string& channel, const std::string& topic)
 {
-	topic.replace( _T("\n"), _T("\\n") );
+	boost::replace_all( topic, "\n", "\\n" );
 	SendCmd( "CHANNELTOPIC",topic );
 }
 
@@ -108,10 +111,10 @@ int TASServer::Register( const std::string& addr, const int port, const std::str
 	FakeNetClass temp;
 	Socket tempsocket( temp, true, true );
 	tempsocket.Connect( addr, port );
-	if ( tempsocket.State() != Socket::SS_Open )
+	if ( tempsocket.State() != Enum::SS_Open )
 		return false;
 
-	std::string data = tempsocket.Receive().BeforeLast(_T('\n'));
+	std::string data = tempsocket.Receive().BeforeLast("\n");
 	if ( data.find( "\r" ) != std::string::npos )
 		data = Util::BeforeLast( data, "\r" );
 	if ( GetWordParam( data ) != "TASServer" )
@@ -171,15 +174,14 @@ void TASServer::Login(const std::string& user, const std::string& password)
 	std::string protocol = "\t" + m_crc.GetCRC();
 	std::string localaddr = m_sock->GetLocalAddress();
 	if ( localaddr.length() < 1 ) localaddr = "*";
-	SendRaw ( "LOGIN", m_user + " " + pass + " " + GetHostCPUSpeed() + " " + localaddr + " liblobby " + GetLibLobbyVersion() + protocol  + "\ta sp");
+	SendRaw ( "LOGIN", m_user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
+			  + localaddr + " liblobby " + Util::GetLibLobbyVersion() + protocol  + "\ta sp");
 }
-
 
 void TASServer::RequestChannels()
 {
 	SendCmd( "CHANNELS" );
 }
-
 
 void TASServer::AcceptAgreement()
 {
@@ -189,27 +191,24 @@ void TASServer::AcceptAgreement()
 void TASServer::ExecuteCommand( const std::string& cmd, std::string& params )
 {
 	int replyid = 0;
-	if ( params[0] == '#' )
+	if ( params[0] == "#" )
 	{
-		std::string id = params.BeforeFirst( ' ' ).AfterFirst( '#' );
-		params = params.AfterFirst( ' ' );
-		id.ToLong( &replyid );
+		std::string id = Util::AfterFirst( Util::BeforeFirst( params, " " ),  "#" );
+		params = Util::AfterFirst( params, " " );
+		replyid = Util::FromString<int>( id );
 	}
-	cmd = params.BeforeFirst( ' ' );
-	params = params.AfterFirst( ' ' );
 	ExecuteCommand( cmd, params, replyid );
 }
-
 
 void TASServer::SendCmd( const std::string& command, const std::string& param )
 {
 	std::string cmd, msg;
 	GetLastID()++;
-	msg = msg + "#" + Util::oString( GetLastID() ) + " ";
+	msg = msg + "#" + Util::ToString( GetLastID() ) + " ";
 	if ( !param.length() ) msg = msg + command + "\n";
 	else msg = msg + command + " " + param + "\n";
 	bool send_success = m_sock->Send( msg );
-	m_se->OnSentMessage(send_success, msg, GetLastID());
+	sig_SentMessage(send_success, msg, GetLastID());
 }
 
 void TASServer::SendPing()
@@ -278,7 +277,7 @@ void TASServer::Ring( const std::string& nick )
 void TASServer::ModeratorSetChannelTopic( const std::string& channel, const std::string& topic )
 {
 	std::string msgcopy = topic;
-	msgcopy.Replace( "\n", "\\n" );
+	boost::replace_all( msgcopy, "\n", "\\n" );
 	SendCmd( "CHANNELTOPIC", channel + " " + msgcopy );
 }
 
@@ -299,18 +298,15 @@ void TASServer::ModeratorUnmute( const std::string& channel, const std::string& 
 	SendCmd( "UNMUTE",  channel + " " + nick );
 }
 
-
 void TASServer::ModeratorKick( const std::string& channel, const std::string& reason )
 {
 	SendCmd( "KICKUSER", channel + " " + reason );
 }
 
-
 void TASServer::ModeratorBan( const std::string& /*unused*/, bool /*unused*/ )
 {
 	// FIXME TASServer::ModeratorBan not yet implemented
 }
-
 
 void TASServer::ModeratorUnban( const std::string& /*unused*/ )
 {
@@ -322,24 +318,20 @@ void TASServer::ModeratorGetIP( const std::string& nick )
 	SendCmd( "GETIP", nick );
 }
 
-
 void TASServer::ModeratorGetLastLogin( const std::string& nick )
 {
 	SendCmd( "GETLASTLOGINTIME", nick );
 }
-
 
 void TASServer::ModeratorGetLastIP( const std::string& nick )
 {
 	SendCmd( "GETLASTIP", nick );
 }
 
-
 void TASServer::ModeratorFindByIP( const std::string& ipadress )
 {
 	SendCmd( "FINDIP", ipadress );
 }
-
 
 void TASServer::AdminGetAccountAccess( const std::string& /*unused*/ )
 {
@@ -352,13 +344,12 @@ void TASServer::AdminChangeAccountAccess( const std::string& /*unused*/, const s
 	// FIXME TASServer::AdminChangeAccountAccess not yet implemented
 }
 
-
 void TASServer::AdminSetBotMode( const std::string& nick, bool isbot )
 {
 	SendCmd( "SETBOTMODE", nick + " " + (isbot?"1":"0") );
 }
 
-void TASServer::_HostBattle( BattleOptions bo )
+void TASServer::_HostBattle( Battle::BattleOptions bo )
 {
 	std::stringstream cmd;
 	cmd << boost::format( "0 %d ") % nat_type
@@ -386,7 +377,7 @@ void TASServer::_HostBattle( BattleOptions bo )
 
 void TASServer::_JoinBattle( const int& battleid, const std::string& password, const std::string& scriptpassword )
 {
-	SendCmd( "JOINBATTLE", ToString(battleid) + " " + password + " " + scriptpassword );
+	SendCmd( "JOINBATTLE", Util::ToString(battleid) + " " + password + " " + scriptpassword );
 }
 
 void TASServer::LeaveBattle( const int& /*unused*/ )
@@ -395,7 +386,7 @@ void TASServer::LeaveBattle( const int& /*unused*/ )
 	SendCmd( "LEAVEBATTLE" );
 }
 
-void TASServer::SendHostInfo( HostInfo update )
+void TASServer::SendHostInfo( Enum::HostInfo update )
 {
 	if (!m_current_battle) return;
 	if (!m_current_m_current_battle->IsFounderMe()) return;
@@ -406,7 +397,6 @@ void TASServer::SendHostInfo( HostInfo update )
 		std::string cmd = (boost::format( "%d %d ") % m_current_battle->GetSpectators() % m_current_battle->IsLocked() );
 		cmd += MakeHashSigned( m_current_battle->LoadMap().hash ) + " ";
 		cmd += m_current_battle->LoadMap().name;
-
 		RelayCmd( "UPDATEBATTLEINFO", cmd );
 	}
 	int relayhostmessagesize = 0;
@@ -458,12 +448,11 @@ void TASServer::SendHostInfo( HostInfo update )
 		unsigned int numrects = m_current_battle->GetLastRectIdx();
 		for ( unsigned int i = 0; i <= numrects; i++ )   // Loop through all, and remove updated or deleted.
 		{
-			std::string cmd;
 			BattleStartRect sr = m_current_battle->GetStartRect( i );
 			if ( !sr.exist ) continue;
 			if ( sr.todelete )
 			{
-				RelayCmd( "REMOVESTARTRECT", ToString(i) );
+				RelayCmd( "REMOVESTARTRECT", Util::ToString(i) );
 				m_current_battle->StartRectRemoved( i );
 			}
 			else if ( sr.toadd )
@@ -473,7 +462,7 @@ void TASServer::SendHostInfo( HostInfo update )
 			}
 			else if ( sr.toresize )
 			{
-				RelayCmd( "REMOVESTARTRECT"), ToString(i) );
+				RelayCmd( "REMOVESTARTRECT"), Util::ToString(i) );
 				RelayCmd( "ADDSTARTRECT"), boost::format( "%d %d %d %d %d", sr.ally, sr.left, sr.top, sr.right, sr.bottom ) );
 				m_current_battle->StartRectResized( i );
 			}
@@ -490,7 +479,7 @@ void TASServer::SendHostInfo( HostInfo update )
 			for ( std::map<std::string, int>::const_iterator itor = units.begin(); itor != units.end(); itor++ )
 			{
 				 msg << itor->first + " ";
-				 scriptmsg << "game/restrict/" + itor->first + "=" + ToString(itor->second) + '\t'; // this is a serious protocol abuse, but on the other hand, the protocol fucking suck and it's unmaintained so it will do for now
+				 scriptmsg << "game/restrict/" + itor->first + "=" + Util::ToString(itor->second) + '\t'; // this is a serious protocol abuse, but on the other hand, the protocol fucking suck and it's unmaintained so it will do for now
 			}
 			RelayCmd( "DISABLEUNITS", msg );
 			RelayCmd( "SETSCRIPTTAGS", scriptmsg );
@@ -527,8 +516,8 @@ void TASServer::SendUserPosition( const UserPtr user )
 	if (!user) return;
 
 	UserBattleStatus status = user->BattleStatus();
-	std::string msgx = "game/Team" + ToString( status.team ) + "/StartPosX=" + ToString( status.pos.x );
-	std::string msgy = "game/Team" + ToString( status.team ) + "/StartPosY=" + ToString( status.pos.y );
+	std::string msgx = "game/Team" + Util::ToString( status.team ) + "/StartPosX=" + Util::ToString( status.pos.x );
+	std::string msgy = "game/Team" + Util::ToString( status.team ) + "/StartPosY=" + Util::ToString( status.pos.y );
 	std::string netmessage = msgx + "\t" + msgy;
 	RelayCmd( "SETSCRIPTTAGS", netmessage );
 }
@@ -543,7 +532,7 @@ void TASServer::RequestInGameTime( const std::string& nick )
 	SendCmd( "GETINGAMETIME", nick );
 }
 
-BattlePtr TASServer::GetCurrentBattle()
+IBattlePtr TASServer::GetCurrentBattle()
 {
 	return m_current_battle;
 }
@@ -558,7 +547,7 @@ void TASServer::SendMyBattleStatus( UserBattleStatus& bs )
 	tascl.color.blue = bs.color.Blue();
 	tascl.color.zero = 0;
 	//MYBATTLESTATUS battlestatus myteamcolor
-	SendCmd( "MYBATTLESTATUS", ToString(tasbs.data) + " " + tascl.data );
+	SendCmd( "MYBATTLESTATUS", Util::ToString(tasbs.data) + " " + tascl.data );
 }
 
 void TASServer::SendMyUserStatus()
@@ -571,10 +560,8 @@ void TASServer::SendMyUserStatus()
 	taus.tasdata.rank = us.rank;
 	taus.tasdata.moderator = us.moderator;
 	taus.tasdata.bot = us.bot;
-
 	SendCmd( "MYSTATUS", ToStrong( taus.byte ) );
 }
-
 
 void TASServer::StartHostedBattle()
 {
@@ -621,7 +608,7 @@ void TASServer::ForceTeam( const BattlePtr battle, const UserPtr user, int team 
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	//FORCETEAMNO username teamno
-	RelayCmd( "FORCETEAMNO", user->Nick() + " " + ToString(team) );
+	RelayCmd( "FORCETEAMNO", user->Nick() + " " + Util::ToString(team) );
 }
 
 void TASServer::ForceAlly( const BattlePtr battle, const UserPtr user, int ally )
@@ -646,7 +633,7 @@ void TASServer::ForceAlly( const BattlePtr battle, const UserPtr user, int ally 
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	//FORCEALLYNO username teamno
-	else RelayCmd( "FORCEALLYNO", user.Nick() + " " ToString(ally) );
+	else RelayCmd( "FORCEALLYNO", user->Nick() + " " + Util::ToString(ally) );
 }
 
 void TASServer::ForceColor( const BattlePtr battle, const UserPtr user, const Color& col )
@@ -675,7 +662,7 @@ void TASServer::ForceColor( const BattlePtr battle, const UserPtr user, const Co
 	tascl.color.blue = col.Blue();
 	tascl.color.zero = 0;
 	//FORCETEAMCOLOR username color
-	RelayCmd( "FORCETEAMCOLOR", user.Nick() + " " + ToString( tascl.data ) );
+	RelayCmd( "FORCETEAMCOLOR", user.Nick() + " " + Util::ToString( tascl.data ) );
 }
 
 void TASServer::ForceSpectator( const BattlePtr battle, const UserPtr user, bool spectator )
@@ -740,7 +727,7 @@ void TASServer::SetHandicap( const BattlePtr battle, const UserPtr user, int han
 	if (!m_current_m_current_battle->IsFounderMe()) return;
 
 	//HANDICAP username value
-	RelayCmd( "HANDICAP", user.Nick() + " " + ToString(handicap) );
+	RelayCmd( "HANDICAP", user.Nick() + " " + Util::ToString(handicap) );
 }
 
 void TASServer::AddBot( const BattlePtr battle, const std::string& nick, UserBattleStatus& status )
@@ -758,7 +745,7 @@ void TASServer::AddBot( const BattlePtr battle, const std::string& nick, UserBat
 	std::string msg;
 	std::string ailib;
 	ailib += status.aishortname; // + "|" + status.aiversion;
-	SendCmd( "ADDBOT", nick + ToString(tasbs.data) + " " + ToString( tascl.data ) + " " + ailib );
+	SendCmd( "ADDBOT", nick + Util::ToString(tasbs.data) + " " + Util::ToString( tascl.data ) + " " + ailib );
 }
 
 void TASServer::RemoveBot( const BattlePtr battle, const UserPtr user )
@@ -787,7 +774,7 @@ void TASServer::UpdateBot( const BattlePtr battle, const UserPtr user, UserBattl
 	tascl.color.blue = status.color.Blue();
 	tascl.color.zero = 0;
 	//UPDATEBOT name battlestatus teamcolor
-	RelayCmd( "UPDATEBOT", bot.Nick() + " " + ToString(tasbs.data) + " " ToString(tascl.data ) );
+	RelayCmd( "UPDATEBOT", bot.Nick() + " " + Util::ToString(tasbs.data) + " " Util::ToString(tascl.data ) );
 }
 
 void TASServer::SendScriptToClients( const std::string& script )
@@ -830,11 +817,12 @@ void TASServer::OnNewUser( const std::string& nick, const std::string& country, 
 
 std::string TASServer::GetBattleChannelName( const BattlePtr battle )
 {
-	if (!battle) return "";
-	return "B" + ToString(battle->GetID());
+	if (!battle)
+		return "";
+	return "B" + Util::ToString(battle->GetID());
 }
 
-void TASServer::OnBattleOpened( int id, BattleType type, NatType nat, const std::string& nick,
+void TASServer::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType nat, const std::string& nick,
 								   const std::string& host, int port, int maxplayers,
 								   bool haspass, int rank, const std::string& maphash, const std::string& map,
 								   const std::string& title, const std::string& mod )
@@ -877,7 +865,7 @@ void TASServer::OnUserStatusChanged( const std::string& nick, int intstatus )
 	UTASClientStatus tasstatus;
 	tasstatus.byte = intstatus;
 	UserStatus status = ConvTasclientstatus( tasstatus.tasdata );
-	OnUserStatusChanged( user, status );
+	sig_UserStatusChanged( user, status );
 	BattlePtr battle = user->GetBattle():
 	if ( battle )
 	{
@@ -1154,8 +1142,7 @@ void TASServer::OnChannelJoinUserList( const std::string& channel, const std::st
 	OnChannelJoinUserList(channel,users);
 }
 
-
-void TASSrver::OnHandle()
+void TASServer::OnHandle()
 {
 	SendCmd( "USERID", Tostring( m_crc.GetCRC() );
 }
@@ -1207,7 +1194,7 @@ void TASServer::OnChannelAction( const std::string& channel, const std::string& 
 Channel* TASServer::GetCreatePrivateChannel( const UserPtr user )
 {
 	if (!user) return;
-	std::string channame = "U" + ToString(user->GetID());
+	std::string channame = "U" + Util::ToString(user->GetID());
 	Channel* channel = GetChannel( channame );
 	if (!channel)
 	{

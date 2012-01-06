@@ -6,7 +6,7 @@
 
 namespace LSL { namespace TDF {
 
-TDFWriter::TDFWriter( std::string &s ):
+TDFWriter::TDFWriter(std::stringstream &s ):
 		m_stream( s ),
 		m_depth( 0 )
 {

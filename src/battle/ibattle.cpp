@@ -208,7 +208,7 @@ void IBattle::Update ( const std::string& /*unused*/)
 {
 }
 
-UserPtr IBattle::OnUserAdded( UserPtr user )
+UserPtr IBattle::OnUserAdded(const UserPtr user )
 {
 	m_userlist.Add( user );
 	UserBattleStatus& bs = user->BattleStatus();
@@ -326,7 +326,7 @@ void IBattle::OnUserBattleStatusUpdated( UserPtr user, UserBattleStatus status )
 
 bool IBattle::ShouldAutoStart() const
 {
-	if ( GetInGame() ) return false;
+	if ( InGame() ) return false;
 	if ( !IsLocked() && ( GetNumActivePlayers() < m_opts.maxplayers ) ) return false; // proceed checking for ready & symc players only if the battle is full or locked
 	if ( !IsEveryoneReady() ) return false;
 	return true;
@@ -500,7 +500,7 @@ void IBattle::ClearStartRects()
 	m_rects.clear();
 }
 
-void IBattle::ForceSide( UserPtr user, int side )
+void IBattle::ForceSide(const UserPtr user, int side )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -508,7 +508,7 @@ void IBattle::ForceSide( UserPtr user, int side )
 	}
 }
 
-void IBattle::ForceTeam( UserPtr user, int team )
+void IBattle::ForceTeam(const UserPtr user, int team )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -522,7 +522,7 @@ void IBattle::ForceTeam( UserPtr user, int team )
 }
 
 
-void IBattle::ForceAlly( UserPtr user, int ally )
+void IBattle::ForceAlly(const UserPtr user, int ally )
 {
 
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
@@ -538,7 +538,7 @@ void IBattle::ForceAlly( UserPtr user, int ally )
 }
 
 
-void IBattle::ForceColour( UserPtr user, const lslColor& col )
+void IBattle::ForceColour(const UserPtr user, const lslColor& col )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -587,7 +587,7 @@ void IBattle::PlayerLeftAlly( int ally )
 	}
 }
 
-void IBattle::ForceSpectator( UserPtr user, bool spectator )
+void IBattle::ForceSpectator(const UserPtr user, bool spectator )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -626,7 +626,7 @@ void IBattle::ForceSpectator( UserPtr user, bool spectator )
 	}
 }
 
-void IBattle::SetHandicap( UserPtr user, int handicap)
+void IBattle::SetHandicap(const UserPtr user, int handicap)
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -635,7 +635,7 @@ void IBattle::SetHandicap( UserPtr user, int handicap)
 }
 
 
-void IBattle::KickPlayer( UserPtr user )
+void IBattle::KickPlayer(const UserPtr user )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -850,7 +850,7 @@ void IBattle::OnSelfLeftBattle()
 	m_is_self_in = false;
 	for( size_t j = 0; j < m_userlist.size(); ++j  )
 	{
-		ConstUserPtr u = m_userlist.At( j );
+		UserPtr u = m_userlist.At( j );
 		if ( u->GetBattleStatus().IsBot() )
 		{
 			OnUserRemoved( u );
@@ -936,11 +936,12 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			}
 			SendHostInfo( Enum::HI_StartRects );
 
-			std::stringTokenizer tkr( options["restrictions"], '\t' );
+			StringVector infos;
+			boost::algorithm::split( infos, options["restrictions"], boost::algorithm::is_any_of("\t"),
+																  boost::algorithm::token_compress_off );
 			m_restricted_units.clear();
-			while( tkr.HasMoreTokens() )
+			BOOST_FOREACH( const std::string unitinfo, infos )
 			{
-				std::string unitinfo = tkr.GetNextToken();
 				RestrictUnit( Util::BeforeLast(unitinfo,'='),
 						Util::FromString<long>( Util::AfterLast(unitinfo,'=') ) );
 			}
@@ -1072,20 +1073,20 @@ int IBattle::GetMyPlayerNum() const
 }
 
 
-void IBattle::LoadScriptMMOpts( const std::string& sectionname, const SL::PDataList& node )
+void IBattle::LoadScriptMMOpts( const std::string& sectionname, const PDataList& node )
 {
 	if ( !node.ok() ) return;
 	PDataList section ( node->Find(sectionname) );
 	if ( !section.ok() ) return;
 	OptionsWrapper& opts = CustomBattleOptions();
-	for ( SL::PNode n = section->First(); n != section->Last(); n = section->Next( n ) )
+	for ( PNode n = section->First(); n != section->Last(); n = section->Next( n ) )
 	{
 		if ( !n.ok() ) continue;
 		opts.setSingleOption( n->Name(), section->GetString( n->Name() ) );
 	}
 }
 
-void IBattle::LoadScriptMMOpts( const SL::PDataList& node )
+void IBattle::LoadScriptMMOpts( const PDataList& node )
 {
 	if ( !node.ok() ) return;
 	OptionsWrapper& opts = CustomBattleOptions();
@@ -1100,15 +1101,13 @@ void IBattle::LoadScriptMMOpts( const SL::PDataList& node )
 //! (koshi) don't delete commented things please, they might be need in the future and i'm lazy
 void IBattle::GetBattleFromScript( bool loadmapmod )
 {
-
 	BattleOptions opts;
 	std::stringstream ss ( (const char *)GetScript().mb_str(wxConvUTF8) );// no need to convert wxstring-->std::string-->std::stringstream, convert directly.
-	SL::PDataList script( ParseTDF(ss) );
+	PDataList script( ParseTDF(ss) );
 
-	SL::PDataList replayNode ( script->Find("GAME" ) );
+	PDataList replayNode ( script->Find("GAME" ) );
 	if ( replayNode.ok() )
 	{
-
 		std::string modname = replayNode->GetString( "GameType" );
 		std::string modhash = replayNode->GetString( "ModHash" );
 		if ( !modhash.empty() ) modhash = MakeHashUnsigned( modhash );
@@ -1131,8 +1130,6 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 		//        int allynum = replayNode->GetInt  ( "NumAllyTeams", 1);
 		//        int teamnum = replayNode->GetInt  ( "NumTeams", 1);
 
-
-
 		StringVector sides;
 		if ( loadmapmod )
 		{
@@ -1145,8 +1142,8 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 		//[PLAYERX] sections
 		for ( int i = 0; i < playernum ; ++i )
 		{
-			SL::PDataList player ( replayNode->Find( "PLAYER" + Util::ToString(i) ) );
-			SL::PDataList bot ( replayNode->Find( "AI" + Util::ToString(i) ) );
+			PDataList player ( replayNode->Find( "PLAYER" + Util::ToString(i) ) );
+			PDataList bot ( replayNode->Find( "AI" + Util::ToString(i) ) );
 			if ( player.ok() || bot.ok() )
 			{
 				if ( bot.ok() ) player = bot;
@@ -1181,7 +1178,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					status.aishortname = bot->GetString( "ShortName" );
 					status.aiversion = bot->GetString( "Version" );
 					int ownerindex = bot->GetInt( "Host" );
-					SL::PDataList aiowner ( replayNode->Find( "PLAYER" + Util::ToString(ownerindex) ) );
+					PDataList aiowner ( replayNode->Find( "PLAYER" + Util::ToString(ownerindex) ) );
 					if ( aiowner.ok() )
 					{
 						status.owner = aiowner->GetString( "Name" );
@@ -1191,7 +1188,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 				IBattle::TeamInfoContainer teaminfos = parsed_teams[user->BattleStatus().team];
 				if ( !teaminfos.exist )
 				{
-					SL::PDataList team( replayNode->Find( "TEAM" + Util::ToString( user->BattleStatus().team ) ) );
+					PDataList team( replayNode->Find( "TEAM" + Util::ToString( user->BattleStatus().team ) ) );
 					if ( team.ok() )
 					{
 						teaminfos.exist = true;
@@ -1222,7 +1219,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					IBattle::AllyInfoContainer allyinfos = parsed_allies[user->BattleStatus().ally];
 					if ( !allyinfos.exist )
 					{
-						SL::PDataList ally( replayNode->Find( "ALLYTEAM" + Util::ToString( user->BattleStatus().ally ) ) );
+						PDataList ally( replayNode->Find( "ALLYTEAM" + Util::ToString( user->BattleStatus().ally ) ) );
 						if ( ally.ok() )
 						{
 							allyinfos.exist = true;
@@ -1266,7 +1263,7 @@ void IBattle::SetInGame(bool ingame)
 
 long IBattle::GetBattleRunningTime() const
 {
-	if (!GetInGame()) return 0;
+	if (!InGame()) return 0;
 	if (m_start_time == 0 ) return 0;
 	return wxGetUTCTime() - m_start_time;
 }

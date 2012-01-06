@@ -119,6 +119,9 @@ std::string AfterFirst( const std::string& phrase, const std::string& searchterm
 std::vector<lslColor>& GetBigFixColoursPalette( int numteams );
 bool AreColoursSimilar( const lslColor& col1, const lslColor& col2, int mindiff );
 
+std::string GetHostCPUSpeed();
+std::string GetLibLobbyVersion();
+
 } //namespace Util {
 
 //! wxSize replacement,

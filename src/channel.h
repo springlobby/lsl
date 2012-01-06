@@ -12,6 +12,8 @@ public:
 
     std::string index() const { return "dummy"; }
     static std::string className() { return "Channel"; }
+
+	std::string Name() const { return "dummy"; }
 };
 
 } // namespace LSL {

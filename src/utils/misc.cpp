@@ -6,6 +6,16 @@
 namespace LSL {
 namespace Util {
 
+std::string GetHostCPUSpeed()
+{
+	return "667";
+}
+
+std::string GetLibLobbyVersion()
+{
+	return "0";
+}
+
 bool FileExists( const std::string path )
 {
     return boost::filesystem::exists( boost::filesystem::path( path ) );

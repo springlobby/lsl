@@ -4,6 +4,12 @@
 #include <utils/misc.h>
 #include <utils/conversion.h>
 #include <utils/type_forwards.h>
+#include <utils/autopointers.h>
+
+#include <sstream>
+#include <vector>
+#include <deque>
+#include <map>
 
 namespace LSL {
 
@@ -13,24 +19,24 @@ namespace LSL {
 class TDFWriter
 {
 	public:
-		TDFWriter( std::string &s );
+		TDFWriter( std::stringstream& s );
 		~TDFWriter();
-		void EnterSection( const std::string &name );
+		void EnterSection( const std::string& name );
 		void LeaveSection();
 		void Indent();
 		std::string GetCurrentPath();
-		void Append( const std::string &name, std::string value );
+		void Append( const std::string& name, std::string value );
 		template<class T>
-		void Append( const std::string &name, T value );
+		void Append( const std::string& name, T value );
 
 		/// works like algorithms such as std::sort
-		template<class T> void Append( const std::string &name, T begin, T end );
+		template<class T> void Append( const std::string& name, T begin, T end );
 
 		void AppendLineBreak();
 		void Close();
 	protected:
 	private:
-		std::string &m_stream;
+		std::stringstream& m_stream;
 		int m_depth;
 };
 
@@ -38,13 +44,6 @@ class TDFWriter
 /// Parsing classes contributed by dmytry aka dizekat, copypasted from personal
 /// project: render_control_new/utils/parsing.h and cpp , database.h and cpp
 ///
-
-#include <sstream>
-#include <vector>
-#include <deque>
-#include <map>
-
-#include <utils/autopointers.h>
 
 class Tokenizer;
 class Node;
@@ -69,7 +68,7 @@ class Node: public RefcountedContainer , public boost::noncopyable
 		std::string Name();
 
 		// Sets the name, and updates parent if present
-		bool SetName( const std::string &name_ );
+		bool SetName( const std::string& name_ );
 		Node(): parent( NULL ), list_prev( NULL ), list_next( NULL ), name( std::string() ) {}
 		virtual ~Node();
 		DataList* Parent() const;// parent list
@@ -97,8 +96,6 @@ class Node: public RefcountedContainer , public boost::noncopyable
 /// and so on and so forth.
 /// Saving tdf:
 ///
-
-
 class DataList: public Node {
 	protected:
 		std::map<std::string, PNode> nodes;
@@ -114,14 +111,14 @@ class DataList: public Node {
 		// rename if such entry already exists. Names is like name!1 or name!2 etc
 		void InsertRename( PNode node );
 		void InsertRenameAt( PNode node, PNode where );
-		bool Remove( const std::string &str );
+		bool Remove( const std::string& str );
 		bool Remove( PNode node );
-		bool Rename( const std::string &old_name, const std::string &new_name );
-		PNode Find( const std::string &str );// find by name
+		bool Rename( const std::string& old_name, const std::string& new_name );
+		PNode Find( const std::string& str );// find by name
 
 		std::string Path();
 
-		PNode FindByPath( const std::string &str );
+		PNode FindByPath( const std::string& str );
 
 		PNode Next( PNode what );
 		PNode Prev( PNode what );
@@ -132,14 +129,13 @@ class DataList: public Node {
 		virtual void Save( TDFWriter &f );
 		virtual void Load( Tokenizer &f );
 
-		int GetInt( const std::string &name, int default_value = 0, bool *it_worked = NULL );
-		double GetDouble( const std::string &name, double default_value = 0, bool *it_worked = NULL );
-		std::string GetString( const std::string &name, const std::string &default_value = std::string(), bool *it_worked = NULL );
+		int GetInt( const std::string& name, int default_value = 0, bool *it_worked = NULL );
+		double GetDouble( const std::string& name, double default_value = 0, bool *it_worked = NULL );
+		std::string GetString( const std::string& name, const std::string& default_value = std::string(), bool *it_worked = NULL );
 		/// returns number of values that were successfully read
-		int GetDoubleArray( const std::string &name, int n_values, double *values );
+		int GetDoubleArray( const std::string& name, int n_values, double *values );
 
-		lslColor GetColour( const std::string &name, const lslColor &default_value = lslColor( 0, 0, 0 ), bool *it_worked = NULL );
-
+		lslColor GetColour( const std::string& name, const lslColor &default_value = lslColor( 0, 0, 0 ), bool *it_worked = NULL );
 };
 
 class DataLeaf: public Node {
@@ -148,12 +144,11 @@ class DataLeaf: public Node {
 		std::string value;
 	public:
 		std::string GetValue();
-		void SetValue( const std::string &value );
+		void SetValue( const std::string& value );
 
 		virtual void Save( TDFWriter &f );
 		virtual void Load( Tokenizer &f );
 };
-} // end namespace SL
 
 inline bool IsLetter( char c ) {
 	return ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c == '_' );
@@ -287,20 +282,20 @@ inline Tokenizer &operator >>( Tokenizer& tokenizer, Token& token ) {
 PDataList ParseTDF( std::istream &s, int *error_count = NULL );
 
 //Defintions to not clutter up the class declaration
-template<class T> void TDFWriter:: Append( const std::string &name, T value )
+template<class T> void TDFWriter:: Append( const std::string& name, T value )
 {
 	Append( name, Util::ToString( value ) );
 }
 
 template<class T>
-void TDFWriter::Append( const std::string &name, T begin, T end ) {
+void TDFWriter::Append( const std::string& name, T begin, T end ) {
 	Indent();
-	m_stream << name << _T( "=" );
+	m_stream << name << "=";
 	for ( T it = begin;it != end;++it ) {
-		if ( it != begin )m_stream << _T( " " );
+		if ( it != begin )m_stream << " ";
 		m_stream << ( *it );
 	}
-	m_stream << _T( ";\n" );
+	m_stream << ";\n";
 }
 
 } // namespace LSL {

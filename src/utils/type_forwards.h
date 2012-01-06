@@ -19,6 +19,7 @@ namespace LSL {
 namespace Battle {
 	class IBattle;
 	class Battle;
+	class BattleOptions;
 }
 
 class User;
