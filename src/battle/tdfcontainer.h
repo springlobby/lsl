@@ -3,10 +3,10 @@
 
 #include <utils/misc.h>
 #include <utils/conversion.h>
+#include <utils/type_forwards.h>
 
 namespace LSL {
 
-class lslColor;
 /// Todo: add TDFContainer class.
 ///
 
@@ -44,7 +44,7 @@ class TDFWriter
 #include <deque>
 #include <map>
 
-#include "autopointers.h"
+#include <utils/autopointers.h>
 
 class Tokenizer;
 class Node;
@@ -70,7 +70,7 @@ class Node: public RefcountedContainer , public boost::noncopyable
 
 		// Sets the name, and updates parent if present
 		bool SetName( const std::string &name_ );
-		Node(): parent( NULL ), list_prev( NULL ), list_next( NULL ), name( wxEmptyString ) {}
+		Node(): parent( NULL ), list_prev( NULL ), list_next( NULL ), name( std::string() ) {}
 		virtual ~Node();
 		DataList* Parent() const;// parent list
 		//void SetParent(DataList *parent_);
@@ -260,7 +260,7 @@ class Tokenizer {
 		{
 		}
 
-		void EnterStream( std::istream &stream_, const std::string &name = _T( "" ) );
+		void EnterStream( std::istream& stream_, const std::string& name = "" );
 
 		Token GetToken( int i = 0 );
 		void Step( int i = 1 );
@@ -272,24 +272,24 @@ class Tokenizer {
 
 		bool Good();
 
-		void ReportError( const Token &t, const std::string &err );
+		void ReportError( const Token& t, const std::string& err );
 
 		int NumErrors() const {
 			return errors;
 		}
 };
 
-inline Tokenizer &operator >>( Tokenizer &tokenizer, Token &token ) {
+inline Tokenizer &operator >>( Tokenizer& tokenizer, Token& token ) {
 	token = tokenizer.TakeToken();
 	return tokenizer;
 }
 
-SL::PDataList ParseTDF( std::istream &s, int *error_count = NULL );
+PDataList ParseTDF( std::istream &s, int *error_count = NULL );
 
 //Defintions to not clutter up the class declaration
 template<class T> void TDFWriter:: Append( const std::string &name, T value )
 {
-	Append( name, Tostd::string( value ) );
+	Append( name, Util::ToString( value ) );
 }
 
 template<class T>

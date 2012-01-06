@@ -110,7 +110,7 @@ struct All: public Basic<std::string>{
 namespace LSL {
 
 struct CommandBase {
-	virtual void process( std::string& params )
+	virtual void process( std::string& /*params*/ )
 	{
 		assert( false ); //means we've called a non-mapped command
 	}
@@ -143,7 +143,12 @@ private:
 	CommandDictionary( TASServer* tas );
 
 	TASServer* m_tas;
-	std::map<std::string,boost::shared_ptr<CommandBase> > cmd_map_;
+	typedef std::map<std::string,boost::shared_ptr<CommandBase> >
+		MapType;
+	MapType cmd_map_;
+
+public:
+	void Process(const std::string& cmd, std::string& params ) const;
 };
 
 } //namespace LSL

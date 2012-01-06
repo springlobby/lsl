@@ -221,7 +221,6 @@ private:
 
 	void RelayCmd( const std::string& command, const std::string& param );
 	void OpenBattle( Battle::BattleOptions bo );
-	void HandlePong( int replyid );
 	void Ping();
 
 
@@ -279,6 +278,9 @@ private://defs from iserver.cpp bottom
 	void OnJoinBattleFailed( const std::string& msg );
 	void OnOpenBattleFailed( const std::string& msg );
 	void OnRequestBattleStatus();
+
+protected:
+	void HandlePong( int replyid );
 };
 
 } //namespace LSL

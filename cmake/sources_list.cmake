@@ -6,23 +6,24 @@ INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
 SET(libSpringLobbySrc 
 	src/libspringlobby.cpp
-	src/container/userlist.cpp
-	src/container/channellist.cpp
-	src/container/battlelist.cpp
-	src/user/user.cpp
-	src/user/common.cpp
 	src/utils/crc.cpp
 	src/utils/net.cpp
 	src/utils/globalsmanager.cpp
-	src/battle/ibattle.cpp
-	src/battle/battle.cpp
-	src/battle/tdfcontainer.cpp
+	src/container/userlist.cpp
+	src/container/channellist.cpp
+	src/container/battlelist.cpp
+	src/channel.cpp
+	src/user/user.cpp
+	src/user/common.cpp
 	src/networking/socket.cpp
 	src/networking/commands.cpp
 	src/networking/tasserverdataformats.cpp
 	src/networking/iserver.cpp
 	src/networking/tasserver.cpp
-	src/channel.cpp)
+	src/battle/ibattle.cpp
+	src/battle/battle.cpp
+	src/battle/tdfcontainer.cpp 
+	)
 SET(libUnitsync++Src
 	src/unitsync++/c_api.cpp
 	src/unitsync++/image.cpp

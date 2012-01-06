@@ -1,5 +1,0 @@
-
-void TASServer::AddCommands()
-{
-
-}

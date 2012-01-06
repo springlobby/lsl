@@ -451,8 +451,8 @@ bool  OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, const s
         case Enum::opt_string :
 		{
 			// test if maxlength isn't exceeded
-			unsigned int max_lenght = (gameoptions.string_map)[key].max_len;
-            if ( ( max_lenght != 0 ) && ( value.length() > max_lenght )  )
+			unsigned int max_length = (gameoptions.string_map)[key].max_len;
+            if ( ( max_length != 0 ) && ( value.length() > max_length )  )
 			{
                 LslDebug("recieved string option exceeds max_len");
 				return false;

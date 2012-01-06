@@ -165,7 +165,7 @@ void Socket::SetSendRateLimit(int Bps)
 
 Enum::SocketState Socket::State() const
 {
-    return SS_Open;
+	return Enum::SS_Open;
 }
 
 } // namespace LSL

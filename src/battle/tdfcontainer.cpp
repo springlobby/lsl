@@ -2,10 +2,9 @@
 
 #include "utils/conversion.h"
 #include "utils/debug.h"
-#include <wx/intl.h>
-#include <wx/tokenzr.h>
-#include <wx/log.h>
 #include <cmath>
+
+namespace LSL { namespace TDF {
 
 TDFWriter::TDFWriter( std::string &s ):
 		m_stream( s ),
@@ -717,7 +716,7 @@ void DataLeaf::Load( Tokenizer &f ) {
 }
 } // end namespace SL
 
-SL::PDataList ParseTDF( std::istream &s, int *error_count ) {
+PDataList ParseTDF( std::istream &s, int *error_count ) {
 	Tokenizer t;
 	t.EnterStream( s );
 	SL::PDataList result( new SL::DataList );
@@ -727,3 +726,5 @@ SL::PDataList ParseTDF( std::istream &s, int *error_count ) {
 	}
 	return result;
 }
+
+} } // namespace LSL { namespace TDF {

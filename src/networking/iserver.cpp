@@ -57,7 +57,7 @@ bool iServer::IsOnline() const
 
 bool iServer::IsConnected()
 {
-	return (m_sock->State() == Socket::SS_Open);
+	return (m_sock->State() == Enum::SS_Open);
 }
 
 void iServer::TimerUpdate()
@@ -89,11 +89,11 @@ void iServer::TimerUpdate()
 		// Nat travelsal "ping"
 		if ( m_current_battle_id > 0 )
 		{
-			const BattlePtr battle=GetCurrentBattle();
+			const ConstIBattlePtr battle=GetCurrentBattle();
 			if (battle && !battle->Ingame() )
 			{
-				if ( battle->GetNatType() == Battle::NAT_Hole_punching
-					 || battle->GetNatType() == Battle::NAT_Fixed_source_ports  )
+				if ( battle->GetNatType() == Enum::NAT_Hole_punching
+					 || battle->GetNatType() == Enum::NAT_Fixed_source_ports  )
 				{
 					UdpPingTheServer();
 					if ( battle->IsFounderMe() )

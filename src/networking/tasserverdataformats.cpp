@@ -49,54 +49,54 @@ TASBattleStatus ConvTasbattlestatus( UserBattleStatus bs)
 }
 
 
-Battle::StartType IntToStartType( int start )
+Enum::StartType IntToStartType( int start )
 {
     switch ( start )
     {
     case 0:
-		return Battle::ST_Fixed;
+		return Enum::ST_Fixed;
     case 1:
-		return Battle::ST_Random;
+		return Enum::ST_Random;
     case 2:
-		return Battle::ST_Choose;
+		return Enum::ST_Choose;
     default:
 		ASSERT_EXCEPTION( false, "int to IBattle::StartType" );
     };
-	return Battle::ST_Fixed;
+	return Enum::ST_Fixed;
 }
 
 
-Battle::NatType IntToNatType( int nat )
+Enum::NatType IntToNatType( int nat )
 {
     switch ( nat )
     {
     case 0:
-		return Battle::NAT_None;
+		return Enum::NAT_None;
     case 1:
-		return Battle::NAT_Hole_punching;
+		return Enum::NAT_Hole_punching;
     case 2:
-		return Battle::NAT_Fixed_source_ports;
+		return Enum::NAT_Fixed_source_ports;
     default:
 		ASSERT_EXCEPTION( false, "int to NatType" );
     };
-	return Battle::NAT_None;
+	return Enum::NAT_None;
 }
 
 
-Battle::GameType IntToGameType( int gt )
+Enum::GameType IntToGameType( int gt )
 {
     switch ( gt )
     {
     case 0:
-		return Battle::GT_ComContinue;
+		return Enum::GT_ComContinue;
     case 1:
-		return Battle::GT_ComEnds;
+		return Enum::GT_ComEnds;
     case 2:
-		return Battle::GT_Lineage;
+		return Enum::GT_Lineage;
     default:
 		ASSERT_EXCEPTION( false, "int to IBattle::GameType" );
     };
-	return Battle::GT_ComContinue;
+	return Enum::GT_ComContinue;
 }
 
 } // namespace LSL {

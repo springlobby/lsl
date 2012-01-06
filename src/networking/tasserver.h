@@ -17,7 +17,8 @@ public:
 
 private:
 	void OnNewUser( std::string nick, std::string country, int cpu, int id );
-    void ExecuteCommand( const std::string& cmd, const std::string& inparams, int replyid = -1);
+	void ExecuteCommand( const std::string& cmd, std::string &inparams );
+	void ExecuteCommand( const std::string& cmd, std::string& inparams, int replyid );
 	void SendCmd( const std::string& command, const std::string& param );
 	void SendCmd( const std::string& command, const boost::format& param );
 	virtual void JoinChannel( const std::string& channel, const std::string& key );

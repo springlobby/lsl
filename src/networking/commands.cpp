@@ -96,6 +96,14 @@ CommandDictionary::CommandDictionary( TASServer* tas )
 //    NEWCMD("OFFERFILE",OnFileDownload,Int,Sentence,Sentence,All);
 }
 
+void CommandDictionary::Process(const std::string& cmd, std::string& params ) const
+{
+	const MapType::const_iterator it = cmd_map_.find( cmd );
+	if ( it != cmd_map_.end() )
+		it->second->process( params );
+	LslError( "no way to process command \"%s\" with parameters %s", cmd.c_str(), params.c_str() );
+}
+
 } //namespace LSL {
 
 #undef NEWCMD

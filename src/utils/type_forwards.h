@@ -17,6 +17,7 @@ namespace std {
 
 namespace LSL {
 namespace Battle {
+	class IBattle;
 	class Battle;
 }
 
@@ -35,6 +36,9 @@ typedef std::vector< std::string > StringVector;
 
 typedef boost::shared_ptr< User > UserPtr;
 typedef boost::shared_ptr< const User > ConstUserPtr;
+
+typedef boost::shared_ptr< Battle::IBattle > IBattlePtr;
+typedef boost::shared_ptr< const Battle::IBattle > ConstIBattlePtr;
 
 typedef boost::shared_ptr< Battle::Battle > BattlePtr;
 typedef boost::shared_ptr< const Battle::Battle > ConstBattlePtr;
