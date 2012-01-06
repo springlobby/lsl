@@ -30,6 +30,9 @@ public:
 
     void Connect(const std::string& server, int port);
     void Disconnect();
+
+	bool SendData(const std::string& msg);
+
     void SetSendRateLimit( int Bps = -1 );
     int GetSendRateLimit() const { return m_rate; }
     std::string GetHandle() const;

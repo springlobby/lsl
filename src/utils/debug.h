@@ -25,6 +25,9 @@ struct conversion : public base {
 struct battle : public base {
    battle(const std::string& msg) : base( "battle exception: " + msg) {}
 };
+struct server : public base {
+   server(const std::string& msg) : base( "server exception: " + msg) {}
+};
 struct function_missing : public unitsync {
    function_missing(const std::string& funcname) : unitsync(" function couldn't be imported: " + funcname) {}
 };

@@ -12,6 +12,8 @@ boost::signals2::signal<void (ConstBattlePtr, ConstUserPtr, bool)> sig_UserLeftB
 boost::signals2::signal<void (ConstBattlePtr, std::string)> sig_BattleInfoUpdate;
 //! Hosted battle that is ready to start
 boost::signals2::signal<void (ConstBattlePtr)> sig_BattleCouldStartHosted;
+//! battle preset stuff has changed
+boost::signals2::signal<void ()> sig_ReloadPresetList;
 
 
 } } // namespace LSL { namespace Signals {

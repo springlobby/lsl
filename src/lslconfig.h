@@ -17,7 +17,7 @@ public:
     STR_DUMMY( GetCurrentUsedUnitSync )
     std::string GetCurrentUsedUnitSync() { return "/usr/lib/spring/libunitsync.so";}
 	StringVector GetPresetList() { return StringVector(); }
-	StringMap GetHostingPreset() { return StringMap(); }
+	StringMap GetHostingPreset(const std::string&,size_t) { return StringMap(); }
 };
 
 Config& sett();

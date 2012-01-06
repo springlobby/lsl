@@ -14,9 +14,9 @@ class TASServer : public iServer {
 public:
 	TASServer();
 
-	/*** these are only in this class */
 	void AcceptAgreement();
 	void RequestChannels();
+	/*** these are only in this class */
 	void Login(const std::string& user, const std::string& password);
 	std::string GetPasswordHash(const std::string& pass) const;
 	bool IsPasswordHash(const std::string& pass) const;
@@ -50,10 +50,13 @@ public:
 	void ModeratorGetLastIP(const std::string &nick);
 	void ModeratorFindByIP(const std::string &ipadress);
 	void AdminGetAccountAccess(const std::string &);
-
-	void SendPing();
 	void AdminChangeAccountAccess(const std::string &, const std::string &);
 	void AdminSetBotMode(const std::string &nick, bool isbot);
+
+	void SendPing();
+
+	virtual void LeaveBattle( const IBattlePtr battle );
+	virtual void StartHostedBattle();
 private:
 	void OnNewUser( std::string nick, std::string country, int cpu, int id );
 	void ExecuteCommand( const std::string& cmd, std::string& inparams );
@@ -80,6 +83,14 @@ private:
 
     friend class CommandDictionary;
     CommandDictionary* m_cmd_dict;
+
+	MutexWrapper<unsigned int> m_last_id;
+	unsigned int& GetLastID()
+	{
+		ScopedLocker<unsigned int> l_last_id(m_last_id);
+		return l_last_id.Get();
+	}
+
 };
 
 } //namespace LSL

@@ -1,12 +1,15 @@
 #include "iserver.h"
 
 #include "socket.h"
+#include "commands.h"
+#include "tasserverdataformats.h"
 #include <battle/ibattle.h>
 #include <user/user.h>
 
 #include <boost/typeof/typeof.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
+
 
 namespace LSL {
 
@@ -287,8 +290,10 @@ void iServer::SendScriptToProxy( const std::string& script )
 //! @brief Send udp ping.
 //! @note used for nat travelsal.
 
-unsigned int iServer::UdpPing(unsigned int src_port, const std::string &target, unsigned int target_port, const std::string &message)// full parameters version, used to ping all clients when hosting.
+unsigned int iServer::UdpPing(unsigned int src_port, const std::string &target, unsigned int target_port, const std::string &message)
 {
+	unsigned int result = 0;
+	assert( false );
 	return result;
 }
 
@@ -315,7 +320,7 @@ struct UserOrder
 };
 
 
-void iServer::UdpPingAllClients()// used when hosting with nat holepunching. has some rudimentary support for fixed source ports.
+void iServer::UdpPingAllClients()
 {
 	if (!m_current_battle)return;
 	if (!m_current_battle->IsFounderMe())return;
@@ -353,7 +358,10 @@ void iServer::UdpPingAllClients()// used when hosting with nat holepunching. has
 	}
 }
 
-
+void iServer::UdpPing(const int, const std::string &, const int, const std::string &)
+{
+	assert( false );
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -484,9 +492,9 @@ void iServer::OnUserQuit( const UserPtr user )
 
 void iServer::OnBattleOpened( const IBattlePtr battle )
 {
-	if ( battle.GetFounder() == m_relay_host_bot )
+	if ( battle->GetFounder() == m_relay_host_bot )
 	{
-		battle->SetProxy( m_relay_host_bot );
+		battle->SetProxy( m_relay_host_bot->Nick() );
 		JoinBattle( battle, m_last_relay_host_password ); // autojoin relayed host battles
 	}
 }
@@ -512,7 +520,7 @@ void iServer::OnBattleMaxPlayersChanged( const IBattlePtr battle, int maxplayers
 void iServer::OnBattleHostChanged( const IBattlePtr battle, UserPtr host, const std::string& ip, int port )
 {
 	if (!battle) return;
-	if (!user) battle->SetFounder( host );
+	if (!user) battle->SetFounder( host->Nick() );
 	battle->SetHostIp( ip );
 	battle->SetHostPort( port );
 }
@@ -569,12 +577,12 @@ void iServer::OnUserLeftBattle(const IBattlePtr battle, const UserPtr user)
 {
 	if (!user) return;
 	bool isbot = user->BattleStatus().IsBot();
-	user->BattleStatus().scriptPassword.Clear();
+	user->BattleStatus().scriptPassword.clear();
 	if (!battle) return;
 	battle->OnUserRemoved( user );
 	if (user == m_me)
 	{
-		m_relay_host_bot = 0;
+		m_relay_host_bot = UserPtr();
 	}
 	//TODO: event
 }
@@ -594,6 +602,7 @@ void iServer::OnBattleDisableUnit( const IBattlePtr battle, const std::string& u
 
 void iServer::OnBattleEnableUnit( int battleid, const StringVector& unitnames )
 {
+	BattlePtr battle = m_battles.Get( battleid );
 	if (!battle) return;
 	BOOST_FOREACH( const std::string unit, unitnames )
 	{
@@ -604,6 +613,7 @@ void iServer::OnBattleEnableUnit( int battleid, const StringVector& unitnames )
 
 void iServer::OnBattleEnableAllUnits( int battleid )
 {
+	BattlePtr battle = m_battles.Get( battleid );
 	if (!battle) return;
 	battle->UnrestrictAllUnits();
 	//TODO: event
@@ -637,13 +647,14 @@ void iServer::OnLoginFailed( const std::string& reason )
 
 void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const std::string& message )
 {
-	if ( m_relay_host_bot != 0 && channel == GetChannel( "U" + ToString(m_relay_host_bot->GetID()) ) )
+	if ( m_relay_host_bot != 0
+		 && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_bot->GetID()) ) )
 	{
 		if ( user == m_me && message.length() > 0 && message[0] == '!')
 			return;
 		if ( user == m_relay_host_bot )
 		{
-			if ( message.StartsWith("UserScriptPassword") )
+			if ( boost::starts_with(message, "UserScriptPassword") )
 			{
 				GetWordParam( message ); // skip the command keyword
 				std::string usernick = GetWordParam( message );
@@ -655,7 +666,8 @@ void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const
 			}
 		}
 	}
-	if ( m_relay_host_manager != 0 && channel == GetChannel( "U" + ToString(m_relay_host_manager->GetID()) ) )
+	if ( m_relay_host_manager != 0
+		 && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_manager->GetID()) ) )
 	{
 		if ( user == m_me &&  message.length() > 0 && message[0] == '!' )
 			return;
@@ -671,13 +683,14 @@ void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const
 			}
 		}
 	}
-	if ( m_relay_host_manager_list != 0 && channel == GetChannel( "U" + ToString(m_relay_host_manager_list->GetID() ) ) )
+	if ( m_relay_host_manager_list != 0
+		 && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_manager_list->GetID() ) ) )
 	{
 		if ( user == m_me && message == "!lm" )
 			return;
 		if ( user == m_relay_host_manager_list )
 		{
-			if ( message.StartsWith("list ") )
+			if ( boost::starts_with(message,"list ") )
 			{
 				 std::string list = Util::AfterFirst( params, " " ) ;
 				 boost::algorithm::split( m_relay_host_manager_list, list, boost::algorithm::is_any_of("\t"),

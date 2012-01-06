@@ -1,12 +1,16 @@
-//#include "../utils/base64.h"
-#include <boost/algorithm/string.hpp>
+#include "tasserver.h"
 
+#include <boost/algorithm/string.hpp>
+#include <utils/base64.h>
 #include <utils/md5.h>
 #include <utils/conversion.h>
-#include "tasserver.h"
+#include <utils/debug.h>
+
 #include "socket.h"
 #include "commands.h"
 #include "tasserverdataformats.h"
+
+#define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( server, msg ); } } while (0)
 
 namespace LSL {
 
@@ -51,8 +55,7 @@ void TASServer::GetBanList()
 
 void TASServer::SetChannelTopic(const std::string& channel, const std::string& topic)
 {
-	boost::replace_all( topic, "\n", "\\n" );
-	SendCmd( "CHANNELTOPIC",topic );
+	SendCmd( "CHANNELTOPIC", boost::replace_all_copy( topic, "\n", "\\n" ) );
 }
 
 void TASServer::SendChannelMessage(const std::string& channel, const std::string& message)
@@ -77,7 +80,8 @@ void TASServer::ChangePassword(const std::string& oldpassword, const std::string
 
 void TASServer::GetMD5(const std::string& text, const std::string& newpassword )
 {
-	return GetPasswordHash(params);
+	assert( false );
+//	return GetPasswordHash(params);
 }
 
 void TASServer::Rename(const std::string& newnick)
@@ -108,6 +112,8 @@ void TASServer::GetLastUserIP(const std::string& user)
 
 int TASServer::Register( const std::string& addr, const int port, const std::string& nick, const std::string& password )
 {
+	assert( false );
+#if 0
 	FakeNetClass temp;
 	Socket tempsocket( temp, true, true );
 	tempsocket.Connect( addr, port );
@@ -138,6 +144,7 @@ int TASServer::Register( const std::string& addr, const int port, const std::str
 	{
 		return 2;
 	}
+#endif
 	return 3;
 }
 
@@ -191,7 +198,7 @@ void TASServer::AcceptAgreement()
 void TASServer::ExecuteCommand( const std::string& cmd, std::string& params )
 {
 	int replyid = 0;
-	if ( params[0] == "#" )
+	if ( params[0] == '#' )
 	{
 		std::string id = Util::AfterFirst( Util::BeforeFirst( params, " " ),  "#" );
 		params = Util::AfterFirst( params, " " );
@@ -207,7 +214,7 @@ void TASServer::SendCmd( const std::string& command, const std::string& param )
 	msg = msg + "#" + Util::ToString( GetLastID() ) + " ";
 	if ( !param.length() ) msg = msg + command + "\n";
 	else msg = msg + command + " " + param + "\n";
-	bool send_success = m_sock->Send( msg );
+	bool send_success = m_sock->SendData( msg );
 	sig_SentMessage(send_success, msg, GetLastID());
 }
 
@@ -259,19 +266,10 @@ void TASServer::DoActionBattle( int /*unused*/, const std::string& msg )
 
 void TASServer::Ring( const std::string& nick )
 {
-	try {
-		ASSERT_EXCEPTION( m_battle_id != -1, "invalid m_battle_id value" );
-		ASSERT_EXCEPTION( BattleExists(m_battle_id), "battle doesn't exists" );
-
-		Battle& battle = GetBattle( m_battle_id );
-		ASSERT_EXCEPTION( m_current_battle->IsFounderMe(), "I'm not founder" );
-
+	if ( m_current_battle && m_current_battle.IsProxy() )
 		RelayCmd( "RING", nick );
-	}
-	catch (...)
-	{
+	else
 		SendCmd( "RING", nick );
-	}
 }
 
 void TASServer::ModeratorSetChannelTopic( const std::string& channel, const std::string& topic )
@@ -1144,7 +1142,7 @@ void TASServer::OnChannelJoinUserList( const std::string& channel, const std::st
 
 void TASServer::OnHandle()
 {
-	SendCmd( "USERID", Tostring( m_crc.GetCRC() );
+	SendCmd( "USERID", Util::ToString( m_crc.GetCRC() );
 }
 
 void TASServer::OnUserJoinedChannel( const std::string& channel, const std::string& who )
@@ -1468,6 +1466,5 @@ void TASServer::SendCmd( const std::string& command, const boost::format& param 
 {
 	SendCmd( command, param.str() );
 }
-//#endif //#ifdef LETS_SEE_SHIT_BREAK
 
 } // namespace LSL {

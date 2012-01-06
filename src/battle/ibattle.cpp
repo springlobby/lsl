@@ -10,7 +10,7 @@
 #include "tdfcontainer.h"
 
 #include <algorithm>
-#include <boost/typeof/typeof.hpp>
+#include <boost/foreach.hpp>
 
 #define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( battle, msg ); } } while (0)
 
@@ -942,8 +942,8 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			m_restricted_units.clear();
 			BOOST_FOREACH( const std::string unitinfo, infos )
 			{
-				RestrictUnit( Util::BeforeLast(unitinfo,'='),
-						Util::FromString<long>( Util::AfterLast(unitinfo,'=') ) );
+				RestrictUnit( Util::BeforeLast(unitinfo,"="),
+						Util::FromString<long>( Util::AfterLast(unitinfo,"=") ) );
 			}
 			SendHostInfo( Enum::HI_Restrictions );
 			Update( (boost::format( "%d_restrictions" ) % OptionsWrapper::PrivateOptions).str() );
@@ -951,7 +951,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 		}
 	}
 	SendHostInfo( Enum::HI_Send_All_opts );
-//	ui().ReloadPresetList();
+	sig_ReloadPresetList();
 	return true;
 }
 
@@ -1003,7 +1003,7 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 		}
 	}
 	sett().SaveSettings();
-//	ui().ReloadPresetList();
+	sig_ReloadPresetList();
 }
 
 std::string IBattle::GetCurrentPreset()
@@ -1016,7 +1016,7 @@ void IBattle::DeletePreset( const std::string& name )
 	std::string preset = FixPresetName(name);
 	if ( m_preset == preset ) m_preset = "";
 	sett().DeletePreset( preset );
-//	ui().ReloadPresetList();
+	sig_ReloadPresetList();
 }
 
 StringVector IBattle::GetPresetList()
@@ -1060,8 +1060,9 @@ bool IBattle::IsFounder( const UserPtr user ) const
 	if ( m_userlist.Exists( m_opts.founder ) ) {
 		try
 		{
-			return &GetFounder() == &user;
-		}catch(...){return false;}
+			return GetFounder() == user;
+		}
+		catch(UserList::MissingItemException& m){return false;}
 	}
 	else
 		return false;
@@ -1102,7 +1103,7 @@ void IBattle::LoadScriptMMOpts( const PDataList& node )
 void IBattle::GetBattleFromScript( bool loadmapmod )
 {
 	BattleOptions opts;
-	std::stringstream ss ( (const char *)GetScript().mb_str(wxConvUTF8) );// no need to convert wxstring-->std::string-->std::stringstream, convert directly.
+	std::stringstream ss ( GetScript() );
 	PDataList script( ParseTDF(ss) );
 
 	PDataList replayNode ( script->Find("GAME" ) );
@@ -1147,7 +1148,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 			if ( player.ok() || bot.ok() )
 			{
 				if ( bot.ok() ) player = bot;
-				User user ( player->GetString( "Name" ), (player->GetString( "CountryCode").Upper() ), 0);
+				User user ( player->GetString( "Name" ), boost::to_upper_copy(player->GetString( "CountryCode") ), 0);
 				UserBattleStatus& status = user->BattleStatus();
 				status.isfromdemo = true;
 				status.spectator = player->GetInt( "Spectator", 0 );

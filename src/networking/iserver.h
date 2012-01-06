@@ -22,7 +22,7 @@ class IBattle;
 class BattleOptions;
 }
 
-class PingThread {};
+const unsigned int FIRST_UDP_SOURCEPORT = 8300;
 
 class ServerEvents;
 class Channel;
@@ -35,6 +35,10 @@ class UnitsyncMap;
 class UnitsyncMod;
 class UserStatus;
 class MuteList;
+class iServer;
+struct PingThread { PingThread(iServer&,int){}
+					PingThread(){}
+					void Init(){}};
 
 class iServer
 {
@@ -112,8 +116,8 @@ class iServer
 
 	virtual void HostBattle( Battle::BattleOptions bo ) = 0;
 	virtual void JoinBattle( const IBattlePtr battle, const std::string& password = "" ) = 0;
-	void LeaveBattle( const IBattlePtr battle );
-	void StartHostedBattle();
+	virtual void LeaveBattle( const IBattlePtr battle ) = 0;
+	virtual void StartHostedBattle() = 0;
 
 	virtual void ForceSide( const IBattlePtr battle, const UserPtr user, int side ) = 0;
 	virtual void ForceTeam( const IBattlePtr battle, const UserPtr user, int team ) = 0;
@@ -187,7 +191,7 @@ private:
     std::string m_server_name;
 	std::string m_server_ver;
 	std::string m_last_relay_host_password;
-	PingThread m_ping_thread;
+	PingThread* m_ping_thread;
 	std::string m_buffer;
     bool m_connected;
     bool m_online;
@@ -209,7 +213,6 @@ private:
 		return l_pinglist.Get();
 	}
 
-	IBattlePtr m_current_battle;
 	ChannelList m_channels;
 	UserList m_users;
 	Battle::BattleList m_battles;
@@ -229,10 +232,8 @@ private:
 	BattlePtr AddBattle( const int& id );
 	void RemoveBattle( const IBattlePtr battle );
 
-	void RelayCmd( const std::string& command, const std::string& param = "" );
 	void OpenBattle( Battle::BattleOptions bo );
 	void Ping();
-
 
 private://defs from iserver.cpp bottom
 	void OnSocketError( const Enum::SocketError& /*unused*/ );
@@ -296,11 +297,16 @@ private://defs from iserver.cpp bottom
 	virtual void _HostBattle(Battle::BattleOptions bo) = 0;
 
 	void UdpPingTheServer( const std::string& message = "" );/// used for nat travelsal. pings the server.
+	//! used when hosting with nat holepunching. has some rudimentary support for fixed source ports.
 	void UdpPingAllClients();
+	//! full parameters version, used to ping all clients when hosting.
+	unsigned int UdpPing(unsigned int src_port, const std::string &target, unsigned int target_port, const std::string &message);
 
 protected://ideally this would be nothing, so long as Tasserver is still a child
 	Socket* m_sock;
 	void HandlePong( int replyid );
+	void RelayCmd( const std::string& command, const std::string& param = "" );
+	IBattlePtr m_current_battle;
 	CRC m_crc;
 };
 

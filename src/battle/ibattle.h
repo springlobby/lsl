@@ -207,10 +207,10 @@ public:
 	ConstUserVector Players() const { return m_userlist.Vectorize(); }
 	virtual unsigned int GetNumPlayers() const;
 	virtual unsigned int GetNumActivePlayers() const;
-
 	virtual unsigned int GetNumReadyPlayers() const { return m_players_ready; }
 	virtual unsigned int GetNumSyncedPlayers() const { return m_players_sync; }
 	virtual unsigned int GetNumOkPlayers() const { return m_players_ok; }
+	virtual void SetNumSpectators(size_t num) = 0;
 
 	virtual int GetBattleId() const { return m_opts.battleid; }
 
@@ -220,7 +220,7 @@ public:
 	virtual void SetBattleType( Enum::BattleType type ) { m_opts.battletype = type; }
 	virtual Enum::BattleType GetBattleType() { return m_opts.battletype; }
 
-	virtual void SetIsLocked( const bool islocked ) { m_opts.islocked = islocked; }
+	virtual void SetLocked( const bool islocked ) { m_opts.islocked = islocked; }
 	virtual bool IsLocked() const { return m_opts.islocked; }
 	virtual void SetIsPassworded( const bool ispassworded ) { m_opts.ispassworded = ispassworded; }
 	virtual bool IsPassworded() const { return m_opts.ispassworded; }

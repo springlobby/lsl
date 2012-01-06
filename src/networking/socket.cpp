@@ -168,4 +168,13 @@ Enum::SocketState Socket::State() const
 	return Enum::SS_Open;
 }
 
+bool Socket::SendData(const std::string &msg)
+{
+	if (m_sock.is_open())
+	{
+		return m_sock.send(boost::asio::buffer(msg));
+	}
+	return 0;
+}
+
 } // namespace LSL
