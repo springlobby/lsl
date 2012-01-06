@@ -446,7 +446,7 @@ void iServer::OnDisconnected( bool wasonline )
 	//TODO: event
 }
 
-void iServer::OnLogin(const std::string &user )
+void iServer::OnLogin(const UserPtr user )
 {
 	if (m_online)
 		return;
@@ -492,9 +492,9 @@ void iServer::OnUserQuit(const std::string& nick )
 	//TODO: event
 }
 
-void iServer::OnBattleOpened(const int battle_id )
+void iServer::OnBattleOpened(const IBattlePtr battle )
 {
-	IBattlePtr battle = m_battles.Get( battle_id );
+	IBattlePtr battle = m_battles.Get( battle );
 	if ( battle && battle->GetFounder() == m_relay_host_bot )
 	{
 		battle->SetProxy( m_relay_host_bot->Nick() );

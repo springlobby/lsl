@@ -896,7 +896,7 @@ int TASServer::GetNewUserId()
 
 
 
-void TASServer::OnUserQuit( const std::string& nick )
+void TASServer::OnUserQuit(const UserPtr &nick )
 {
 	UserPtr user = GetUser( nick );
 	if ( !user ) return;

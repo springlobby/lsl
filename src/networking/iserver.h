@@ -242,14 +242,14 @@ protected://defs from iserver.cpp bottom
 	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);
 	void OnBattleStarted( const int battle_id );
 	void OnDisconnected( bool wasonline );
-	void OnLogin( const std::string& user );
+	void OnLogin( const UserPtr user );
 	void OnLogout();
 	void OnLoginInfoComplete();
 	void OnUnknownCommand( const std::string& command, const std::string& params );
 	void OnMotd( const std::string& msg );
 	void OnPong( long long ping_time );
-	void OnUserQuit( const std::string& user );
-	void OnBattleOpened( const int battle_id );
+	void OnUserQuit( const UserPtr& user );
+	void OnBattleOpened( const IBattlePtr battle );
 	void OnBattleMapChanged(const IBattlePtr battle,UnitsyncMap map);
 	void OnBattleModChanged( const IBattlePtr battle, UnitsyncMod mod );
 	void OnBattleMaxPlayersChanged( const IBattlePtr battle, int maxplayers );
