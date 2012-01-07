@@ -6,6 +6,7 @@
 #include <lslutils/type_forwards.h>
 #include <lsl/container/userlist.h>
 #include <unitsync++/data.h>
+
 #include "enum.h"
 
 #include <sstream>
@@ -309,8 +310,8 @@ public:
 
 	virtual long GetBattleRunningTime() const; // returns 0 if not started
 
-	void LoadScriptMMOpts(const std::string &sectionname, const PDataList &node);
-	void LoadScriptMMOpts(const PDataList &node);
+    void LoadScriptMMOpts(const std::string &sectionname, const TDF::PDataList &node);
+    void LoadScriptMMOpts(const TDF::PDataList &node);
 private:
 
 //	void LoadScriptMMOpts( const std::string& sectionname, const SL::PDataList& node );

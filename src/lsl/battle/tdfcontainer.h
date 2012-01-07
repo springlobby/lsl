@@ -1,5 +1,5 @@
-#ifndef TDFCONTAINER_H
-#define TDFCONTAINER_H
+#ifndef LSL_TDFCONTAINER_H
+#define LSL_TDFCONTAINER_H
 
 #include <lslutils/misc.h>
 #include <lslutils/conversion.h>
@@ -298,9 +298,9 @@ void TDFWriter::Append( const std::string& name, T begin, T end ) {
 	m_stream << ";\n";
 }
 
-} // namespace LSL {
+} } // namespace LSL { namespace TDF {
 
-#endif // TDFCONTAINER_H
+#endif // LSL_TDFCONTAINER_H
 
 /**
     This file is part of SpringLobby,

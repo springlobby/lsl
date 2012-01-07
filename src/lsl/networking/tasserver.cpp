@@ -763,6 +763,7 @@ void TASServer::UpdateBot( const BattlePtr battle, const UserPtr user, UserBattl
 {
 	if (!battle) return;
 	if (!user) return;
+    //is the incoming status not that of user?
 	UserBattleStatus status = user->BattleStatus();
 	if (!status.IsBot()) return;
 
@@ -845,7 +846,7 @@ void TASServer::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType nat
 	OnBattleModChanged( battle, UnitsyncMod(mod, "") );
 
 	std::string battlechanname = GetBattleChannelName(battle);
-	Channel* channel = GetChannel( battlechanname );
+    ChannelPtr channel = GetChannel( battlechanname );
 	if (!channel)
 	{
 		channel = AddChannel( battlechanname );

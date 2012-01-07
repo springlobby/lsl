@@ -2,6 +2,7 @@
 #define SPRINGLOBBY_HEADERGUARD_DEBUG_H
 
 #include <stdexcept>
+#include <string>
 #include "logging.h"
 
 namespace LSL {

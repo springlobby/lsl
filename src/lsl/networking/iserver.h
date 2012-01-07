@@ -305,6 +305,7 @@ protected://ideally this would be nothing, so long as Tasserver is still a child
 	Socket* m_sock;
 	void HandlePong( int replyid );
 	void RelayCmd( const std::string& command, const std::string& param = "" );
+    void RelayCmd( const std::string& command, const boost::format& param );
 	IBattlePtr m_current_battle;
 	CRC m_crc;
 	UserPtr m_relay_host_bot;

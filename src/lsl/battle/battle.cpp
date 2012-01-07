@@ -5,14 +5,16 @@
 // Class: Battle
 //
 #include "battle.h"
-#include <networking/iserver.h>
-#include <user/user.h>
+#include "signals.h"
+
+#include <lsl/networking/iserver.h>
+#include <lsl/user/user.h>
 #include <lslutils/misc.h>
 #include <lslutils/debug.h>
 #include <lslutils/conversion.h>
+#include <lslutils/lslconfig.h>
 #include <unitsync++/optionswrapper.h>
-#include "signals.h"
-#include <lslconfig.h>
+
 
 const unsigned int TIMER_INTERVAL         = 1000;
 const unsigned int TIMER_ID               = 101;

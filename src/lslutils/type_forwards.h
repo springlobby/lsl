@@ -44,7 +44,6 @@ class UserBattleStatus;
 class UserPosition;
 class OptionsWrapper;
 struct GameOptions;
-class PDataList;
 
 typedef std::map< std::string, std::string> StringMap;
 typedef std::vector< std::string > StringVector;

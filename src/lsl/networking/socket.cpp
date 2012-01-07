@@ -1,6 +1,7 @@
 #include "socket.h"
 
 #include <lslutils/net.h>
+#include <lslutils/conversion.h>
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -144,7 +145,7 @@ std::string Socket::GetHandle() const
     for (int i=0; i<6; i++)
     {
         handle += Util::ToString(((unsigned int)dev.ifr_hwaddr.sa_data[i])&255);
-        if (i != 5) handle += _T(':');
+        if (i != 5) handle += ':';
     }
     close(sock);
 #endif

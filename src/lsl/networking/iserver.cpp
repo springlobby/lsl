@@ -254,6 +254,11 @@ void iServer::RelayCmd(  const std::string& command, const std::string& param )
 	}
 }
 
+void iServer::RelayCmd( const std::string& command, const boost::format& param )
+{
+    RelayCmd( command, param.str() );
+}
+
 void iServer::SetRelayIngamePassword( const UserPtr user )
 {
 	if (!user) return;

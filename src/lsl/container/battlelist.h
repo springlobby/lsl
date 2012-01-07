@@ -2,12 +2,12 @@
 #define SPRINGLOBBY_HEADERGUARD_BATTLELIST_H
 
 #include "base.h"
-#include <lsl/battle/ibattle.h>
+#include <lsl/battle/battle.h>
 
 namespace LSL {
 namespace Battle {
 
-class BattleList : public ContainerBase< IBattle >
+class BattleList : public ContainerBase< Battle >
 {};
 
 } //namespace Battle

@@ -3,10 +3,11 @@
 #include <lslutils/debug.h>
 #include <lslutils/misc.h>
 #include <lslutils/conversion.h>
+#include <lslutils/lslconfig.h>
 #include <unitsync++/unitsync.h>
 #include <unitsync++/optionswrapper.h>
+
 #include "signals.h"
-#include <lslconfig.h>
 #include "tdfcontainer.h"
 
 #include <algorithm>
@@ -1080,10 +1081,10 @@ int IBattle::GetMyPlayerNum() const
 void IBattle::LoadScriptMMOpts( const std::string& sectionname, const PDataList& node )
 {
 	if ( !node.ok() ) return;
-	PDataList section ( node->Find(sectionname) );
+    TDF::PDataList section ( node->Find(sectionname) );
 	if ( !section.ok() ) return;
 	OptionsWrapper& opts = CustomBattleOptions();
-	for ( PNode n = section->First(); n != section->Last(); n = section->Next( n ) )
+    for ( TDF::PNode n = section->First(); n != section->Last(); n = section->Next( n ) )
 	{
 		if ( !n.ok() ) continue;
 		opts.setSingleOption( n->Name(), section->GetString( n->Name() ) );
@@ -1107,9 +1108,9 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 {
 	BattleOptions opts;
 	std::stringstream ss ( GetScript() );
-	PDataList script( ParseTDF(ss) );
+    TDF::PDataList script( ParseTDF(ss) );
 
-	PDataList replayNode ( script->Find("GAME" ) );
+    TDF::PDataList replayNode ( script->Find("GAME" ) );
 	if ( replayNode.ok() )
 	{
 		std::string modname = replayNode->GetString( "GameType" );
@@ -1148,8 +1149,8 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 		//[PLAYERX] sections
 		for ( int i = 0; i < playernum ; ++i )
 		{
-			PDataList player ( replayNode->Find( "PLAYER" + Util::ToString(i) ) );
-			PDataList bot ( replayNode->Find( "AI" + Util::ToString(i) ) );
+            TDF::PDataList player ( replayNode->Find( "PLAYER" + Util::ToString(i) ) );
+            TDF::PDataList bot ( replayNode->Find( "AI" + Util::ToString(i) ) );
 			if ( player.ok() || bot.ok() )
 			{
 				if ( bot.ok() ) player = bot;
@@ -1194,7 +1195,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 				IBattle::TeamInfoContainer teaminfos = parsed_teams[user->BattleStatus().team];
 				if ( !teaminfos.exist )
 				{
-					PDataList team( replayNode->Find( "TEAM" + Util::ToString( user->BattleStatus().team ) ) );
+                    TDF::PDataList team( replayNode->Find( "TEAM" + Util::ToString( user->BattleStatus().team ) ) );
 					if ( team.ok() )
 					{
 						teaminfos.exist = true;

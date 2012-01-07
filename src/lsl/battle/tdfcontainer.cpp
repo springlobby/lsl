@@ -1,8 +1,14 @@
 #include "tdfcontainer.h"
 
-#include "lslutils/conversion.h"
-#include "lslutils/debug.h"
+#include <lslutils/conversion.h>
+#include <lslutils/debug.h>
+
 #include <cmath>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
+#include <algorithm>
+
 
 namespace LSL { namespace TDF {
 
@@ -48,12 +54,6 @@ void TDFWriter::Close() {
 void TDFWriter::AppendLineBreak() {
 	m_stream << _T( "\n" );
 }
-
-#include "sstream"
-#include "fstream"
-#include <iomanip>
-#include <algorithm>
-
 
 void Tokenizer::ReportError( const Token &t, const std::string &err ) {
 	wxLogMessage( _T( "TDF parsing error at (%s), on token \"%s\" : %s" ), t.pos_string.c_str(), t.value_s.c_str(), err.c_str() );
@@ -238,7 +238,7 @@ Token Tokenizer::GetToken( int i ) {
 void Tokenizer::Step( int i ) {
 	buffer_pos += i;
 }
-namespace SL {
+
 Node::~Node() {
 	//if(parent)parent->Remove(name);
 }
@@ -310,10 +310,10 @@ DataList::DataList() {
 }
 
 DataList::~DataList() {// disconnect from childs
-	PNode node = First();
+    TDF::PNode node = First();
 	while ( node.Ok() && node != End() ) {
 		//std::cout<<"printing"<<std::endl;
-		PNode nextnode = Next( node );
+        TDF::PNode nextnode = Next( node );
 		node->parent = NULL;
 		node->ListRemove();
 		node = nextnode;
@@ -714,7 +714,6 @@ void DataLeaf::Load( Tokenizer &f ) {
 		f.ReportError( t, _T( "; expected" ) );
 	}
 }
-} // end namespace SL
 
 PDataList ParseTDF( std::istream &s, int *error_count ) {
 	Tokenizer t;

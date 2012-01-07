@@ -17,7 +17,7 @@
     instance.Remove( p->key() );\
     assert( instance.size() == 0 );\
     try {\
-        instance.Get( p->index() );\
+        instance.Get( p->key() );\
         throw TestFailedException("Get should've thrown MissingItemException");\
     }\
     catch (LSL::name::MissingItemException& e) {std::cerr << e.what() << std::endl;}\
