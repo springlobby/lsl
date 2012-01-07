@@ -37,16 +37,11 @@ INCLUDE(cmake/package_config.cmake)
 INCLUDE(cmake/sources_list.cmake)
 
 FIND_PACKAGE( PkgConfig )
+
 FIND_PACKAGE(Boost 1.48.0 REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
-#if nothing went wrong we have the file and can define HAVE_CONFIG_H
-IF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${libSpringLobby_SOURCE_DIR}/libSpringLobby_config.h  )
-    ADD_DEFINITIONS( -DHAVE_CONFIG_H )
-    INCLUDE_DIRECTORIES(${libSpringLobby_BINARY_DIR})
-ENDIF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${libSpringLobby_SOURCE_DIR}/libSpringLobby_config.h  )
-INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/lib)
 
 #----------------------------------------------------------------------------------------------------
 # Options, that can be changed be the User in order to customise libSpringLobby
@@ -86,61 +81,32 @@ cmake_policy(SET CMP0004 OLD)
 #ignore warnings about macosx app bundle output dir
 cmake_policy(SET CMP0006 OLD)
 
-#cimage deps
-FIND_PACKAGE( PNG REQUIRED)
-ADD_DEFINITIONS( -Dcimg_use_png -std=c++0x)
-
-ADD_LIBRARY(libSpringLobby STATIC ${header} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE} ${commonSrc})
-ADD_LIBRARY(libUnitsync++ STATIC ${usyncheader} ${libUnitsync++Src} ${commonSrc} )
-ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
-ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/test/swig.cpp )
-
-SET( SL_BOOST_LIBS boost_system boost_filesystem boost_thread boost_timer )
-TARGET_LINK_LIBRARIES(libSpringLobby ${SL_BOOST_LIBS} )
-TARGET_LINK_LIBRARIES(libUnitsync++ dl ${SL_BOOST_LIBS} DebuggingHelper  )
-#cimage deps
-TARGET_LINK_LIBRARIES(libUnitsync++ ${PNG_LIBRARY} X11 )
-
-TARGET_LINK_LIBRARIES(libSpringLobby_test dl libUnitsync++)
-
-IF(MINGW)
-	TARGET_LINK_LIBRARIES( libSpringLobby iphlpapi )
-ENDIF(MINGW)
-
-IF (WIN32)
-    install(TARGETS libSpringLobby LIBRARY DESTINATION .)
-    install(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
-	install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/locale DESTINATION .)
-ELSE (WIN32)
-    install(TARGETS libSpringLobby 
-		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib 
-		ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
-    install(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/libSpringLobby )
-ENDIF (WIN32)
 
 INCLUDE(cmake/compat_flags.cmake)
 
-add_custom_target(pack
-					${CMAKE_MAKE_PROGRAM} package
-					&& ${libSpringLobby_SOURCE_DIR}/tools/transform_release_zip.sh
-						${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}-win32.zip
-						${CMAKE_STRIP}
-				)
+# add_custom_target(pack
+# 					${CMAKE_MAKE_PROGRAM} package
+# 					&& ${libSpringLobby_SOURCE_DIR}/tools/transform_release_zip.sh
+# 						${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}-win32.zip
+# 						${CMAKE_STRIP}
+# 				)
+# 
+# # setup make dist
+# add_custom_target(dist ${CMAKE_SOURCE_DIR}/tools/make_dist.sh "${libSpringLobby_BINARY_DIR}" "${PACKAGE_NAME}-${PACKAGE_VERSION}"
+# 					 )
+# 
+# # setup make distcheck
+# add_custom_target(distcheck + cd ${CMAKE_BINARY_DIR} &&
+#                         rm -rf ${PACKAGE_NAME}-${PACKAGE_VERSION} &&
+#                         tar -xzf ${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz &&
+#                         cd ${PACKAGE_NAME}-${PACKAGE_VERSION}/ &&
+#                         cmake "-DCMAKE_CXX_FLAGS:STRING=-O0". && ${CMAKE_MAKE_PROGRAM}
+# 					)
+# add_custom_target( version
+# 				${libSpringLobby_SOURCE_DIR}/tools/regen_config_header.sh ${libSpringLobby_SOURCE_DIR}/cmake/config.h ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h
+# 				)
+# add_dependencies( distcheck dist )
+# add_dependencies( libSpringLobby version )
 
-# setup make dist
-add_custom_target(dist ${CMAKE_SOURCE_DIR}/tools/make_dist.sh "${libSpringLobby_BINARY_DIR}" "${PACKAGE_NAME}-${PACKAGE_VERSION}"
-					 )
-
-# setup make distcheck
-add_custom_target(distcheck + cd ${CMAKE_BINARY_DIR} &&
-                        rm -rf ${PACKAGE_NAME}-${PACKAGE_VERSION} &&
-                        tar -xzf ${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz &&
-                        cd ${PACKAGE_NAME}-${PACKAGE_VERSION}/ &&
-                        cmake "-DCMAKE_CXX_FLAGS:STRING=-O0". && ${CMAKE_MAKE_PROGRAM}
-					)
-add_custom_target( version
-				${libSpringLobby_SOURCE_DIR}/tools/regen_config_header.sh ${libSpringLobby_SOURCE_DIR}/cmake/config.h ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h
-				)
-add_dependencies( distcheck dist )
-add_dependencies( libSpringLobby version )
-
+add_subdirectory( test )
+add_subdirectory( src )

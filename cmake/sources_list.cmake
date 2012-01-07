@@ -4,42 +4,6 @@
 
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
-SET(libSpringLobbySrc 
-	src/libspringlobby.cpp
-	src/utils/crc.cpp
-	src/utils/net.cpp
-	src/utils/globalsmanager.cpp
-	src/container/userlist.cpp
-	src/container/channellist.cpp
-	src/container/battlelist.cpp
-	src/channel.cpp
-	src/user/user.cpp
-	src/user/common.cpp
-	src/networking/socket.cpp
-	src/networking/commands.cpp
-	src/networking/tasserverdataformats.cpp
-	src/networking/iserver.cpp
-	src/networking/tasserver.cpp
-	src/battle/ibattle.cpp
-	src/battle/battle.cpp
-	src/battle/tdfcontainer.cpp 
-	)
-SET(libUnitsync++Src
-	src/unitsync++/c_api.cpp
-	src/unitsync++/image.cpp
-	src/unitsync++/loader.cpp
-	src/unitsync++/thread.cpp 
-	src/unitsync++/mmoptionmodel.cpp
-	src/unitsync++/optionswrapper.cpp
-	src/unitsync++/unitsync.cpp
-	)
-SET(commonSrc
-	src/utils/misc.cpp
-	src/lslconfig.cpp 
-	)
-	
-SET(basic_testSrc
-	test/basic.cpp test/usync.cpp)
 	
 FILE( GLOB RECURSE header "src/*.h" )
 FILE( GLOB RECURSE usyncheader "src/unitsync++/*.h" )
