@@ -183,8 +183,6 @@ private:
 	int m_ping_timeout; //! in seconds
 	int m_ping_interval; //! in seconds
 	int m_server_rate_limit; //! in bytes/sec
-	int m_message_size_limit; //! in bytes
-	UserPtr m_me;
 	std::string m_min_required_spring_ver;
 	std::string m_last_denied_connection_reason;
     std::string m_server_name;
@@ -215,20 +213,15 @@ private:
 	ChannelList m_channels;
 	UserList m_users;
 	Battle::BattleList m_battles;
-	UserPtr m_relay_host_bot;
 	UserPtr m_relay_host_manager;
 	UserPtr m_relay_host_list;
 
 	UserVector GetAvailableRelayHostList();
 	StringVector m_relay_host_manager_list;
 
-	UserPtr AddUser( const int id );
 	void RemoveUser( const UserPtr user );
-
 	ChannelPtr AddChannel( const std::string& chan );
 	void RemoveChannel( const ChannelPtr chan );
-
-	BattlePtr AddBattle( const int& id );
 	void RemoveBattle( const IBattlePtr battle );
 
 	void OpenBattle( Battle::BattleOptions bo );
@@ -248,7 +241,7 @@ protected://defs from iserver.cpp bottom
 	void OnUnknownCommand( const std::string& command, const std::string& params );
 	void OnMotd( const std::string& msg );
 	void OnPong( long long ping_time );
-	void OnUserQuit( const UserPtr& user );
+	void OnUserQuit( const UserPtr user );
 	void OnBattleOpened( const IBattlePtr battle );
 	void OnBattleMapChanged(const IBattlePtr battle,UnitsyncMap map);
 	void OnBattleModChanged( const IBattlePtr battle, UnitsyncMod mod );
@@ -290,6 +283,7 @@ protected://defs from iserver.cpp bottom
 	void OnRequestBattleStatus();
 
 	virtual void OnConnected( const std::string&, const int, const std::string&, const int) = 0;
+	void OnUserScriptPassword( const UserPtr user, const std::string& pw );
 
 private:
 	virtual void _Disconnect(const std::string& reason) = 0;
@@ -297,6 +291,8 @@ private:
 	virtual void _JoinChannel( const std::string& channel, const std::string& key ) = 0;
 	virtual void _JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword ) = 0;
 	virtual void _HostBattle(Battle::BattleOptions bo) = 0;
+	virtual void _StartHostedBattle() = 0;
+	virtual void _LeaveBattle( const IBattlePtr battle) = 0;
 
 	void UdpPingTheServer( const std::string& message = "" );/// used for nat travelsal. pings the server.
 	//! used when hosting with nat holepunching. has some rudimentary support for fixed source ports.
@@ -310,6 +306,11 @@ protected://ideally this would be nothing, so long as Tasserver is still a child
 	void RelayCmd( const std::string& command, const std::string& param = "" );
 	IBattlePtr m_current_battle;
 	CRC m_crc;
+	UserPtr m_relay_host_bot;
+	int m_message_size_limit; //! in bytes
+	UserPtr m_me;
+	UserPtr AddUser( const int id );
+	BattlePtr AddBattle( const int& id );
 };
 
 } //namespace LSL

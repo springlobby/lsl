@@ -88,6 +88,7 @@ int IBattle::GetPlayerNum( const ConstUserPtr user ) const
 {
 	for ( size_t i = 0; i < m_userlist.size(); ++i )
 	{
+		//is this wise? userlist is a map that changes order on insert
 		if ( m_userlist.At(i) == user ) return i;
 	}
 
@@ -1018,7 +1019,7 @@ void IBattle::DeletePreset( const std::string& name )
 	std::string preset = FixPresetName(name);
 	if ( m_preset == preset ) m_preset = "";
 	sett().DeletePreset( preset );
-	sig_ReloadPresetList();
+	Signals::sig_ReloadPresetList();
 }
 
 StringVector IBattle::GetPresetList()
@@ -1113,14 +1114,16 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 	{
 		std::string modname = replayNode->GetString( "GameType" );
 		std::string modhash = replayNode->GetString( "ModHash" );
-		if ( !modhash.empty() ) modhash = MakeHashUnsigned( modhash );
+		if ( !modhash.empty() )
+			modhash = Util::MakeHashUnsigned( modhash );
 		SetHostMod( modname, modhash );
 
 		//don't have the maphash, what to do?
 		//ui download function works with mapname if hash is empty, so works for now
 		std::string mapname    = replayNode->GetString( "MapName" );
 		std::string maphash    = replayNode->GetString( "MapHash" );
-		if ( !maphash.empty() ) maphash = MakeHashUnsigned( maphash );
+		if ( !maphash.empty() )
+			maphash = Util::MakeHashUnsigned( maphash );
 		SetHostMap( mapname, maphash );
 
 		//        opts.ip         = replayNode->GetString( "HostIP" );
@@ -1150,7 +1153,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 			if ( player.ok() || bot.ok() )
 			{
 				if ( bot.ok() ) player = bot;
-				User user ( player->GetString( "Name" ), boost::to_upper_copy(player->GetString( "CountryCode") ), 0);
+				const UserPtr user( new User ( player->GetString( "Name" ), boost::to_upper_copy(player->GetString( "CountryCode") ), 0) );
 				UserBattleStatus& status = user->BattleStatus();
 				status.isfromdemo = true;
 				status.spectator = player->GetInt( "Spectator", 0 );
@@ -1199,10 +1202,10 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 						teaminfos.StartPosX = team->GetInt( "StartPosX", -1 );
 						teaminfos.StartPosY = team->GetInt( "StartPosY", -1 );
 						teaminfos.AllyTeam = team->GetInt( "AllyTeam", 0 );
-						teaminfos.RGBColor = GetColorFromFloatStrng( team->GetString( "RGBColor" ) );
+						teaminfos.RGBColor = GetColorFromFloatString( team->GetString( "RGBColor" ) );
 						teaminfos.SideName = team->GetString( "Side", "" );
 						teaminfos.Handicap = team->GetInt( "Handicap", 0 );
-						int sidepos = sides.Index( teaminfos.SideName );
+						int sidepos = Util::IndexInSequence( sides, teaminfos.SideName );
 						teaminfos.SideNum = sidepos;
 						parsed_teams[ user->BattleStatus().team ] = teaminfos;
 					}

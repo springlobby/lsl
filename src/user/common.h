@@ -83,7 +83,7 @@ public:
 
 	virtual ~CommonUser(){}
 
-	std::string key() const {return Nick();}
+	std::string key() const {return m_id;}
 	static std::string className() { return "Channel"; }
 
 	const std::string& Nick() const { return m_nick; }

@@ -54,6 +54,7 @@ public:
 	const ConstPointerType At( const typename MapType::size_type index ) const;
 	const PointerType At( const typename MapType::size_type index );
 	const ConstPointerType operator[]( typename MapType::size_type index ) const { return At(index); }
+	const PointerType operator[]( typename MapType::size_type index ) { return At(index); }
 
 	std::vector< ConstPointerType > Vectorize() const
 	{

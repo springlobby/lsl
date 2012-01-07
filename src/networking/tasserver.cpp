@@ -5,6 +5,8 @@
 #include <utils/md5.h>
 #include <utils/conversion.h>
 #include <utils/debug.h>
+#include <unitsync++/optionswrapper.h>
+#include <battle/battle.h>
 
 #include "socket.h"
 #include "commands.h"
@@ -181,7 +183,7 @@ void TASServer::Login(const std::string& user, const std::string& password)
 	std::string protocol = "\t" + m_crc.GetCRC();
 	std::string localaddr = m_sock->GetLocalAddress();
 	if ( localaddr.length() < 1 ) localaddr = "*";
-	SendRaw ( "LOGIN", m_user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
+	SendRaw ( "LOGIN", user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
 			  + localaddr + " liblobby " + Util::GetLibLobbyVersion() + protocol  + "\ta sp");
 }
 
@@ -385,7 +387,7 @@ void TASServer::LeaveBattle( const int& /*unused*/ )
 void TASServer::SendHostInfo( Enum::HostInfo update )
 {
 	if (!m_current_battle) return;
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 
 	if ( ( update & ( Enum::HI_Map | Enum::HI_Locked | Enum::HI_Spectators ) ) > 0 )
 	{
@@ -398,13 +400,13 @@ void TASServer::SendHostInfo( Enum::HostInfo update )
 	int relayhostmessagesize = 0;
 	if (m_relay_host_bot)
 	{
-		relayhostmessagesize = m_relay_host_bot.Nick() + 10 + 1 + 1 + 14 + 1; // bot name + SAYPRIVATE + space + "!" + SETSCRIPTTAGS + \n
+		relayhostmessagesize = m_relay_host_bot->Nick().length() + 10 + 1 + 1 + 14 + 1; // bot name + SAYPRIVATE + space + "!" + SETSCRIPTTAGS + \n
 	}
-	if ( ( update & IBattle::HI_Send_All_opts ) > 0 )
+	if ( ( update & Enum::HI_Send_All_opts ) > 0 )
 	{
 		std::string cmd;
-		OptionsWrapper::std::stringTripleVec optlistMap = m_current_battle->CustomBattleOptions().getOptions( OptionsWrapper::MapOption );
-		for (OptionsWrapper::std::stringTripleVec::const_iterator it = optlistMap.begin(); it != optlistMap.end(); ++it)
+		OptionsWrapper::stringTripleVec optlistMap = m_current_battle->CustomBattleOptions()->getOptions( OptionsWrapper::MapOption );
+		for (OptionsWrapper::stringTripleVec::const_iterator it = optlistMap.begin(); it != optlistMap.end(); ++it)
 		{
 			std::string newcmd = "game/mapoptions/" + it->first + "=" + it->second.second + "\t";
 			if ( relayhostmessagesize + cmd.length() + newcmd.length() > m_message_size_limit )
@@ -414,8 +416,8 @@ void TASServer::SendHostInfo( Enum::HostInfo update )
 			}
 			cmd += newcmd;
 		}
-		OptionsWrapper::std::stringTripleVec optlistMod = m_current_battle->CustomBattleOptions().getOptions( OptionsWrapper::ModOption );
-		for (OptionsWrapper::std::stringTripleVec::const_iterator it = optlistMod.begin(); it != optlistMod.end(); ++it)
+		OptionsWrapper::stringTripleVec optlistMod = m_current_battle->CustomBattleOptions()->getOptions( OptionsWrapper::ModOption );
+		for (OptionsWrapper::stringTripleVec::const_iterator it = optlistMod.begin(); it != optlistMod.end(); ++it)
 		{
 			std::string newcmd = "game/modoptions/" + it->first + "=" + it->second.second + "\t";
 			if (relayhostmessagesize + cmd.length() + newcmd.length() > m_message_size_limit  )
@@ -425,8 +427,8 @@ void TASServer::SendHostInfo( Enum::HostInfo update )
 			}
 			cmd += newcmd;
 		}
-		OptionsWrapper::std::stringTripleVec optlistEng = m_current_battle->CustomBattleOptions().getOptions( OptionsWrapper::EngineOption );
-		for (OptionsWrapper::std::stringTripleVec::const_iterator it = optlistEng.begin(); it != optlistEng.end(); ++it)
+		OptionsWrapper::stringTripleVec optlistEng = m_current_battle->CustomBattleOptions()->getOptions( OptionsWrapper::EngineOption );
+		for (OptionsWrapper::stringTripleVec::const_iterator it = optlistEng.begin(); it != optlistEng.end(); ++it)
 		{
 			std::string newcmd = "game/" + it->first + "=" + it->second.second + "\t";
 			if ( relayhostmessagesize + cmd.length() + newcmd.length() > m_message_size_limit  )
@@ -439,12 +441,12 @@ void TASServer::SendHostInfo( Enum::HostInfo update )
 		RelayCmd( "SETSCRIPTTAGS", cmd );
 	}
 
-	if ( (update & IBattle::HI_StartRects) > 0 )   // Startrects should be updated.
+	if ( (update & Enum::HI_StartRects) > 0 )   // Startrects should be updated.
 	{
 		unsigned int numrects = m_current_battle->GetLastRectIdx();
 		for ( unsigned int i = 0; i <= numrects; i++ )   // Loop through all, and remove updated or deleted.
 		{
-			BattleStartRect sr = m_current_battle->GetStartRect( i );
+			Battle::BattleStartRect sr = m_current_battle->GetStartRect( i );
 			if ( !sr.exist ) continue;
 			if ( sr.todelete )
 			{
@@ -453,32 +455,32 @@ void TASServer::SendHostInfo( Enum::HostInfo update )
 			}
 			else if ( sr.toadd )
 			{
-				RelayCmd( "ADDSTARTRECT", boost::format( "%d %d %d %d %d", sr.ally, sr.left, sr.top, sr.right, sr.bottom ) );
+				RelayCmd( "ADDSTARTRECT", boost::format( "%d %d %d %d %d") % sr.ally % sr.left % sr.top % sr.right % sr.bottom );
 				m_current_battle->StartRectAdded( i );
 			}
 			else if ( sr.toresize )
 			{
-				RelayCmd( "REMOVESTARTRECT"), Util::ToString(i) );
-				RelayCmd( "ADDSTARTRECT"), boost::format( "%d %d %d %d %d", sr.ally, sr.left, sr.top, sr.right, sr.bottom ) );
+				RelayCmd( "REMOVESTARTRECT", Util::ToString(i) );
+				RelayCmd( "ADDSTARTRECT", boost::format( "%d %d %d %d %d") % sr.ally % sr.left % sr.top % sr.right % sr.bottom );
 				m_current_battle->StartRectResized( i );
 			}
 		}
 	}
-	if ( (update & IBattle::HI_Restrictions) > 0 )
+	if ( (update & Enum::HI_Restrictions) > 0 )
 	{
 		std::map<std::string, int> units = m_current_battle->RestrictedUnits();
 		RelayCmd( "ENABLEALLUNITS" );
 		if ( units.size() > 0 )
 		{
-			std::string msg;
-			std::string scriptmsg;
+			std::stringstream msg;
+			std::stringstream scriptmsg;
 			for ( std::map<std::string, int>::const_iterator itor = units.begin(); itor != units.end(); itor++ )
 			{
 				 msg << itor->first + " ";
 				 scriptmsg << "game/restrict/" + itor->first + "=" + Util::ToString(itor->second) + '\t'; // this is a serious protocol abuse, but on the other hand, the protocol fucking suck and it's unmaintained so it will do for now
 			}
-			RelayCmd( "DISABLEUNITS", msg );
-			RelayCmd( "SETSCRIPTTAGS", scriptmsg );
+			RelayCmd( "DISABLEUNITS", msg.str() );
+			RelayCmd( "SETSCRIPTTAGS", scriptmsg.str() );
 		}
 	}
 }
@@ -486,21 +488,21 @@ void TASServer::SendHostInfo( Enum::HostInfo update )
 void TASServer::SendHostInfo( int type, const std::string& key )
 {
 	if (!m_current_battle) return;
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 
 	std::string cmd;
 
 	if ( type == OptionsWrapper::MapOption )
 	{
-		cmd = "game/mapoptions/" + key + "=" + m_current_battle->CustomBattleOptions().getSingleValue( key, OptionsWrapper::MapOption );
+		cmd = "game/mapoptions/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, OptionsWrapper::MapOption );
 	}
 	else if ( type == OptionsWrapper::ModOption )
 	{
-		cmd = "game/modoptions/" + key + "=" + m_current_battle->CustomBattleOptions().getSingleValue( key, OptionsWrapper::ModOption );
+		cmd = "game/modoptions/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, OptionsWrapper::ModOption );
 	}
 	else if ( type == OptionsWrapper::EngineOption )
 	{
-		cmd = "game/" + key + "=" + m_current_battle->CustomBattleOptions().getSingleValue( key, OptionsWrapper::EngineOption );
+		cmd = "game/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, OptionsWrapper::EngineOption );
 	}
 	RelayCmd( "SETSCRIPTTAGS", cmd );
 }
@@ -508,7 +510,7 @@ void TASServer::SendHostInfo( int type, const std::string& key )
 void TASServer::SendUserPosition( const UserPtr user )
 {
 	if (!m_current_battle) return;
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 	if (!user) return;
 
 	UserBattleStatus status = user->BattleStatus();
@@ -548,7 +550,7 @@ void TASServer::SendMyBattleStatus( UserBattleStatus& bs )
 
 void TASServer::SendMyUserStatus()
 {
-	UserStatus& us = GetMe().Status();
+	UserStatus& us = GetMe()->Status();
 
 	UTASClientStatus taus;
 	taus.tasdata.in_game = us.in_game;
@@ -556,7 +558,7 @@ void TASServer::SendMyUserStatus()
 	taus.tasdata.rank = us.rank;
 	taus.tasdata.moderator = us.moderator;
 	taus.tasdata.bot = us.bot;
-	SendCmd( "MYSTATUS", ToStrong( taus.byte ) );
+	SendCmd( "MYSTATUS", Util::ToString( taus.byte ) );
 }
 
 void TASServer::StartHostedBattle()
@@ -569,7 +571,7 @@ void TASServer::ForceSide( const BattlePtr battle, const UserPtr user, int side 
 	if (!battle) return;
 	if (!user) return;
 	UserBattleStatus status = user->BattleStatus();
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 	if ( user == m_me )
 	{
 		status.side = side;
@@ -601,7 +603,7 @@ void TASServer::ForceTeam( const BattlePtr battle, const UserPtr user, int team 
 		SendMyBattleStatus( status );
 		return;
 	}
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 
 	//FORCETEAMNO username teamno
 	RelayCmd( "FORCETEAMNO", user->Nick() + " " + Util::ToString(team) );
@@ -626,7 +628,7 @@ void TASServer::ForceAlly( const BattlePtr battle, const UserPtr user, int ally 
 		SendMyBattleStatus( status );
 		return;
 	}
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 
 	//FORCEALLYNO username teamno
 	else RelayCmd( "FORCEALLYNO", user->Nick() + " " + Util::ToString(ally) );
@@ -634,31 +636,32 @@ void TASServer::ForceAlly( const BattlePtr battle, const UserPtr user, int ally 
 
 void TASServer::ForceColor(const BattlePtr battle, const UserPtr user, int r , int g, int b)
 {
+	lslColor rgb(r,g,b);
 	if (!battle) return;
 	if (!user) return;
 	UserBattleStatus status = user->BattleStatus();
 
 	if ( status.IsBot() )
 	{
-		status.color = r;
+		status.color = rgb;
 		UpdateBot( battle, user, status );
 		return;
 	}
 	if ( user == m_me )
 	{
-		status.color = r;
+		status.color = rgb;
 		SendMyBattleStatus( status );
 		return;
 	}
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 
 	UTASColor tascl;
-	tascl.color.red = r.Red();
-	tascl.color.green = r.Green();
-	tascl.color.blue = r.Blue();
+	tascl.color.red = rgb.Red();
+	tascl.color.green = rgb.Green();
+	tascl.color.blue = rgb.Blue();
 	tascl.color.zero = 0;
 	//FORCETEAMCOLOR username color
-	RelayCmd( "FORCETEAMCOLOR", user.Nick() + " " + Util::ToString( tascl.data ) );
+	RelayCmd( "FORCETEAMCOLOR", user->Nick() + " " + Util::ToString( tascl.data ) );
 }
 
 void TASServer::ForceSpectator( const BattlePtr battle, const UserPtr user, bool spectator )
@@ -679,13 +682,13 @@ void TASServer::ForceSpectator( const BattlePtr battle, const UserPtr user, bool
 		SendMyBattleStatus( status );
 		return;
 	}
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 
 	//FORCESPECTATORMODE username
-	RelayCmd( "FORCESPECTATORMODE", user.Nick() );
+	RelayCmd( "FORCESPECTATORMODE", user->Nick() );
 }
 
-void TASServer::BattleKickPlayer( int battleid, User& user )
+void TASServer::BattleKickPlayer( const BattlePtr battle, const UserPtr user )
 {
 	if (!battle) return;
 	if (!user) return;
@@ -701,10 +704,10 @@ void TASServer::BattleKickPlayer( int battleid, User& user )
 		LeaveBattle( battle );
 		return;
 	}
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 
 	//KICKFROMBATTLE username
-	RelayCmd( "KICKFROMBATTLE", user.Nick() );
+	RelayCmd( "KICKFROMBATTLE", user->Nick() );
 }
 
 void TASServer::SetHandicap( const BattlePtr battle, const UserPtr user, int handicap)
@@ -720,10 +723,10 @@ void TASServer::SetHandicap( const BattlePtr battle, const UserPtr user, int han
 		return;
 	}
 
-	if (!m_current_m_current_battle->IsFounderMe()) return;
+	if (!m_current_battle->IsFounderMe()) return;
 
 	//HANDICAP username value
-	RelayCmd( "HANDICAP", user.Nick() + " " + Util::ToString(handicap) );
+	RelayCmd( "HANDICAP", user->Nick() + " " + Util::ToString(handicap) );
 }
 
 void TASServer::AddBot( const BattlePtr battle, const std::string& nick, UserBattleStatus& status )
@@ -752,7 +755,7 @@ void TASServer::RemoveBot( const BattlePtr battle, const UserPtr user )
 	if (!status.IsBot()) return;
 
 	//REMOVEBOT name
-	RelayCmd( "REMOVEBOT", user.Nick() );
+	RelayCmd( "REMOVEBOT", user->Nick() );
 }
 
 void TASServer::UpdateBot( const BattlePtr battle, const UserPtr user, UserBattleStatus& status )
@@ -1077,14 +1080,14 @@ void TASServer::OnBattleEnableUnits( const std::string& unitnames )
 	OnBattleEnableUnits( battle, unitlist );
 }
 
-void TASServer::OnBattleEnableAllUnits( int battleid )
+void TASServer::OnBattleEnableAllUnits()
 {
 	BattlePtr battle = GetBattle( battleid );
 	if (!battle) return;
 	OnBattleEnableAllUnits(battle);
 }
 
-void TASServer::OnJoinChannel( const std::string& channel )
+void TASServer::OnJoinChannel(const std::string& channel , const std::string &rest)
 {
 	Channel* chan = AddChannel( "#" + channel );
 	if(!channel) return;
@@ -1122,9 +1125,19 @@ void TASServer::OnChannelJoinUserList( const std::string& channel, const std::st
 	OnChannelJoinUserList(channel,users);
 }
 
-void TASServer::OnHandle()
+void TASServer::OnJoinedBattle(const int battleid, const std::string msg)
+{
+	assert( false );
+}
+
+void TASServer::OnGetHandle()
 {
 	SendCmd( "USERID", Util::ToString( m_crc.GetCRC() );
+}
+
+void TASServer::OnLogin(const std::string &msg)
+{
+	assert( false );
 }
 
 void TASServer::OnUserJoinedChannel( const std::string& channel, const std::string& who )

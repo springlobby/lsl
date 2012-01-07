@@ -12,12 +12,12 @@ void User::Said( const std::string& /*message*/ ) const
 
 void User::Say( const std::string& message ) const
 {
-	GetServer().SayPrivate( m_nick, message );
+	m_serv->SayPrivate( m_nick, message );
 }
 
 void User::DoAction( const std::string& message ) const
 {
-	GetServer().DoActionPrivate( m_nick, message );
+	m_serv->DoActionPrivate( m_nick, message );
 }
 
 BattlePtr User::GetBattle() const
@@ -52,13 +52,13 @@ void User::SetCountry( const std::string& country )
 
 void User::SendMyUserStatus() const
 {
-	GetServer().SendMyUserStatus();
+	m_serv->SendMyUserStatus();
 }
 
 bool User::ExecuteSayCommand( const std::string& cmd ) const
 {
 	if ( boost::to_lower_copy( Util::BeforeFirst(cmd," " ) ) == "/me" ) {
-		GetServer().DoActionPrivate( m_nick, Util::AfterFirst(cmd," " ) );
+		m_serv->DoActionPrivate( m_nick, Util::AfterFirst(cmd," " ) );
 		return true;
 	} else return false;
 }

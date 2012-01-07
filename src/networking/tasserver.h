@@ -55,7 +55,7 @@ public:
 
 	void SendPing();
 
-	virtual void LeaveBattle( const IBattlePtr battle );
+	virtual void LeaveBattle( const int& battle_id );
 	virtual void StartHostedBattle();
 	void SendHostInfo(Enum::HostInfo update);
 	void SendHostInfo(int type, const std::string &key);
@@ -66,32 +66,17 @@ public:
 	void ForceAlly(const BattlePtr battle, const UserPtr user, int ally);
 	void ForceColor(const BattlePtr battle, const UserPtr user, int r, int g, int b);
 	void ForceSpectator(const BattlePtr battle, const UserPtr user, bool spectator);
-	void BattleKickPlayer(int battleid, User &user);
+	void BattleKickPlayer(const BattlePtr battle, const UserPtr user);
 	void SetHandicap(const BattlePtr battle, const UserPtr user, int handicap);
 	void AddBot(const BattlePtr battle, const std::string &nick, UserBattleStatus &status);
 	void RemoveBot(const BattlePtr battle, const UserPtr user);
 	void UpdateBot(const BattlePtr battle, const UserPtr user, UserBattleStatus &status);
 	void SendScriptToClients(const std::string &script);
 	void RequestSpringUpdate(std::string &currentspringversion);
-
+	int GetNewUserId();
 
 	std::string GetBattleChannelName(const BattlePtr battle);
-	void OnBattleOpened(int id, Enum::BattleType type, Enum::NatType nat, const std::string &nick, const std::string &host, int port, int maxplayers, bool haspass, int rank, const std::string &maphash, const std::string &map, const std::string &title, const std::string &mod);
-	void OnUserStatusChanged(const std::string &nick, int intstatus);
-	void OnHostedBattle(int battleid);
-	int GetNewUserId();
-	void OnUserQuit(const UserPtr &nick);
-	void OnSelfJoinedBattle(int battleid, const std::string &hash);
-	void OnStartHostedBattle();
-	void OnClientBattleStatus(const std::string &nick, int intstatus, int colorint);
-	void OnUserJoinedBattle(int battleid, const std::string &nick, const std::string &userScriptPassword);
-	void OnUserLeftBattle(int battleid, const std::string &nick);
-	void OnBattleInfoUpdated(int battleid, int spectators, bool locked, const std::string &maphash, const std::string &map);
-	void OnSetBattleOption(const std::string &key, const std::string &value);
-	void OnSetBattleInfo(const std::string &infos);
-	void OnAcceptAgreement();
-	void OnBattleClosed(int battleid);
-	void OnBattleDisableUnits(const std::string &unitlist);
+
 private:
 	void ExecuteCommand( const std::string& cmd, std::string& inparams );
 	void ExecuteCommand( const std::string& cmd, std::string& inparams, int replyid );
@@ -123,6 +108,8 @@ private:
 	virtual void _JoinChannel( const std::string& channel, const std::string& key );
 	virtual void _JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword );
 	virtual void _HostBattle( Battle::BattleOptions bo );
+	virtual void _StartHostedBattle();
+	virtual void _LeaveBattle( const IBattlePtr battle);
 
     friend class CommandDictionary;
     CommandDictionary* m_cmd_dict;
@@ -133,7 +120,68 @@ private:
 		ScopedLocker<unsigned int> l_last_id(m_last_id);
 		return l_last_id.Get();
 	}
-
+private:
+	//! command handlers
+	void OnBattleOpened(int id, Enum::BattleType type, Enum::NatType nat, const std::string &nick, const std::string &host, int port, int maxplayers, bool haspass, int rank, const std::string &maphash, const std::string &map, const std::string &title, const std::string &mod);
+	void OnUserStatusChanged(const std::string &nick, int intstatus);
+	void OnHostedBattle(int battleid);
+	void OnUserQuit(const std::string &nick);
+	void OnSelfJoinedBattle(int battleid, const std::string &hash);
+	void OnStartHostedBattle();
+	void OnClientBattleStatus(const std::string &nick, int intstatus, int colorint);
+	void OnUserJoinedBattle(int battleid, const std::string &nick, const std::string &userScriptPassword);
+	void OnUserLeftBattle(int battleid, const std::string &nick);
+	void OnBattleInfoUpdated(int battleid, int spectators, bool locked, const std::string &maphash, const std::string &map);
+	void OnSetBattleOption(const std::string &key, const std::string &value);
+	void OnSetBattleInfo(const std::string &infos);
+	void OnAcceptAgreement();
+	void OnBattleClosed(int battleid);
+	void OnBattleDisableUnits(const std::string &unitlist);
+	void OnBattleDisableUnit(const std::string &unitname, int count);
+	void OnBattleEnableUnits(const std::string &unitnames);
+	void OnBattleEnableAllUnits();
+	void OnJoinChannel(const std::string &channel, const std::string& rest);
+	void OnJoinChannelFailed(const std::string &channel, const std::string &reason);
+	void OnChannelJoin(const std::string &channel, const std::string &who);
+	void OnChannelJoinUserList(const std::string &channel, const std::string &users);
+	void OnJoinedBattle(const int battleid, const std::string msg);
+	void OnGetHandle();
+	void OnLogin(const std::string& msg);
+	void OnUserJoinedChannel(const std::string &channel, const std::string &who);
+	void OnChannelSaid(const std::string &channel, const std::string &who, const std::string &message);
+	void OnChannelPart(const std::string &channel, const std::string &who, const std::string &message);
+	void OnChannelTopic(const std::string &channel, const std::string &who, int, const std::string &message);
+	void OnChannelAction(const std::string &channel, const std::string &who, const std::string &action);
+	ChannelPtr GetCreatePrivateChannel(const UserPtr user);
+	void OnSayPrivateMessageEx(const std::string &user, const std::string &action);
+	void OnSaidPrivateMessageEx(const std::string &user, const std::string &action);
+	void OnSayPrivateMessage(const std::string &user, const std::string &message);
+	void OnSaidPrivateMessage(const std::string &user, const std::string &message);
+	void OnSaidBattle(const std::string &nick, const std::string &msg);
+	void OnBattleAction(const std::string &nick, const std::string &msg);
+	void OnBattleStartRectAdd(int allyno, int left, int top, int right, int bottom);
+	void OnBattleStartRectRemove(int allyno);
+	void OnScriptStart();
+	void OnScriptLine(const std::string &line);
+	void OnScriptEnd();
+	void OnMutelistBegin(const std::string &channel);
+	void OnMutelistItem(const std::string &mutee, const std::string &description);
+	void OnMutelistEnd();
+	void OnChannelMessage(const std::string &channel, const std::string &msg);
+	void OnRing(const std::string &from);
+	void OnKickedFromBattle();
+	void OnKickedFromChannel(const std::string &channel, const std::string &fromWho, const std::string &msg);
+	void OnMyInternalUdpSourcePort(const unsigned int udpport);
+	void OnMyExternalUdpSourcePort(const unsigned int udpport);
+	void OnClientIPPort(const std::string &username, const std::string &ip, unsigned int udpport);
+	void OnHostExternalUdpPort(const int udpport);
+	void OnChannelListEntry(const std::string &channel, const int &numusers, const std::string &topic);
+	void OnAgreenmentLine(const std::string &line);
+	void OnRequestBattleStatus();
+	void OnBattleAddBot(int battleid, const std::string &nick, const std::string &owner, int intstatus, int intcolor, const std::string &aidll);
+	void OnBattleUpdateBot(int battleid, const std::string &nick, int intstatus, int intcolor);
+	void OnBattleRemoveBot(int battleid, const std::string &nick);
+	void OnFileDownload(int intdata, const std::string &FileName, const std::string &url, const std::string &description);
 };
 
 } //namespace LSL

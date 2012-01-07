@@ -309,6 +309,8 @@ public:
 
 	virtual long GetBattleRunningTime() const; // returns 0 if not started
 
+	void LoadScriptMMOpts(const std::string &sectionname, const PDataList &node);
+	void LoadScriptMMOpts(const PDataList &node);
 private:
 
 //	void LoadScriptMMOpts( const std::string& sectionname, const SL::PDataList& node );

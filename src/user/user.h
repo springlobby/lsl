@@ -15,9 +15,9 @@ class iServer;
 class User : public CommonUser
 {
 public:
-	User( iServer& serv );
-	User( const std::string& nick, iServer& serv );
-	User( const std::string& nick, const std::string& country, const int& cpu, iServer& serv);
+	User( IServerPtr serv );
+	User( const std::string& nick, IServerPtr serv );
+	User( const std::string& nick, const std::string& country, const int& cpu, IServerPtr serv);
 	User( const std::string& nick );
 	User( const std::string& nick, const std::string& country, const int& cpu );
 	User();
@@ -26,7 +26,7 @@ public:
 
 	// User interface
 
-	iServer& GetServer() const { return *m_serv; }
+	ConstIServerPtr GetServer() const { return m_serv; }
 
 	void Said( const std::string& message ) const;
 	void Say( const std::string& message ) const;
@@ -52,7 +52,7 @@ public:
 protected:
 	// User variables
 
-	iServer* m_serv;
+	IServerPtr m_serv;
 	BattlePtr m_battle;
 	//! copy-semantics?
 };

@@ -24,7 +24,7 @@ namespace Battle {
 
 class User;
 class Channel;
-class Server;
+class iServer;
 class UnitsyncMap;
 class UnitsyncMod;
 class UserBattleStatus;
@@ -47,8 +47,8 @@ typedef boost::shared_ptr< const Battle::Battle > ConstBattlePtr;
 typedef boost::shared_ptr< Channel > ChannelPtr;
 typedef boost::shared_ptr< const Channel > ConstChannelPtr;
 
-typedef boost::shared_ptr< Server > ServerPtr;
-typedef boost::shared_ptr< const Server > ConstServerPtr;
+typedef boost::shared_ptr< iServer > IServerPtr;
+typedef boost::shared_ptr< const iServer > ConstIServerPtr;
 
 typedef std::vector< UserPtr > UserVector;
 typedef std::vector< ConstUserPtr > ConstUserVector;

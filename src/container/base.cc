@@ -10,7 +10,7 @@ ContainerBase<T>::ContainerBase()
 template < class T >
 void ContainerBase<T>::Add( PointerType item )
 {
-    m_map[item->index()] = item;
+    m_map[item->key()] = item;
     m_seekpos = SEEKPOS_INVALID;
 }
 

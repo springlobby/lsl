@@ -358,16 +358,9 @@ void iServer::UdpPingAllClients()
 	}
 }
 
-void iServer::UdpPing(const int, const std::string &, const int, const std::string &)
-{
-	assert( false );
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 /////                       Internal Server Events                         /////
 ////////////////////////////////////////////////////////////////////////////////
-
 
 void iServer::OnSocketConnected(Socket* sock)
 {
@@ -451,7 +444,7 @@ void iServer::OnLogin(const UserPtr user )
 	if (m_online)
 		return;
 	m_online = true;
-	m_me = m_users.Get( user );
+	m_me = user;
 	m_ping_thread = new PingThread( *this, m_ping_interval*1000 );
 	m_ping_thread->Init();
 	//TODO: event
@@ -483,9 +476,8 @@ void iServer::OnPong( long long ping_time )
 	//TODO: event
 }
 
-void iServer::OnUserQuit(const std::string& nick )
+void iServer::OnUserQuit(const UserPtr user)
 {
-	UserPtr user = m_users.Get( nick );
 	if ( !user ) return;
 	if (user == m_me) return;
 	RemoveUser( user );
@@ -494,7 +486,6 @@ void iServer::OnUserQuit(const std::string& nick )
 
 void iServer::OnBattleOpened(const IBattlePtr battle )
 {
-	IBattlePtr battle = m_battles.Get( battle );
 	if ( battle && battle->GetFounder() == m_relay_host_bot )
 	{
 		battle->SetProxy( m_relay_host_bot->Nick() );
@@ -592,7 +583,7 @@ void iServer::OnUserLeftBattle(const IBattlePtr battle, const UserPtr user)
 
 void iServer::OnBattleClosed(const IBattlePtr battle )
 {
-	RemoveBattle( battle->Id() );
+	RemoveBattle( battle->GetId() );
 	//TODO:event
 }
 
@@ -645,7 +636,7 @@ void iServer::OnKickedFromChannel( const ChannelPtr channel, const std::string& 
 void iServer::OnLoginFailed( const std::string& reason )
 {
 	//TODO: check if disconnect can be removed
-	Disconnect();
+	Disconnect("Login Failed: "+reason);
 }
 
 void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const std::string& message )
@@ -659,9 +650,10 @@ void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const
 		{
 			if ( boost::starts_with(message, "UserScriptPassword") )
 			{
-				GetWordParam( message ); // skip the command keyword
-				std::string usernick = GetWordParam( message );
-				std::string userScriptPassword = GetWordParam( message );
+				std::string msg_copy;
+				GetWordParam( msg_copy ); // skip the command keyword
+				std::string usernick = GetWordParam( msg_copy );
+				std::string userScriptPassword = GetWordParam( msg_copy );
 				UserPtr usr = m_users.Get(usernick);
 				if (!usr) return;
 				OnUserScriptPassword(user, userScriptPassword);
@@ -687,15 +679,15 @@ void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const
 		}
 	}
 	if ( m_relay_host_manager_list != 0
-		 && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_manager_list->GetID() ) ) )
+		 && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_manager_list.GetID() ) ) )
 	{
 		if ( user == m_me && message == "!lm" )
 			return;
 		if ( user == m_relay_host_manager_list )
 		{
-			if ( boost::starts_with(message,"list ") )
+			if ( boost::starts_with(message,std::string("list ") ) )
 			{
-				 std::string list = Util::AfterFirst( params, " " ) ;
+				 std::string list = Util::AfterFirst( message, " " ) ;
 				 boost::algorithm::split( m_relay_host_manager_list, list, boost::algorithm::is_any_of("\t"),
 													  boost::algorithm::token_compress_off );
 				 return;
@@ -784,6 +776,11 @@ void iServer::OnOpenBattleFailed( const std::string& msg )
 void iServer::OnRequestBattleStatus()
 {
 	if(!m_battle) return;
+}
+
+void iServer::OnUserScriptPassword(const UserPtr user, const std::string &pw)
+{
+	assert( false );
 }
 
 void iServer::SayPrivate( const UserPtr user, const std::string& msg )
