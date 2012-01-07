@@ -1,6 +1,6 @@
 #include "thread.h"
 #include <algorithm>
-#include <utils/logging.h>
+#include <lslutils/logging.h>
 
 namespace
 {

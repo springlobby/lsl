@@ -1,10 +1,12 @@
-#include <container/userlist.h>
-#include <container/battlelist.h>
-#include <container/channellist.h>
+#include <lsl/container/userlist.h>
+#include <lsl/container/battlelist.h>
+#include <lsl/container/channellist.h>
+#include <lslutils/misc.h>
+
 #include "common.h"
 #include "commands.h"
+
 #include <iostream>
-#include <utils/misc.h>
 
 #define TESTLIST(name) \
     { name instance; \
@@ -12,7 +14,7 @@
     name :: PointerType p( k ); \
     instance.Add( p );\
     assert( instance.size() == 1 );\
-    instance.Remove( p->index() );\
+    instance.Remove( p->key() );\
     assert( instance.size() == 0 );\
     try {\
         instance.Get( p->index() );\
@@ -29,7 +31,7 @@ int main(int, char**)
 {
     using namespace LSL;
     TESTLIST(UserList)
-    TESTLIST(BattleList)
+    TESTLIST(Battle::BattleList)
 //    TESTLIST(ChannelList)
 
 

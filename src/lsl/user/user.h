@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#include <utils/type_forwards.h>
+#include <lslutils/type_forwards.h>
 #include <boost/shared_ptr.hpp>
 
 

@@ -1,8 +1,8 @@
 #ifndef LIBSPRINGLOBBY_HEADERGUARD_COMMON_USER_H
 #define LIBSPRINGLOBBY_HEADERGUARD_COMMON_USER_H
 
-#include <utils/global_interfaces.h>
-#include <utils/misc.h>
+#include <lslutils/global_interfaces.h>
+#include <lslutils/misc.h>
 #include <string>
 
 namespace LSL {

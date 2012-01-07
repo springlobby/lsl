@@ -1,7 +1,7 @@
 #include "tdfcontainer.h"
 
-#include "utils/conversion.h"
-#include "utils/debug.h"
+#include "lslutils/conversion.h"
+#include "lslutils/debug.h"
 #include <cmath>
 
 namespace LSL { namespace TDF {

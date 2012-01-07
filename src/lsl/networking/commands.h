@@ -9,7 +9,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-#include <utils/conversion.h>
+#include <lslutils/conversion.h>
 #include "tasserver.h"
 
 namespace BT = boost::tuples;

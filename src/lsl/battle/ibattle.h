@@ -1,10 +1,10 @@
 #ifndef LIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
 #define LIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
 
-#include <utils/global_interfaces.h>
-#include <utils/misc.h>
-#include <utils/type_forwards.h>
-#include <container/userlist.h>
+#include <lslutils/global_interfaces.h>
+#include <lslutils/misc.h>
+#include <lslutils/type_forwards.h>
+#include <lsl/container/userlist.h>
 #include <unitsync++/data.h>
 #include "enum.h"
 

@@ -1,17 +1,17 @@
 #ifndef TDFCONTAINER_H
 #define TDFCONTAINER_H
 
-#include <utils/misc.h>
-#include <utils/conversion.h>
-#include <utils/type_forwards.h>
-#include <utils/autopointers.h>
+#include <lslutils/misc.h>
+#include <lslutils/conversion.h>
+#include <lslutils/type_forwards.h>
+#include <lslutils/autopointers.h>
 
 #include <sstream>
 #include <vector>
 #include <deque>
 #include <map>
 
-namespace LSL {
+namespace LSL { namespace TDF {
 
 /// Todo: add TDFContainer class.
 ///

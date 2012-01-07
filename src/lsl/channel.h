@@ -1,7 +1,7 @@
 #ifndef CHANNEL_H
 #define CHANNEL_H
 
-#include <utils/global_interfaces.h>
+#include <lslutils/global_interfaces.h>
 
 namespace LSL {
 

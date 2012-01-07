@@ -2,7 +2,7 @@
 #define SPRINGLOBBY_HEADERGUARD_BATTLELIST_H
 
 #include "base.h"
-#include <battle/ibattle.h>
+#include <lsl/battle/ibattle.h>
 
 namespace LSL {
 namespace Battle {

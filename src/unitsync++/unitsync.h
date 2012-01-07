@@ -5,7 +5,7 @@
 #include "mmoptionmodel.h"
 #include "data.h"
 #include "mru_cache.h"
-#include <utils/type_forwards.h>
+#include <lslutils/type_forwards.h>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/signals2/signal.hpp>

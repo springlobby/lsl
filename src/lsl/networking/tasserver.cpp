@@ -1,12 +1,13 @@
 #include "tasserver.h"
 
 #include <boost/algorithm/string.hpp>
-#include <utils/base64.h>
-#include <utils/md5.h>
-#include <utils/conversion.h>
-#include <utils/debug.h>
 #include <unitsync++/optionswrapper.h>
-#include <battle/battle.h>
+
+#include <lslutils/base64.h>
+#include <lslutils/md5.h>
+#include <lslutils/conversion.h>
+#include <lslutils/debug.h>
+#include <lsl/battle/battle.h>
 
 #include "socket.h"
 #include "commands.h"

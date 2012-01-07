@@ -1,6 +1,6 @@
 #include "user.h"
-#include <networking/iserver.h>
-#include <battle/battle.h>
+#include <lsl/networking/iserver.h>
+#include <lsl/battle/battle.h>
 
 #include <boost/algorithm/string.hpp>
 

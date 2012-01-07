@@ -3,8 +3,10 @@ IF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${l
     ADD_DEFINITIONS( -DHAVE_CONFIG_H )
     INCLUDE_DIRECTORIES(${libSpringLobby_BINARY_DIR})
 ENDIF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS ${libSpringLobby_SOURCE_DIR}/libSpringLobby_config.h  )
-INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/lib)
 
-add_subdirectory( utils )
+INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/lib)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+
+add_subdirectory( lslutils )
 add_subdirectory( lsl )
 add_subdirectory( unitsync++ )

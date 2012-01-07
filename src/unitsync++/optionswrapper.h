@@ -7,7 +7,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-#include <utils/type_forwards.h>
+#include <lslutils/type_forwards.h>
 #include "enum.h"
 
 class wxFileConfig;

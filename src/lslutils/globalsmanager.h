@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 #include <assert.h>
-#include "utils/conversion.h"
+#include "lslutils/conversion.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

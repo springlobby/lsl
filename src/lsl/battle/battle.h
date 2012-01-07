@@ -3,7 +3,7 @@
 
 #include <set>
 
-#include <utils/type_forwards.h>
+#include <lslutils/type_forwards.h>
 #include "ibattle.h"
 #include "enum.h"
 

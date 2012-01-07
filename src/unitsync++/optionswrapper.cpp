@@ -1,9 +1,9 @@
 #include "optionswrapper.h"
 
 #include "unitsync.h"
-#include <utils/conversion.h>
-#include <utils/debug.h>
-#include <utils/logging.h>
+#include <lslutils/conversion.h>
+#include <lslutils/debug.h>
+#include <lslutils/logging.h>
 
 #include <stdexcept>
 #include <clocale>

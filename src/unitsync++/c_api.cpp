@@ -13,10 +13,10 @@
 #include <boost/foreach.hpp>
 #include <boost/typeof/typeof.hpp>
 
-#include <utils/logging.h>
-#include <utils/misc.h>
-#include <utils/debug.h>
-#include <utils/conversion.h>
+#include <lslutils/logging.h>
+#include <lslutils/misc.h>
+#include <lslutils/debug.h>
+#include <lslutils/conversion.h>
 
 #include "image.h"
 #include "loader.h"

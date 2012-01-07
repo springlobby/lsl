@@ -3,7 +3,7 @@
 
 #include "iserver.h"
 
-#include <utils/type_forwards.h>
+#include <lslutils/type_forwards.h>
 #include <boost/format/format_fwd.hpp>
 
 namespace LSL {

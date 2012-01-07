@@ -22,6 +22,19 @@ namespace Battle {
 	class BattleOptions;
 }
 
+template <class T>
+class RefcountedPointer;
+
+namespace TDF {
+    class Tokenizer;
+    class Node;
+    typedef RefcountedPointer<Node> PNode;
+    class DataList;
+    typedef RefcountedPointer<DataList> PDataList;
+    class DataLeaf;
+    typedef RefcountedPointer<DataLeaf> PDataLeaf;
+}
+
 class User;
 class Channel;
 class iServer;
@@ -31,6 +44,7 @@ class UserBattleStatus;
 class UserPosition;
 class OptionsWrapper;
 struct GameOptions;
+class PDataList;
 
 typedef std::map< std::string, std::string> StringMap;
 typedef std::vector< std::string > StringVector;

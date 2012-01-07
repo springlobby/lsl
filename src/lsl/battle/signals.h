@@ -1,7 +1,7 @@
 #ifndef LSL_BATTLE_SIGNALS_H
 #define LSL_BATTLE_SIGNALS_H
 
-#include <utils/type_forwards.h>
+#include <lslutils/type_forwards.h>
 #include <boost/signals2/signal.hpp>
 
 namespace LSL { namespace Signals {

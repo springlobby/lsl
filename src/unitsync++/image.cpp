@@ -3,8 +3,8 @@
 #include <cstdio>
 
 #include <cimg/CImg.h>
-#include <utils/misc.h>
-#include <utils/logging.h>
+#include <lslutils/misc.h>
+#include <lslutils/logging.h>
 
 namespace cimg_library {
 

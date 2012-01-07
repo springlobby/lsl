@@ -1,6 +1,6 @@
 #include "socket.h"
 
-#include <utils/net.h>
+#include <lslutils/net.h>
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -98,24 +98,24 @@ std::string Socket::GetHandle() const
     DWORD dwBufLen = sizeof(AdapterInfo);  // Save memory size of buffer
 
     DWORD dwStatus = GetAdaptersInfo ( AdapterInfo, &dwBufLen); // Get info
-        if (dwStatus != NO_ERROR) return _T(""); // Check status
+        if (dwStatus != NO_ERROR) return ""; // Check status
     for (unsigned int i=0; i<std::min( (unsigned int)6, (unsigned int)AdapterInfo[0].AddressLength); i++)
     {
-        handle += Tostd::string(((unsigned int)AdapterInfo[0].Address[i])&255);
+        handle += Util::ToString(((unsigned int)AdapterInfo[0].Address[i])&255);
         if (i != 5) handle += _T(':');
     }
     #elif defined(linux)
     int sock = socket (AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
     {
-        return _T(""); //not a valid socket
+        return ""; //not a valid socket
     }
     struct ifreq dev; //container for the hw data
     struct if_nameindex *NameList = if_nameindex(); //container for the interfaces list
     if (NameList == NULL)
     {
         close(sock);
-        return _T(""); //cannot list the interfaces
+        return ""; //cannot list the interfaces
     }
 
     int pos = 0;
@@ -126,7 +126,7 @@ std::string Socket::GetHandle() const
         {
             close(sock);
             if_freenameindex(NameList);
-            return _T(""); // no valid interfaces found
+            return ""; // no valid interfaces found
         }
         InterfaceName = NameList[pos].if_name;
         pos++;
@@ -138,12 +138,12 @@ std::string Socket::GetHandle() const
     if (ioctl(sock, SIOCGIFHWADDR, &dev) < 0) //get the interface data
     {
         close(sock);
-        return _T(""); //cannot list the interfaces
+        return ""; //cannot list the interfaces
     }
 
     for (int i=0; i<6; i++)
     {
-        handle += Tostd::string(((unsigned int)dev.ifr_hwaddr.sa_data[i])&255);
+        handle += Util::ToString(((unsigned int)dev.ifr_hwaddr.sa_data[i])&255);
         if (i != 5) handle += _T(':');
     }
     close(sock);

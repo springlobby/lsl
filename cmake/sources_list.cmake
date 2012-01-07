@@ -2,20 +2,6 @@
 # Source listing
 #----------------------------------------------------------------------------------------------------
 
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/src )
-
-	
-FILE( GLOB RECURSE header "src/*.h" )
-FILE( GLOB RECURSE usyncheader "src/unitsync++/*.h" )
-FILE( GLOB header2 "src/*/*.h" )
-
-#grep -lR cc\"$ src/* | sed -e "s/\.h/\.cc/g"
-SET( templatesources
-	""
-)
-LIST( APPEND header ${header2} ${templatesources} )
-set_source_files_properties(  ${header} PROPERTIES HEADER_FILE_ONLY 1 )
-
 #cppcheck stuff
 find_program( CPPCHECK_BINARY NAMES cppcheck )
 IF( EXISTS ${CPPCHECK_BINARY} )
@@ -37,10 +23,3 @@ IF( EXISTS ${CPPCHECK_BINARY} )
 	add_dependencies( cppcheck cppcheck-full )
 	add_dependencies( cppcheck cppcheck-lite )
 ENDIF( EXISTS ${CPPCHECK_BINARY} )
-
-#platform dependent compiles go here
-IF( WIN32 )
-	LIST( APPEND SLSharedWithSettings src/stacktrace.c )
-ELSE( WIN32 )
-	LIST( APPEND SLSharedWithSettings src/stacktrace.cpp )
-ENDIF( WIN32 )

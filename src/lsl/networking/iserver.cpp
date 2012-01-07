@@ -3,8 +3,9 @@
 #include "socket.h"
 #include "commands.h"
 #include "tasserverdataformats.h"
-#include <battle/ibattle.h>
-#include <user/user.h>
+
+#include <lsl/battle/ibattle.h>
+#include <lsl/user/user.h>
 
 #include <boost/typeof/typeof.hpp>
 #include <boost/algorithm/string.hpp>

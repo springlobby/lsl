@@ -1,8 +1,8 @@
 #include "ibattle.h"
 
-#include <utils/debug.h>
-#include <utils/misc.h>
-#include <utils/conversion.h>
+#include <lslutils/debug.h>
+#include <lslutils/misc.h>
+#include <lslutils/conversion.h>
 #include <unitsync++/unitsync.h>
 #include <unitsync++/optionswrapper.h>
 #include "signals.h"

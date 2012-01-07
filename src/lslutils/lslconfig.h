@@ -4,7 +4,7 @@
 #define STR_DUMMY(name) std::string name () const { return std::string(); }
 
 #include <string>
-#include <utils/type_forwards.h>
+#include <lslutils/type_forwards.h>
 
 namespace LSL {
 

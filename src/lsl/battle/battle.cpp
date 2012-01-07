@@ -7,9 +7,9 @@
 #include "battle.h"
 #include <networking/iserver.h>
 #include <user/user.h>
-#include <utils/misc.h>
-#include <utils/debug.h>
-#include <utils/conversion.h>
+#include <lslutils/misc.h>
+#include <lslutils/debug.h>
+#include <lslutils/conversion.h>
 #include <unitsync++/optionswrapper.h>
 #include "signals.h"
 #include <lslconfig.h>

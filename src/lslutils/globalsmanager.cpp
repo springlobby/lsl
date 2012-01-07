@@ -2,8 +2,8 @@
 #include <assert.h>
 #include <vector>
 
-#include "utils/conversion.h"
-#include "utils/debug.h"
+#include "lslutils/conversion.h"
+#include "lslutils/debug.h"
 
 namespace LSL {
 

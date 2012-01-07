@@ -2,7 +2,7 @@
 #define LIBSPRINGLOBBY_HEADERGUARD_CHANNELLIST_H
 
 #include "base.h"
-#include <channel.h>
+#include <lsl/channel.h>
 
 namespace LSL {
 

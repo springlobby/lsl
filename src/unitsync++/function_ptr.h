@@ -3,7 +3,7 @@
 
 #include <boost/extension/shared_library.hpp>
 #include <string>
-#include <utils/debug.h>
+#include <lslutils/debug.h>
 
 namespace LSL {
 

@@ -19,7 +19,7 @@
 #ifndef LSL_HEADERGUARD_MRU_CACHE_H
 #define LSL_HEADERGUARD_MRU_CACHE_H
 
-#include <utils/debug.h>
+#include <lslutils/debug.h>
 
 #include <string>
 #include <boost/thread/mutex.hpp>

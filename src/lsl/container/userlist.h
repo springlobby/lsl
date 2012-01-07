@@ -2,7 +2,7 @@
 #define SPRINGLOBBY_HEADERGUARD_USERLIST_H
 
 #include "base.h"
-#include <user/user.h>
+#include <lsl/user/user.h>
 
 namespace LSL {
 

@@ -5,15 +5,16 @@
 #include <map>
 #include <vector>
 #include <boost/signals2/signal.hpp>
-#include <utils/type_forwards.h>
-#include "enums.h"
-#include <utils/mutexwrapper.h>
-#include <utils/crc.h>
-#include <battle/enum.h>
 
-#include <container/battlelist.h>
-#include <container/channellist.h>
-#include <container/userlist.h>
+#include <lslutils/mutexwrapper.h>
+#include <lslutils/crc.h>
+#include <lsl/battle/enum.h>
+#include <lsl/container/battlelist.h>
+#include <lsl/container/channellist.h>
+#include <lsl/container/userlist.h>
+
+#include <lslutils/type_forwards.h>
+#include "enums.h"
 
 namespace LSL {
 

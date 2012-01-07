@@ -1,7 +1,7 @@
 #include "tasserverdataformats.h"
-#include <user/user.h>
-#include <battle/ibattle.h>
-#include <utils/debug.h>
+#include <lsl/user/user.h>
+#include <lsl/battle/ibattle.h>
+#include <lslutils/debug.h>
 
 #define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( conversion, msg ); } } while (0)
 

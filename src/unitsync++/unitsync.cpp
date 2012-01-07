@@ -12,13 +12,14 @@
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 
-#include <lslconfig.h>
 #include "c_api.h"
-#include "utils/debug.h"
-#include "utils/conversion.h"
-#include "utils/misc.h"
-#include "utils/globalsmanager.h"
 #include "image.h"
+
+#include <lslutils/lslconfig.h>
+#include <lslutils/debug.h>
+#include <lslutils/conversion.h>
+#include <lslutils/misc.h>
+#include <lslutils/globalsmanager.h>
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
