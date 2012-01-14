@@ -95,7 +95,7 @@ public:
 	int GetCpu() const { return m_cpu; }
 	void SetCpu( const int& cpu ) { m_cpu = cpu; }
 
-	const std::string& GetID() const { return m_id; }
+    const std::string& Id() const { return m_id; }
 	void SetID( const std::string& id ) { m_id = id; }
 
 	UserStatus& Status() { return m_status; }

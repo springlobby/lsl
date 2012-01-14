@@ -22,7 +22,7 @@ namespace Battle {
 	class BattleOptions;
 }
 
-template <class T>
+template <class T, bool TDestroy>
 class RefcountedPointer;
 
 template < class T > class lslColorBase;
@@ -31,11 +31,11 @@ typedef lslColorBase<unsigned char> lslColor;
 namespace TDF {
     class Tokenizer;
     class Node;
-    typedef RefcountedPointer<Node> PNode;
+    typedef RefcountedPointer<Node,true> PNode;
     class DataList;
-    typedef RefcountedPointer<DataList> PDataList;
+    typedef RefcountedPointer<DataList,true> PDataList;
     class DataLeaf;
-    typedef RefcountedPointer<DataLeaf> PDataLeaf;
+    typedef RefcountedPointer<DataLeaf,true> PDataLeaf;
 }
 
 class User;

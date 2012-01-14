@@ -5,6 +5,10 @@
 // Several automatic pointer types used in Volumetrics.
 //
 
+#include <lslutils/type_forwards.h>
+
+namespace LSL {
+
 class Lockable {
 public:
     int lock_count;
@@ -251,6 +255,8 @@ class BidirectionalConnector{
     return other_end;
   }
 };
+
+} // namespace LSL {
 
 #endif
 

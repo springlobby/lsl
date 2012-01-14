@@ -1084,7 +1084,7 @@ void IBattle::LoadScriptMMOpts( const std::string& sectionname, const TDF::PData
 	if ( !node.ok() ) return;
     TDF::PDataList section ( node->Find(sectionname) );
 	if ( !section.ok() ) return;
-	OptionsWrapper& opts = CustomBattleOptions();
+    OptionsWrapperPtr opts = CustomBattleOptions();
     for ( TDF::PNode n = section->First(); n != section->Last(); n = section->Next( n ) )
 	{
 		if ( !n.ok() ) continue;
@@ -1095,7 +1095,7 @@ void IBattle::LoadScriptMMOpts( const std::string& sectionname, const TDF::PData
 void IBattle::LoadScriptMMOpts( const TDF::PDataList& node )
 {
 	if ( !node.ok() ) return;
-	OptionsWrapper& opts = CustomBattleOptions();
+    OptionsWrapperPtr opts = CustomBattleOptions();
 	typedef std::map<std::string,std::string> optMap;
 	optMap options = opts.getOptionsMap(OptionsWrapper::EngineOption);
 	for ( optMap::const_iterator i = options.begin(); i != options.end(); ++i)

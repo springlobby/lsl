@@ -3,12 +3,16 @@
 
 #include "base.h"
 #include <lsl/battle/battle.h>
+#include <lslutils/type_forwards.h>
 
 namespace LSL {
 namespace Battle {
 
 class BattleList : public ContainerBase< Battle >
-{};
+{
+public:
+    std::string GetChannelName( const ConstIBattlePtr battle );
+};
 
 } //namespace Battle
 } //namespace LSL

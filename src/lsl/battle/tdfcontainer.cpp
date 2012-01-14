@@ -1,6 +1,7 @@
 #include "tdfcontainer.h"
 
 #include <lslutils/conversion.h>
+#include <lslutils/autopointers.h>
 #include <lslutils/debug.h>
 
 #include <cmath>

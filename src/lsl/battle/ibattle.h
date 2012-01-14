@@ -214,7 +214,6 @@ public:
 	virtual unsigned int GetNumReadyPlayers() const { return m_players_ready; }
 	virtual unsigned int GetNumSyncedPlayers() const { return m_players_sync; }
 	virtual unsigned int GetNumOkPlayers() const { return m_players_ok; }
-    virtual void SetNumSpectators(size_t /*num*/) {assert(false); }
 
 	virtual int GetBattleId() const { return m_opts.battleid; }
     virtual int Id() const { return GetBattleId(); }
@@ -247,7 +246,7 @@ public:
 
 	virtual void SetMaxPlayers( const int& maxplayers ) { m_opts.maxplayers = maxplayers; }
 	virtual unsigned int GetMaxPlayers() const { return m_opts.maxplayers; }
-	virtual void SetSpectators( const int& spectators ) { m_opts.spectators = spectators; }
+    virtual void SetSpectators( const int spectators ) { m_opts.spectators = spectators; }
 	virtual int GetSpectators() const { return m_opts.spectators; }
 
 	virtual void SetRankNeeded( const int& rankneeded ) { m_opts.rankneeded = rankneeded; }

@@ -537,7 +537,7 @@ void iServer::OnBattleHostChanged( const IBattlePtr battle, UserPtr host, const 
 void iServer::OnBattleSpectatorCountUpdated(const IBattlePtr battle,int spectators)
 {
 	if (!battle) return;
-	battle->SetNumSpectators(spectators);
+    battle->SetSpectators(spectators);
 }
 
 void iServer::OnUserJoinedBattle( const IBattlePtr battle, const UserPtr user )
@@ -657,7 +657,7 @@ void iServer::OnLoginFailed( const std::string& reason )
 void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const std::string& message )
 {
 	if ( m_relay_host_bot != 0
-		 && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_bot->GetID()) ) )
+         && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_bot->Id()) ) )
 	{
 		if ( user == m_me && message.length() > 0 && message[0] == '!')
 			return;
@@ -677,7 +677,7 @@ void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const
 		}
 	}
 	if ( m_relay_host_manager != 0
-		 && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_manager->GetID()) ) )
+         && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_manager->Id()) ) )
 	{
 		if ( user == m_me &&  message.length() > 0 && message[0] == '!' )
 			return;
@@ -695,7 +695,7 @@ void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const
 	}
 //    makes no sense to me
 //    if ( m_relay_masters.size() > 0
-//         && channel == m_channels.Get( "U" + Util::ToString(m_relay_masters.GetID() ) ) )
+//         && channel == m_channels.Get( "U" + Util::ToString(m_relay_masters.Id() ) ) )
 //	{
 //		if ( user == m_me && message == "!lm" )
 //			return;
@@ -786,6 +786,14 @@ void iServer::OnJoinBattleFailed( const std::string& msg )
 
 
 void iServer::OnOpenBattleFailed( const std::string& msg )
+{
+}
+
+void iServer::OnSelfHostedBattle(IBattlePtr battle )
+{
+}
+
+void iServer::OnSelfJoinedBattle( IBattlePtr battle )
 {
 }
 

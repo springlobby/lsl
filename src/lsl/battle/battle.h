@@ -21,11 +21,12 @@ namespace Battle {
 class Battle : public IBattle
 {
 public:
-	Battle(iServer &serv, int id );
+    Battle(IServerPtr serv, int id );
     ~Battle();
     int key() const { return m_id; }
 
-	iServer& GetServer() { return m_serv; }
+    const IServerPtr GetServer() { return m_serv; }
+    const ConstIServerPtr GetServer() const { return m_serv; }
 
 	void SendHostInfo( Enum::HostInfo update );
     void SendHostInfo( const std::string& Tag );
@@ -94,8 +95,6 @@ public:
 
     void UserPositionChanged( const ConstUserPtr user );
 
-    int GetID() { return m_id; }
-
     void SaveMapDefaults();
     void LoadMapDefaults( const std::string& mapname );
 
@@ -111,6 +110,9 @@ public:
 
     void ShouldAutoUnspec();
 
+    void SetChannel( const ChannelPtr channel );
+    const ChannelPtr GetChannel();
+
 private:
     // Battle variables
 
@@ -119,10 +121,11 @@ private:
     std::set<std::string> m_banned_ips;
     ///>
 
-	iServer& m_serv;
+    IServerPtr m_serv;
     bool m_autolock_on_start;
     bool m_auto_unspec;
     const int m_id;
+    ChannelPtr m_channel;
 };
 
 } // namespace Battle {

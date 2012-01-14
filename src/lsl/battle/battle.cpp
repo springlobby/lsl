@@ -18,7 +18,7 @@
 namespace LSL {
 namespace Battle {
 
-Battle::Battle( iServer& serv, int id ) :
+Battle::Battle(IServerPtr serv, int id ) :
     m_serv(serv),
     m_autolock_on_start(false),
     m_id( id )
@@ -1131,6 +1131,11 @@ void Battle::ShouldAutoUnspec()
             ForceSpectator(GetMe(),false);
         }
     }
+}
+
+void Battle::SetChannel(const ChannelPtr channel)
+{
+    m_channel = channel;
 }
 
 void Battle::SetAutoUnspec(bool value)

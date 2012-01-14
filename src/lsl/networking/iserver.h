@@ -279,6 +279,10 @@ protected://defs from iserver.cpp bottom
 	void OnJoinBattleFailed( const std::string& msg );
 	void OnOpenBattleFailed( const std::string& msg );
 	void OnRequestBattleStatus();
+    void OnSelfHostedBattle( IBattlePtr battle );
+    void OnSelfJoinedBattle( IBattlePtr battle );
+    void OnSetBattleOption( IBattlePtr battle, const std::string& param, const std::string& value );
+    void OnClientBattleStatus( IBattlePtr battle, UserPtr user, UserBattleStatus bstatus );
 
 	virtual void OnConnected( const std::string&, const int, const std::string&, const int) = 0;
 	void OnUserScriptPassword( const UserPtr user, const std::string& pw );
