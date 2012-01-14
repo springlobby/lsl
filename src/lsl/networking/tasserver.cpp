@@ -104,7 +104,7 @@ void TASServer::GetLastLoginTime(const std::string& user)
 	SendCmd( "GETLASTLOGINTIME", user );
 }
 
-void TASServer::m_users.FindByNickIP(const std::string& user)
+void TASServer::GetUserIP(const std::string& user)
 {
 	SendCmd( "FINDIP", user );
 }

@@ -170,6 +170,9 @@ public:
 	T Green() const { return g; }
 	T Blue()  const { return b; }
 
+    //!dunno if this replacement can actually  be  not OK
+    bool IsOk() const { return true; }
+
 };
 
 } //namespace LSL {

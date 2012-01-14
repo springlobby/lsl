@@ -4,6 +4,7 @@
 #include <lslutils/misc.h>
 #include <lslutils/conversion.h>
 #include <lslutils/lslconfig.h>
+#include <lslutils/autopointers.h>
 #include <unitsync++/unitsync.h>
 #include <unitsync++/optionswrapper.h>
 
@@ -854,7 +855,7 @@ void IBattle::OnSelfLeftBattle()
 	m_is_self_in = false;
 	for( size_t j = 0; j < m_userlist.size(); ++j  )
 	{
-		ConstUserPtr u = m_userlist.At( j );
+        UserPtr u = m_userlist.At( j );
         if ( u->BattleStatus().IsBot() )
 		{
 			OnUserRemoved( u );
@@ -943,7 +944,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			SendHostInfo( Enum::HI_StartRects );
 
             m_restricted_units.clear();
-            const StringVector infos = Util::StringTokenize( infos, "\t" );
+            const StringVector infos = Util::StringTokenize( options["restrictions"], "\t" );
 			BOOST_FOREACH( const std::string unitinfo, infos )
 			{
 				RestrictUnit( Util::BeforeLast(unitinfo,"="),
@@ -1007,7 +1008,7 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 		}
 	}
 	sett().SaveSettings();
-	sig_ReloadPresetList();
+    Signals::sig_ReloadPresetList();
 }
 
 std::string IBattle::GetCurrentPreset()
