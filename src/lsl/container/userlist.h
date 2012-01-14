@@ -8,6 +8,9 @@ namespace LSL {
 
 class UserList : public ContainerBase< User >
 {
+public:
+    const ConstUserPtr FindByNick( const std::string& nick ) const;
+    const UserPtr FindByNick( const std::string& nick );
 };
 
 } // namespace LSL

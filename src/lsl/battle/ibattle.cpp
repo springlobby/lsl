@@ -18,6 +18,10 @@
 namespace LSL {
 namespace Battle {
 
+boost::asio::io_service _io;
+const boost::posix_time::seconds TIMER_INTERVAL      = 1000;
+const unsigned int TIMER_ID               = 101;
+
 BattleOptions::BattleOptions()
 	: battleid(-1)
 	, islocked(false)
@@ -48,7 +52,7 @@ IBattle::IBattle():
 	, m_players_sync(0)
 	, m_players_ok(0)
 	, m_is_self_in(false)
-	, m_timer ( 0 )
+    , m_timer ( new boost::asio::deadline_timer( _io, TIMER_INTERVAL ) )
 	, m_start_time(0)
 {
 }
@@ -56,9 +60,8 @@ IBattle::IBattle():
 
 IBattle::~IBattle()
 {
+    m_timer->cancel();
 	if ( m_is_self_in ) usync().UnSetCurrentMod();
-	if ( m_timer ) m_timer->Stop();
-	delete m_timer;
 }
 
 bool IBattle::IsSynced()
@@ -846,9 +849,8 @@ std::map<std::string,int> IBattle::RestrictedUnits() const
 void IBattle::OnSelfLeftBattle()
 {
 	GetMe()->BattleStatus().spectator = false; // always reset back yourself to player when rejoining
-	if ( m_timer ) m_timer->Stop();
-	delete m_timer;
-	m_timer = 0;
+    m_timer->C
+
 	m_is_self_in = false;
 	for( size_t j = 0; j < m_userlist.size(); ++j  )
 	{
@@ -940,10 +942,8 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			}
 			SendHostInfo( Enum::HI_StartRects );
 
-			StringVector infos;
-			boost::algorithm::split( infos, options["restrictions"], boost::algorithm::is_any_of("\t"),
-																  boost::algorithm::token_compress_off );
-			m_restricted_units.clear();
+            m_restricted_units.clear();
+            const StringVector infos = Util::StringTokenize( infos, "\t" );
 			BOOST_FOREACH( const std::string unitinfo, infos )
 			{
 				RestrictUnit( Util::BeforeLast(unitinfo,"="),
@@ -1078,7 +1078,7 @@ int IBattle::GetMyPlayerNum() const
 }
 
 
-void IBattle::LoadScriptMMOpts( const std::string& sectionname, const PDataList& node )
+void IBattle::LoadScriptMMOpts( const std::string& sectionname, const TDF::PDataList& node )
 {
 	if ( !node.ok() ) return;
     TDF::PDataList section ( node->Find(sectionname) );
@@ -1091,7 +1091,7 @@ void IBattle::LoadScriptMMOpts( const std::string& sectionname, const PDataList&
 	}
 }
 
-void IBattle::LoadScriptMMOpts( const PDataList& node )
+void IBattle::LoadScriptMMOpts( const TDF::PDataList& node )
 {
 	if ( !node.ok() ) return;
 	OptionsWrapper& opts = CustomBattleOptions();
@@ -1108,7 +1108,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 {
 	BattleOptions opts;
 	std::stringstream ss ( GetScript() );
-    TDF::PDataList script( ParseTDF(ss) );
+    TDF::PDataList script( TDF::ParseTDF(ss) );
 
     TDF::PDataList replayNode ( script->Find("GAME" ) );
 	if ( replayNode.ok() )
@@ -1226,7 +1226,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					IBattle::AllyInfoContainer allyinfos = parsed_allies[user->BattleStatus().ally];
 					if ( !allyinfos.exist )
 					{
-						PDataList ally( replayNode->Find( "ALLYTEAM" + Util::ToString( user->BattleStatus().ally ) ) );
+                        TDF::PDataList ally( replayNode->Find( "ALLYTEAM" + Util::ToString( user->BattleStatus().ally ) ) );
 						if ( ally.ok() )
 						{
 							allyinfos.exist = true;

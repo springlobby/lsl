@@ -19,7 +19,7 @@ namespace extensions {
 namespace LSL {
 
 class UnitsyncImage;
-class UnitsyncFunctionLoader;
+struct UnitsyncFunctionLoader;
 
 static const unsigned int MapInfoMaxStartPositions = 16;
 

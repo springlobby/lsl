@@ -45,11 +45,13 @@ public:
 
     typename MapType::size_type size() const;
 
-private:
+protected:
 	typename MapType::const_iterator begin() const { return m_map.begin(); }
 	typename MapType::iterator begin() { return m_map.begin(); }
 	typename MapType::const_iterator end() const { return m_map.end(); }
 	typename MapType::iterator end() { return m_map.end(); }
+    typename MapType::const_iterator find( const KeyType& key ) const { return m_map.find( key ); }
+    typename MapType::iterator find( const KeyType& key ) { return m_map.find( key ); }
 
 public:
 	const ConstPointerType At( const typename MapType::size_type index ) const;

@@ -31,7 +31,7 @@ int main(int, char**)
 {
     using namespace LSL;
     TESTLIST(UserList)
-    TESTLIST(Battle::BattleList)
+//    TESTLIST(Battle::BattleList)
 //    TESTLIST(ChannelList)
 
 

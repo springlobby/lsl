@@ -9,4 +9,4 @@ ADD_EXECUTABLE(swig_test WIN32 MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/swig.cp
 SET( SL_BOOST_LIBS boost_system boost_filesystem boost_thread boost_timer )
 
 INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/src)
-TARGET_LINK_LIBRARIES(libSpringLobby_test dl libUnitsync++)
+TARGET_LINK_LIBRARIES(libSpringLobby_test libSpringLobby libUnitsync++ boost_timer )

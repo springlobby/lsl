@@ -25,6 +25,9 @@ namespace Battle {
 template <class T>
 class RefcountedPointer;
 
+template < class T > class lslColorBase;
+typedef lslColorBase<unsigned char> lslColor;
+
 namespace TDF {
     class Tokenizer;
     class Node;
@@ -38,8 +41,8 @@ namespace TDF {
 class User;
 class Channel;
 class iServer;
-class UnitsyncMap;
-class UnitsyncMod;
+struct UnitsyncMap;
+struct UnitsyncMod;
 class UserBattleStatus;
 class UserPosition;
 class OptionsWrapper;

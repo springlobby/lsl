@@ -7,11 +7,12 @@
 #include <boost/noncopyable.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "type_forwards.h"
+
 #define LSLUNUSED(identifier)
 
 template <class T>
 inline void lslUnusedVar(const T& LSLUNUSED(t)) { }
-
 
 namespace LSL {
 
@@ -32,6 +33,16 @@ struct CaseInsensitive {
 	}
 };
 } //namespace Predicates {
+
+StringVector StringTokenize( const std::string& msg,
+                             const std::string& seperators,
+                             const boost::algorithm::token_compress_mode_type mode = boost::algorithm::token_compress_off )
+{
+    StringVector strings;
+    boost::algorithm::split( strings, msg, boost::algorithm::is_any_of(seperators),
+                             mode );
+    return strings;
+}
 
 //! delegate to boost::filesystem::exists
 bool FileExists( const std::string path );
@@ -76,8 +87,6 @@ class uninitialized_array : public boost::noncopyable
   private:
 	T* elems;
 };
-
-
 
 template < class StlContainer >
 inline int IndexInSequence( const StlContainer& ct,
@@ -160,6 +169,7 @@ public:
 	T Red()   const { return r; }
 	T Green() const { return g; }
 	T Blue()  const { return b; }
+
 };
 
 } //namespace LSL {

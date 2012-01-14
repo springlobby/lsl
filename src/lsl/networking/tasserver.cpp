@@ -182,9 +182,9 @@ void TASServer::Login(const std::string& user, const std::string& password)
 {
 	std::string pass = GetPasswordHash( password );
 	std::string protocol = "\t" + m_crc.GetCRC();
-	std::string localaddr = m_sock->GetLocalAddress();
+    std::string localaddr = m_sock->GetLocalAddress();
 	if ( localaddr.length() < 1 ) localaddr = "*";
-	SendRaw ( "LOGIN", user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
+    SendCmd ( "LOGIN", user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
 			  + localaddr + " liblobby " + Util::GetLibLobbyVersion() + protocol  + "\ta sp");
 }
 
@@ -350,21 +350,21 @@ void TASServer::AdminSetBotMode( const std::string& nick, bool isbot )
 
 void TASServer::_HostBattle( Battle::BattleOptions bo )
 {
-	std::stringstream cmd;
-	cmd << boost::format( "0 %d ") % bo.nat_type
-		<< (!bo.password.length())?"*":password
-		<< boost::format( " %d %d " ) % bo.port % bo.maxplayers
-		<< Util::MakeHashSigned( bo.modhash )
-		<< boost::format( " %d " ) % bo.rankneeded
-		<< Util::MakeHashSigned( bo.maphash ) + " "
-		<< bo.mapname + "\t"
-		<< bo.description + "\t"
-		<< bo.modname;
+    boost::format cmd( "0 %d %s %d %d %s %d %s %s\t%s\t");
+    cmd % bo.nattype
+        % (bo.password.empty() ? "*" : bo.password)
+        % bo.port % bo.maxplayers
+        % Util::MakeHashSigned( bo.modhash )
+        % bo.rankneeded
+        % Util::MakeHashSigned( bo.maphash )
+        % bo.mapname
+        % bo.description
+        % bo.modname;
 
 	m_delayed_open_command = "";
 	if ( !bo.userelayhost )
 	{
-	   SendCmd( "OPENBATTLE", cmd.str() );
+       SendCmd( "OPENBATTLE", cmd );
 	}
 	else
 	{
@@ -376,7 +376,7 @@ void TASServer::_HostBattle( Battle::BattleOptions bo )
 
 void TASServer::_JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword )
 {
-	SendCmd( "JOINBATTLE", Util::ToString(battle->ID()) + " " + password + " " + scriptpassword );
+    SendCmd( "JOINBATTLE", Util::ToString(battle->Id()) + " " + password + " " + scriptpassword );
 }
 
 void TASServer::LeaveBattle( const int& /*unused*/ )
@@ -531,11 +531,6 @@ void TASServer::RequestInGameTime( const std::string& nick )
 	SendCmd( "GETINGAMETIME", nick );
 }
 
-IBattlePtr TASServer::GetCurrentBattle()
-{
-	return m_current_battle;
-}
-
 void TASServer::SendMyBattleStatus( UserBattleStatus& bs )
 {
 	UTASBattleStatus tasbs;
@@ -546,7 +541,7 @@ void TASServer::SendMyBattleStatus( UserBattleStatus& bs )
 	tascl.color.blue = bs.color.Blue();
 	tascl.color.zero = 0;
 	//MYBATTLESTATUS battlestatus myteamcolor
-	SendCmd( "MYBATTLESTATUS", Util::ToString(tasbs.data) + " " + tascl.data );
+    SendCmd( "MYBATTLESTATUS", boost::format( "%d %d") % tasbs.data % tascl.data );
 }
 
 void TASServer::SendMyUserStatus()
@@ -702,7 +697,7 @@ void TASServer::BattleKickPlayer( const BattlePtr battle, const UserPtr user )
 	}
 	if ( user == m_me )
 	{
-		LeaveBattle( battle );
+        LeaveBattle( battle->GetID() );
 		return;
 	}
 	if (!m_current_battle->IsFounderMe()) return;
@@ -759,13 +754,11 @@ void TASServer::RemoveBot( const BattlePtr battle, const UserPtr user )
 	RelayCmd( "REMOVEBOT", user->Nick() );
 }
 
-void TASServer::UpdateBot( const BattlePtr battle, const UserPtr user, UserBattleStatus& status )
+void TASServer::UpdateBot( const BattlePtr battle, const UserPtr bot, UserBattleStatus& status )
 {
 	if (!battle) return;
-	if (!user) return;
-    //is the incoming status not that of user?
-	UserBattleStatus status = user->BattleStatus();
-	if (!status.IsBot()) return;
+    if (!bot) return;
+    if (!status.IsBot()) return;
 
 	UTASBattleStatus tasbs;
 	tasbs.tasdata = ConvTasbattlestatus( status );
@@ -774,14 +767,19 @@ void TASServer::UpdateBot( const BattlePtr battle, const UserPtr user, UserBattl
 	tascl.color.green = status.color.Green();
 	tascl.color.blue = status.color.Blue();
 	tascl.color.zero = 0;
-	//UPDATEBOT name battlestatus teamcolor
-	RelayCmd( "UPDATEBOT", bot.Nick() + " " + Util::ToString(tasbs.data) + " " + Util::ToString(tascl.data ) );
+    //UPDATEBOT name battlestatus teamcolor
+    boost::format params( "%s %d %d");
+    params % bot->Nick() % tasbs.data % tascl.data;
+    if( !battle->IsProxy() )
+        SendCmd( "UPDATEBOT", params );
+    else
+        RelayCmd( "UPDATEBOT", params );
 }
 
 void TASServer::SendScriptToClients( const std::string& script )
 {
 	RelayCmd( "SCRIPTSTART" );
-	StringVector lines = StringTokenize(script,"\n");
+    const StringVector lines = Util::StringTokenize(script,"\n");
 	for(StringVector::iterator itor; itor != lines.end(); itor++)
 	{
 		RelayCmd( "SCRIPT", *itor );
@@ -801,19 +799,20 @@ void TASServer::RequestSpringUpdate(std::string& currentspringversion)
 
 void TASServer::OnAcceptAgreement()
 {
-	OnAcceptAgreement( m_agreement );
+    iServer::OnAcceptAgreement( m_agreement );
 	m_agreement = "";
 }
 
 void TASServer::OnNewUser( const std::string& nick, const std::string& country, int cpu, int id )
 {
-	if(!id) id = GetNewUserId();
-	UserPtr user = GetUser( id );
-	if ( !user ) user = AddUser( id );
+    if ( !id ) id = GetNewUserId();
+    const std::string str_id = Util::ToString( id );
+    UserPtr user = m_users.Get( str_id );
+    if ( !user ) user = AddUser( id );
 	user->SetCountry( country );
 	user->SetCpu( cpu );
 	user->SetNick( nick );
-	OnNewUser( user );
+    iServer::OnNewUser( user );
 }
 
 std::string TASServer::GetBattleChannelName( const BattlePtr battle )
@@ -829,7 +828,7 @@ void TASServer::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType nat
 								   const std::string& title, const std::string& mod )
 {
 	BattlePtr battle = AddBattle( id );
-	UserPtr user = GetUser( nick );
+    const UserPtr user = m_users.FindByNick( nick );
 	if (user) battle->OnUserAdded( user );
 
 	battle->SetBattleType( type );
@@ -838,15 +837,15 @@ void TASServer::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType nat
 	battle->SetRankNeeded( rank );
 	battle->SetDescription( title );
 
-	OnBattleOpened( battle );
-	OnBattleHostchanged( battle, user, host, port );
+    iServer::OnBattleOpened( battle );
+    OnBattleHostChanged( battle, user, host, port );
 	if (user) OnUserIP( user, host );
 	OnBattleMaxPlayersChanged(battle, maxplayers );
 	OnBattleMapChanged( battle,UnitsyncMap(map, maphash) );
 	OnBattleModChanged( battle, UnitsyncMod(mod, "") );
 
 	std::string battlechanname = GetBattleChannelName(battle);
-    ChannelPtr channel = GetChannel( battlechanname );
+    ChannelPtr channel = m_channels.Get( battlechanname );
 	if (!channel)
 	{
 		channel = AddChannel( battlechanname );
@@ -855,27 +854,29 @@ void TASServer::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType nat
 
 	if ( user->Status().in_game )
 	{
-		OnBattleStarted(battle);
+        iServer::OnBattleStarted(battle);
 	}
 }
 
 void TASServer::OnUserStatusChanged( const std::string& nick, int intstatus )
 {
-	UserPtr user = GetUser( nick );
+    const ConstUserPtr user = m_users.FindByNick( nick );
 	if (!user) return;
 	UTASClientStatus tasstatus;
 	tasstatus.byte = intstatus;
 	UserStatus status = ConvTasclientstatus( tasstatus.tasdata );
 	sig_UserStatusChanged( user, status );
-	BattlePtr battle = user->GetBattle():
+    BattlePtr battle = user->GetBattle();
 	if ( battle )
 	{
 		if ( battle->GetFounder() == user )
-			if ( status.in_game != battle->GetInGame() )
+            if ( status.in_game != battle->InGame() )
 			{
 				battle->SetInGame( status.in_game );
-				if ( status.in_game ) OnBattleStarted( battle );
-				else OnBattleStopped( battle );
+                if ( status.in_game )
+                    OnBattleStarted( battle );
+                else
+                    OnBattleStopped( battle );
 			}
 	}
 }
@@ -1060,7 +1061,7 @@ void TASServer::OnBattleDisableUnits( const std::string& unitlist )
 {
 	BattlePtr battle = m_battle;
 	if (!battle) return;
-	StringVector unitlist = StringTokenize(unitnames," ");
+    const StringVector unitlist = StringTokenize(unitnames," ");
 	for (std::iterator itor = unitlist.begin(); itor != unitlist.end();itor++)
 	{
 		OnBattleDisableUnit( battle, *itor, 0 );
@@ -1078,7 +1079,7 @@ void TASServer::OnBattleEnableUnits( const std::string& unitnames )
 {
 	BattlePtr battle = m_battle;
 	if (!battle) return;
-	StringVector unitlist = StringTokenize(unitnames," ");
+    const StringVector unitlist = StringTokenize(unitnames," ");
 	OnBattleEnableUnits( battle, unitlist );
 }
 

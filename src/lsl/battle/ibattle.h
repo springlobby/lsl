@@ -10,6 +10,8 @@
 #include "enum.h"
 
 #include <sstream>
+#include <boost/scoped_ptr.hpp>
+#include <boost/asio/deadline_timer.hpp>
 
 namespace LSL {
 namespace Battle {
@@ -56,6 +58,7 @@ struct BattleOptions
 	bool islocked;
 	Enum::BattleType battletype;
 	bool ispassworded;
+    std::string password;
 	int rankneeded;
 	std::string proxyhost;
 	bool userelayhost;
@@ -83,7 +86,7 @@ struct BattleOptions
 class IBattle : public HasKey< int >
 {
 public:
-	int key() const { return 1; }
+    int key() const { return GetBattleId(); }
 	static std::string className() { return "IBattle"; }
 
 	IBattle();
@@ -211,9 +214,10 @@ public:
 	virtual unsigned int GetNumReadyPlayers() const { return m_players_ready; }
 	virtual unsigned int GetNumSyncedPlayers() const { return m_players_sync; }
 	virtual unsigned int GetNumOkPlayers() const { return m_players_ok; }
-	virtual void SetNumSpectators(size_t num) = 0;
+    virtual void SetNumSpectators(size_t /*num*/) {assert(false); }
 
 	virtual int GetBattleId() const { return m_opts.battleid; }
+    virtual int Id() const { return GetBattleId(); }
 
 	virtual void SetInGame( bool ingame );
 	bool InGame() const { return m_ingame; }
@@ -366,7 +370,7 @@ protected:
 	BattleOptions m_opts;
 	bool m_is_self_in;
 	UserList m_userlist;
-
+    boost::scoped_ptr< boost::asio::deadline_timer > m_timer;
 };
 
 } // namespace Battle

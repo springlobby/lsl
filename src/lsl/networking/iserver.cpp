@@ -25,8 +25,17 @@ iServer::iServer()
 	//m_last_udp_ping(0),
     m_udp_private_port(0),
     m_udp_reply_timeout(0),
-	m_buffer("")
+    m_buffer(""),
+    m_sock( new Socket() )
 {
+    m_sock->sig_doneConnecting.connect(
+                boost::bind( &iServer::OnSocketConnected, this, _1, _2 )
+                );
+}
+
+iServer::~iServer()
+{
+    delete m_sock;
 }
 
 void iServer::Connect( const std::string& servername ,const std::string& addr, const int port )
@@ -137,12 +146,12 @@ void iServer::JoinChannel( const std::string& channel, const std::string& key )
 
 UserPtr iServer::AcquireRelayhost()
 {
-	const unsigned int numbots = m_relay_host_manager_list.size();
+    const unsigned int numbots = m_relay_masters.size();
 	if ( numbots > 0 )
 	{
 		srand ( time(NULL) );
 		const unsigned int choice = rand() % numbots;
-		m_relay_host_manager = m_users.Get( m_relay_host_manager_list[choice] );
+        m_relay_host_manager = m_relay_masters[choice];
 		SayPrivate( m_relay_host_manager, "!spawn" );
 		return m_relay_host_manager;
 	}
@@ -202,7 +211,7 @@ void iServer::StartHostedBattle()
 		}
 	}
 	_StartHostedBattle();
-	sig_StartHostedBattle( m_battle_id );
+    sig_StartHostedBattle( m_current_battle->Id() );
 }
 
 void iServer::LeaveBattle( const IBattlePtr battle)
@@ -222,17 +231,17 @@ void iServer::BattleKickPlayer( const IBattlePtr battle, const UserPtr user )
 }
 
 
-iServer::UserVector iServer::GetAvailableRelayHostList()
+UserVector iServer::GetAvailableRelayHostList()
 {
-	if ( m_relay_host_list )
+    if ( m_relay_host_manager )
 	{
 		// this isn't blocking... so what is good for here?
-		SayPrivate( m_relay_host_list, "!listmanagers" );
+        SayPrivate( m_relay_host_manager, "!listmanagers" );
 	}
 	UserVector ret;
-	for ( unsigned int i = 0; i < m_relay_host_manager_list.size(); i++ )
+    for ( unsigned int i = 0; i < m_relay_masters.size(); i++ )
 	{
-		UserPtr manager = m_users.Get( m_relay_host_manager_list[i] );
+        UserPtr manager = m_relay_masters[i];
 		// skip the manager is not connected or reports it's ingame ( no slots available ), or it's away ( functionality disabled )
 		if (!manager) continue;
 		if ( manager->Status().in_game ) continue;
@@ -269,9 +278,7 @@ void iServer::SetRelayIngamePassword( const UserPtr user )
 
 int iServer::RelayScriptSendETA(const std::string& script)
 {
-	StringVector strings;
-	boost::algorithm::split( strings, script, boost::algorithm::is_any_of("\n"),
-							 boost::algorithm::token_compress_off );
+    const StringVector strings = Util::StringTokenize( script, "\n");
 	int relaylengthprefix = 10 + 1 + m_relay_host_bot->Nick().length() + 2; // SAYPRIVATE + space + botname + space + exclamation mark length
 	int length = script.length();
 	length += relaylengthprefix + 11 + 1; // CLEANSCRIPT command size
@@ -282,9 +289,7 @@ int iServer::RelayScriptSendETA(const std::string& script)
 
 void iServer::SendScriptToProxy( const std::string& script )
 {
-	StringVector strings;
-	boost::algorithm::split( strings, script, boost::algorithm::is_any_of("\n"),
-										 boost::algorithm::token_compress_off );
+    const StringVector strings = Util::StringTokenize( script, "\n" );
 	RelayCmd( "CLEANSCRIPT" );
 	for (StringVector::const_iterator itor; itor != strings.end(); itor++)
 	{
@@ -309,10 +314,9 @@ void iServer::UdpPingTheServer(const std::string &message)
 	if ( port>0 )
 	{
 		m_udp_private_port = port;
-		m_se->OnMyInternalUdpSourcePort( m_udp_private_port );
+        sig_MyInternalUdpSourcePort( m_udp_private_port );
 	}
 }
-
 
 // copypasta from spring.cpp , to get users ordered same way as in tasclient.
 struct UserOrder
@@ -340,17 +344,19 @@ void iServer::UdpPingAllClients()
 
 
 	// copypasta from spring.cpp
-	UserVector ordered_users = m_current_battle->Players();
+    ConstUserVector ordered_users = m_current_battle->Players();
 	//TODO this uses ptr diff atm
 	std::sort(ordered_users.begin(),ordered_users.end());
 
-	BOOST_FOREACH( const UserPtr user, ordered_users )
+    int i = -1;
+    BOOST_FOREACH( const ConstUserPtr user, ordered_users )
 	{
+        i++;
 		if (!user)
 			continue;
 		const UserBattleStatus& status = user->BattleStatus();
-		const std::string ip=status.ip;
-		const unsigned int port=status.udpport;
+        const std::string ip = status.ip;
+        unsigned int port = status.udpport;
 		const unsigned int src_port = m_udp_private_port;
 		if ( m_current_battle->GetNatType() == Enum::NAT_Fixed_source_ports )
 		{
@@ -368,13 +374,14 @@ void iServer::UdpPingAllClients()
 /////                       Internal Server Events                         /////
 ////////////////////////////////////////////////////////////////////////////////
 
-void iServer::OnSocketConnected(Socket* sock)
+void iServer::OnSocketConnected(bool connection_ok, const std::string msg)
 {
-	m_connected = true;
+    assert( connection_ok );//add proper error handling
+    m_connected = connection_ok;
 	m_online = false;
 	m_last_udp_ping = 0;
     m_min_required_spring_ver = "";
-	m_relay_host_manager_list.clear();
+    m_relay_masters.clear();
 	GetLastPingID() = 0;
 	GetPingList().clear();
 }
@@ -387,7 +394,7 @@ void iServer::OnDisconnected(Socket* /*sock*/)
     m_redirecting = false;
     m_last_denied = "";
     m_min_required_spring_ver = "";
-	m_relay_host_manager_list.clear();
+    m_relay_masters.clear();
 	GetLastPingID() = 0;
 	GetPingList().clear();
 	// delete all users, battles, channels
@@ -415,28 +422,24 @@ void iServer::OnServerInitialData(const std::string& server_name, const std::str
 
 void iServer::OnNewUser( const UserPtr user )
 {
-	if (user->Nick() == "RelayHostManagerList" )
+    if (user->Nick() == "RelayHostManagerList" )
 	{
-		m_relay_host_manager_list = user->Nick();
-		SayPrivate( user, "!lm" );
-	}
-	if (user->Nick() == m_relay_host_bot_nick )
-	{
-		m_relay_host_bot = user;
+        m_relay_host_manager = user;
+        SayPrivate( m_relay_host_manager, "!lm" );
 	}
 }
 
 void iServer::OnUserStatus( const UserPtr user, UserStatus status )
 {
 	if ( !user ) return;
-	UserStatus oldStatus = user->GetStatus();
+    UserStatus oldStatus = user->Status();
 	user->SetStatus( status );
 	//TODO: event
 }
 
-void iServer::OnBattleStarted(const int battle_id )
+void iServer::OnBattleStarted(const IBattlePtr )
 {
-	if (!battle_id) return;
+    if (!battle) return;
 	//TODO: event
 }
 
@@ -520,7 +523,7 @@ void iServer::OnBattleMaxPlayersChanged( const IBattlePtr battle, int maxplayers
 void iServer::OnBattleHostChanged( const IBattlePtr battle, UserPtr host, const std::string& ip, int port )
 {
 	if (!battle) return;
-	if (!user) battle->SetFounder( host->Nick() );
+    if (!host) battle->SetFounder( host->Nick() );
 	battle->SetHostIp( ip );
 	battle->SetHostPort( port );
 }
@@ -589,7 +592,7 @@ void iServer::OnUserLeftBattle(const IBattlePtr battle, const UserPtr user)
 
 void iServer::OnBattleClosed(const IBattlePtr battle )
 {
-	RemoveBattle( battle->GetId() );
+    RemoveBattle( battle );
 	//TODO:event
 }
 
@@ -679,27 +682,27 @@ void iServer::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const
 			}
 			else
 			{
-				m_relay_host_bot_nick = message;
+                m_relay_host_bot = m_users.FindByNick( message );
 				return;
 			}
 		}
 	}
-	if ( m_relay_host_manager_list != 0
-		 && channel == m_channels.Get( "U" + Util::ToString(m_relay_host_manager_list.GetID() ) ) )
-	{
-		if ( user == m_me && message == "!lm" )
-			return;
-		if ( user == m_relay_host_manager_list )
-		{
-			if ( boost::starts_with(message,std::string("list ") ) )
-			{
-				 std::string list = Util::AfterFirst( message, " " ) ;
-				 boost::algorithm::split( m_relay_host_manager_list, list, boost::algorithm::is_any_of("\t"),
-													  boost::algorithm::token_compress_off );
-				 return;
-			}
-		}
-	}
+//    makes no sense to me
+//    if ( m_relay_masters.size() > 0
+//         && channel == m_channels.Get( "U" + Util::ToString(m_relay_masters.GetID() ) ) )
+//	{
+//		if ( user == m_me && message == "!lm" )
+//			return;
+//        if ( user == m_relay_masters )
+//		{
+//			if ( boost::starts_with(message,std::string("list ") ) )
+//			{
+//                std::string list = Util::AfterFirst( message, " " ) ;
+//                m_relay_masters = Util::StringTokenize( list, "\t" );
+//                return;
+//			}
+//		}
+//	}
 }
 
 void iServer::OnBattleStartRectAdd( const IBattlePtr battle, int allyno, int left, int top, int right, int bottom )
@@ -718,8 +721,9 @@ void iServer::OnBattleStartRectRemove( const IBattlePtr battle, int allyno )
 
 void iServer::OnFileDownload( bool autolaunch, bool autoclose, bool /*disconnectonrefuse*/, const std::string& FileName, const std::string& url, const std::string& description )
 {
-	UTASOfferFileData parsingdata;
-	parsingdata.data = GetIntParam( params );
+    // HUH?
+//	UTASOfferFileData parsingdata;
+//	parsingdata.data = GetIntParam( params );
 }
 
 void iServer::OnBattleScript( const IBattlePtr battle, const std::string& script )
@@ -746,7 +750,7 @@ void iServer::OnUserInternalUdpPort( const UserPtr user, int udpport )
 void iServer::OnUserExternalUdpPort( const UserPtr user, int udpport )
 {
 	if (!user) return;
-	user->BattleStatus().extudpport = udpport;
+    user->BattleStatus().udpport = udpport;
 }
 
 void iServer::OnUserIP( const UserPtr user, const std::string& ip )
@@ -781,7 +785,7 @@ void iServer::OnOpenBattleFailed( const std::string& msg )
 
 void iServer::OnRequestBattleStatus()
 {
-	if(!m_battle) return;
+//	if(!m_battle) return;
 }
 
 void iServer::OnUserScriptPassword(const UserPtr user, const std::string &pw)

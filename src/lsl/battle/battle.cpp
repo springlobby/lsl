@@ -15,10 +15,6 @@
 #include <lslutils/lslconfig.h>
 #include <unitsync++/optionswrapper.h>
 
-
-const unsigned int TIMER_INTERVAL         = 1000;
-const unsigned int TIMER_ID               = 101;
-
 namespace LSL {
 namespace Battle {
 
@@ -30,7 +26,6 @@ Battle::Battle( iServer& serv, int id ) :
 {
     m_opts.battleid =  m_id;
 }
-
 
 Battle::~Battle()
 {
@@ -78,7 +73,6 @@ void Battle::OnRequestBattleStatus()
     // theres some highly annoying bug with color changes on player join/leave.
 	if ( !bs.color.IsOk() )
 		bs.color = Util::GetFreeColor( GetMe() );
-
     SendMyBattleStatus();
 }
 
@@ -169,7 +163,7 @@ void Battle::LoadMapDefaults( const std::string& mapname )
 	SendHostInfo( Enum::HI_StartRects );
 }
 
-const UserPtr Battle::OnUserAdded( UserPtr user )
+const UserPtr Battle::OnUserAdded( const UserPtr user )
 {
     user = IBattle::OnUserAdded( user );
 	if ( user == GetMe() )
@@ -186,12 +180,12 @@ const UserPtr Battle::OnUserAdded( UserPtr user )
 
 		if ( ( user != GetMe() ) && !user->BattleStatus().IsBot() && ( m_opts.rankneeded != UserStatus::RANK_1 ) && !user->BattleStatus().spectator )
         {
-			if ( m_opts.rankneeded > UserStatus::RANK_1 && user->GetStatus().rank < m_opts.rankneeded )
+			if ( m_opts.rankneeded > UserStatus::RANK_1 && user->Status().rank < m_opts.rankneeded )
             {
 				DoAction( "Rank limit autospec: " + user->Nick() );
                 ForceSpectator( user, true );
             }
-			else if ( m_opts.rankneeded < UserStatus::RANK_1 && user->GetStatus().rank > ( -m_opts.rankneeded - 1 ) )
+			else if ( m_opts.rankneeded < UserStatus::RANK_1 && user->Status().rank > ( -m_opts.rankneeded - 1 ) )
             {
 				DoAction( "Rank limit autospec: " + user->Nick() );
                 ForceSpectator( user, true );
@@ -213,12 +207,12 @@ void Battle::OnUserBattleStatusUpdated( const UserPtr user, UserBattleStatus sta
     {
 		if ( ( user != GetMe() ) && !status.IsBot() && ( m_opts.rankneeded != UserStatus::RANK_1 ) && !status.spectator )
         {
-			if ( m_opts.rankneeded > UserStatus::RANK_1 && user->GetStatus().rank < m_opts.rankneeded )
+			if ( m_opts.rankneeded > UserStatus::RANK_1 && user->Status().rank < m_opts.rankneeded )
             {
 				DoAction( "Rank limit autospec: " + user->Nick() );
                 ForceSpectator( user, true );
             }
-			else if ( m_opts.rankneeded < UserStatus::RANK_1 && user->GetStatus().rank > ( -m_opts.rankneeded - 1 ) )
+			else if ( m_opts.rankneeded < UserStatus::RANK_1 && user->Status().rank > ( -m_opts.rankneeded - 1 ) )
             {
 				DoAction( "Rank limit autospec: " + user->Nick() );
                 ForceSpectator( user, true );

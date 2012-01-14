@@ -159,6 +159,12 @@ bool Socket::InTimeout(int timeout_seconds) const
     return ( ( m_last_net_packet > 0 ) && ( ( now - m_last_net_packet ) > timeout_seconds ) );
 }
 
+std::string Socket::GetLocalAddress() const
+{
+    assert( false );
+    return std::string();
+}
+
 void Socket::SetSendRateLimit(int Bps)
 {
     m_rate = Bps;

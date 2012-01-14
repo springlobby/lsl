@@ -70,7 +70,7 @@ public:
 	void SetHandicap(const BattlePtr battle, const UserPtr user, int handicap);
 	void AddBot(const BattlePtr battle, const std::string &nick, UserBattleStatus &status);
 	void RemoveBot(const BattlePtr battle, const UserPtr user);
-	void UpdateBot(const BattlePtr battle, const UserPtr user, UserBattleStatus &status);
+	void UpdateBot(const BattlePtr battle, const UserPtr user, UserBattleStatus &incoming_status);
 	void SendScriptToClients(const std::string &script);
 	void RequestSpringUpdate(std::string &currentspringversion);
 	int GetNewUserId();
@@ -120,6 +120,10 @@ private:
 		ScopedLocker<unsigned int> l_last_id(m_last_id);
 		return l_last_id.Get();
 	}
+
+    std::string m_delayed_open_command;
+    std::string m_agreement;
+
 private:
 	//! command handlers
 	void OnBattleOpened(int id, Enum::BattleType type, Enum::NatType nat, const std::string &nick, const std::string &host, int port, int maxplayers, bool haspass, int rank, const std::string &maphash, const std::string &map, const std::string &title, const std::string &mod);

@@ -45,6 +45,7 @@ class iServer
 {
   public:
     iServer();
+    virtual ~iServer();
 
 	boost::signals2::signal<void ()> sig_NATPunchFailed;
 	//! battle_id
@@ -58,14 +59,10 @@ class iServer
 	boost::signals2::signal<void (const ConstUserPtr,UserStatus)> sig_UserStatusChanged;
 	//! was_online
 	boost::signals2::signal<void (bool)> sig_Disconnected;
-
-	typedef std::vector<std::string>
-		StringVector;
-	typedef std::vector<UserPtr>
-		UserVector;
+    //! the udp port
+    boost::signals2::signal<void (int)> sig_MyInternalUdpSourcePort;
 
 	// Server interface
-
 	virtual bool ExecuteSayCommand( const std::string& cmd ) = 0;
 
 	virtual bool Register( const std::string& addr, const int port, const std::string& nick, const std::string& password,std::string& reason ) = 0;
@@ -140,7 +137,8 @@ class iServer
 
 	virtual void RequestInGameTime( const std::string& nick ) = 0;
 
-	virtual IBattlePtr GetCurrentBattle() = 0;
+    IBattlePtr GetCurrentBattle() { return m_current_battle; }
+    const ConstIBattlePtr GetCurrentBattle() const { return m_current_battle; }
 
 	virtual void RequestChannels() = 0;
 
@@ -157,6 +155,7 @@ class iServer
 	void SetRequiredSpring( const std::string& version ) { m_min_required_spring_ver = version; }
 
 	virtual void OnDisconnected( Socket* sock ) = 0;
+    void OnSocketConnected(bool connection_ok, const std::string msg);
 
 	const UserPtr GetMe() const {return m_me;}
 
@@ -191,6 +190,9 @@ private:
 	std::string m_last_relay_host_password;
 	PingThread* m_ping_thread;
 	std::string m_buffer;
+    std::string m_addr;
+    std::string m_last_denied;
+    bool m_redirecting;
     bool m_connected;
     bool m_online;
     int m_udp_private_port;
@@ -199,7 +201,7 @@ private:
 	time_t m_last_udp_ping;
 
 	MutexWrapper<unsigned int> m_last_ping_id;
-	unsigned int GetLastPingID()
+    unsigned int& GetLastPingID()
 	{
 		ScopedLocker<unsigned int> l_last_ping_id(m_last_ping_id);
         return l_last_ping_id.Get();
@@ -211,17 +213,12 @@ private:
 		return l_pinglist.Get();
 	}
 
-	ChannelList m_channels;
-	UserList m_users;
-	Battle::BattleList m_battles;
+    Battle::BattleList m_battles;
 	UserPtr m_relay_host_manager;
-	UserPtr m_relay_host_list;
-
 	UserVector GetAvailableRelayHostList();
-	StringVector m_relay_host_manager_list;
+    UserVector m_relay_masters;
 
 	void RemoveUser( const UserPtr user );
-	ChannelPtr AddChannel( const std::string& chan );
 	void RemoveChannel( const ChannelPtr chan );
 	void RemoveBattle( const IBattlePtr battle );
 
@@ -234,7 +231,7 @@ protected://defs from iserver.cpp bottom
 	void OnNewUser( const UserPtr user );
 	void OnUserStatus( const UserPtr user, UserStatus status );
 	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);
-	void OnBattleStarted( const int battle_id );
+    void OnBattleStarted( const IBattlePtr );
 	void OnDisconnected( bool wasonline );
 	void OnLogin( const UserPtr user );
 	void OnLogout();
@@ -313,6 +310,9 @@ protected://ideally this would be nothing, so long as Tasserver is still a child
 	UserPtr m_me;
 	UserPtr AddUser( const int id );
 	BattlePtr AddBattle( const int& id );
+    UserList m_users;
+    ChannelList m_channels;
+    ChannelPtr AddChannel( const std::string& chan );
 };
 
 } //namespace LSL

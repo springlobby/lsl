@@ -243,7 +243,7 @@ int Unitsync::GetNumMods() const
 }
 
 
-Unitsync::StringVector Unitsync::GetModList() const
+StringVector Unitsync::GetModList() const
 {
 	return m_mod_array;
 }
@@ -300,14 +300,14 @@ int Unitsync::GetNumMaps() const
 	return m_map_array.size();
 }
 
-Unitsync::StringVector Unitsync::GetMapList() const
+StringVector Unitsync::GetMapList() const
 {
 	return m_map_array;
 }
 
-Unitsync::StringVector Unitsync::GetModValidMapList( const std::string& modname ) const
+StringVector Unitsync::GetModValidMapList( const std::string& modname ) const
 {
-	Unitsync::StringVector ret;
+    StringVector ret;
 	try {
 		unsigned int mapcount = m_susynclib->GetValidMapCount( modname );
 		for ( unsigned int i = 0; i < mapcount; i++ )
@@ -423,9 +423,9 @@ GameOptions Unitsync::GetMapOptions( const std::string& name )
 	return ret;
 }
 
-Unitsync::StringVector Unitsync::GetMapDeps( const std::string& mapname )
+StringVector Unitsync::GetMapDeps( const std::string& mapname )
 {
-	Unitsync::StringVector ret;
+    StringVector ret;
 	try
 	{
 		ret = m_susynclib->GetMapDeps( Util::IndexInSequence( m_unsorted_map_array, mapname ) );
@@ -478,9 +478,9 @@ GameOptions Unitsync::GetSkirmishOptions( const std::string& modname, const std:
 	return ret;
 }
 
-Unitsync::StringVector Unitsync::GetModDeps( const std::string& modname ) const
+StringVector Unitsync::GetModDeps( const std::string& modname ) const
 {
-	Unitsync::StringVector ret;
+    StringVector ret;
 	try
 	{
 		ret = m_susynclib->GetModDeps( Util::IndexInSequence( m_unsorted_mod_array, modname ) );
@@ -489,9 +489,9 @@ Unitsync::StringVector Unitsync::GetModDeps( const std::string& modname ) const
 	return ret;
 }
 
-Unitsync::StringVector Unitsync::GetSides( const std::string& modname )
+StringVector Unitsync::GetSides( const std::string& modname )
 {
-	Unitsync::StringVector ret;
+    StringVector ret;
 	if ( ! m_sides_cache.TryGet( modname, ret ) ) {
 		try
 		{
@@ -532,15 +532,15 @@ UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string&
 	return UnitsyncImage::FromVfsFileData( FileContent, FileSize, image_path, useWhiteAsTransparent );
 }
 
-Unitsync::StringVector Unitsync::GetAIList( const std::string& modname ) const
+StringVector Unitsync::GetAIList( const std::string& modname ) const
 {
-	Unitsync::StringVector ret;
+    StringVector ret;
 	if ( usync().VersionSupports( USYNC_GetSkirmishAI ) )
 	{
 		int total = m_susynclib->GetSkirmishAICount( modname );
 		for ( int i = 0; i < total; i++ )
 		{
-			Unitsync::StringVector infos = m_susynclib->GetAIInfo( i );
+            StringVector infos = m_susynclib->GetAIInfo( i );
 			const int namepos = Util::IndexInSequence( infos, "shortName");
 			const int versionpos = Util::IndexInSequence( infos, "version");
 			std::string ainame;
@@ -552,14 +552,14 @@ Unitsync::StringVector Unitsync::GetAIList( const std::string& modname ) const
 	else
 	{
 		// list dynamic link libraries
-		const Unitsync::StringVector dlllist = m_susynclib->FindFilesVFS( Util::Lib::CanonicalizeName("AI/Bot-libs/*", Util::Lib::Module ) );
+        const StringVector dlllist = m_susynclib->FindFilesVFS( Util::Lib::CanonicalizeName("AI/Bot-libs/*", Util::Lib::Module ) );
 		for( int i = 0; i < long(dlllist.size()); i++ )
 		{
 			if ( Util::IndexInSequence( ret, Util::BeforeLast( dlllist[i], "/" ) ) == lslNotFound )
 				ret.push_back ( dlllist[i] ); // don't add duplicates //TODO(koshi) make ret a set instead :)
 		}
 		// list jar files (java AIs)
-		const Unitsync::StringVector jarlist = m_susynclib->FindFilesVFS("AI/Bot-libs/*.jar");
+        const StringVector jarlist = m_susynclib->FindFilesVFS("AI/Bot-libs/*.jar");
 		for( int i = 0; i < long(jarlist.size()); i++ )
 		{
 			if ( Util::IndexInSequence( ret, Util::BeforeLast( jarlist[i], "/" ) ) == lslNotFound )
@@ -588,9 +588,9 @@ void Unitsync::UnSetCurrentMod()
 	} catch( unitsync_assert ) {}
 }
 
-Unitsync::StringVector Unitsync::GetAIInfos( int index ) const
+StringVector Unitsync::GetAIInfos( int index ) const
 {
-	Unitsync::StringVector ret;
+    StringVector ret;
 	try
 	{
 		ret = m_susynclib->GetAIInfo( index );
@@ -617,9 +617,9 @@ int Unitsync::GetNumUnits( const std::string& modname ) const
 	return m_susynclib->GetUnitCount();
 }
 
-Unitsync::StringVector Unitsync::GetUnitsList( const std::string& modname )
+StringVector Unitsync::GetUnitsList( const std::string& modname )
 {
-	Unitsync::StringVector cache;
+    StringVector cache;
 	try
 	{
 		cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
@@ -739,7 +739,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 	if ( m_mapinfo_cache.TryGet( mapname, info ) )
 		return info;
 
-	Unitsync::StringVector cache;
+    StringVector cache;
 	try {
 		try
 		{
@@ -755,9 +755,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			info.maxWind = Util::FromString<long>( cache[6] );
 			info.width = Util::FromString<long>( cache[7] );
 			info.height = Util::FromString<long>( cache[8] );
-			Unitsync::StringVector posinfo;
-			boost::algorithm::split( posinfo, cache[9], boost::algorithm::is_any_of(" "),
-									 boost::algorithm::token_compress_off );
+            const StringVector posinfo = Util::StringTokenize( cache[9], " ");
 			BOOST_FOREACH( const std::string pos, posinfo )
 			{
 				StartPos position;
@@ -790,9 +788,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			}
 			cache.push_back( postring );
 
-			Unitsync::StringVector descrtokens;
-			boost::algorithm::split( descrtokens, info.description, boost::algorithm::is_any_of("\n"),
-									 boost::algorithm::token_compress_off );
+            const StringVector descrtokens = Util::StringTokenize( info.description, "\n" );
 			BOOST_FOREACH( const std::string descrtoken, descrtokens ) {
 				cache.push_back( descrtoken );
 			}
@@ -809,7 +805,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 	return info;
 }
 
-Unitsync::StringVector Unitsync::FindFilesVFS( const std::string& pattern ) const
+StringVector Unitsync::FindFilesVFS( const std::string& pattern ) const
 {
 	return m_susynclib->FindFilesVFS( pattern );
 }
@@ -846,9 +842,9 @@ std::string Unitsync::GetFileCachePath( const std::string& name, const std::stri
 	return ret;
 }
 
-Unitsync::StringVector Unitsync::GetCacheFile( const std::string& path ) const
+StringVector Unitsync::GetCacheFile( const std::string& path ) const
 {
-	Unitsync::StringVector ret;
+    StringVector ret;
 	std::ifstream file( path.c_str() );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
 	std::string line;
@@ -859,7 +855,7 @@ Unitsync::StringVector Unitsync::GetCacheFile( const std::string& path ) const
 	return ret;
 }
 
-void Unitsync::SetCacheFile( const std::string& path, const Unitsync::StringVector& data )
+void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 {
 	std::ofstream file( path.c_str() );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
@@ -873,9 +869,9 @@ void Unitsync::SetCacheFile( const std::string& path, const Unitsync::StringVect
 	file.close();
 }
 
-Unitsync::StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
+StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
 {
-	Unitsync::StringVector ret;
+    StringVector ret;
 	if ( !IsLoaded() ) return ret;
 
 	if ( ReplayType )
@@ -897,18 +893,18 @@ std::string Unitsync::GetArchivePath( const std::string& name ) const
 	return m_susynclib->GetArchivePath( name );
 }
 
-Unitsync::StringVector Unitsync::GetScreenshotFilenames() const
+StringVector Unitsync::GetScreenshotFilenames() const
 {
 	if ( !IsLoaded() )
-		return Unitsync::StringVector();
+        return StringVector();
 
-	Unitsync::StringVector ret = m_susynclib->FindFilesVFS( "screenshots/*.*" );
+    StringVector ret = m_susynclib->FindFilesVFS( "screenshots/*.*" );
 	std::set<std::string> ret_set ( ret.begin(), ret.end() );
 //	for ( int i = 0; i < long(ret.size() - 1); ++i ) {
 //		if ( ret[i] == ret[i+1] )
 //			ret.RemoveAt( i+1 );
 //	}
-	ret = Unitsync::StringVector ( ret_set.begin(), ret_set.end() );
+    ret = StringVector ( ret_set.begin(), ret_set.end() );
 	std::sort( ret.begin(), ret.end() );
 	return ret;
 }

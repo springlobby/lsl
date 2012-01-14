@@ -65,7 +65,7 @@ bool User::ExecuteSayCommand( const std::string& cmd ) const
 
 UserStatus::RankContainer User::GetRank()
 {
-	return GetStatus().rank;
+    return Status().rank;
 }
 
 std::string User::GetRankName(UserStatus::RankContainer rank)
@@ -88,7 +88,7 @@ std::string User::GetRankName(UserStatus::RankContainer rank)
 
 float User::GetBalanceRank()
 {
-	return 1.0 + 0.1 * float( GetStatus().rank - UserStatus::RANK_1 ) / float( UserStatus::RANK_8 - UserStatus::RANK_1 );
+    return 1.0 + 0.1 * float( Status().rank - UserStatus::RANK_1 ) / float( UserStatus::RANK_8 - UserStatus::RANK_1 );
 }
 
 std::string User::GetClan()

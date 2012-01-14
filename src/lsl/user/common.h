@@ -99,19 +99,11 @@ public:
 	void SetID( const std::string& id ) { m_id = id; }
 
 	UserStatus& Status() { return m_status; }
-
-	UserStatus GetStatus() const { return m_status; }
+    const UserStatus& Status() const { return m_status; }
 	virtual void SetStatus( const UserStatus& status );
 
 	UserBattleStatus& BattleStatus() { return m_bstatus; }
-
-	UserBattleStatus GetBattleStatus() const { return m_bstatus; }
-
-	/** Read-only variant of BattleStatus() above.
-	 */
-	const UserBattleStatus& BattleStatus() const {
-		return m_bstatus;
-	}
+    const UserBattleStatus& BattleStatus() const { return m_bstatus; }
 
 	//void SetBattleStatus( const UserBattleStatus& status );/// dont use this to avoid overwriting data like ip and port, use following method.
 	void UpdateBattleStatus( const UserBattleStatus& status );

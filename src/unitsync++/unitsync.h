@@ -22,8 +22,6 @@ class UnitsyncLib;
 class Unitsync : public boost::noncopyable
 {
 private:
-	typedef std::vector< std::string >
-		StringVector;
 	typedef boost::signals2::signal<void (std::string)>
 		StringSignalType;
 

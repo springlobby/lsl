@@ -37,6 +37,7 @@ public:
     int GetSendRateLimit() const { return m_rate; }
     std::string GetHandle() const;
 	bool InTimeout( int timeout_seconds ) const;
+    std::string GetLocalAddress() const;
 
 private:
     void ConnectCallback(const boost::system::error_code& error);

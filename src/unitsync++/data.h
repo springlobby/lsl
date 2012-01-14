@@ -27,7 +27,12 @@ namespace LSL {
 
 struct UnitsyncMod
 {
-	UnitsyncMod() : name(std::string()),hash(std::string()) { }
+    UnitsyncMod()
+        : name(std::string()),hash(std::string())
+    {}
+    UnitsyncMod(const std::string& name, const std::string& hash)
+        : name(name),hash(hash)
+    {}
 	std::string name;
 	std::string hash;
 };
@@ -57,7 +62,12 @@ struct MapInfo
 
 struct UnitsyncMap
 {
-	UnitsyncMap() : name(std::string()),hash(std::string()) { }
+    UnitsyncMap()
+        : name(std::string()),hash(std::string())
+    {}
+    UnitsyncMap(const std::string& name, const std::string& hash)
+        : name(name),hash(hash)
+    {}
 	std::string name;
 	std::string hash;
 	MapInfo info;
