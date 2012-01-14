@@ -24,39 +24,39 @@ TDFWriter::~TDFWriter() {
 }
 void TDFWriter::EnterSection( const std::string &name ) {
 	Indent();
-	m_stream << _T( "[" ) << name << _T( "]\n" );
+    m_stream << "[" << name << "]\n";
 	Indent();
-	m_stream << _T( "{\n" );
+    m_stream << "{\n";
 	m_depth++;
 }
 void TDFWriter::LeaveSection() {
 	m_depth--;
 	Indent();
-	m_stream << _T( "}\n" );
+    m_stream << "}\n";
 }
 void TDFWriter::Indent() {
-	for ( int i = 0;i < m_depth;++i )m_stream << _T( "\t" );
+    for ( int i = 0;i < m_depth;++i )m_stream << "\t";
 }
 //std::string GetCurrentPath();
 void TDFWriter::Append( const std::string &name, std::string value ) {
 	Indent();
-	m_stream << name << _T( "=" ) << value << _T( ";\n" );
+    m_stream << name << "=" << value << ";\n";
 }
 
 void TDFWriter::Close() {
 	while ( m_depth > 0 )
 		LeaveSection();
 	if ( m_depth < 0 ) {
-		wxLogWarning( _T( "error in TDFWriter usage: more LeaveSection() calls than EnterSection(). Please contact springlobby developers" ) );
+        wxLogWarning( "error in TDFWriter usage: more LeaveSection() calls than EnterSection(). Please contact springlobby developers" );
 	}
 }
 
 void TDFWriter::AppendLineBreak() {
-	m_stream << _T( "\n" );
+    m_stream << "\n";
 }
 
 void Tokenizer::ReportError( const Token &t, const std::string &err ) {
-	wxLogMessage( _T( "TDF parsing error at (%s), on token \"%s\" : %s" ), t.pos_string.c_str(), t.value_s.c_str(), err.c_str() );
+    wxLogMessage( "TDF parsing error at (%s), on token \"%s\" : %s", t.pos_string.c_str(), t.value_s.c_str(), err.c_str() );
 	errors++;
 }
 
@@ -65,7 +65,7 @@ void Tokenizer::ReportError( const Token &t, const std::string &err ) {
 
 void Tokenizer::EnterStream( std::istream &stream_, const std::string &name ) {
 	skip_eol = false;
-	include_stack.push_back( IncludeCacheEntry( &stream_, false ) );
+    include_stack.push_back( IncludeCacheEntry( &stream_, false ) );
 	include_stack.back().name = name;
 }
 
@@ -121,13 +121,13 @@ start:
 
 	if ( !Good() ) {
 		token.type = Token::type_eof;
-		token.pos_string = _T( "EOF" );
+        token.pos_string = "EOF";
 		return;
 	}
 
 	token.pos_string = std::string();
-	if ( !include_stack.empty() && !include_stack.back().name.empty() )token.pos_string << include_stack.back().name << _T( " , " );
-	token.pos_string << _( "line " ) << include_stack.back().line << _( " , column " ) << include_stack.back().column;
+    if ( !include_stack.empty() && !include_stack.back().name.empty() )token.pos_string << include_stack.back().name << " , ";
+    token.pos_string << "line " << include_stack.back().line << " , column " << include_stack.back().column;
 
 	char c = GetNextChar();
 	token.value_s += c;
@@ -147,7 +147,7 @@ start:
 						if ( Good() ) {
 							token.value_s += GetNextChar();
 						} else {
-							ReportError( token, wxT( "Quotes not closed before end of file" ) );
+                            ReportError( token, "Quotes not closed before end of file" );
 							return;
 						}
 					} else if ( c == ']' ) {
@@ -165,7 +165,7 @@ start:
 						if ( ( PeekNextChar() == 10 || PeekNextChar() == 13 ) && ( PeekNextChar() != c ) )skip_next_eol_char = true;
 					}
 				}
-				ReportError( token, wxT( "Quotes not closed before end of file" ) );
+                ReportError( token, "Quotes not closed before end of file" );
 			}
 		case '{':
 			token.type = Token::type_enter_section;
@@ -178,7 +178,7 @@ start:
 			return;
 		case '=':
 			token.type = Token::type_entry_value;
-			token.value_s = _T( "" );
+            token.value_s = "";
 			while ( Good() && PeekNextChar() != ';' ) {
 				unsigned char c_ = GetNextChar();
 				token.value_s += c_;
@@ -346,7 +346,7 @@ bool DataList::InsertAt( PNode node, PNode where )/// return false if such entry
 #ifdef use_std_string
 static const char* rename_prefix = "!";
 #else
-static const wxChar* rename_prefix = _T( "!" );
+static const wxChar* rename_prefix = "!";
 #endif
 
 void DataList::InsertRename( PNode node ) {/// rename if such entry already exists. str contains new name.
@@ -371,7 +371,7 @@ void DataList::InsertRename( PNode node ) {/// rename if such entry already exis
 				return;
 			}
 		}
-		wxLogError( _T( "insertRename: iterated over 10 000 names, way too many" ) );
+        wxLogError( "insertRename: iterated over 10 000 names, way too many" );
 	}
 }
 
@@ -397,7 +397,7 @@ void DataList::InsertRenameAt( PNode node, PNode where ) {// rename if such entr
 				return;
 			}
 		}
-		wxLogError( _T( "insertRename: iterated over 10 000 names, way too many" ) );
+        wxLogError( "insertRename: iterated over 10 000 names, way too many" );
 	}
 }
 
@@ -428,23 +428,23 @@ bool DataList::Rename( const std::string &old_name, const std::string &new_name 
 	if ( i == nodes.end() )return false;
 	PNode node = i->second;
 
-	ASSERT_LOGIC( node.Ok(), _T( "Internal TDF tree consistency (1)" ) );
-	ASSERT_LOGIC( node->Name().Lower() == old_name.Lower(), _T( "Internal TDF tree consistency (2)" ) );
+    ASSERT_LOGIC( node.Ok(), "Internal TDF tree consistency (1)" );
+    ASSERT_LOGIC( node->Name().Lower() == old_name.Lower(), "Internal TDF tree consistency (2)" );
 
 	node->name = new_name.Lower();
 	nodes.erase( i );
 	bool inserted = nodes.insert( std::pair<std::string, PNode>( ( *node ).name.Lower(), node ) ).second;
-	ASSERT_LOGIC( inserted, _T( "DataList::Rename failed" ) );
+    ASSERT_LOGIC( inserted, "DataList::Rename failed" );
 	return inserted;
 }
 
 /// find by name. unused.
 PNode DataList::Find( const std::string &str ) {
-	if ( str == _T( ".." ) )return Parent();
-	if ( str == _T( "." ) )return this;
+    if ( str == ".." )return Parent();
+    if ( str == "." )return this;
 	nodes_iterator i = nodes.find( str.Lower() );
 	if ( i != nodes.end() ) {
-		ASSERT_LOGIC( i->second->Name().Lower() == str.Lower(), _T( "Internal TDF tree consistency (3)" ) );
+        ASSERT_LOGIC( i->second->Name().Lower() == str.Lower(), "Internal TDF tree consistency (3)" );
 		return i->second;
 	}
 	return NULL;
@@ -454,7 +454,7 @@ std::string DataList::Path() {
 	std::string result;
 	PDataList tmp( this );
 	while ( tmp.Ok() ) {
-		result = std::string( _T( "/" ) ) + tmp->Name();
+        result = std::string( "/" ) + tmp->Name();
 		tmp = tmp->Parent();
 	}
 	return name;
@@ -479,12 +479,12 @@ PNode DataList::FindByPath( const std::string &str ) {
 	i = 1;
 	while ( ( unsigned int )( i ) < str.size() ) {
 		if ( str[i] == '/' ) {
-			if ( buff == _T( ".." ) ) {
+            if ( buff == ".." ) {
 				current_dir = current_dir->Parent();
 				if ( !current_dir.Ok() )
 					return NULL;
 			}
-			else if ( buff != _T( "." ) && !buff.empty() ) {//
+            else if ( buff != "." && !buff.empty() ) {//
 				PNode node = current_dir->Find( buff );
 				if ( !node.Ok() )
 					return NULL;
@@ -495,7 +495,7 @@ PNode DataList::FindByPath( const std::string &str ) {
 				else
 					return NULL;
 			}
-			buff = _T( "" );
+            buff = "";
 		}
 		else {
 			buff += str[i];
@@ -593,7 +593,7 @@ void DataList::Load( Tokenizer &f ) {
 				{
 					Token t2 = f.TakeToken();
 					if ( t2.type != Token::type_enter_section ) {
-						f.ReportError( t, _T( "'{' expected" ) );
+                        f.ReportError( t, "'{' expected" );
 					} else {
 						PDataList new_list( new DataList );
 						new_list->SetName( t.value_s );
@@ -603,7 +603,7 @@ void DataList::Load( Tokenizer &f ) {
 				}
 				break;
 			default:
-				f.ReportError( t, _T( "[sectionname] or entryname= expected." ) );
+                f.ReportError( t, "[sectionname] or entryname= expected." );
 		}
 
 	}
@@ -710,8 +710,8 @@ void DataLeaf::Load( Tokenizer &f ) {
 	Token t = f.TakeToken();
 	value = t.value_s;
 	t = f.TakeToken();
-	if ( t.value_s != _T( ";" ) ) {
-		f.ReportError( t, _T( "; expected" ) );
+    if ( t.value_s != ";" ) {
+        f.ReportError( t, "; expected" );
 	}
 }
 

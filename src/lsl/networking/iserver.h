@@ -213,7 +213,6 @@ private:
 		return l_pinglist.Get();
 	}
 
-    Battle::BattleList m_battles;
 	UserPtr m_relay_host_manager;
 	UserVector GetAvailableRelayHostList();
     UserVector m_relay_masters;
@@ -231,7 +230,8 @@ protected://defs from iserver.cpp bottom
 	void OnNewUser( const UserPtr user );
 	void OnUserStatus( const UserPtr user, UserStatus status );
 	void OnServerInitialData(const std::string& server_name, const std::string& server_ver, bool supported, const std::string& server_spring_ver, bool /*unused*/);
-    void OnBattleStarted( const IBattlePtr );
+    void OnBattleStarted(const IBattlePtr battle);
+    void OnBattleStopped(const IBattlePtr battle);
 	void OnDisconnected( bool wasonline );
 	void OnLogin( const UserPtr user );
 	void OnLogout();
@@ -309,6 +309,7 @@ protected://ideally this would be nothing, so long as Tasserver is still a child
 	int m_message_size_limit; //! in bytes
 	UserPtr m_me;
 	UserPtr AddUser( const int id );
+    Battle::BattleList m_battles;
 	BattlePtr AddBattle( const int& id );
     UserList m_users;
     ChannelList m_channels;

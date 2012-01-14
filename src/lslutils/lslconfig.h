@@ -18,7 +18,7 @@ public:
     std::string GetCurrentUsedUnitSync() { return "/usr/lib/spring/libunitsync.so";}
 	StringVector GetPresetList() { return StringVector(); }
     StringMap GetHostingPreset( const std::string&, size_t ) { return StringMap(); }
-    lslColor GetBattleLastColor() const { return lslColor(); }
+    lslColor GetBattleLastColor() const;
     int GetBattleLastSideSel( const std::string& modname ) const;
 };
 

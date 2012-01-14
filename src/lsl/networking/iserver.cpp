@@ -437,10 +437,16 @@ void iServer::OnUserStatus( const UserPtr user, UserStatus status )
 	//TODO: event
 }
 
-void iServer::OnBattleStarted(const IBattlePtr )
+void iServer::OnBattleStarted(const IBattlePtr battle)
 {
     if (!battle) return;
-	//TODO: event
+    //TODO: event
+}
+
+void iServer::OnBattleStopped(const IBattlePtr battle)
+{
+    if (!battle) return;
+    //TODO: event
 }
 
 void iServer::OnDisconnected( bool wasonline )

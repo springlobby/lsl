@@ -19,6 +19,7 @@ namespace LSL {
 
 TASServer::TASServer(/*int TASServerMode*/)
 	: m_cmd_dict( new CommandDictionary(this) )
+    , m_account_id_count(0)
 {
 	m_sock->sig_dataReceived.connect( boost::bind( &TASServer::ExecuteCommand, this, _1, _2 ) );
 }
@@ -883,7 +884,7 @@ void TASServer::OnUserStatusChanged( const std::string& nick, int intstatus )
 
 void TASServer::OnHostedBattle( int battleid )
 {
-	BattlePtr battle = GetBattle( battleid );
+    const BattlePtr battle = m_battles.Get( battleid );
 	if(!battle) return;
 	OnSelfHostedBattle(battle);
 	OnSelfJoinedBattle(battle);

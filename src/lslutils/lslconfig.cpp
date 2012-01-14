@@ -1,4 +1,5 @@
 #include "lslconfig.h"
+#include "misc.h"
 
 namespace LSL {
 
@@ -11,5 +12,6 @@ Config& sett() {
     return cc;
 }
 
+lslColor Config::GetBattleLastColor() const { return lslColor(); }
 
 }// namespace LSL {

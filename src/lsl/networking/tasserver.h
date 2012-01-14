@@ -123,6 +123,7 @@ private:
 
     std::string m_delayed_open_command;
     std::string m_agreement;
+    unsigned int m_account_id_count;
 
 private:
 	//! command handlers
