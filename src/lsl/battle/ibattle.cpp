@@ -19,7 +19,7 @@ namespace LSL {
 namespace Battle {
 
 boost::asio::io_service _io;
-const boost::posix_time::seconds TIMER_INTERVAL      = 1000;
+const boost::posix_time::seconds TIMER_INTERVAL(1000);
 const unsigned int TIMER_ID               = 101;
 
 BattleOptions::BattleOptions()
@@ -849,13 +849,13 @@ std::map<std::string,int> IBattle::RestrictedUnits() const
 void IBattle::OnSelfLeftBattle()
 {
 	GetMe()->BattleStatus().spectator = false; // always reset back yourself to player when rejoining
-    m_timer->C
+    m_timer->cancel();
 
 	m_is_self_in = false;
 	for( size_t j = 0; j < m_userlist.size(); ++j  )
 	{
 		ConstUserPtr u = m_userlist.At( j );
-		if ( u->GetBattleStatus().IsBot() )
+        if ( u->BattleStatus().IsBot() )
 		{
 			OnUserRemoved( u );
 			ConstIBattlePtr bp( this );
