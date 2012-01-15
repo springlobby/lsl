@@ -258,11 +258,6 @@ public:
 	virtual std::string GetDescription() const { return m_opts.description; }
 	// virtual void SetModname( const std::string& mod ) { m_opts.modname = mod; }
 
-
-	typedef std::map<std::string, UserPtr> UserVec;
-	typedef UserVec::const_iterator UserVecCIter;
-	typedef UserVec::iterator UserVecIter;
-
 	void SetBattleOptions( const BattleOptions& options ) { m_opts = options; }
 
 	virtual void OnSelfLeftBattle();
@@ -355,14 +350,14 @@ private:
 
 	std::string m_preset;
 
-	UserVec m_internal_bot_list;
+    UserList m_internal_bot_list;
 
 	/// replay&savegame stuff
 	std::stringstream m_script;
 	std::string m_playback_file_path;
 	TeamVec m_parsed_teams;
 	AllyVec m_parsed_allies;
-	UserVec m_internal_user_list; /// to store users from savegame/replay
+    UserList m_internal_user_list; /// to store users from savegame/replay
 	long m_start_time;
 
 protected:

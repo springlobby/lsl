@@ -366,7 +366,7 @@ void IBattle::OnUserRemoved( UserPtr user )
 		user->SetBattle( BattlePtr() );
 	else
 	{
-		UserVecIter itor = m_internal_bot_list.find( user->Nick() );
+        UserPtr user = m_internal_bot_list.find( user->Nick() );
 		if ( itor != m_internal_bot_list.end() )
 		{
 			m_internal_bot_list.erase( itor );
@@ -1088,7 +1088,7 @@ void IBattle::LoadScriptMMOpts( const std::string& sectionname, const TDF::PData
     for ( TDF::PNode n = section->First(); n != section->Last(); n = section->Next( n ) )
 	{
 		if ( !n.ok() ) continue;
-		opts.setSingleOption( n->Name(), section->GetString( n->Name() ) );
+        opts->setSingleOption( n->Name(), section->GetString( n->Name() ) );
 	}
 }
 
@@ -1097,10 +1097,10 @@ void IBattle::LoadScriptMMOpts( const TDF::PDataList& node )
 	if ( !node.ok() ) return;
     OptionsWrapperPtr opts = CustomBattleOptions();
 	typedef std::map<std::string,std::string> optMap;
-	optMap options = opts.getOptionsMap(OptionsWrapper::EngineOption);
+    optMap options = opts->getOptionsMap(OptionsWrapper::EngineOption);
 	for ( optMap::const_iterator i = options.begin(); i != options.end(); ++i)
 	{
-		opts.setSingleOption( i->first, node->GetString( i->first, i->second ) );
+        opts->setSingleOption( i->first, node->GetString( i->first, i->second ) );
 	}
 }
 

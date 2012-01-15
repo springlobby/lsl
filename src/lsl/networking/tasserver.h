@@ -137,8 +137,8 @@ private:
 	void OnUserJoinedBattle(int battleid, const std::string &nick, const std::string &userScriptPassword);
 	void OnUserLeftBattle(int battleid, const std::string &nick);
     void OnBattleInfoUpdated(int battleid, int spectators, bool locked, const std::string &maphash, const std::string &mapname);
-    void OnSetBattleOption(const std::string key, const std::string &value);
-	void OnSetBattleInfo(const std::string &infos);
+    void OnSetBattleOption(std::string key, const std::string &value);
+    void OnSetBattleInfo(std::string infos);
 	void OnAcceptAgreement();
 	void OnBattleClosed(int battleid);
 	void OnBattleDisableUnits(const std::string &unitlist);

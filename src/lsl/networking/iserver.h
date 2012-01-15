@@ -214,7 +214,7 @@ private:
 	}
 
 	UserPtr m_relay_host_manager;
-	UserVector GetAvailableRelayHostList();
+    UserVector GetAvailableRelayHostList();
     UserVector m_relay_masters;
 
 	void RemoveUser( const UserPtr user );
@@ -257,8 +257,8 @@ protected://defs from iserver.cpp bottom
 	void OnUserLeftBattle(const IBattlePtr battle, const UserPtr user);
 	void OnBattleClosed(const IBattlePtr battle );
 	void OnBattleDisableUnit( const IBattlePtr battle, const std::string& unitname, int count );
-	void OnBattleEnableUnit( int battleid, const StringVector& unitnames );
-	void OnBattleEnableAllUnits( int battleid );
+    void OnBattleEnableUnit( const IBattlePtr battle, const StringVector& unitnames );
+    void OnBattleEnableAllUnits( const IBattlePtr battle );
 	void OnJoinChannelFailed( const ChannelPtr channel, const std::string& reason );
 	void OnUserJoinedChannel( const ChannelPtr channel, const UserPtr user );
 	void OnKickedFromChannel( const ChannelPtr channel, const std::string& fromWho, const std::string& msg );
@@ -274,7 +274,7 @@ protected://defs from iserver.cpp bottom
 	void OnUserExternalUdpPort( const UserPtr user, int udpport );
 	void OnUserIP( const UserPtr user, const std::string& ip );
 	void OnRedirect( const std::string& address, int port );
-	void OnChannelJoinUserList( const ChannelPtr channel, const UserVector& users);
+    void OnChannelJoinUserList( const ChannelPtr channel, const UserVector& users);
 	void OnChannelListEnd();
 	void OnJoinBattleFailed( const std::string& msg );
 	void OnOpenBattleFailed( const std::string& msg );
@@ -283,6 +283,8 @@ protected://defs from iserver.cpp bottom
     void OnSelfJoinedBattle( IBattlePtr battle );
     void OnSetBattleOption( IBattlePtr battle, const std::string& param, const std::string& value );
     void OnClientBattleStatus( IBattlePtr battle, UserPtr user, UserBattleStatus bstatus );
+    void OnBattleEnableUnits( IBattlePtr battle, const StringVector unitlist );
+    void OnUserLeftChannel( ChannelPtr channel, UserPtr user );
 
 	virtual void OnConnected( const std::string&, const int, const std::string&, const int) = 0;
 	void OnUserScriptPassword( const UserPtr user, const std::string& pw );

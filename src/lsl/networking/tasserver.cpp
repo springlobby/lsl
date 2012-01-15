@@ -850,7 +850,7 @@ void TASServer::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType nat
     ChannelPtr channel = m_channels.Get( battlechanname );
 	if (!channel)
 	{
-		channel = AddChannel( battlechanname );
+        m_channels.Add( channel );
 		battle->SetChannel( channel );
 	}
 
@@ -999,17 +999,18 @@ void TASServer::OnSetBattleOption( std::string key, const std::string& value )
     if ( key.substr( 5 ) == "game/" )
 	{
         key = Util::AfterFirst( key, "/" );
-        else if ( key.substr( 8 ) == "restrict" )
+        //TODO the original had modoptions here???
+        if ( key.substr( 8 ) == "restrict" )
 		{
-			OnBattleDisableUnit( battleid, key.AfterFirst(_T('/')), atoi(value) );
+            OnBattleDisableUnit( battle->Id(), Util::AfterFirst(key,"/"), Util::FromString<int>(value) );
 		}
         else if ( ( key.substr( 4 ) ==  "team" ) && key.find( "startpos" ) != std::string::npos )
 		{
             int team = Util::FromString<int>( Util::BeforeFirst(key,"/").Mid( 4 ) );
-			if ( key.Find( "startposx" ) != wxNOT_FOUND )
+            if ( key.find( "startposx" ) != std::string::npos )
 			{
-                UserVec users = battle->GetUsers();
-				for ( UserVec::iterator itor = users.begin(); users.end(); itor++ )
+                UserVector users = battle->GetUsers();
+                for ( UserVector::iterator itor = users.begin(); users.end(); itor++ )
 				{
 					UserBattleStatus& status = itor->BattleStatus();
 					if ( status.team == team )
@@ -1019,10 +1020,10 @@ void TASServer::OnSetBattleOption( std::string key, const std::string& value )
 					}
 				}
 			 }
-			 else if ( key.Find( "startposy" ) != wxNOT_FOUND )
+             else if ( key.find( "startposy" ) != std::string::npos )
 			 {
-                UserVec users = battle->GetUsers();
-				for ( UserVec::iterator itor = users.begin(); users.end(); itor++ )
+                UserVector users = battle->GetUsers();
+                for ( UserVector::iterator itor = users.begin(); users.end(); itor++ )
 				{
 					UserBattleStatus& status = itor->BattleStatus();
 					if ( status.team == team )
@@ -1032,15 +1033,15 @@ void TASServer::OnSetBattleOption( std::string key, const std::string& value )
 					}
 				}
 			}
-		}
+        }
 	}
 	else
         OnSetBattleOption(battle, param, value );
 }
 
-void TASServer::OnSetBattleInfo( const std::string& infos )
+void TASServer::OnSetBattleInfo( std::string infos )
 {
-    BattlePtr battle = m_current_battle;
+    IBattlePtr battle = m_current_battle;
 	if (!battle) return;
 	std::string command;
 	while ( (command = GetSentenceParam( infos )) != "") )
@@ -1061,68 +1062,65 @@ void TASServer::OnBattleClosed( int battleid )
 
 void TASServer::OnBattleDisableUnits( const std::string& unitlist )
 {
-    BattlePtr battle = m_current_battle;
+    IBattlePtr battle = m_current_battle;
 	if (!battle) return;
-    const StringVector unitlist = StringTokenize(unitlist," ");
-    BOOST_FOREACH( const std::string unit, unitlist )
+    const StringVector units = Util::StringTokenize( unitlist, " " );
+    BOOST_FOREACH( const std::string unit, units )
 	{
-        OnBattleDisableUnit( battle, unit, 0 );
+        iServer::OnBattleDisableUnit( battle, unit, 0 );
 	}
 }
 
 void TASServer::OnBattleDisableUnit( const std::string& unitname, int count )
 {
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if (!battle) return;
-	OnBattleDisableUnit( battle, unitname, count );
+    iServer::OnBattleDisableUnit( battle, unitname, count );
 }
 
 void TASServer::OnBattleEnableUnits( const std::string& unitnames )
 {
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if (!battle) return;
-    const StringVector unitlist = StringTokenize(unitnames," ");
-	OnBattleEnableUnits( battle, unitlist );
+    const StringVector unitlist = Util::StringTokenize(unitnames," ");
+    iServer::OnBattleEnableUnits( battle, unitlist );
 }
 
 void TASServer::OnBattleEnableAllUnits()
 {
-    BattlePtr battle = m_battles.Get( battleid );
-	if (!battle) return;
-	OnBattleEnableAllUnits(battle);
+    iServer::OnBattleEnableAllUnits(m_current_battle);
 }
 
 void TASServer::OnJoinChannel(const std::string& channel , const std::string &rest)
 {
-	Channel* chan = AddChannel( "#" + channel );
+    ChannelPtr chan = m_channels.Add( "#" + channel );
 	if(!channel) return;
-	OnUserJoinedChannel( chan, m_me );
-
+    iServer::OnUserJoinedChannel( chan, m_me );
 }
 
 void TASServer::OnJoinChannelFailed( const std::string& channel, const std::string& reason )
 {
-	Channel* chan = GetChannel( "#" + channel );
-	if(!channel) chan = AddChannel( "#" + channel );
+    ChannelPtr chan = GetChannel( "#" + channel );
+    if(!channel) chan = m_channels.Add( "#" + channel );
 	OnJoinChannelFailed( chan, reason );
 }
 
 void TASServer::OnChannelJoin( const std::string& channel, const std::string& who )
 {
-	Channel* channel = GetChannel( "#" + channel );
+    ChannelPtr channel = GetChannel( "#" + channel );
     UserPtr user = m_users.FindByNick( who );
 	if(!channel) return;
 	if(!user) return;
 	OnUserJoinedChannel(channel, user);
 }
 
-void TASServer::OnChannelJoinUserList( const std::string& channel, const std::string& users )
+void TASServer::OnChannelJoinUserList( const std::string& channel_name, const std::string& users )
 {
-	Channel* channel = GetChannel( "#" + channel );
+    ChannelPtr channel = GetChannel( "#" + channel_name );
 	if(!channel) return;
-	StringVector usernicks = stringtokenize(users," ");
-	UserVector users;
-	for ( StringVector::iterator itor = usernicks.begin();itor != usernicks.end;itor++) {
+    StringVector usernicks = Util::StringTokenize(users," ");
+    UserVector users;
+    for ( StringVector::const_iterator itor = usernicks.begin();itor != usernicks.end; ++itor) {
         UserPtr user = m_users.FindByNick( *itor );
 		if(!user) continue;
 		users.push_back(user);
@@ -1147,7 +1145,7 @@ void TASServer::OnLogin(const std::string &msg)
 
 void TASServer::OnUserJoinedChannel( const std::string& channel, const std::string& who )
 {
-	Channel* channel = GetChannel( "#" + channel );
+    ChannelPtr channel = GetChannel( "#" + channel );
     UserPtr user = m_users.FindByNick( who );
 	if(!channel) return;
 	if(!user) return;
@@ -1156,7 +1154,7 @@ void TASServer::OnUserJoinedChannel( const std::string& channel, const std::stri
 
 void TASServer::OnChannelSaid( const std::string& channel, const std::string& who, const std::string& message )
 {
-	Channel* channel = GetChannel( "#" + channel );
+    ChannelPtr channel = GetChannel( "#" + channel );
     UserPtr user = m_users.FindByNick( who );
 	if(!channel) return;
 	if(!user) return;
@@ -1165,7 +1163,7 @@ void TASServer::OnChannelSaid( const std::string& channel, const std::string& wh
 
 void TASServer::OnChannelPart( const std::string& channel, const std::string& who, const std::string& message )
 {
-	Channel* channel = GetChannel( "#" + channel );
+    ChannelPtr channel = GetChannel( "#" + channel );
     UserPtr user = m_users.FindByNick( who );
 	if(!channel) return;
 	if(!user) return;
@@ -1174,7 +1172,7 @@ void TASServer::OnChannelPart( const std::string& channel, const std::string& wh
 
 void TASServer::OnChannelTopic( const std::string& channel, const std::string& who, int /*unused*/, const std::string& message )
 {
-	Channel* channel = GetChannel( "#" + channel );
+    ChannelPtr channel = GetChannel( "#" + channel );
 	if(!channel) return;
 	message = message.Replace( "\\n", "\n" );
 	OnChannelTopic( channel, who, message );
@@ -1182,7 +1180,7 @@ void TASServer::OnChannelTopic( const std::string& channel, const std::string& w
 
 void TASServer::OnChannelAction( const std::string& channel, const std::string& who, const std::string& action )
 {
-	Channel* channel = GetChannel( "#" + channel );
+    ChannelPtr channel = GetChannel( "#" + channel );
     UserPtr user = m_users.FindByNick( who );
 	if(!channel) return;
 	if(!user) return;
@@ -1193,10 +1191,10 @@ ChannelPtr TASServer::GetCreatePrivateChannel( const UserPtr user )
 {
 	if (!user) return;
     std::string channame = "U" + Util::ToString(user->Id());
-	Channel* channel = GetChannel( channame );
+    ChannelPtr channel = GetChannel( channame );
 	if (!channel)
 	{
-		channel = AddChannel( channame );
+        channel = m_channels.Add( channame );
 		OnUserJoinedChannel( user, user );
 		OnUserJoinedChannel( user, m_me );
 	}
@@ -1208,7 +1206,7 @@ void TASServer::OnSayPrivateMessageEx( const std::string& user, const std::strin
 {
     UserPtr usr = m_users.FindByNick( user );
 	if(!usr) return;
-	Channel* channel = GetCreatePrivateChannel(usr);
+    ChannelPtr channel = GetCreatePrivateChannel(usr);
 	OnChannelAction( channel, m_me, action );
 }
 
@@ -1217,7 +1215,7 @@ void TASServer::OnSaidPrivateMessageEx( const std::string& user, const std::stri
 {
     UserPtr usr = m_users.FindByNick( user );
 	if(!usr) return;
-	Channel* channel = GetCreatePrivateChannel(usr);
+    ChannelPtr channel = GetCreatePrivateChannel(usr);
 	OnChannelAction( channel, usr, action );
 }
 
@@ -1226,7 +1224,7 @@ void TASServer::OnSayPrivateMessage( const std::string& user, const std::string&
 {
     UserPtr usr = m_users.FindByNick( user );
 	if(!usr) return;
-	Channel* channel = GetCreatePrivateChannel(usr);
+    ChannelPtr channel = GetCreatePrivateChannel(usr);
 	OnChannelSaid( channel, m_me, message );
 }
 
@@ -1235,7 +1233,7 @@ void TASServer::OnSaidPrivateMessage( const std::string& user, const std::string
 {
     UserPtr usr = m_users.FindByNick( user );
 	if(!usr) return;
-	Channel* channel = GetCreatePrivateChannel(usr);
+    ChannelPtr channel = GetCreatePrivateChannel(usr);
 	OnChannelSaid( channel, usr, message );
 }
 
@@ -1243,9 +1241,9 @@ void TASServer::OnSaidBattle( const std::string& nick, const std::string& msg )
 {
     UserPtr usr = m_users.FindByNick( user );
 	if(!usr) return;
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if ( !battle ) return;
-	Channel* channel = battle->GetChannel();
+    ChannelPtr channel = battle->GetChannel();
 	if (!channel) return;
 	OnChannelSaid( channel, user, message );
 }
@@ -1254,44 +1252,44 @@ void TASServer::OnBattleAction( const std::string& nick, const std::string& msg 
 {
     UserPtr usr = m_users.FindByNick( user );
 	if(!usr) return;
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if ( !battle ) return;
-	Channel* channel = battle->GetChannel();
+    ChannelPtr channel = battle->GetChannel();
 	if (!channel) return;
 	OnChannelSaid( channel, user, message );
 }
 
 void TASServer::OnBattleStartRectAdd( int allyno, int left, int top, int right, int bottom )
 {
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if ( !battle ) return;
 	OnBattleStartRectAdd(battle, allyno, left, top, right, bottom);
 }
 
 void TASServer::OnBattleStartRectRemove( int allyno )
 {
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if ( !battle ) return;
 	OnBattleStartRectRemove(battle, allyno);
 }
 
 void TASServer::OnScriptStart()
 {
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if ( !battle ) return;
 	battle->ClearScript();
 }
 
 void TASServer::OnScriptLine( const std::string& line )
 {
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if ( !battle ) return;
 	battle->AppendScriptLine( line );
 }
 
 void TASServer::OnScriptEnd()
 {
-	BattlePtr battle = m_battle;
+    IBattlePtr battle = m_current_battle;
 	if ( !battle ) return;
 	OnBattleScript( battle, battle->GetScript() );
 
@@ -1313,7 +1311,7 @@ void TASServer::OnMutelistItem( const std::string& mutee, const std::string& des
 
 void TASServer::OnMutelistEnd()
 {
-	Channel* chan = GetChannel("#" + m_current_chan_name_mutelist);
+    ChannelPtr chan = GetChannel("#" + m_current_chan_name_mutelist);
 	m_current_chan_name_mutelist = "";
 	if (!chan) return;
 	OnMuteList(chan, m_mutelist);
@@ -1321,7 +1319,7 @@ void TASServer::OnMutelistEnd()
 
 void TASServer::OnChannelMessage( const std::string& channel, const std::string& msg )
 {
-	Channel* chan = GetChannel(channel);
+    ChannelPtr chan = GetChannel(channel);
 	if (!chan) return;
 	OnChannelMessage( chan, msg );
 }
@@ -1339,7 +1337,7 @@ void TASServer::OnKickedFromBattle()
 
 void TASServer::OnKickedFromChannel( const std::string& channel, const std::string& fromWho, const std::string& msg)
 {
-	Channel* chan = GetChannel(channel);
+    ChannelPtr chan = GetChannel(channel);
 	if(!chan) return;
 	OnKickedFromChannel(chan, fromWho, message);
 	OnUserLeftChannel(chan, m_me, message );
@@ -1374,10 +1372,10 @@ void TASServer::OnHostExternalUdpPort( const int udpport )
 
 void TASServer::OnChannelListEntry( const std::string& channel, const int& numusers, const std::string& topic )
 {
-	Channel* chan = GetChannel( "#" + channel );
+    ChannelPtr chan = GetChannel( "#" + channel );
 	if (!chan)
 	{
-		chan = AddChannel( "#" + channel );
+        chan = m_channels.Add( "#" + channel );
 	}
 	chan->SetNumUsers(numusers);
 	chan->SetTopic(topic);

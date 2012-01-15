@@ -238,7 +238,7 @@ UserVector iServer::GetAvailableRelayHostList()
 		// this isn't blocking... so what is good for here?
         SayPrivate( m_relay_host_manager, "!listmanagers" );
 	}
-	UserVector ret;
+    UserVector ret;
     for ( unsigned int i = 0; i < m_relay_masters.size(); i++ )
 	{
         UserPtr manager = m_relay_masters[i];
@@ -609,9 +609,8 @@ void iServer::OnBattleDisableUnit( const IBattlePtr battle, const std::string& u
 	//TODO: event
 }
 
-void iServer::OnBattleEnableUnit( int battleid, const StringVector& unitnames )
+void iServer::OnBattleEnableUnit( const IBattlePtr battle, const StringVector& unitnames )
 {
-	IBattlePtr battle = m_battles.Get( battleid );
 	if (!battle) return;
 	BOOST_FOREACH( const std::string unit, unitnames )
 	{
@@ -620,9 +619,8 @@ void iServer::OnBattleEnableUnit( int battleid, const StringVector& unitnames )
 	//TODO: event
 }
 
-void iServer::OnBattleEnableAllUnits( int battleid )
+void iServer::OnBattleEnableAllUnits(const IBattlePtr battle )
 {
-	IBattlePtr battle = m_battles.Get( battleid );
 	if (!battle) return;
 	battle->UnrestrictAllUnits();
 	//TODO: event
