@@ -1,5 +1,8 @@
-#ifndef LSL_TDFCONTAINER_H
-#define LSL_TDFCONTAINER_H
+#ifndef LSL_HEADERGUARD_TDFCONTAINER_H
+#define LSL_HEADERGUARD_TDFCONTAINER_H
+
+/** \file tdfcontainer.h
+		\copyright GPL v2 **/
 
 #include <lslutils/misc.h>
 #include <lslutils/conversion.h>
@@ -13,9 +16,10 @@
 
 namespace LSL { namespace TDF {
 
-/// Todo: add TDFContainer class.
-///
-
+/** \brief std::stringstream based output class for TDF
+ * this is only ever used internally (script generation) 
+ * and needn't be exposed to library users 
+ * \todo add link to format specification 
 class TDFWriter
 {
 	public:
@@ -80,22 +84,23 @@ class Node: public RefcountedContainer , public boost::noncopyable
 };
 
 
-/// Usage
-/// Parsing:
+/** \brief TDF Parsing 
+ * Usage
+ * Parsing:
 
-/// int errs=0;
-/// PDataList root(ParseTDF(some istream, &errs));// errs is optional, gives number of errors when loading.
+ * int errs=0;
+ * PDataList root(ParseTDF(some istream, &errs));// errs is optional, gives number of errors when loading.
 
-/// Getting values:
+ * Getting values:
 
-/// PDataList game(root->Find(_T("GAME")))
-/// if(!game.ok()){wxLogMessage(_T("Game tag is missing"));return false;}
-/// std::string gamename=game->GetString(_T("Mapname"));
+ * PDataList game(root->Find(_T("GAME")))
+ * if(!game.ok()){wxLogMessage(_T("Game tag is missing"));return false;}
+ * std::string gamename=game->GetString(_T("Mapname"));
 
-/// (see optional parameters for setting default and knowing if it failed)
-/// and so on and so forth.
-/// Saving tdf:
-///
+ * (see optional parameters for setting default and knowing if it failed)
+ * and so on and so forth.
+ * Saving tdf:
+**/
 class DataList: public Node {
 	protected:
 		std::map<std::string, PNode> nodes;
@@ -138,6 +143,7 @@ class DataList: public Node {
 		lslColor GetColour( const std::string& name, const lslColor &default_value = lslColor( 0, 0, 0 ), bool *it_worked = NULL );
 };
 
+//! docme
 class DataLeaf: public Node {
 		friend class DataList;
 	protected:
@@ -190,9 +196,11 @@ struct Token {
 
 };
 
+/** \brief Tokenizer used in TDF parsing
+ * \todo clean up, move to CPP file
+ **/
 class Tokenizer {
-		/// todo: clean up, move to CPP file
-
+		
 		/// simple reference counted pointer to stream.
 		struct IncludeCacheEntry {
 			std::string name; ///< used for error reporting
@@ -300,7 +308,7 @@ void TDFWriter::Append( const std::string& name, T begin, T end ) {
 
 } } // namespace LSL { namespace TDF {
 
-#endif // LSL_TDFCONTAINER_H
+#endif // LSL_HEADERGUARD_TDFCONTAINER_H
 
 /**
     This file is part of SpringLobby,

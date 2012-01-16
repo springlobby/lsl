@@ -1,6 +1,9 @@
 #ifndef LSL_HEADERGUARD_BATTLE_H
 #define LSL_HEADERGUARD_BATTLE_H
 
+/** \file battle.h
+		\copyright GPL v2 **/
+
 #include <set>
 
 #include <lslutils/type_forwards.h>
@@ -16,7 +19,7 @@ class UnitsyncMod;
 
 namespace Battle {
 
-/** \brief model of a sp/mp battle
+/** \brief model of a multiplayer battle
 * \todo DOCME */
 class Battle : public IBattle
 {
@@ -28,7 +31,7 @@ public:
     const IServerPtr GetServer() { return m_serv; }
     const ConstIServerPtr GetServer() const { return m_serv; }
 
-	void SendHostInfo( Enum::HostInfo update );
+		void SendHostInfo( Enum::HostInfo update );
     void SendHostInfo( const std::string& Tag );
 
     void Update();

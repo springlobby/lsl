@@ -1,6 +1,9 @@
 #ifndef LIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
 #define LIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
 
+/** \file ibattle.h
+		\copyright GPL v2 **/
+
 #include <lslutils/global_interfaces.h>
 #include <lslutils/misc.h>
 #include <lslutils/type_forwards.h>
@@ -19,6 +22,7 @@ namespace Battle {
 
 class IBattle;
 
+//! \brief Container modeling a rectangle to place startunit in for given allyteam
 struct BattleStartRect
 {
 	BattleStartRect() :
@@ -51,31 +55,39 @@ struct BattleStartRect
 	}
 };
 
+//! Container to split certain options off from IBattle implementations
 struct BattleOptions
 {
 	BattleOptions();
 
 	int battleid;
-	bool islocked;
 	Enum::BattleType battletype;
+	
+	/** \ingroup access restricitions @{ */
+	bool islocked;
 	bool ispassworded;
-    std::string password;
+	std::string password;
 	int rankneeded;
+	bool lockexternalbalancechanges;
+	/** @} */
+	/** \ingroup relayhosting @{ */
 	std::string proxyhost;
 	bool userelayhost;
-	bool lockexternalbalancechanges;
+	std::string relayhost;
+	/** @} */
 
 	std::string founder;
 
+	/** \ingroup connection settings @{ */	
 	Enum::NatType nattype;
 	unsigned int port;
 	std::string ip;
 	unsigned int externaludpsourceport;
 	unsigned int internaludpsourceport;
-
+	/** @} */
+	
 	unsigned int maxplayers;
 	unsigned int spectators;
-	std::string relayhost;
 	std::string maphash;
 	std::string modhash;
 
@@ -84,6 +96,9 @@ struct BattleOptions
 	std::string modname;
 };
 
+/** \brief base model for all Battle types
+ * \todo this is way too fat, at the very minimum pimple the internl processing
+ **/
 class IBattle : public HasKey< int >
 {
 public:
@@ -93,6 +108,7 @@ public:
 	IBattle();
 	virtual ~IBattle();
 
+	//! docme
 	struct TeamInfoContainer
 	{
 		bool exist;
@@ -105,7 +121,7 @@ public:
 		int Handicap;
 		int SideNum;
 	};
-
+	//! docme
 	struct AllyInfoContainer
 	{
 		bool exist;

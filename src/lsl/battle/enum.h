@@ -1,5 +1,8 @@
-#ifndef LSL_BATTLE_ENUM_H
-#define LSL_BATTLE_ENUM_H
+#ifndef LSL_HEADERGUARD_BATTLE_ENUM_H
+#define LSL_HEADERGUARD_BATTLE_ENUM_H
+
+/** \file enum.h
+		\copyright GPL v2 **/
 
 namespace LSL {
 namespace Enum {
@@ -65,4 +68,4 @@ const unsigned int DEFAULT_EXTERNAL_UDP_SOURCE_PORT = 16941;
 } //namespace Enum {
 } //namespace LSL {
 
-#endif // LSL_BATTLE_ENUM_H
+#endif // LSL_HEADERGUARD_BATTLE_ENUM_H
