@@ -17,9 +17,9 @@ class User : public CommonUser
 public:
 	User( IServerPtr serv );
 	User( const std::string& nick, IServerPtr serv );
-	User( const std::string& nick, const std::string& country, const int& cpu, IServerPtr serv);
+    User( const std::string& nick, const std::string& country, const int cpu, IServerPtr serv);
 	User( const std::string& nick );
-	User( const std::string& nick, const std::string& country, const int& cpu );
+    User( const std::string& nick, const std::string& country, const int cpu );
 	User();
 
 	virtual ~User();
@@ -43,7 +43,7 @@ public:
 
 	static std::string GetRankName(UserStatus::RankContainer rank);
 
-	float GetBalanceRank();
+    float GetBalanceRank() const;
 	UserStatus::RankContainer GetRank();
 	std::string GetClan();
 

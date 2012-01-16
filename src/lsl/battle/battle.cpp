@@ -11,9 +11,12 @@
 #include <lsl/user/user.h>
 #include <lslutils/misc.h>
 #include <lslutils/debug.h>
+#include <lslutils/logging.h>
 #include <lslutils/conversion.h>
 #include <lslutils/lslconfig.h>
 #include <unitsync++/optionswrapper.h>
+
+#define ASSERT_LOGIC(...)   do {} while(0)
 
 namespace LSL {
 namespace Battle {
@@ -33,12 +36,12 @@ Battle::~Battle()
 
 void Battle::SendHostInfo( Enum::HostInfo update )
 {
-    m_serv.SendHostInfo( update );
+    m_serv->SendHostInfo( update );
 }
 
 void Battle::SendHostInfo( const std::string& Tag )
 {
-    m_serv.SendHostInfo( Tag );
+    m_serv->SendHostInfo( Tag );
 }
 
 void Battle::Update()
@@ -53,18 +56,20 @@ void Battle::Update( const std::string& Tag )
 
 void Battle::Join( const std::string& password )
 {
-    m_serv.JoinBattle( m_opts.battleid, password );
+    BattlePtr jp( this );
+    m_serv->JoinBattle( jp, password );
     m_is_self_in = true;
 }
 
 void Battle::Leave()
 {
-    m_serv.LeaveBattle( m_opts.battleid );
+    BattlePtr jp( this );
+    m_serv->LeaveBattle( jp );
 }
 
 void Battle::OnRequestBattleStatus()
 {
-	UserBattleStatus& bs = m_serv.GetMe()->BattleStatus();
+    UserBattleStatus& bs = m_serv->GetMe()->BattleStatus();
     bs.team = GetFreeTeam( true );
     bs.ally = GetFreeAlly( true );
     bs.spectator = false;
@@ -78,19 +83,19 @@ void Battle::OnRequestBattleStatus()
 
 void Battle::SendMyBattleStatus()
 {
-	UserBattleStatus& bs = m_serv.GetMe()->BattleStatus();
+    UserBattleStatus& bs = m_serv->GetMe()->BattleStatus();
     if ( IsSynced() ) bs.sync = SYNC_SYNCED;
     else bs.sync = SYNC_UNSYNCED;
-    m_serv.SendMyBattleStatus( bs );
+    m_serv->SendMyBattleStatus( bs );
 }
 
 void Battle::SetImReady( bool ready )
 {
-	UserBattleStatus& bs = m_serv.GetMe()->BattleStatus();
+    UserBattleStatus& bs = m_serv->GetMe()->BattleStatus();
 
     bs.ready = ready;
 
-	//m_serv.GetMe()->SetBattleStatus( bs );
+    //m_serv->GetMe()->SetBattleStatus( bs );
     SendMyBattleStatus();
 }
 
@@ -101,12 +106,12 @@ void Battle::SetImReady( bool ready )
 
 void Battle::Say( const std::string& msg )
 {
-    m_serv.SayBattle( m_opts.battleid, msg );
+    m_serv->SayBattle( m_opts.battleid, msg );
 }
 
 void Battle::DoAction( const std::string& msg )
 {
-    m_serv.DoActionBattle( m_opts.battleid, msg );
+    m_serv->DoActionBattle( m_opts.battleid, msg );
 }
 
 void Battle::SetLocalMap( const UnitsyncMap& map )
@@ -117,7 +122,7 @@ void Battle::SetLocalMap( const UnitsyncMap& map )
 
 UserPtr Battle::GetMe()
 {
-    return m_serv.GetMe();
+    return m_serv->GetMe();
 }
 
 void Battle::SaveMapDefaults()
@@ -155,7 +160,7 @@ void Battle::LoadMapDefaults( const std::string& mapname )
 	}
 	SendHostInfo( Enum::HI_StartRects );
 
-	const std::vector<Settings::SettStartBox> savedrects = sett().GetMapLastRectPreset( mapname );
+    const std::vector<Settings::SettStartBox> savedrects = sett().GetMapLastRectPreset<std::vector<Settings::SettStartBox> >( mapname );
     for ( std::vector<Settings::SettStartBox>::const_iterator itor = savedrects.begin(); itor != savedrects.end(); ++itor )
     {
         AddStartRect( itor->ally, itor->topx, itor->topy, itor->bottomx, itor->bottomy );
@@ -163,20 +168,23 @@ void Battle::LoadMapDefaults( const std::string& mapname )
 	SendHostInfo( Enum::HI_StartRects );
 }
 
-const UserPtr Battle::OnUserAdded( const UserPtr user )
+void Battle::OnUserAdded( const UserPtr user )
 {
-    user = IBattle::OnUserAdded( user );
+    if (!user)
+        return;
+    m_userlist.Add( user );
+    IBattle::OnUserAdded( user );
 	if ( user == GetMe() )
     {
-        m_timer = new wxTimer(this,TIMER_ID);
-        m_timer->Start( TIMER_INTERVAL );
+        m_timer->async_wait( boost::bind( &Battle::OnTimer, this, _1 ) );
     }
-	user->SetBattle( this );
+    BattlePtr bptr( this );
+    user->SetBattle( bptr );
 	user->BattleStatus().isfromdemo = false;
 
     if ( IsFounderMe() )
     {
-        if ( CheckBan( user ) ) return user;
+        if ( IsBanned( user ) ) return;
 
 		if ( ( user != GetMe() ) && !user->BattleStatus().IsBot() && ( m_opts.rankneeded != UserStatus::RANK_1 ) && !user->BattleStatus().spectator )
         {
@@ -198,7 +206,7 @@ const UserPtr Battle::OnUserAdded( const UserPtr user )
 			DoAction( m_opts.description );
     }
     // any code here may be skipped if the user was autokicked
-    return user;
+    return;
 }
 
 void Battle::OnUserBattleStatusUpdated( const UserPtr user, UserBattleStatus status )
@@ -267,7 +275,7 @@ void Battle::RingNotReadyPlayers()
 		const ConstUserPtr u = m_userlist.At(i);
 		const UserBattleStatus& bs = u->BattleStatus();
 		if ( bs.IsBot() ) continue;
-		if ( !bs.ready && !bs.spectator ) m_serv.Ring( u->Nick() );
+        if ( !bs.ready && !bs.spectator ) m_serv->Ring( u );
     }
 }
 
@@ -278,7 +286,7 @@ void Battle::RingNotSyncedPlayers()
 		const ConstUserPtr u = m_userlist.At(i);
 		const UserBattleStatus& bs = u->BattleStatus();
         if ( bs.IsBot() ) continue;
-		if ( !bs.sync && !bs.spectator ) m_serv.Ring( u->Nick() );
+        if ( !bs.sync && !bs.spectator ) m_serv->Ring( u );
     }
 }
 
@@ -289,27 +297,27 @@ void Battle::RingNotSyncedAndNotReadyPlayers()
 		const ConstUserPtr u = m_userlist.At(i);
 		const UserBattleStatus& bs = u->BattleStatus();
         if ( bs.IsBot() ) continue;
-		if ( ( !bs.sync || !bs.ready ) && !bs.spectator ) m_serv.Ring( u->Nick() );
+        if ( ( !bs.sync || !bs.ready ) && !bs.spectator ) m_serv->Ring( u );
     }
 }
 
-void Battle::RingPlayer( const UserPtr u )
+void Battle::RingPlayer( const ConstUserPtr u )
 {
 	if ( u->BattleStatus().IsBot() ) return;
-	m_serv.Ring( u->Nick() );
+    m_serv->Ring( u );
 }
 
 bool Battle::ExecuteSayCommand( const std::string& cmd )
 {
-	std::string cmd_name = std::tolower( Util::BeforeFirst(cmd," ") );
+    std::string cmd_name = boost::algorithm::to_lower_copy( Util::BeforeFirst(cmd," ") );
 	if ( cmd_name == "/me" )
     {
-        m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
+        m_serv->DoActionBattle( m_opts.battleid, Util::AfterFirst(cmd," ") );
         return true;
     }
 	if ( cmd_name == "/replacehostip" )
     {
-        std::string ip = cmd.AfterFirst(' ');
+        std::string ip = Util::AfterFirst(cmd," ");
         if ( ip.empty() ) return false;
         m_opts.ip = ip;
         return true;
@@ -319,87 +327,90 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
     {
 		if ( cmd_name == "/ban" )
         {
-            std::string nick=cmd.AfterFirst(' ');
+            std::string nick = Util::AfterFirst(cmd," ");
             m_banned_users.insert(nick);
             try
             {
 				UserPtr user = GetUser( nick );
-                m_serv.BattleKickPlayer( m_opts.battleid, user );
+                const BattlePtr ptr( this );
+                m_serv->BattleKickPlayer( ptr, user );
             }
-            catch( assert_exception ) {}
-            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-						UiEvents::OnBattleActionData( std::string(" ") , nick+" banned" )
-                        );
+            catch( /*assert_exception*/... ) {}
+//            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//						UiEvents::OnBattleActionData( std::string(" ") , nick+" banned" )
+//                        );
 
-            //m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
+            //m_serv->DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
             return true;
         }
 		if ( cmd_name == "/unban" )
         {
-            std::string nick=cmd.AfterFirst(' ');
+            std::string nick = Util::AfterFirst(cmd," ");
             m_banned_users.erase(nick);
-            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-						UiEvents::OnBattleActionData( std::string(" ") , nick+" unbanned" )
-                        );
-            //m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
+//            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//						UiEvents::OnBattleActionData( std::string(" ") , nick+" unbanned" )
+//                        );
+            //m_serv->DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
             return true;
         }
 		if ( cmd_name == "/banlist" )
         {
-            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-						UiEvents::OnBattleActionData( std::string(" ") , "banlist:" )
-                        );
+//            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//						UiEvents::OnBattleActionData( std::string(" ") , "banlist:" )
+//                        );
 
             for (std::set<std::string>::const_iterator i=m_banned_users.begin();i!=m_banned_users.end();++i)
             {
-                UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-							UiEvents::OnBattleActionData( std::string(" ") , *i )
-                            );
+//                UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//							UiEvents::OnBattleActionData( std::string(" ") , *i )
+//                            );
             }
             for (std::set<std::string>::iterator i=m_banned_ips.begin();i!=m_banned_ips.end();++i)
             {
-                UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-							UiEvents::OnBattleActionData( std::string(" ") , *i )
-                            );
+//                UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//							UiEvents::OnBattleActionData( std::string(" ") , *i )
+//                            );
 
             }
             return true;
         }
 		if ( cmd_name == "/unban" )
         {
-            std::string nick=cmd.AfterFirst(' ');
+            std::string nick = Util::AfterFirst(cmd," ");
             m_banned_users.erase(nick);
             m_banned_ips.erase(nick);
-            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-						UiEvents::OnBattleActionData( std::string(" ") , nick+" unbanned" )
-                        );
+//            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//						UiEvents::OnBattleActionData( std::string(" ") , nick+" unbanned" )
+//                        );
 
-            //m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
+            //m_serv->DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
             return true;
         }
 		if ( cmd_name == "/ipban" )
         {
-            std::string nick=cmd.AfterFirst(' ');
+            std::string nick = Util::AfterFirst(cmd," ");
             m_banned_users.insert(nick);
-            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-						UiEvents::OnBattleActionData( std::string(" ") , nick+" banned" )
-                        );
+//            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//						UiEvents::OnBattleActionData( std::string(" ") , nick+" banned" )
+//                        );
 
-            if (UserExists(nick))
+            UserPtr user = m_userlist.FindByNick(nick);
+            if ( user )
             {
-                User &user=GetUser(nick);
+                const UserPtr user=GetUser(nick);
 				if (!user->BattleStatus().ip.empty())
                 {
 					m_banned_ips.insert(user->BattleStatus().ip);
-                    UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-								UiEvents::OnBattleActionData( std::string(" ") , user->BattleStatus().ip+" banned" )
-                                );
+//                    UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//								UiEvents::OnBattleActionData( std::string(" ") , user->BattleStatus().ip+" banned" )
+//                                );
                 }
-                m_serv.BattleKickPlayer( m_opts.battleid, user );
+                BattlePtr ptr( this );
+                m_serv->BattleKickPlayer( ptr, user );
             }
             //m_banned_ips.erase(nick);
 
-            //m_serv.DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
+            //m_serv->DoActionBattle( m_opts.battleid, cmd.AfterFirst(' ') );
             return true;
         }
     }
@@ -409,24 +420,24 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
 
 ///< quick hotfix for bans
 /// returns true if user is banned (and hence has been kicked)
-bool Battle::CheckBan(User &user)
+bool Battle::IsBanned( const UserPtr user )
 {
     if (IsFounderMe())
     {
-		if (m_banned_users.count(user->Nick())>0
-				|| useractions().DoActionOnUser(UserActions::ActAutokick, user->Nick() ) )
+        if (m_banned_users.count(user->Nick())>0 )
+//				|| useractions().DoActionOnUser(UserActions::ActAutokick, user->Nick() ) )
         {
             KickPlayer(user);
-            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-						UiEvents::OnBattleActionData( std::string(" ") , user->Nick()+" is banned, kicking" )
-                        );
+//            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//						UiEvents::OnBattleActionData( std::string(" ") , user->Nick()+" is banned, kicking" )
+//                        );
             return true;
         }
 		else if (m_banned_ips.count(user->BattleStatus().ip)>0)
         {
-            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
-						UiEvents::OnBattleActionData( std::string(" ") , user->BattleStatus().ip+" is banned, kicking" )
-                        );
+//            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
+//						UiEvents::OnBattleActionData( std::string(" ") , user->BattleStatus().ip+" is banned, kicking" )
+//                        );
             KickPlayer(user);
             return true;
         }
@@ -460,62 +471,68 @@ bool Battle::GetLockExternalBalanceChanges()
 
 void Battle::AddBot( const std::string& nick, UserBattleStatus status )
 {
-    m_serv.AddBot( m_opts.battleid, nick, status );
+    BattlePtr ptr( this );
+    m_serv->AddBot( ptr, nick, status );
 }
 
 
 
 void Battle::ForceSide( UserPtr user, int side )
 {
-    m_serv.ForceSide( m_opts.battleid, user, side );
+    BattlePtr ptr( this );
+    m_serv->ForceSide( ptr, user, side );
 }
 
 
 void Battle::ForceTeam( UserPtr user, int team )
 {
     IBattle::ForceTeam( user, team );
-    m_serv.ForceTeam( m_opts.battleid, user, team );
+    BattlePtr ptr( this );
+    m_serv->ForceTeam( ptr, user, team );
 }
 
 
 void Battle::ForceAlly( UserPtr user, int ally )
 {
     IBattle::ForceAlly( user, ally );
-    m_serv.ForceAlly( m_opts.battleid, user, ally );
+    BattlePtr ptr( this );
+    m_serv->ForceAlly( ptr, user, ally );
 }
 
 
 void Battle::ForceColor( UserPtr user, const lslColor& col )
 {
     IBattle::ForceColor( user, col );
-    m_serv.ForceColor( m_opts.battleid, user, col );
+    BattlePtr ptr( this );
+    m_serv->ForceColor( ptr, user, col );
 }
 
 
 void Battle::ForceSpectator( UserPtr user, bool spectator )
 {
-    m_serv.ForceSpectator( m_opts.battleid, user, spectator );
+    BattlePtr ptr( this );
+    m_serv->ForceSpectator( ptr, user, spectator );
 }
 
 
 void Battle::KickPlayer( UserPtr user )
 {
-    m_serv.BattleKickPlayer( m_opts.battleid, user );
+    BattlePtr ptr( this );
+    m_serv->BattleKickPlayer( ptr, user );
 }
 
 void Battle::SetHandicap( UserPtr user, int handicap)
 {
-    m_serv.SetHandicap ( m_opts.battleid, user, handicap );
+    BattlePtr ptr( this );
+    m_serv->SetHandicap ( ptr, user, handicap );
 }
-
-
 
 void Battle::ForceUnsyncedToSpectate()
 {
-    size_t numusers = GetNumUsers();
+    const size_t numusers = m_userlist.size();
     for ( size_t i = 0; i < numusers; ++i )
     {
-		User &user = m_userlist.At(i);
+        const UserPtr user = m_userlist.At(i);
 		UserBattleStatus& bs = user->BattleStatus();
         if ( bs.IsBot() ) continue;
         if ( !bs.spectator && !bs.sync ) ForceSpectator( user, true );
@@ -524,10 +541,10 @@ void Battle::ForceUnsyncedToSpectate()
 
 void Battle::ForceUnReadyToSpectate()
 {
-    size_t numusers = GetNumUsers();
+    const size_t numusers = m_userlist.size();
     for ( size_t i = 0; i < numusers; ++i )
     {
-		User &user = m_userlist.At(i);
+        const UserPtr user = m_userlist.At(i);
 		UserBattleStatus& bs = user->BattleStatus();
         if ( bs.IsBot() ) continue;
         if ( !bs.spectator && !bs.ready ) ForceSpectator( user, true );
@@ -536,108 +553,112 @@ void Battle::ForceUnReadyToSpectate()
 
 void Battle::ForceUnsyncedAndUnreadyToSpectate()
 {
-    size_t numusers = GetNumUsers();
+    const size_t numusers = m_userlist.size();
     for ( size_t i = 0; i < numusers; ++i )
     {
-		User &user = m_userlist.At(i);
+        const UserPtr user = m_userlist.At(i);
 		UserBattleStatus& bs = user->BattleStatus();
         if ( bs.IsBot() ) continue;
         if ( !bs.spectator && ( !bs.sync || !bs.ready ) ) ForceSpectator( user, true );
     }
 }
 
-
-void Battle::UserPositionChanged( const UserPtr user )
+void Battle::UserPositionChanged(const UserPtr user )
 {
-    m_serv.SendUserPosition( user );
+    m_serv->SendUserPosition( user );
 }
 
 
 void Battle::SendScriptToClients()
 {
-    m_serv.SendScriptToClients( GetScript() );
+    m_serv->SendScriptToClients( GetScript() );
 }
-
 
 void Battle::StartHostedBattle()
 {
-	if ( UserExists( GetMe()->Nick() ) )
+    if ( m_userlist.Exists( GetMe() ) )
     {
-        if ( IsFounderMe() )
-        {
-            if ( sett().GetBattleLastAutoControlState() )
-            {
-                FixTeamIDs( (IBattle::BalanceType)sett().GetFixIDMethod(), sett().GetFixIDClans(), sett().GetFixIDStrongClans(), sett().GetFixIDGrouping() );
-                Autobalance( (IBattle::BalanceType)sett().GetBalanceMethod(), sett().GetBalanceClans(), sett().GetBalanceStrongClans(), sett().GetBalanceGrouping() );
-                FixColors();
-            }
-            if ( IsProxy() )
-            {
-                if ( UserExists( GetProxy() ) && !GetUser(GetProxy()).Status().in_game )
-                {
-                    // DON'T set m_generating_script here, it will trick the script generating code to think we're the host
-                    std::string hostscript = spring().WriteScriptTxt( *this );
-                    try
-                    {
-						std::string path = sett().GetCurrentUsedDataDir() + wxFileName::GetPathSeparator() + "relayhost_script.txt";
-                        if ( !wxFile::Access( path, wxFile::write ) ) {
-							wxLogError( "Access denied to script.txt." );
-                        }
+        assert( false );
+//        if ( IsFounderMe() )
+//        {
+//            if ( sett().GetBattleLastAutoControlState() )
+//            {
+//                FixTeamIDs( (Enum::BalanceType)sett().GetFixIDMethod(), sett().GetFixIDClans(),
+//                            sett().GetFixIDStrongClans(), sett().GetFixIDGrouping() );
+//                Autobalance( (Enum::BalanceType)sett().GetBalanceMethod(), sett().GetBalanceClans(),
+//                             sett().GetBalanceStrongClans(), sett().GetBalanceGrouping() );
+//                FixColors();
+//            }
+//            if ( IsProxy() )
+//            {
+//                if ( UserExists( GetProxy() ) && !GetUser(GetProxy()).Status().in_game )
+//                {
+//                    // DON'T set m_generating_script here, it will trick the script generating code to think we're the host
+//                    std::string hostscript = spring().WriteScriptTxt( *this );
+//                    try
+//                    {
+//						std::string path = sett().GetCurrentUsedDataDir() + wxFileName::GetPathSeparator() + "relayhost_script.txt";
+//                        if ( !wxFile::Access( path, wxFile::write ) ) {
+//                            LslError( "Access denied to script.txt." );
+//                        }
 
-                        wxFile f( path, wxFile::write );
-                        f.Write( hostscript );
-                        f.Close();
+//                        wxFile f( path, wxFile::write );
+//                        f.Write( hostscript );
+//                        f.Close();
 
-                    } catch (...) {}
-                    m_serv.SendScriptToProxy( hostscript );
-                }
-            }
-            if( GetAutoLockOnStart() )
-            {
-                SetIsLocked( true );
-                SendHostInfo( IBattle::HI_Locked );
-            }
-            sett().SetLastHostMap( GetServer().GetCurrentBattle()->GetHostMapName() );
-            sett().SaveSettings();
-            if ( !IsProxy() ) GetServer().StartHostedBattle();
-            else if ( UserExists( GetProxy() ) && GetUser(GetProxy()).Status().in_game ) // relayhost is already ingame, let's try to join it
-            {
-                StartSpring();
-            }
-        }
+//                    } catch (...) {}
+//                    m_serv->SendScriptToProxy( hostscript );
+//                }
+//            }
+//            if( GetAutoLockOnStart() )
+//            {
+//                SetIsLocked( true );
+//                SendHostInfo( Enum::HI_Locked );
+//            }
+//            sett().SetLastHostMap( GetServer().GetCurrentBattle()->GetHostMapName() );
+//            sett().SaveSettings();
+//            if ( !IsProxy() ) GetServer().StartHostedBattle();
+//            else if ( UserExists( GetProxy() ) && GetUser(GetProxy()).Status().in_game ) // relayhost is already ingame, let's try to join it
+//            {
+//                StartSpring();
+//            }
+//        }
     }
 }
 
 void Battle::StartSpring()
 {
-	if ( UserExists( GetMe()->Nick() ) && !GetMe()->Status().in_game )
+    const UserPtr me = GetMe();
+    if ( me && !me->Status().in_game )
     {
-		GetMe()->BattleStatus().ready = false;
+        me->BattleStatus().ready = false;
         SendMyBattleStatus();
         // set m_generating_script, this will make the script.txt writer realize we're just clients even if using a relayhost
         m_generating_script = true;
-		GetMe()->Status().in_game = spring().Run( *this );
+        me->Status().in_game = spring().Run( *this );
         m_generating_script = false;
-		GetMe()->SendMyUserStatus();
+        me->SendMyUserStatus();
     }
     ui().OnBattleStarted( *this );
 }
 
-void Battle::OnTimer( wxTimerEvent&  )
+void Battle::OnTimer( const boost::system::error_code& error  )
 {
+    if (error)
+        return;
     if ( !IsFounderMe() ) return;
-    if ( m_ingame ) return;
+    if ( InGame() ) return;
     int autospect_trigger_time = sett().GetBattleLastAutoSpectTime();
     if ( autospect_trigger_time == 0 ) return;
     time_t now = time(0);
-    for ( unsigned int i = 0; i < GetNumUsers(); i++)
+    for ( unsigned int i = 0; i < m_userlist.size(); ++i )
     {
-		UserPtr usr = GetUser( i );
-        UserBattleStatus& status = usr.BattleStatus();
+        const UserPtr usr = m_userlist[i];
+        UserBattleStatus& status = usr->BattleStatus();
         if ( status.IsBot() || status.spectator ) continue;
         if ( status.sync && status.ready ) continue;
-        if ( &usr == &GetMe() ) continue;
-        std::map<std::string, time_t>::const_iterator itor = m_ready_up_map.find( usr.Nick() );
+        if ( usr == GetMe() ) continue;
+        std::map<std::string, time_t>::const_iterator itor = m_ready_up_map.find( usr->Nick() );
         if ( itor != m_ready_up_map.end() )
         {
             if ( ( now - itor->second ) > autospect_trigger_time )
@@ -651,11 +672,11 @@ void Battle::OnTimer( wxTimerEvent&  )
 void Battle::SetInGame( bool value )
 {
     time_t now = time(0);
-    if ( m_ingame && !value )
+    if ( InGame() && !value )
     {
-        for ( int i = 0; i < long(GetNumUsers()); i++ )
+        for ( int i = 0; i < long(m_userlist.size()); ++i )
         {
-			UserPtr user = GetUser( i );
+            const UserPtr user = m_userlist[i];
 			UserBattleStatus& status = user->BattleStatus();
             if ( status.IsBot() || status.spectator ) continue;
             if ( status.ready && status.sync ) continue;
@@ -664,8 +685,6 @@ void Battle::SetInGame( bool value )
     }
     IBattle::SetInGame( value );
 }
-
-
 
 void Battle::FixColors()
 {
@@ -679,10 +698,10 @@ void Battle::FixColors()
     palette_use[my_col_i]++;
     std::set<int> parsed_teams;
 
-    for ( user_map_t::size_type i = 0; i < GetNumUsers(); i++ )
+    for ( size_t i = 0; i < m_userlist.size(); i++ )
     {
-		User &user=m_userlist.At(i);
-        if ( &user == &GetMe() ) continue; // skip founder ( yourself )
+        const UserPtr user = m_userlist.At(i);
+        if ( user == GetMe() ) continue; // skip founder ( yourself )
 		UserBattleStatus& status = user->BattleStatus();
         if ( status.spectator ) continue;
         if ( parsed_teams.find( status.team ) != parsed_teams.end() ) continue; // skip duplicates
@@ -691,26 +710,26 @@ void Battle::FixColors()
         lslColor &user_col=status.color;
         int user_col_i=GetClosestFixColor(user_col,palette_use, 60);
         palette_use[user_col_i]++;
-        for ( user_map_t::size_type j = 0; j < GetNumUsers(); j++ )
+        for ( size_t j = 0; j < m_userlist.size(); ++j )
         {
-            User &usr=GetUser(j);
-            if ( usr.BattleStatus().team == status.team )
+            const UserPtr other_user = m_userlist.At(j);
+            if ( other_user->BattleStatus().team == status.team )
             {
-                ForceColor( usr, palette[user_col_i]);
+                ForceColor( other_user, palette[user_col_i]);
             }
         }
     }
 }
 
 
-bool PlayerRankCompareFunction( User *a, User *b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
+bool PlayerRankCompareFunction( const ConstUserPtr a, const ConstUserPtr b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
 {
 	ASSERT_LOGIC( a, "fail in Autobalance, NULL player" );
 	ASSERT_LOGIC( b, "fail in Autobalance, NULL player" );
     return ( a->GetBalanceRank() > b->GetBalanceRank() );
 }
 
-bool PlayerTeamCompareFunction( User *a, User *b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
+bool PlayerTeamCompareFunction( const ConstUserPtr a, const ConstUserPtr b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
 {
 	ASSERT_LOGIC( a, "fail in Autobalance, NULL player" );
 	ASSERT_LOGIC( b, "fail in Autobalance, NULL player" );
@@ -719,12 +738,12 @@ bool PlayerTeamCompareFunction( User *a, User *b ) // should never operate on nu
 
 struct Alliance
 {
-    std::vector<User *>players;
+    ConstUserVector players;
     float ranksum;
     int allynum;
     Alliance(): ranksum(0), allynum(-1) {}
     Alliance(int i): ranksum(0), allynum(i) {}
-    void AddPlayer( User *player )
+    void AddPlayer( const ConstUserPtr player )
     {
         if ( player )
         {
@@ -732,9 +751,10 @@ struct Alliance
             ranksum += player->GetBalanceRank();
         }
     }
-    void AddAlliance( Alliance &other )
+    void AddAlliance( const Alliance &other )
     {
-        for ( std::vector<User *>::const_iterator i = other.players.begin(); i != other.players.end(); ++i ) AddPlayer( *i );
+        for ( ConstUserVector::const_iterator i = other.players.begin(); i != other.players.end(); ++i )
+            AddPlayer( *i );
     }
     bool operator < ( const Alliance &other ) const
     {
@@ -744,12 +764,12 @@ struct Alliance
 
 struct ControlTeam
 {
-    std::vector<UserPtr> players;
+    UserVector players;
     float ranksum;
     int teamnum;
     ControlTeam(): ranksum(0), teamnum(-1) {}
     ControlTeam( int i ): ranksum(0), teamnum(i) {}
-    void AddPlayer( User *player )
+    void AddPlayer( const UserPtr player )
     {
         if ( player )
         {
@@ -759,7 +779,7 @@ struct ControlTeam
     }
     void AddTeam( ControlTeam &other )
     {
-        for ( std::vector<UserPtr>::const_iterator i = other.players.begin(); i != other.players.end(); ++i ) AddPlayer( *i );
+        for ( UserVector::const_iterator i = other.players.begin(); i != other.players.end(); ++i ) AddPlayer( *i );
     }
     bool operator < (const ControlTeam &other) const
     {
@@ -772,12 +792,12 @@ int my_random( int range )
     return rand() % range;
 }
 
-void shuffle(std::vector<User *> &players) // proper shuffle.
+void shuffle( UserVector& players) // proper shuffle.
 {
     for ( size_t i=0; i < players.size(); ++i ) // the players below i are shuffled, the players above arent
     {
         int rn = i + my_random( players.size() - i ); // the top of shuffled part becomes random card from unshuffled part
-        User *tmp = players[i];
+        UserPtr tmp = players[i];
         players[i] = players[rn];
         players[rn] = tmp;
     }
@@ -799,12 +819,11 @@ struct ClannersRemovalPredicate{
   }
 }*/
 
-void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool strong_clans, int numallyteams )
+void Battle::Autobalance( Enum::BalanceType balance_type, bool support_clans, bool strong_clans, int numallyteams )
 {
-	wxLogMessage("Autobalancing alliances, type=%d, clans=%d, strong_clans=%d, numallyteams=%d",balance_type, support_clans,strong_clans, numallyteams);
-    //size_t i;
-    //int num_alliances;
-    std::vector<Alliance>alliances;
+//    lslDebug("Autobalancing alliances, type=%d, clans=%d, strong_clans=%d, numallyteams=%d",balance_type, support_clans,strong_clans, numallyteams);
+
+    std::vector<Alliance> alliances;
     if ( numallyteams == 0 || numallyteams == -1 ) // 0 or 1 -> use num start rects
     {
         int ally = 0;
@@ -832,17 +851,15 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
 
     //for(i=0;i<alliances.size();++i)alliances[i].allynum=i;
 
-	wxLogMessage( "number of alliances: %u", alliances.size() );
+    UserVector players_sorted;
+    players_sorted.reserve( m_userlist.size() );
 
-    std::vector<UserPtr> players_sorted;
-    players_sorted.reserve( GetNumUsers() );
-
-    for ( size_t i = 0; i < GetNumUsers(); ++i )
+    for ( size_t i = 0; i < m_userlist.size(); ++i )
     {
-		UserPtr usr = GetUser( i );
-        if ( !usr.BattleStatus().spectator )
+        UserPtr usr = m_userlist[i];
+        if ( !usr->BattleStatus().spectator )
         {
-            players_sorted.push_back( &usr );
+            players_sorted.push_back( usr );
         }
     }
 
@@ -874,7 +891,8 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
         }
     };
 
-    if ( balance_type != balance_random ) std::sort( players_sorted.begin(), players_sorted.end(), PlayerRankCompareFunction );
+    if ( balance_type != Enum::balance_random )
+        std::sort( players_sorted.begin(), players_sorted.end(), PlayerRankCompareFunction );
 
     if ( support_clans )
     {
@@ -883,16 +901,16 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
         {
             Alliance &clan = (*clan_it).second;
             // if clan is too small (only 1 clan member in battle) or too big, dont count it as clan
-            if ( ( clan.players.size() < 2 ) || ( !strong_clans && ( clan.players.size() > ( ( players_sorted.size() + alliances.size() -1 ) / alliances.size() ) ) ) )
+            if ( ( clan.players.size() < 2 ) ||
+                 ( !strong_clans && ( clan.players.size() >
+                                      ( ( players_sorted.size() + alliances.size() -1 ) / alliances.size() ) ) ) )
             {
-				wxLogMessage( "removing clan %s", (*clan_it).first.c_str() );
                 std::map<std::string, Alliance>::iterator next = clan_it;
                 ++next;
                 clan_alliances.erase( clan_it );
                 clan_it = next;
                 continue;
             }
-			wxLogMessage( "Inserting clan %s", (*clan_it).first.c_str() );
             std::sort( alliances.begin(), alliances.end() );
             float lowestrank = alliances[0].ranksum;
             int rnd_k = 1;// number of alliances with rank equal to lowestrank
@@ -901,7 +919,6 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
                 if ( fabs( alliances[rnd_k].ranksum - lowestrank ) > 0.01 ) break;
                 rnd_k++;
             }
-			wxLogMessage( "number of lowestrank alliances with same rank=%d", rnd_k );
             alliances[my_random( rnd_k )].AddAlliance( clan );
             ++clan_it;
         }
@@ -912,7 +929,6 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
         // skip clanners, those have been added already.
         if ( clan_alliances.count( players_sorted[i]->GetClan() ) > 0 )
         {
-			wxLogMessage( "clanner already added, nick=%s", players_sorted[i]->Nick().c_str() );
             continue;
         }
 
@@ -933,61 +949,59 @@ void Battle::Autobalance( BalanceType balance_type, bool support_clans, bool str
             if ( fabs( alliances[rnd_k].ranksum - lowestrank ) > 0.01 ) break;
             rnd_k++;
         }
-		wxLogMessage( "number of lowestrank alliances with same rank=%d", rnd_k );
         alliances[my_random( rnd_k )].AddPlayer( players_sorted[i] );
     }
 
-    UserList::user_map_t::size_type totalplayers = GetNumUsers();
+    const size_t totalplayers = m_userlist.size();
     for ( size_t i = 0; i < alliances.size(); ++i )
     {
         for ( size_t j = 0; j < alliances[i].players.size(); ++j )
         {
 			ASSERT_LOGIC( alliances[i].players[j], "fail in Autobalance, NULL player" );
             int balanceteam = alliances[i].players[j]->BattleStatus().team;
-			wxLogMessage( "setting team %d to alliance %d", balanceteam, i );
             for ( size_t h = 0; h < totalplayers; h++ ) // change ally num of all players in the team
             {
-				UserPtr usr = GetUser( h );
-                if ( usr.BattleStatus().team == balanceteam ) ForceAlly( usr, alliances[i].allynum );
+                UserPtr usr = m_userlist[h];
+                if ( usr->BattleStatus().team == balanceteam )
+                    ForceAlly( usr, alliances[i].allynum );
             }
         }
     }
 }
 
-void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool strong_clans, int numcontrolteams )
+void Battle::FixTeamIDs( Enum::BalanceType balance_type, bool support_clans, bool strong_clans, int numcontrolteams )
 {
-	wxLogMessage("Autobalancing teams, type=%d, clans=%d, strong_clans=%d, numcontrolteams=%d",balance_type, support_clans, strong_clans, numcontrolteams);
-    //size_t i;
-    //int num_alliances;
+//	wxLogMessage("Autobalancing teams, type=%d, clans=%d, strong_clans=%d, numcontrolteams=%d",balance_type, support_clans, strong_clans, numcontrolteams);
     std::vector<ControlTeam> control_teams;
 
-    if ( numcontrolteams == 0 || numcontrolteams == -1 ) numcontrolteams = GetNumUsers() - GetSpectators(); // 0 or -1 -> use num players, will use comshare only if no available team slots
-	IBattle::StartType position_type = (IBattle::StartType)s2l( CustomBattleOptions()->getSingleValue( "startpostype", OptionsWrapper::EngineOption ) );
-    if ( ( position_type == ST_Fixed ) || ( position_type == ST_Random ) ) // if fixed start pos type or random, use max teams = start pos count
+    if ( numcontrolteams == 0 || numcontrolteams == -1 ) numcontrolteams = m_userlist.size() - GetSpectators(); // 0 or -1 -> use num players, will use comshare only if no available team slots
+    Enum::StartType position_type = (Enum::StartType)
+            Util::FromString<long>( CustomBattleOptions()->getSingleValue( "startpostype", OptionsWrapper::EngineOption ) );
+    if ( ( position_type == Enum::ST_Fixed ) || ( position_type == Enum::ST_Random ) ) // if fixed start pos type or random, use max teams = start pos count
     {
         try
         {
-            int mapposcount = LoadMap().info.positions.size();
+            const int mapposcount = LoadMap().info.positions.size();
             numcontrolteams = std::min( numcontrolteams, mapposcount );
         }
-        catch( assert_exception ) {}
+        catch( ... ) {}
     }
 
-    if ( numcontrolteams >= (int)( GetNumUsers() - GetSpectators() ) ) // autobalance behaves weird when trying to put one player per team and i CBA to fix it, so i'll reuse the old code :P
+    if ( numcontrolteams >= (int)( m_userlist.size() - GetSpectators() ) ) // autobalance behaves weird when trying to put one player per team and i CBA to fix it, so i'll reuse the old code :P
     {
         // apparently tasserver doesnt like when i fix/force ids of everyone.
         std::set<int> allteams;
-        size_t numusers = GetNumUsers();
+        const size_t numusers = m_userlist.size();
         for( size_t i = 0; i < numusers; ++i )
         {
-			User &user = m_userlist.At(i);
+            const UserPtr user = m_userlist.At(i);
 			if( !user->BattleStatus().spectator ) allteams.insert( user->BattleStatus().team );
         }
         std::set<int> teams;
         int t = 0;
-        for( size_t i = 0; i < GetNumUsers(); ++i )
+        for( size_t i = 0; i < m_userlist.size(); ++i )
         {
-			User &user = m_userlist.At(i);
+            const UserPtr user = m_userlist.At(i);
 			if( !user->BattleStatus().spectator )
             {
 				if( teams.count( user->BattleStatus().team ) )
@@ -1004,20 +1018,19 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
         }
         return;
     }
-    for ( int i = 0; i < numcontrolteams; i++ ) control_teams.push_back( ControlTeam( i ) );
-
-	wxLogMessage("number of teams: %u", control_teams.size() );
+    for ( int i = 0; i < numcontrolteams; i++ )
+        control_teams.push_back( ControlTeam( i ) );
 
     std::vector<UserPtr> players_sorted;
-    players_sorted.reserve( GetNumUsers() );
+    players_sorted.reserve( m_userlist.size() );
 
     int player_team_counter = 0;
 
-    for ( size_t i = 0; i < GetNumUsers(); ++i ) // don't count spectators
+    for ( size_t i = 0; i < m_userlist.size(); ++i ) // don't count spectators
     {
-		if ( !m_userlist.At(i).BattleStatus().spectator )
+        if ( !m_userlist.At(i)->BattleStatus().spectator )
         {
-			players_sorted.push_back( &m_userlist.At(i) );
+            players_sorted.push_back( m_userlist.At(i) );
             // -- server fail? it doesnt work right.
 			//ForceTeam(m_userlist.At(i),player_team_counter);
             player_team_counter++;
@@ -1039,7 +1052,8 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
         }
     };
 
-    if ( balance_type != balance_random ) std::sort( players_sorted.begin(), players_sorted.end(), PlayerRankCompareFunction );
+    if ( balance_type != Enum::balance_random )
+        std::sort( players_sorted.begin(), players_sorted.end(), PlayerRankCompareFunction );
 
     if ( support_clans )
     {
@@ -1050,14 +1064,14 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
             // if clan is too small (only 1 clan member in battle) or too big, dont count it as clan
             if ( ( clan.players.size() < 2 ) || ( !strong_clans && ( clan.players.size() >  ( ( players_sorted.size() + control_teams.size() -1 ) / control_teams.size() ) ) ) )
             {
-				wxLogMessage("removing clan %s",(*clan_it).first.c_str());
+//				wxLogMessage("removing clan %s",(*clan_it).first.c_str());
                 std::map<std::string, ControlTeam>::iterator next = clan_it;
                 ++next;
                 clan_teams.erase( clan_it );
                 clan_it = next;
                 continue;
             }
-			wxLogMessage( "Inserting clan %s", (*clan_it).first.c_str() );
+//			wxLogMessage( "Inserting clan %s", (*clan_it).first.c_str() );
             std::sort( control_teams.begin(), control_teams.end() );
             float lowestrank = control_teams[0].ranksum;
             int rnd_k = 1; // number of alliances with rank equal to lowestrank
@@ -1066,7 +1080,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
                 if ( fabs( control_teams[rnd_k].ranksum - lowestrank ) > 0.01 ) break;
                 rnd_k++;
             }
-			wxLogMessage("number of lowestrank teams with same rank=%d", rnd_k );
+//			wxLogMessage("number of lowestrank teams with same rank=%d", rnd_k );
             control_teams[my_random( rnd_k )].AddTeam( clan );
             ++clan_it;
         }
@@ -1077,7 +1091,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
         // skip clanners, those have been added already.
         if ( clan_teams.count( players_sorted[i]->GetClan() ) > 0 )
         {
-			wxLogMessage( "clanner already added, nick=%s",players_sorted[i]->Nick().c_str() );
+//			wxLogMessage( "clanner already added, nick=%s",players_sorted[i]->Nick().c_str() );
             continue;
         }
 
@@ -1098,7 +1112,7 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
             if ( fabs ( control_teams[rnd_k].ranksum - lowestrank ) > 0.01 ) break;
             rnd_k++;
         }
-		wxLogMessage( "number of lowestrank teams with same rank=%d", rnd_k );
+//		wxLogMessage( "number of lowestrank teams with same rank=%d", rnd_k );
         control_teams[my_random( rnd_k )].AddPlayer( players_sorted[i] );
     }
 
@@ -1108,17 +1122,17 @@ void Battle::FixTeamIDs( BalanceType balance_type, bool support_clans, bool stro
         for ( size_t j = 0; j < control_teams[i].players.size(); ++j )
         {
 			ASSERT_LOGIC( control_teams[i].players[j], "fail in Autobalance teams, NULL player" );
-			std::string msg = wxFormat( "setting player %s to team and ally %d" ) % control_teams[i].players[j]->Nick() % i;
-			wxLogMessage( "%s", msg.c_str() );
-            ForceTeam( *control_teams[i].players[j], control_teams[i].teamnum );
-            ForceAlly( *control_teams[i].players[j], control_teams[i].teamnum );
+            std::string msg = (boost::format( "setting player %s to team and ally %d" ) % control_teams[i].players[j]->Nick() % i).str();
+//			wxLogMessage( "%s", msg.c_str() );
+            ForceTeam( control_teams[i].players[j], control_teams[i].teamnum );
+            ForceAlly( control_teams[i].players[j], control_teams[i].teamnum );
         }
     }
 }
 
 void Battle::OnUnitsyncReloaded()
 {
-    IBattle::OnUnitsyncReloaded( data );
+//    IBattle::OnUnitsyncReloaded( data );
     if ( m_is_self_in ) SendMyBattleStatus();
 }
 

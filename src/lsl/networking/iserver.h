@@ -35,11 +35,21 @@ class IServerEvents;
 class UnitsyncMap;
 class UnitsyncMod;
 class UserStatus;
-class MuteList;
 class iServer;
 struct PingThread { PingThread(iServer&,int){}
 					PingThread(){}
 					void Init(){}};
+
+struct MuteListEntry {
+    const ConstUserPtr who;
+    const std::string msg;
+    MuteListEntry( const ConstUserPtr _who, const std::string _msg )
+        : who(_who), msg(_msg)
+    {}
+};
+
+typedef std::list<MuteListEntry>
+    MuteList;
 
 class iServer
 {
@@ -93,7 +103,7 @@ class iServer
 	virtual void SayBattle( const int battle_id, const std::string& msg ) = 0;
 	virtual void DoActionBattle( const int battle_id, const std::string& msg ) = 0;
 
-	virtual void Ring( const UserPtr user ) = 0;
+    virtual void Ring( const ConstUserPtr user ) = 0;
 
 	// these need to not use specific classes since they can be nonexistent/offline
 	virtual void ModeratorSetChannelTopic( const std::string& channel, const std::string& topic ) = 0;
@@ -120,7 +130,7 @@ class iServer
 	virtual void ForceSide( const IBattlePtr battle, const UserPtr user, int side ) = 0;
 	virtual void ForceTeam( const IBattlePtr battle, const UserPtr user, int team ) = 0;
 	virtual void ForceAlly( const IBattlePtr battle, const UserPtr user, int ally ) = 0;
-	virtual void ForceColor( const IBattlePtr battle, const UserPtr user, int r, int g, int b ) = 0;
+    virtual void ForceColor( const IBattlePtr battle, const UserPtr user, const lslColor& color ) = 0;
 	virtual void ForceSpectator( const IBattlePtr battle, const UserPtr user, bool spectator ) = 0;
 	void BattleKickPlayer( const IBattlePtr battle, const UserPtr user );
 	virtual void SetHandicap( const IBattlePtr battle, const UserPtr user, int handicap) = 0;
@@ -278,16 +288,24 @@ protected://defs from iserver.cpp bottom
 	void OnChannelListEnd();
 	void OnJoinBattleFailed( const std::string& msg );
 	void OnOpenBattleFailed( const std::string& msg );
-	void OnRequestBattleStatus();
+    void OnRequestBattleStatus( IBattlePtr battle );
     void OnSelfHostedBattle( IBattlePtr battle );
     void OnSelfJoinedBattle( IBattlePtr battle );
     void OnSetBattleOption( IBattlePtr battle, const std::string& param, const std::string& value );
     void OnClientBattleStatus( IBattlePtr battle, UserPtr user, UserBattleStatus bstatus );
     void OnBattleEnableUnits( IBattlePtr battle, const StringVector unitlist );
     void OnUserLeftChannel( ChannelPtr channel, UserPtr user );
+    void OnUserStartPositionUpdated( IBattlePtr battle, UserPtr player, const UserPosition& pos );
+    void OnChannelPart( ChannelPtr channel, UserPtr user, const std::string& message );
+    void OnChannelTopic( ChannelPtr channel, UserPtr user, const std::string& message );
+    void OnChannelAction( ChannelPtr channel, UserPtr user, const std::string& action );
 
 	virtual void OnConnected( const std::string&, const int, const std::string&, const int) = 0;
 	void OnUserScriptPassword( const UserPtr user, const std::string& pw );
+    void OnBattleHostchanged( IBattlePtr battle, int udpport );
+    void OnUserBattleStatusUpdated( IBattlePtr battle, UserPtr user, const UserBattleStatus& status );
+
+    int GetNextAvailableID();
 
 private:
 	virtual void _Disconnect(const std::string& reason) = 0;

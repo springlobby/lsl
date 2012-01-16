@@ -86,7 +86,7 @@ std::string User::GetRankName(UserStatus::RankContainer rank)
 	}
 }
 
-float User::GetBalanceRank()
+float User::GetBalanceRank() const
 {
     return 1.0 + 0.1 * float( Status().rank - UserStatus::RANK_1 ) / float( UserStatus::RANK_8 - UserStatus::RANK_1 );
 }

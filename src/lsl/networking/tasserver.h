@@ -102,7 +102,7 @@ private:
 	virtual void SayBattle( const int battle_id, const std::string& msg );
 	virtual void DoActionBattle( const int battle_id, const std::string& msg );
 
-	virtual void Ring( const std::string& user );
+    virtual void Ring(const ConstUserPtr user );
 	virtual void _Disconnect(const std::string& reason);
 	virtual void _Ping();
 	virtual void _JoinChannel( const std::string& channel, const std::string& key );
@@ -124,6 +124,8 @@ private:
     std::string m_delayed_open_command;
     std::string m_agreement;
     unsigned int m_account_id_count;
+    MuteList m_mutelist;
+    std::string m_mutelist_current_channelname;
 
 private:
 	//! command handlers
@@ -147,12 +149,12 @@ private:
 	void OnBattleEnableAllUnits();
 	void OnJoinChannel(const std::string &channel, const std::string& rest);
 	void OnJoinChannelFailed(const std::string &channel, const std::string &reason);
-	void OnChannelJoin(const std::string &channel, const std::string &who);
-	void OnChannelJoinUserList(const std::string &channel, const std::string &users);
+	void OnChannelJoin(const std::string &name, const std::string &who);
+	void OnChannelJoinUserList(const std::string &channel, const std::string &usernames);
 	void OnJoinedBattle(const int battleid, const std::string msg);
 	void OnGetHandle();
 	void OnLogin(const std::string& msg);
-	void OnUserJoinedChannel(const std::string &channel, const std::string &who);
+	void OnUserJoinedChannel(const std::string &channel_name, const std::string &who);
 	void OnChannelSaid(const std::string &channel, const std::string &who, const std::string &message);
 	void OnChannelPart(const std::string &channel, const std::string &who, const std::string &message);
 	void OnChannelTopic(const std::string &channel, const std::string &who, int, const std::string &message);
@@ -170,12 +172,12 @@ private:
 	void OnScriptLine(const std::string &line);
 	void OnScriptEnd();
 	void OnMutelistBegin(const std::string &channel);
-	void OnMutelistItem(const std::string &mutee, const std::string &description);
+    void OnMutelistItem(const std::string &mutee, const std::string &message);
 	void OnMutelistEnd();
 	void OnChannelMessage(const std::string &channel, const std::string &msg);
 	void OnRing(const std::string &from);
 	void OnKickedFromBattle();
-	void OnKickedFromChannel(const std::string &channel, const std::string &fromWho, const std::string &msg);
+    void OnKickedFromChannel(const std::string &channel, const std::string &fromWho, const std::string &message);
 	void OnMyInternalUdpSourcePort(const unsigned int udpport);
 	void OnMyExternalUdpSourcePort(const unsigned int udpport);
 	void OnClientIPPort(const std::string &username, const std::string &ip, unsigned int udpport);

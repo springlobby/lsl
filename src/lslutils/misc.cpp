@@ -1,4 +1,5 @@
 #include "misc.h"
+#include "conversion.h"
 
 #include <boost/filesystem.hpp>
 #include <fstream>
@@ -90,7 +91,7 @@ std::string AfterFirst( const std::string& phrase, const std::string& searchterm
 	return phrase.substr( pos+1 );
 }
 
-bool AreColoursSimilar( const lslColor& col1, const lslColor& col2, int mindiff )
+bool AreColorsSimilar( const lslColor& col1, const lslColor& col2, int mindiff )
 {
 	int r,g,b;
 	r = std::abs( col1.Red() - col2.Red() );
@@ -130,7 +131,7 @@ void hue(huevec& out, int amount)
 	hue(out, amount, level);
 }
 
-std::vector<lslColor>& GetBigFixColoursPalette( int numteams )
+std::vector<lslColor>& GetBigFixColorsPalette( int numteams )
 {
 	static std::vector<lslColor> result;
 	huevec huevector;
@@ -179,6 +180,22 @@ std::vector<lslColor>& GetBigFixColoursPalette( int numteams )
 	return result;
 }
 
+lslColor ColorFromFloatString(const std::string &rgb_string)
+{
+    const StringVector values = Util::StringTokenize( rgb_string, " " );
+    unsigned char decimal_colors[3];
+    for ( size_t i = 0; i < 3; ++i) {
+        const double value = values.size() > i ? Util::FromString<double>( values[i] ) : 0.0;
+        decimal_colors[i] = Clamp( static_cast<unsigned char>(value*256), static_cast<unsigned char>(0), static_cast<unsigned char>(255) );
+    }
+    return lslColor( decimal_colors[0], decimal_colors[1], decimal_colors[2] );
+}
+
+lslColor GetFreeColor( const ConstUserPtr /*user*/ )
+{
+    return lslColor();
+}
+
 } //namespace Util
 
 
@@ -195,7 +212,7 @@ lslSize lslSize::MakeFit(const lslSize bounds)
 	{
 	  const int sizey = ( this->GetHeight() * bounds.GetWidth() ) / this->GetWidth();
 	  return lslSize( bounds.GetWidth(), sizey );
-	}
+    }
 }
 
 } //namespace LSL

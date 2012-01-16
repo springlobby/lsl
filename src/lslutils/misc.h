@@ -110,6 +110,8 @@ inline int IndexInSequenceIf( const StlContainer& ct,
 	return std::distance( ct.begin(), result );
 }
 
+lslColor GetFreeColor( const ConstUserPtr user );
+
 namespace Lib {
 enum Category {
 	Module,
@@ -125,8 +127,9 @@ std::string AfterLast( const std::string& phrase, const std::string& searchterm 
 std::string BeforeFirst( const std::string& phrase, const std::string& searchterm );
 std::string AfterFirst( const std::string& phrase, const std::string& searchterm );
 
-std::vector<lslColor>& GetBigFixColoursPalette( int numteams );
-bool AreColoursSimilar( const lslColor& col1, const lslColor& col2, int mindiff );
+std::vector<lslColor>& GetBigFixColorsPalette( int numteams );
+bool AreColorsSimilar( const lslColor& col1, const lslColor& col2, int mindiff );
+lslColor ColorFromFloatString( const std::string& rgb_string );
 
 std::string GetHostCPUSpeed();
 std::string GetLibLobbyVersion();
@@ -172,7 +175,6 @@ public:
 
     //!dunno if this replacement can actually  be  not OK
     bool IsOk() const { return true; }
-
 };
 
 } //namespace LSL {

@@ -344,7 +344,7 @@ void iServer::UdpPingAllClients()
 
 
 	// copypasta from spring.cpp
-    ConstUserVector ordered_users = m_current_battle->Players();
+    UserVector ordered_users = m_current_battle->Players();
 	//TODO this uses ptr diff atm
 	std::sort(ordered_users.begin(),ordered_users.end());
 
@@ -795,14 +795,27 @@ void iServer::OnSelfJoinedBattle( IBattlePtr battle )
 {
 }
 
-void iServer::OnRequestBattleStatus()
+void iServer::OnRequestBattleStatus(IBattlePtr battle)
 {
 //	if(!m_battle) return;
 }
 
 void iServer::OnUserScriptPassword(const UserPtr user, const std::string &pw)
 {
-	assert( false );
+    assert( false );
+}
+
+void iServer::OnBattleHostchanged(IBattlePtr battle, int udpport)
+{
+}
+
+void iServer::OnUserBattleStatusUpdated(IBattlePtr battle, UserPtr user, const UserBattleStatus &status)
+{
+}
+
+int iServer::GetNextAvailableID()
+{
+    return 1;
 }
 
 void iServer::SayPrivate( const UserPtr user, const std::string& msg )

@@ -12,6 +12,7 @@
 #include <sstream>
 #include <boost/scoped_ptr.hpp>
 #include <boost/asio/deadline_timer.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
 
 namespace LSL {
 namespace Battle {
@@ -143,14 +144,14 @@ public:
 	virtual bool ModExists() const;
 
 	virtual BattleStartRect GetStartRect( unsigned int allyno ) const;
-	UserPtr OnUserAdded( const UserPtr user );
+    void OnUserAdded( const UserPtr user );
 	void OnUserBattleStatusUpdated(UserPtr user, UserBattleStatus status );
 	void OnUserRemoved( UserPtr user );
 
 	void ForceSide(const UserPtr user, int side );
 	void ForceAlly( const UserPtr user, int ally );
 	void ForceTeam(const UserPtr user, int team );
-	void ForceColour( const UserPtr user, const lslColor& col );
+    void ForceColor( const UserPtr user, const lslColor& col );
 	void ForceSpectator( const UserPtr user, bool spectator );
 	void SetHandicap( const UserPtr user, int handicap);
 	void KickPlayer( const UserPtr user );
@@ -170,6 +171,8 @@ public:
 
 	virtual UserPtr GetMe() = 0;
 	virtual const ConstUserPtr GetMe() const = 0;
+    virtual void SetChannel( const ChannelPtr channel ) = 0;
+    virtual const ChannelPtr GetChannel() = 0;
 
 	virtual void SendHostInfo( Enum::HostInfo update );
 	virtual void SendHostInfo( const std::string& Tag );
@@ -197,18 +200,20 @@ public:
 	virtual void DeletePreset( const std::string& name );
 	virtual StringVector GetPresetList();
 
-	virtual std::vector<lslColor> &GetFixColoursPalette( int numteams ) const;
-	virtual int GetClosestFixColour(const lslColor &col, const std::vector<int> &excludes, int difference) const;
-	virtual lslColor GetFixColour(int i) const;
-	virtual lslColor GetFreeColour( const ConstUserPtr for_whom = UserPtr() ) const;
-	lslColor GetNewColour() const;
-	int ColourDifference(const lslColor &a, const lslColor &b)  const;
+    std::vector<lslColor> &GetFixColorsPalette( int numteams ) const;
+    virtual int GetClosestFixColor(const lslColor &col, const std::vector<int> &excludes, int difference) const;
+    lslColor GetFixColor(int i) const;
+    virtual lslColor GetFreeColor( const ConstUserPtr for_whom = UserPtr() ) const;
+    lslColor GetNewColor() const;
+    int ColorDifference(const lslColor &a, const lslColor &b)  const;
 
-	ConstUserPtr GetFounder() const { return m_userlist.Get( m_opts.founder ); }
+    const ConstUserPtr GetFounder() const { return m_userlist.Get( m_opts.founder ); }
+    UserPtr GetFounder() { return m_userlist.Get( m_opts.founder ); }
 
 	bool IsFull() const { return GetMaxPlayers() == GetNumActivePlayers(); }
 
 	ConstUserVector Players() const { return m_userlist.Vectorize(); }
+    UserVector Players() { return m_userlist.Vectorize(); }
 	virtual unsigned int GetNumPlayers() const;
 	virtual unsigned int GetNumActivePlayers() const;
 	virtual unsigned int GetNumReadyPlayers() const { return m_players_ready; }
@@ -306,15 +311,14 @@ public:
 
 	std::map<std::string, std::string> m_script_tags; // extra script tags to reload in the case of map/mod reload
 
-	virtual long GetBattleRunningTime() const; // returns 0 if not started
+    long GetBattleRunningTime() const; // returns 0 if not started
 
     void LoadScriptMMOpts(const std::string &sectionname, const TDF::PDataList &node);
     void LoadScriptMMOpts(const TDF::PDataList &node);
+
+    UserPtr GetUser( const std::string& nick );
+
 private:
-
-//	void LoadScriptMMOpts( const std::string& sectionname, const SL::PDataList& node );
-//	void LoadScriptMMOpts( const SL::PDataList& node );
-
 	void PlayerLeftTeam( int team );
 	void PlayerLeftAlly( int ally );
 	void PlayerJoinedTeam( int team );
@@ -336,16 +340,13 @@ private:
 
 	bool m_ingame;
 	bool m_auto_unspec; // unspec as soon as there's a free slot
-	bool m_generating_script;
 
 	std::map<unsigned int,BattleStartRect> m_rects;
-
-	std::map<std::string, time_t> m_ready_up_map; // player name -> time counting from join/unspect
 
 	unsigned int m_players_ready;
 	unsigned int m_players_sync;
 	unsigned int m_players_ok; // players which are ready and in sync
-	std::map<int, int> m_teams_sizes; // controlteam -> number of people in
+
 	std::map<int, int> m_ally_sizes; // allyteam -> number of people in
 
 	std::string m_preset;
@@ -358,13 +359,16 @@ private:
 	TeamVec m_parsed_teams;
 	AllyVec m_parsed_allies;
     UserList m_internal_user_list; /// to store users from savegame/replay
-	long m_start_time;
+    boost::posix_time::ptime m_start_time;
 
 protected:
 	BattleOptions m_opts;
 	bool m_is_self_in;
 	UserList m_userlist;
     boost::scoped_ptr< boost::asio::deadline_timer > m_timer;
+    bool m_generating_script;
+    std::map<std::string, time_t> m_ready_up_map; // player name -> time counting from join/unspect
+    std::map<int, int> m_teams_sizes; // controlteam -> number of people in
 };
 
 } // namespace Battle

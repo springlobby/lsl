@@ -38,6 +38,7 @@ namespace TDF {
     typedef RefcountedPointer<DataLeaf,true> PDataLeaf;
 }
 
+class CommonUser;
 class User;
 class Channel;
 class iServer;
@@ -65,6 +66,9 @@ typedef boost::shared_ptr< const Channel > ConstChannelPtr;
 
 typedef boost::shared_ptr< iServer > IServerPtr;
 typedef boost::shared_ptr< const iServer > ConstIServerPtr;
+
+typedef boost::shared_ptr< CommonUser > CommonUserPtr;
+typedef boost::shared_ptr< const CommonUser > ConstCommonUserPtr;
 
 typedef std::vector< UserPtr > UserVector;
 typedef std::vector< ConstUserPtr > ConstUserVector;

@@ -4,6 +4,7 @@ SET(libSpringLobbySrc
 	"${CMAKE_CURRENT_SOURCE_DIR}/container/battlelist.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/channel.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/user/user.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/user/userdata.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/user/common.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/networking/socket.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/networking/commands.cpp"

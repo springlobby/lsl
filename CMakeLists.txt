@@ -110,3 +110,4 @@ INCLUDE(cmake/compat_flags.cmake)
 
 add_subdirectory( test )
 add_subdirectory( src )
+add_subdirectory( doc )

@@ -10,13 +10,18 @@ class Channel : public HasKey< std::string >
 {
 public:
     Channel();
+    Channel(const std::string& name);
 
-    std::string index() const { return "dummy"; }
+    std::string key() const { return Name(); }
     static std::string className() { return "Channel"; }
 
 	std::string Name() const { return "dummy"; }
 
     void OnChannelJoin( const ConstUserPtr user );
+
+    void SetNumUsers( size_t numusers );
+    void SetTopic( const std::string topic);
+
 };
 
 } // namespace LSL {

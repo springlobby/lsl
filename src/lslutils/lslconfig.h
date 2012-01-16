@@ -8,6 +8,17 @@
 
 namespace LSL {
 
+namespace Settings {
+struct SettStartBox
+{
+    int ally;
+    int topx;
+    int topy;
+    int bottomx;
+    int bottomy;
+};
+} // namespace Settings {
+
 class Config
 {
 public:
@@ -23,6 +34,17 @@ public:
     int GetBattleLastSideSel( const std::string& /*modname*/ ) const;
     void SaveSettings(){}
     void DeletePreset( const std::string& /*modname*/ ) {}
+
+    void SetMapLastStartPosType( const std::string& , const std::string&  ){}
+    std::string GetMapLastStartPosType( const std::string&){ return std::string(); }
+
+
+    template < class T >
+    void SetMapLastRectPreset( const std::string&, const T&) {}
+    template < class T > T GetMapLastRectPreset( const std::string& ) { return T(); }
+
+    bool GetBattleLastAutoAnnounceDescription() { return true; }
+    int GetBattleLastAutoSpectTime() {return 1;}
 };
 
 Config& sett();

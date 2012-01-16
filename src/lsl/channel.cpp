@@ -8,6 +8,10 @@ Channel::Channel()
 {
 }
 
+Channel::Channel(const std::string &name)
+{
+}
+
 void Channel::OnChannelJoin(const ConstUserPtr user)
 {
     assert( false );

@@ -15,6 +15,14 @@ void ContainerBase<T>::Add( PointerType item )
 }
 
 template < class T >
+typename ContainerBase<T>::PointerType ContainerBase<T>::Add( ItemType* item )
+{
+    PointerType p( item );
+    Add( p );
+    return p;
+}
+
+template < class T >
 void ContainerBase<T>::Remove( const KeyType& index )
 {
     typename ContainerBase<T>::MapType::iterator
@@ -78,7 +86,7 @@ ContainerBase<T>::At( const typename ContainerBase<T>::MapType::size_type index)
     }
     std::advance( m_seek, index - m_seekpos );
     m_seekpos = index;
-    return *m_seek->second;
+    return m_seek->second;
 }
 
 template < class T >
@@ -91,7 +99,47 @@ ContainerBase<T>::At( const typename ContainerBase<T>::MapType::size_type index)
     }
     std::advance( m_seek, index - m_seekpos );
     m_seekpos = index;
-    return *m_seek->second;
+    return m_seek->second;
+}
+
+template < class T >
+typename ContainerBase<T>::ConstVectorType
+ContainerBase<T>::Vectorize() const
+{
+    std::vector< ConstPointerType > ret;
+    for( typename MapType::const_iterator it = m_map.begin(); it != m_map.end(); ++it ) {
+        ret.push_back( it->second );
+    }
+    return ret;
+}
+
+template < class T >
+typename ContainerBase<T>::VectorType
+ContainerBase<T>::Vectorize()
+{
+    std::vector< PointerType > ret;
+    for( typename MapType::iterator it = m_map.begin(); it != m_map.end(); ++it ) {
+        ret.push_back( it->second );
+    }
+    return ret;
+}
+
+template < class T >
+bool ContainerBase<T>::Exists( const ConstPointerType ptr ) const
+{
+    struct map_data_compare : public std::binary_function<typename MapType::value_type,
+                                                          typename MapType::mapped_type,
+                                                          bool>
+    {
+    public:
+        bool operator() (typename MapType::value_type &pair,
+                         typename MapType::mapped_type i) const
+        {
+            return pair.second == i;
+        }
+    };
+    return end() != std::find_if( begin(), end(),
+                                  std::bind2nd(map_data_compare(), ptr) );
 }
 
 }

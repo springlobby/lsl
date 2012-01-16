@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <boost/foreach.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( battle, msg ); } } while (0)
 
@@ -37,7 +38,7 @@ BattleOptions::BattleOptions()
 	, externaludpsourceport(Enum::DEFAULT_EXTERNAL_UDP_SOURCE_PORT)
 	, internaludpsourceport(Enum::DEFAULT_EXTERNAL_UDP_SOURCE_PORT)
 	, maxplayers(0)
-	, spectators(0)
+    , spectators(0)
 {}
 
 IBattle::IBattle():
@@ -54,7 +55,6 @@ IBattle::IBattle():
 	, m_players_ok(0)
 	, m_is_self_in(false)
     , m_timer ( new boost::asio::deadline_timer( _io, TIMER_INTERVAL ) )
-	, m_start_time(0)
 {
 }
 
@@ -77,15 +77,15 @@ bool IBattle::IsSynced()
 	return synced;
 }
 
-std::vector<lslColor>& IBattle::GetFixColoursPalette( int numteams ) const
+std::vector<lslColor>& IBattle::GetFixColorsPalette( int numteams ) const
 {
-	return Util::GetBigFixColoursPalette( numteams );
+    return Util::GetBigFixColorsPalette( numteams );
 }
 
-lslColor IBattle::GetFixColour(int i) const
+lslColor IBattle::GetFixColor(int i) const
 {
 	int size = m_teams_sizes.size();
-	std::vector<lslColor> palette = GetFixColoursPalette( size );
+    std::vector<lslColor> palette = GetFixColorsPalette( size );
 	return palette[i];
 }
 
@@ -117,20 +117,20 @@ public:
 	}
 };
 
-class AreColoursSimilarProxy {
+class AreColorsSimilarProxy {
 	const int m_mindiff;
 
 public:
-	AreColoursSimilarProxy( int mindiff )
+    AreColorsSimilarProxy( int mindiff )
 		: m_mindiff ( mindiff )
 	{}
 
 	bool operator() ( lslColor a, lslColor b ) {
-		return Util::AreColoursSimilar( a, b, m_mindiff );
+        return Util::AreColorsSimilar( a, b, m_mindiff );
 	}
 };
 
-lslColor IBattle::GetFreeColour( const ConstUserPtr user) const
+lslColor IBattle::GetFreeColor( const ConstUserPtr user) const
 {
 	typedef std::vector<lslColor>
 		ColorVec;
@@ -143,20 +143,20 @@ lslColor IBattle::GetFreeColour( const ConstUserPtr user) const
 
 	int inc = 1;
 	while ( true ) {
-		ColorVec fixcolorspalette = GetFixColoursPalette( m_teams_sizes.size() + inc++ );
-		ColorVec::iterator fixcolorspalette_new_end = std::unique( fixcolorspalette.begin(), fixcolorspalette.end(), AreColoursSimilarProxy( 20 ) );
+        ColorVec fixcolorspalette = GetFixColorsPalette( m_teams_sizes.size() + inc++ );
+        ColorVec::iterator fixcolorspalette_new_end = std::unique( fixcolorspalette.begin(), fixcolorspalette.end(), AreColorsSimilarProxy( 20 ) );
 		fixcolorspalette_new_end = std::remove_if( fixcolorspalette.begin(), fixcolorspalette.end(), DismissColor( current_used_colors ) );
 		if ( fixcolorspalette_new_end != fixcolorspalette.begin() )
 			return (*fixcolorspalette.begin());
 	}
 }
 
-lslColor IBattle::GetNewColour() const
+lslColor IBattle::GetNewColor() const
 {
-	return GetFreeColour();
+    return GetFreeColor();
 }
 
-int IBattle::ColourDifference(const lslColor &a, const lslColor &b)  const// returns max difference of r,g,b.
+int IBattle::ColorDifference(const lslColor &a, const lslColor &b)  const// returns max difference of r,g,b.
 {
 	return std::max(abs(a.Red()-b.Red()),std::max(abs(a.Green()-b.Green()),abs(a.Blue()-b.Blue())));
 
@@ -184,15 +184,15 @@ int IBattle::GetFreeTeam( bool excludeme ) const
 	return lowest;
 }
 
-int IBattle::GetClosestFixColour(const lslColor &col, const std::vector<int> &excludes, int difference) const
+int IBattle::GetClosestFixColor(const lslColor &col, const std::vector<int> &excludes, int difference) const
 {
-	std::vector<lslColor> palette = GetFixColoursPalette( m_teams_sizes.size() + 1 );
+    std::vector<lslColor> palette = GetFixColorsPalette( m_teams_sizes.size() + 1 );
 	int result=0;
 	for (size_t i=0;i<palette.size();++i)
 	{
 		if ((i>=excludes.size()) || (!excludes[i]))
 		{
-			if (Util::AreColoursSimilar( palette[i],col, difference ))
+            if (Util::AreColorsSimilar( palette[i],col, difference ))
 			{
 				return i;
 			}
@@ -214,9 +214,8 @@ void IBattle::Update ( const std::string& /*unused*/)
 {
 }
 
-UserPtr IBattle::OnUserAdded(const UserPtr user )
+void IBattle::OnUserAdded(const UserPtr user )
 {
-	m_userlist.Add( user );
 	UserBattleStatus& bs = user->BattleStatus();
 	bs.spectator = false;
 	bs.ready = false;
@@ -226,7 +225,7 @@ UserPtr IBattle::OnUserAdded(const UserPtr user )
 	{
 		bs.team = GetFreeTeam( user == GetMe() );
 		bs.ally = GetFreeAlly( user == GetMe() );
-		bs.color = GetFreeColour( user );
+        bs.color = GetFreeColor( user );
 	}
 	if ( IsFounderMe() && ( ( bs.pos.x < 0 ) || ( bs.pos.y < 0 ) ) )
 	{
@@ -247,17 +246,14 @@ UserPtr IBattle::OnUserAdded(const UserPtr user )
 		if ( !bs.ready || !bs.sync ) m_ready_up_map[user->Nick()] = time(0);
 		if ( bs.ready && bs.sync ) m_players_ok++;
 	}
-	return user;
 }
 
 UserPtr IBattle::OnBotAdded( const std::string& nick, const UserBattleStatus& bs )
 {
 	UserPtr bot( new User( nick ) );
-	m_internal_bot_list[nick] = bot;
+    m_internal_bot_list.Add( bot );
 	bot->UpdateBattleStatus( bs );
-	UserPtr usr = OnUserAdded( bot );
-	assert( usr == bot );//or else I don't know what the fuck is going here
-	return usr;
+    return bot;
 }
 
 unsigned int IBattle::GetNumBots() const
@@ -277,7 +273,6 @@ unsigned int IBattle::GetNumActivePlayers() const
 
 void IBattle::OnUserBattleStatusUpdated( UserPtr user, UserBattleStatus status )
 {
-
 	UserBattleStatus previousstatus = user->BattleStatus();
 
 	user->UpdateBattleStatus( status );
@@ -365,12 +360,8 @@ void IBattle::OnUserRemoved( UserPtr user )
 	if ( !bs.IsBot() )
 		user->SetBattle( BattlePtr() );
 	else
-	{
-        UserPtr user = m_internal_bot_list.find( user->Nick() );
-		if ( itor != m_internal_bot_list.end() )
-		{
-			m_internal_bot_list.erase( itor );
-		}
+    {
+        m_internal_bot_list.Remove( user->Nick() );
 	}
 }
 
@@ -544,7 +535,7 @@ void IBattle::ForceAlly(const UserPtr user, int ally )
 }
 
 
-void IBattle::ForceColour(const UserPtr user, const lslColor& col )
+void IBattle::ForceColor(const UserPtr user, const lslColor& col )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -1036,8 +1027,8 @@ void IBattle::UserPositionChanged( const UserPtr /*unused*/ )
 void IBattle::AddUserFromDemo( UserPtr user )
 {
 	user->BattleStatus().isfromdemo = true;
-	m_internal_user_list[user->Nick()] = user;
-	m_userlist.Add( m_internal_user_list[user->Nick()] );
+    m_internal_user_list.Add( user );
+    m_userlist.Add( user );
 }
 
 void IBattle::SetProxy( const std::string& value )
@@ -1186,7 +1177,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					status.aishortname = bot->GetString( "ShortName" );
 					status.aiversion = bot->GetString( "Version" );
 					int ownerindex = bot->GetInt( "Host" );
-					PDataList aiowner ( replayNode->Find( "PLAYER" + Util::ToString(ownerindex) ) );
+                    TDF::PDataList aiowner ( replayNode->Find( "PLAYER" + Util::ToString(ownerindex) ) );
 					if ( aiowner.ok() )
 					{
 						status.owner = aiowner->GetString( "Name" );
@@ -1204,7 +1195,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 						teaminfos.StartPosX = team->GetInt( "StartPosX", -1 );
 						teaminfos.StartPosY = team->GetInt( "StartPosY", -1 );
 						teaminfos.AllyTeam = team->GetInt( "AllyTeam", 0 );
-						teaminfos.RGBColor = GetColorFromFloatString( team->GetString( "RGBColor" ) );
+                        teaminfos.RGBColor = Util::ColorFromFloatString( team->GetString( "RGBColor" ) );
 						teaminfos.SideName = team->GetString( "Side", "" );
 						teaminfos.Handicap = team->GetInt( "Handicap", 0 );
 						int sidepos = Util::IndexInSequence( sides, teaminfos.SideName );
@@ -1265,17 +1256,24 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 void IBattle::SetInGame(bool ingame)
 {
 	m_ingame = ingame;
-	if (m_ingame) m_start_time = wxGetUTCTime();
-	else m_start_time = 0;
+    if (m_ingame) m_start_time = boost::posix_time::second_clock::universal_time();
+    else m_start_time = boost::date_time::not_a_date_time;
 }
 
 long IBattle::GetBattleRunningTime() const
 {
 	if (!InGame()) return 0;
-	if (m_start_time == 0 ) return 0;
-	return wxGetUTCTime() - m_start_time;
+    if (m_start_time == boost::date_time::not_a_date_time )
+        return 0;
+    boost::posix_time::time_duration td(
+                boost::posix_time::second_clock::universal_time() - m_start_time );
+    return td.seconds();
 }
 
+UserPtr IBattle::GetUser(const std::string &nick)
+{
+    return m_userlist.FindByNick( nick );
+}
 
 } // namespace Battle
 } // namespace LSL

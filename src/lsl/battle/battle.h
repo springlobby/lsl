@@ -64,8 +64,8 @@ public:
     void BattleKickPlayer( const UserPtr user );
     void SetHandicap( const UserPtr user, int handicap);
 
-    const UserPtr OnUserAdded( const UserPtr user );
-	void OnUserBattleStatusUpdated(const UserPtr user, UserBattleStatus status );
+    void OnUserAdded( const UserPtr user );
+    void OnUserBattleStatusUpdated( const UserPtr user, UserBattleStatus status );
     void OnUserRemoved( const UserPtr user );
 
     void ForceUnsyncedToSpectate();
@@ -85,7 +85,7 @@ public:
     void SendScriptToClients();
 
     ///< quick hotfix for bans
-    bool CheckBan(User &user);
+    bool IsBanned(const UserPtr user );
     ///>
 
     void SetImReady( bool ready );
@@ -93,7 +93,7 @@ public:
     UserPtr GetMe();
     const ConstUserPtr GetMe() const;
 
-    void UserPositionChanged( const ConstUserPtr user );
+    void UserPositionChanged( const UserPtr user );
 
     void SaveMapDefaults();
     void LoadMapDefaults( const std::string& mapname );
@@ -109,11 +109,10 @@ public:
     bool GetAutoUnspec() { return m_auto_unspec; }
 
     void ShouldAutoUnspec();
-
     void SetChannel( const ChannelPtr channel );
     const ChannelPtr GetChannel();
-
 private:
+    void OnTimer( const boost::system::error_code& error );
     // Battle variables
 
     ///< quick hotfix for bans

@@ -25,6 +25,10 @@ public:
 protected:
 	typedef std::map< const KeyType, PointerType >
 		MapType;
+    typedef std::vector< PointerType >
+        VectorType;
+    typedef std::vector< ConstPointerType >
+        ConstVectorType;
 
 public:
     //! putting this here makes it inherently distinguishable on a per *List basis
@@ -37,11 +41,13 @@ public:
     ContainerBase();
 
     void Add( PointerType item );
+    PointerType Add( ItemType* item );
 	void Remove( const KeyType& key );
 	//! throws MissingItemException if no item at \param key
 	const PointerType Get( const KeyType& key ) const;
 	PointerType Get( const KeyType& key );
 	bool Exists( const KeyType& key ) const;
+    bool Exists( const ConstPointerType ptr ) const;
 
     typename MapType::size_type size() const;
 
@@ -59,14 +65,9 @@ public:
 	const ConstPointerType operator[]( typename MapType::size_type index ) const { return At(index); }
 	const PointerType operator[]( typename MapType::size_type index ) { return At(index); }
 
-	std::vector< ConstPointerType > Vectorize() const
-	{
-		std::vector< ConstPointerType > ret;
-		for( typename MapType::const_iterator it = m_map.begin(); it != m_map.end(); ++it ) {
-			ret.push_back( it->second );
-		}
-		return ret;
-	}
+    ConstVectorType Vectorize() const;
+    VectorType Vectorize();
+
 
 private:
 	MapType m_map;
