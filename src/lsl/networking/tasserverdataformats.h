@@ -1,6 +1,10 @@
 #ifndef LSL_TASDATADORMATS_H
 #define LSL_TASDATADORMATS_H
 
+/** \file tasserverdataformats.h
+ * \brief collection of to-from Protocol conversion classes
+    \copyright GPL v2 **/
+
 namespace LSL {
 
 //! @brief Struct used internally by the TASServer class to get client status information.

@@ -16,6 +16,7 @@ namespace Util {
 template <class T>
 class uninitialized_array;
 }
+
 /** we use this class mostly to hide the cimg implementation details
  * \todo decide/implement COW
  */
@@ -33,13 +34,20 @@ public:
 	explicit UnitsyncImage( int width, int height );
 	UnitsyncImage( const std::string& filename );
 
+    //! delegates save to cimg library, format is deducted from last path compoment (ie. after the last dot)
 	void Save( const std::string& path ) const;
+    //! same principle as \ref Save
 	void Load( const std::string& path ) const;
 
-	static UnitsyncImage FromMinimapData( const RawDataType* data, int width, int height );
+    /** \name factory functions
+     * \brief creating UnitsyncImage from raw data pointers
+     **/
+    ///@{
+    static UnitsyncImage FromMinimapData( const RawDataType* data, int width, int height );
 	static UnitsyncImage FromHeightmapData( const Util::uninitialized_array<unsigned short>& data, int width, int height );
 	static UnitsyncImage FromMetalmapData( const Util::uninitialized_array<unsigned char>& data, int width, int height );
 	static UnitsyncImage FromVfsFileData(  Util::uninitialized_array<char>& data, size_t size, const std::string& fn, bool useWhiteAsTransparent = true );
+    ///@}
 
 	int GetWidth() const;
 	int GetHeight() const;

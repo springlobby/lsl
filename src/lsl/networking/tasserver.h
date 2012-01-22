@@ -1,5 +1,8 @@
-#ifndef TASSERVER_H
-#define TASSERVER_H
+#ifndef LSL_TASSERVER_H
+#define LSL_TASSERVER_H
+
+/** \file tasserver.h
+    \copyright GPL v2 **/
 
 #include "iserver.h"
 
@@ -193,4 +196,4 @@ private:
 
 } //namespace LSL
 
-#endif // TASSERVER_H
+#endif // LSL_TASSERVER_H

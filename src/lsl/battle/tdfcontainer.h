@@ -2,7 +2,7 @@
 #define LSL_HEADERGUARD_TDFCONTAINER_H
 
 /** \file tdfcontainer.h
-		\copyright GPL v2 **/
+    \copyright GPL v2 **/
 
 #include <lslutils/misc.h>
 #include <lslutils/conversion.h>
@@ -20,6 +20,7 @@ namespace LSL { namespace TDF {
  * this is only ever used internally (script generation) 
  * and needn't be exposed to library users 
  * \todo add link to format specification 
+ **/
 class TDFWriter
 {
 	public:

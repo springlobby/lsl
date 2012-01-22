@@ -3,7 +3,6 @@
 #include <unitsync++/c_api.h>
 #include <unitsync++/image.h>
 #include <unitsync++/unitsync.h>
-#include <boost/timer/timer.hpp>
 #include <boost/format.hpp>
 #include <cmath>
 
@@ -11,7 +10,6 @@ void dummySync()
 {
 	LSL::Unitsync usync;
 	{
-		boost::timer::auto_cpu_timer t;
 		const bool usync_loaded = usync.ReloadUnitSyncLib();
 	}
 	std::cout << boost::format( "found %d maps and %d games\n") % usync.GetNumMaps() % usync.GetNumMods() ;

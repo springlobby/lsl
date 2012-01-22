@@ -1,5 +1,8 @@
-#ifndef LIBSPRINGLOBBY_HEADERGUARD_COMMON_USER_H
-#define LIBSPRINGLOBBY_HEADERGUARD_COMMON_USER_H
+#ifndef LIBLIBSPRINGLOBBY_HEADERGUARD_COMMON_USER_H
+#define LIBLIBSPRINGLOBBY_HEADERGUARD_COMMON_USER_H
+
+/** \file common.h
+    \copyright GPL v2 **/
 
 #include <lslutils/global_interfaces.h>
 #include <lslutils/type_forwards.h>
@@ -57,4 +60,4 @@ protected:
 
 } // namespace LSL
 
-#endif // LIBSPRINGLOBBY_HEADERGUARD_COMMON_USER_H
+#endif // LIBLIBSPRINGLOBBY_HEADERGUARD_COMMON_USER_H

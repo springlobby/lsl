@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace LSL {
+
 //! base class to avoid common boilerplate code
 template <class Derived>
 class CRTPbase {
@@ -13,7 +15,6 @@ class CRTPbase {
 		const Derived& asImp () const { return static_cast<const Derived&>(*this); }
 };
 
-namespace LSL {
 //! minimal interface for classes usable as Items for ContainerBase
 template < class KeyImp >
 struct HasKey {

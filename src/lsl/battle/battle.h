@@ -2,7 +2,7 @@
 #define LSL_HEADERGUARD_BATTLE_H
 
 /** \file battle.h
-		\copyright GPL v2 **/
+    \copyright GPL v2 **/
 
 #include <set>
 

@@ -1,6 +1,9 @@
 #ifndef LSL_SOCKET_H
 #define LSL_SOCKET_H
 
+/** \file socket.h
+    \copyright GPL v2 **/
+
 #include <boost/signals2/signal.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/deadline_timer.hpp>

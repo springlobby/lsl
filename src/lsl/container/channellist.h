@@ -1,17 +1,21 @@
-#ifndef LIBSPRINGLOBBY_HEADERGUARD_CHANNELLIST_H
-#define LIBSPRINGLOBBY_HEADERGUARD_CHANNELLIST_H
+#ifndef LIBLIBSPRINGLOBBY_HEADERGUARD_CHANNELLIST_H
+#define LIBLIBSPRINGLOBBY_HEADERGUARD_CHANNELLIST_H
+
+/** \file channellist.h
+    \copyright GPL v2 **/
 
 #include "base.h"
 #include <lsl/channel.h>
 
 namespace LSL {
 
+//! container for channel pointers
 class ChannelList : public ContainerBase< Channel >
 {};
 
 } //end namespace LSL
 
-#endif // LIBSPRINGLOBBY_HEADERGUARD_CHANNELLIST_H
+#endif // LIBLIBSPRINGLOBBY_HEADERGUARD_CHANNELLIST_H
 
 
 /**

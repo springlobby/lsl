@@ -9,8 +9,8 @@
 
 #include "type_forwards.h"
 
-/** \file battle.h
-		\copyright GPL v2 **/
+/** \file misc.h
+    \copyright GPL v2 **/
 
 //! mark function args to suppress warnings
 #define LSLUNUSED(identifier)
@@ -151,12 +151,17 @@ std::string CanonicalizeName(const std::string& name, Category cat);
 
 } // namespace Lib {
 
+//! returns everything in phrase before the last occurrence of searchterm
 std::string BeforeLast( const std::string& phrase, const std::string& searchterm );
+//! returns everything in phrase after the last occurrence of searchterm
 std::string AfterLast( const std::string& phrase, const std::string& searchterm );
+//! returns everything in phrase before the first occurrence of searchterm
 std::string BeforeFirst( const std::string& phrase, const std::string& searchterm );
+//! returns everything in phrase after the first occurrence of searchterm
 std::string AfterFirst( const std::string& phrase, const std::string& searchterm );
-
+//! get a list of minimum numteam colors have maximum total difference in a certain metric
 std::vector<lslColor>& GetBigFixColorsPalette( int numteams );
+//! checks wheter two colors' difference is below mindiff
 bool AreColorsSimilar( const lslColor& col1, const lslColor& col2, int mindiff );
 //! tokenize input string and convert into rgb color
 lslColor ColorFromFloatString( const std::string& rgb_string );

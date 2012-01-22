@@ -1,12 +1,18 @@
-#ifndef MUTEXWRAPPER_H
-#define MUTEXWRAPPER_H
+#ifndef LSL_MUTEXWRAPPER_H
+#define LSL_MUTEXWRAPPER_H
+
+/** \file mutexwrapper.h
+    \copyright GPL v2 **/
 
 #include <boost/thread/mutex.hpp>
 #include "logging.h"
 
+namespace LSL {
+
 template<class T>
 class MutexWrapper;
 
+//! pure interface a single MutexWrapper interface
 class AbstractMutexWrapper{
   public:
   virtual ~AbstractMutexWrapper(){}
@@ -14,23 +20,24 @@ class AbstractMutexWrapper{
   virtual void UnLock()=0;
 };
 
+//! implements a temporary exclusive access object
 template<class T>
 class ScopedLocker
 {
-  private:
-  MutexWrapper<T> &mw;
-  ScopedLocker(const ScopedLocker<T> &/*other*/){}/// prevent copying
-  ScopedLocker&  operator= (const ScopedLocker& /*other*/){}/// and assignment
-  public:
-  explicit ScopedLocker(MutexWrapper<T> &mw_):mw(mw_){
-    mw.Lock();
-  }
-  ~ScopedLocker(){
-    mw.UnLock();
-  }
-  T &Get(){
-    return mw.GetData();
-  }
+private:
+    MutexWrapper<T> &mw;
+    ScopedLocker(const ScopedLocker<T> &/*other*/){}/// prevent copying
+    ScopedLocker&  operator= (const ScopedLocker& /*other*/){}/// and assignment
+public:
+    explicit ScopedLocker(MutexWrapper<T> &mw_):mw(mw_){
+        mw.Lock();
+    }
+    ~ScopedLocker(){
+        mw.UnLock();
+    }
+    T &Get(){
+        return mw.GetData();
+    }
 };
 /*
 class ScopedLocker
@@ -48,7 +55,7 @@ class ScopedLocker
   }
 };*/
 
-
+//!
 template<class T>
 class MutexWrapper: public AbstractMutexWrapper
 {
@@ -78,7 +85,8 @@ class MutexWrapper: public AbstractMutexWrapper
     friend class ScopedLocker<T>;
 };
 
-#endif // MUTEXWRAPPER_H
+} // namespace LSL
+#endif // LSL_MUTEXWRAPPER_H
 
 /**
     This file is part of SpringLobby,

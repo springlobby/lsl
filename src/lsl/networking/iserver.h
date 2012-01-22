@@ -1,6 +1,9 @@
 #ifndef LSL_ISERVER_H
 #define LSL_ISERVER_H
 
+/** \file iserver.h
+    \copyright GPL v2 **/
+
 #include <string>
 #include <map>
 #include <vector>

@@ -8,6 +8,8 @@
 
 namespace LSL {
 
+//! mini factory to turn a given number of Tokens, a TASServer instance and a
+//! member function pointer into an actual Command instance wrapped in a shared pointer
 template <	class T0 = NoToken, class T1 = NoToken, class T2 = NoToken, class T3 = NoToken, class T4= NoToken, class T5= NoToken,
 			class T6 = NoToken, class T7 = NoToken, class T8 = NoToken, class T9 = NoToken >
 struct CommandFactory {

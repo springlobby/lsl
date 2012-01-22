@@ -1,8 +1,8 @@
-#ifndef LIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
-#define LIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
+#ifndef LIBLIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
+#define LIBLIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
 
 /** \file ibattle.h
-		\copyright GPL v2 **/
+    \copyright GPL v2 **/
 
 #include <lslutils/global_interfaces.h>
 #include <lslutils/misc.h>
@@ -390,4 +390,4 @@ protected:
 } // namespace Battle
 } // namespace LSL
 
-#endif // LIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H
+#endif // LIBLIBSPRINGLOBBY_HEADERGUARD_IBATTLE_H

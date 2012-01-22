@@ -1,5 +1,9 @@
-#ifndef SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
-#define SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
+#ifndef LIBSPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
+#define LIBSPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
+
+/** \file c_api.h
+ * \brief bare metal abstraction to unitsync's C-interface
+    \copyright GPL v2 **/
 
 #include <string>
 #include <stdexcept>
@@ -23,12 +27,14 @@ struct UnitsyncFunctionLoader;
 
 static const unsigned int MapInfoMaxStartPositions = 16;
 
+/** \todo needs to be replaced in favor of the ones in out excpetion header **/
 class unitsync_assert : public std::runtime_error
 {
 public:
 	unitsync_assert(std::string msg) : std::runtime_error(msg) {}
 };
 
+//! Everything spring makes available about a map
 struct SpringMapInfo
 {
 	char* description;
@@ -48,7 +54,7 @@ struct SpringMapInfo
 };
 
 /**
- * Primitive class handeling the unitsync library.
+ * \brief Primitive class handling the unitsync library.
  *
  * This class is - in a limited way - thread safe but may block execution
  * in case two threads use it at the same time.  The thread safety ensures
@@ -361,9 +367,10 @@ private:
 	void _SetCurrentMod( const std::string& modname );
 
 	/**
-	 * \defgroup DllFuncPointers Pointers to the functions in unitsync.
+     * \name function objects
+     * Pointers to the functions in unitsync.
 	 */
-	/*@{*/
+    ///@{
 
 	InitPtr m_init;
 	UnInitPtr m_uninit;
@@ -539,13 +546,13 @@ private:
 	lpGetIntKeyStrValPtr m_parser_int_key_get_string_value;
 	lpGetStrKeyStrValPtr m_parser_string_key_get_string_value;
 
-	/*@}*/
+    ///@}
 };
 
 //UnitsyncLib& susynclib();
 
 } // namespace LSL
-#endif //SPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
+#endif //LIBSPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNCLIB_H
 
 /**
     This file is part of SpringLobby,

@@ -1,6 +1,10 @@
 #ifndef LSL_USERDATA_H
 #define LSL_USERDATA_H
 
+/** \file userdata.h
+ * \brief collection of to-from Protocol conversion classes
+    \copyright GPL v2 **/
+
 #include <lslutils/type_forwards.h>
 #include <lslutils/misc.h>
 #include <string>
@@ -35,6 +39,7 @@ struct UserStatus
   std::string GetDiffString ( const UserStatus& other ) const;
 };
 
+/** \todo really  not necessary to have a sep class for this **/
 struct UserPosition
 {
     int x;
@@ -42,6 +47,7 @@ struct UserPosition
     UserPosition(): x(-1), y(-1) {}
 };
 
+//! Battle specific user data
 struct UserBattleStatus
 {
     //!!! when adding something to this struct, also modify User::UpdateBattleStatus() !!

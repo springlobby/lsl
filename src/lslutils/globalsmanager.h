@@ -1,5 +1,8 @@
-#ifndef GLOBALSMANAGER_H
-#define GLOBALSMANAGER_H
+#ifndef LSL_GLOBALSMANAGER_H
+#define LSL_GLOBALSMANAGER_H
+
+/** \file globalsmanager.h
+    \copyright GPL v2 **/
 
 #include <stdexcept>
 #include <assert.h>
@@ -107,7 +110,7 @@ int GlobalObjectHolder<T,I>::count = 0;
 
 } // namespace LSL {
 
-#endif // GLOBALSMANAGER_H
+#endif // LSL_GLOBALSMANAGER_H
 
 /**
     This file is part of SpringLobby,

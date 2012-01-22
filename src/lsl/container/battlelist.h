@@ -1,5 +1,8 @@
-#ifndef SPRINGLOBBY_HEADERGUARD_BATTLELIST_H
-#define SPRINGLOBBY_HEADERGUARD_BATTLELIST_H
+#ifndef LIBSPRINGLOBBY_HEADERGUARD_BATTLELIST_H
+#define LIBSPRINGLOBBY_HEADERGUARD_BATTLELIST_H
+
+/** \file battlelist.h
+    \copyright GPL v2 **/
 
 #include "base.h"
 #include <lsl/battle/battle.h>
@@ -8,6 +11,7 @@
 namespace LSL {
 namespace Battle {
 
+//! container for battle pointer
 class BattleList : public ContainerBase< Battle >
 {
 public:
@@ -17,7 +21,7 @@ public:
 } //namespace Battle
 } //namespace LSL
 
-#endif // SPRINGLOBBY_HEADERGUARD_BATTLELIST_H
+#endif // LIBSPRINGLOBBY_HEADERGUARD_BATTLELIST_H
 
 /**
     This file is part of SpringLobby,

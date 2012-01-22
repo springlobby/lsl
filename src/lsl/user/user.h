@@ -1,6 +1,9 @@
 #ifndef LSL_USER_H
 #define LSL_USER_H
 
+/** \file battlelist.h
+    \copyright GPL v2 **/
+
 #include "common.h"
 
 #include <lslutils/type_forwards.h>
@@ -11,7 +14,7 @@ namespace LSL {
 
 class iServer;
 
-//! Class containing all the information about a user
+//! actual "Online user"
 class User : public CommonUser
 {
 public:
@@ -59,4 +62,4 @@ protected:
 
 } // namespace LSL {
 
-#endif // USER_H
+#endif // LSL_USER_H

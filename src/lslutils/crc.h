@@ -1,5 +1,8 @@
-#ifndef CRC_H
-#define CRC_H
+#ifndef LSL_CRC_H
+#define LSL_CRC_H
+
+/** \file crc.h
+    \copyright GPL v2 **/
 
 #include <string>
 
@@ -28,7 +31,7 @@ private:
 
 } // namespace LSL
 
-#endif // !CRC_H
+#endif // !LSL_CRC_H
 
 /**
     This file is part of SpringLobby,

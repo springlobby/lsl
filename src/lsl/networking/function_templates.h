@@ -1,16 +1,29 @@
 #ifndef LSL_FUNCTION_TEMPLATES_H
 #define LSL_FUNCTION_TEMPLATES_H
 
-/* BEWARE, this file is included in commands.h */
+/** \file function_templates.h
+ * \brief
+ * \copyright GPL v2 **/
+
+/* BEWARE, this file is included in the middle of commands.h */
 
 #define PARSED_VAR(idx) BOOST_AUTO(t ## idx,  (typename boost::tuples::element<idx,Tuple>::type( params )() ) )
 
 namespace LSL {
 
-//! since the engine won't depend on availability of c++0x and i'm too lazy to figure out tr1 tuple checks, we're limiting to 9 args for now
+/** This is the generic Signature with no specialization. No instances of it can
+ * be created. If you're trying to you're hitting the current max tuple length.
+ * Given a tuple of LSL::Tokens::Basic derivatives this provides a factory method
+ * to get a boost::function with each Token's real_type as call args. The "call"
+ * function provides a way fitting boost::function with automagically
+ * parsing an input string through the given Token Tuple.
+ * \tparam Tuple
+ * \note since the engine won't depend on availability of c++0x we're limited to 9 args for now
+ **/
 template < class Tuple, int p_count >
 struct Signature{};
 
+//! specialization for 9 Tokens
 template < class Tuple >
 struct Signature<Tuple,9> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&,
@@ -38,6 +51,7 @@ struct Signature<Tuple,9> {
 	}
 };
 
+//! specialization for 8 Tokens
 template < class Tuple >
 struct Signature<Tuple,8> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&,
@@ -64,6 +78,7 @@ struct Signature<Tuple,8> {
 	}
 };
 
+//! specialization for 7 Tokens
 template < class Tuple >
 struct Signature<Tuple,7> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&,
@@ -88,6 +103,7 @@ struct Signature<Tuple,7> {
 	}
 };
 
+//! specialization for 6 Tokens
 template < class Tuple >
 struct Signature<Tuple,6> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&,
@@ -111,6 +127,7 @@ struct Signature<Tuple,6> {
 	}
 };
 
+//! specialization for 5 Tokens
 template < class Tuple >
 struct Signature<Tuple,5> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&,
@@ -132,6 +149,7 @@ struct Signature<Tuple,5> {
     }
 };
 
+//! specialization for 4 Tokens
 template < class Tuple >
 struct Signature<Tuple,4> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&,
@@ -152,6 +170,7 @@ struct Signature<Tuple,4> {
     }
 };
 
+//! specialization for 3 Tokens
 template < class Tuple >
 struct Signature<Tuple,3> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&,
@@ -171,6 +190,7 @@ struct Signature<Tuple,3> {
 	}
 };
 
+//! specialization for 2 Tokens
 template < class Tuple >
 struct Signature<Tuple,2> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&,
@@ -188,6 +208,7 @@ struct Signature<Tuple,2> {
 	}
 };
 
+//! specialization for 1 Token
 template < class Tuple >
 struct Signature<Tuple,1> {
 	typedef boost::function< void (const typename BT::element<0,Tuple>::type::real_type&) > Type; //call traits ftw
@@ -203,6 +224,8 @@ struct Signature<Tuple,1> {
 		func( t0 );
 	}
 };
+
+//! specialization for no Tokens
 template < class Tuple >
 struct Signature<Tuple,0> {
 	typedef boost::function< void () > Type; //call traits ftw

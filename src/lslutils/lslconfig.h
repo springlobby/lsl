@@ -1,5 +1,8 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef LSL_CONFIG_H
+#define LSL_CONFIG_H
+
+/** \file lslconfig.h
+    \copyright GPL v2 **/
 
 #define STR_DUMMY(name) std::string name () const { return std::string(); }
 
@@ -51,4 +54,4 @@ Config& sett();
 
 } // namespace LSL
 
-#endif // CONFIG_H
+#endif // LSL_CONFIG_H

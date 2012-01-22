@@ -1,11 +1,15 @@
-#ifndef SPRINGLOBBY_HEADERGUARD_USERLIST_H
-#define SPRINGLOBBY_HEADERGUARD_USERLIST_H
+#ifndef LIBSPRINGLOBBY_HEADERGUARD_USERLIST_H
+#define LIBSPRINGLOBBY_HEADERGUARD_USERLIST_H
+
+/** \file misc.h
+    \copyright GPL v2 **/
 
 #include "base.h"
 #include <lsl/user/user.h>
 
 namespace LSL {
 
+//! contaier for user pointers
 class UserList : public ContainerBase< User >
 {
 public:
@@ -15,7 +19,7 @@ public:
 
 } // namespace LSL
 
-#endif // SPRINGLOBBY_HEADERGUARD_USERLIST_H
+#endif // LIBSPRINGLOBBY_HEADERGUARD_USERLIST_H
 
 /**
     This file is part of SpringLobby,
