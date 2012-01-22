@@ -1,0 +1,3 @@
+[submodule "doc/protocol"]
+	path = doc/protocol
+	url = https://github.com/spring/LobbyProtocol
