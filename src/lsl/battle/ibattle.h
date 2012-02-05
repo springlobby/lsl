@@ -207,8 +207,8 @@ public:
 
 	virtual void OnUnitsyncReloaded(  );
 
-	virtual OptionsWrapperPtr& CustomBattleOptions() { return m_opt_wrap; }
-	virtual const OptionsWrapperPtr& CustomBattleOptions() const { return m_opt_wrap; }
+    virtual OptionsWrapperPtr CustomBattleOptions() { return m_opt_wrap; }
+    virtual const ConstOptionsWrapperPtr CustomBattleOptions() const { return m_opt_wrap; }
 
 	virtual bool LoadOptionsPreset( const std::string& name );
 	virtual void SaveOptionsPreset( const std::string& name );
@@ -228,15 +228,16 @@ public:
 
 	bool IsFull() const { return GetMaxPlayers() == GetNumActivePlayers(); }
 
-	ConstUserVector Players() const { return m_userlist.Vectorize(); }
-    UserVector Players() { return m_userlist.Vectorize(); }
-	virtual unsigned int GetNumPlayers() const;
-	virtual unsigned int GetNumActivePlayers() const;
-	virtual unsigned int GetNumReadyPlayers() const { return m_players_ready; }
-	virtual unsigned int GetNumSyncedPlayers() const { return m_players_sync; }
-	virtual unsigned int GetNumOkPlayers() const { return m_players_ok; }
+    ConstUserVector Users() const { return m_userlist.Vectorize(); }
+    UserVector Users() { return m_userlist.Vectorize(); }
+    unsigned int GetNumUsers() { return m_userlist.size(); }
+    unsigned int GetNumPlayers() const;
+    unsigned int GetNumActivePlayers() const;
+    unsigned int GetNumReadyPlayers() const { return m_players_ready; }
+    unsigned int GetNumSyncedPlayers() const { return m_players_sync; }
+    unsigned int GetNumOkPlayers() const { return m_players_ok; }
 
-	virtual int GetBattleId() const { return m_opts.battleid; }
+    int GetBattleId() const { return m_opts.battleid; }
     virtual int Id() const { return GetBattleId(); }
 
 	virtual void SetInGame( bool ingame );

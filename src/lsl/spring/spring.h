@@ -32,7 +32,7 @@ class Spring
      **/
     bool RunReplay ( const std::string& filename );
 
-    std::string WriteScriptTxt( const ConstIBattlePtr battle ) const;
+    std::string WriteScriptTxt(const IBattlePtr battle ) const;
     void OnTerminated( int event );
 
     boost::signals2::signal<void (int,std::string)> sig_springStopped;

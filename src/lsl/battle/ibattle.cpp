@@ -55,6 +55,7 @@ IBattle::IBattle():
 	, m_players_ok(0)
 	, m_is_self_in(false)
     , m_timer ( new boost::asio::deadline_timer( _io, TIMER_INTERVAL ) )
+    , m_opt_wrap( new OptionsWrapper() )
 {
 }
 

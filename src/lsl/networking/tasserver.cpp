@@ -1007,7 +1007,7 @@ void TASServer::OnSetBattleOption( std::string key, const std::string& value )
             int team = Util::FromString<int>( Util::BeforeFirst(key,"/").substr( 4, std::string::npos ) );
             if ( key.find( "startposx" ) != std::string::npos )
 			{
-                BOOST_FOREACH( const UserPtr player, battle->Players() )
+                BOOST_FOREACH( const UserPtr player, battle->Users() )
 				{
                     UserBattleStatus& status = player->BattleStatus();
 					if ( status.team == team )
@@ -1019,7 +1019,7 @@ void TASServer::OnSetBattleOption( std::string key, const std::string& value )
 			 }
              else if ( key.find( "startposy" ) != std::string::npos )
 			 {
-                BOOST_FOREACH( const UserPtr player, battle->Players() )
+                BOOST_FOREACH( const UserPtr player, battle->Users() )
 				{
                     UserBattleStatus& status = player->BattleStatus();
 					if ( status.team == team )

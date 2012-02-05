@@ -103,7 +103,7 @@ std::string Socket::GetHandle() const
     for (unsigned int i=0; i<std::min( (unsigned int)6, (unsigned int)AdapterInfo[0].AddressLength); i++)
     {
         handle += Util::ToString(((unsigned int)AdapterInfo[0].Address[i])&255);
-        if (i != 5) handle += _T(':');
+        if (i != 5) handle += \1;
     }
     #elif defined(linux)
     int sock = socket (AF_INET, SOCK_DGRAM, 0);

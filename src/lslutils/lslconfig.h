@@ -5,6 +5,7 @@
     \copyright GPL v2 **/
 
 #define STR_DUMMY(name) std::string name () const { return std::string(); }
+#define INT_DUMMY(name) int name () const { return 0; }
 
 #include <string>
 #include <lslutils/type_forwards.h>
@@ -32,6 +33,8 @@ public:
     STR_DUMMY( GetCurrentUsedDataDir )
     STR_DUMMY( GetCurrentUsedSpringBinary )
     STR_DUMMY( GetCurrentUsedSpringConfigFilePath )
+    STR_DUMMY( GetMyInternalUdpSourcePort )
+    INT_DUMMY( GetClientPort )
     std::string GetCurrentUsedUnitSync() { return "/usr/lib/spring/libunitsync.so";}
 	StringVector GetPresetList() { return StringVector(); }
     StringMap GetHostingPreset( const std::string&, size_t ) { return StringMap(); }

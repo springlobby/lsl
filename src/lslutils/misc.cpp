@@ -48,14 +48,14 @@ std::string CanonicalizeName( const std::string& name, Category cat)
 	switch ( cat )
 	{
 		default:
-			wxFAIL_MSG( _T("unknown wxDynamicLibraryCategory value") );
+			wxFAIL_MSG( \1;
 			// fall through
 		case wxDL_MODULE:
 			// don't do anything for modules, their names are arbitrary
 			break;
 		case wxDL_LIBRARY:
 			// library names should start with "lib" under Unix
-			nameCanonic = _T("lib");
+			nameCanonic = \1;
 			break;
 	}
 #else // !__UNIX__

@@ -344,7 +344,7 @@ void iServer::UdpPingAllClients()
 
 
 	// copypasta from spring.cpp
-    UserVector ordered_users = m_current_battle->Players();
+    UserVector ordered_users = m_current_battle->Users();
 	//TODO this uses ptr diff atm
 	std::sort(ordered_users.begin(),ordered_users.end());
 

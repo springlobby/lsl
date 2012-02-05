@@ -19,7 +19,7 @@ class SpringProcess
     void SetCommand( const std::string& cmd );
 
     void Create() {}
-    void Run() {}
+    int Run();
 
   protected:
     const Spring& m_sp;

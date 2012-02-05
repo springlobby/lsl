@@ -66,7 +66,7 @@ void Tokenizer::ReportError( const Token &t, const std::string &err ) {
 }
 
 //#define ReportError(a) {std::cerr<<"error "<<(a);}
-//#define ReportError(a) {wxLogMessage(_T("error %s"),Tostd::string(a).c_str());}
+//#define ReportError(a) {wxLogMessage(\1;}
 
 void Tokenizer::EnterStream( std::istream &stream_, const std::string &name ) {
 	skip_eol = false;
@@ -299,7 +299,7 @@ void Node::Save( TDFWriter &/*unused*/ ) {
 }
 void Node::Load( Tokenizer &/*unused*/ ) {
 	/// nothing to load there.
-	//ASSERT_LOGIC(0,_T("this function should not be called."));
+    //ASSERT_LOGIC(0,\1;
 }
 
 /// ***********************************************************

@@ -94,9 +94,9 @@ class Node: public RefcountedContainer , public boost::noncopyable
 
  * Getting values:
 
- * PDataList game(root->Find(_T("GAME")))
- * if(!game.ok()){wxLogMessage(_T("Game tag is missing"));return false;}
- * std::string gamename=game->GetString(_T("Mapname"));
+ * PDataList game(root->Find(\1
+ * if(!game.ok()){wxLogMessage(\1;return false;}
+ * std::string gamename=game->GetString(\1;
 
  * (see optional parameters for setting default and knowing if it failed)
  * and so on and so forth.

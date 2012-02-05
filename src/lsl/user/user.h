@@ -47,7 +47,7 @@ public:
 	static std::string GetRankName(UserStatus::RankContainer rank);
 
     float GetBalanceRank() const;
-	UserStatus::RankContainer GetRank();
+    UserStatus::RankContainer GetRank() const;
 	std::string GetClan();
 
 	//bool operator< ( const ConstUserPtr other ) const { return m_nick < other.GetNick() ; }
