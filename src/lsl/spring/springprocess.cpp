@@ -8,7 +8,7 @@
 
 namespace LSL {
 
-SpringProcess::SpringProcess( const SpringPtr sp ) :
+SpringProcess::SpringProcess(const Spring &sp ) :
 		m_sp( sp ), m_exit_code( 0 )
 {}
 

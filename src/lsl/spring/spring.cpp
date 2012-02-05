@@ -210,29 +210,12 @@ bool Spring::LaunchSpring( const std::string& params  )
     cmd += "\" " + configfileflags + params;
 
     LslDebug( "spring call params: %s", cmd.c_str() );
+    if ( m_process == 0 )
+        m_process = new SpringProcess( *this );
+    m_process->Create();
+    m_process->SetCommand( cmd );
+    m_process->Run();
 
-#ifdef SL_QT_MODE
-    QMessageBox:: warning ( NULL, "CMD", QString(cmd.mb_str()));
-    qt_process_ = new QProcess;
-    qt_process_->setWorkingDirectory(QString(sett().GetCurrentUsedDataDir().mb_str()));
-    qt_process_->start(QString(cmd.mb_str()));
-    connect( qt_process_, SIGNAL(finished(int, QProcess::ExitStatus )), this, SLOT( OnStopped(int, QProcess::ExitStatus ) ) );
-    connect( qt_process_, SIGNAL(started()), this, SLOT( OnStarted() ) );
-#else
-    wxSetWorkingDirectory( sett().GetCurrentUsedDataDir() );
-    if ( sett().UseOldSpringLaunchMethod() )
-    {
-        if ( m_wx_process == 0 ) m_wx_process = new wxSpringProcess( *this );
-        if ( wxExecute( cmd , wxEXEC_ASYNC, m_wx_process ) == 0 ) return false;
-    }
-    else
-    {
-        if ( m_process == 0 ) m_process = new SpringProcess( *this );
-        m_process->Create();
-        m_process->SetCommand( cmd );
-        m_process->Run();
-    }
-#endif
     m_running = true;
     return true;
 }
@@ -243,42 +226,40 @@ void Spring::OnTerminated(int event )
     m_running = false;
 
     int exit_code = 0l;
-    sig_springStopped(exit_code);
+    sig_springStopped(exit_code,"");
 }
 
 
-std::string Spring::WriteScriptTxt( IBattle& battle ) const
+std::string Spring::WriteScriptTxt( const ConstIBattlePtr battle ) const
 {
-    wxLogMessage(_T("0 WriteScriptTxt called "));
+    std::stringstream ret;
 
-    std::string ret;
-
-    TDFWriter tdf(ret);
+    TDF::TDFWriter tdf(ret);
 
     // Start generating the script.
     tdf.EnterSection( _T("GAME") );
 
-    tdf.Append( _T("HostIP"), battle.GetHostIp() );
-    if ( battle.IsFounderMe() )
+    tdf.Append( _T("HostIP"), battleGetHostIp() );
+    if ( battle->IsFounderMe() )
     {
-        if ( battle.GetNatType() == NAT_Hole_punching ) tdf.Append( _T("HostPort"), battle.GetMyInternalUdpSourcePort() );
-        else tdf.Append(_T("HostPort"), battle.GetHostPort() );
+        if ( battle->GetNatType() == NAT_Hole_punching ) tdf.Append( _T("HostPort"), battle->GetMyInternalUdpSourcePort() );
+        else tdf.Append(_T("HostPort"), battle->GetHostPort() );
     }
     else
     {
-        tdf.Append( _T("HostPort"), battle.GetHostPort() );
-        if ( battle.GetNatType() == NAT_Hole_punching )
+        tdf.Append( _T("HostPort"), battle->GetHostPort() );
+        if ( battle->GetNatType() == NAT_Hole_punching )
         {
-            tdf.Append( _T("SourcePort"), battle.GetMyInternalUdpSourcePort() );
+            tdf.Append( _T("SourcePort"), battle->GetMyInternalUdpSourcePort() );
         }
         else if ( sett().GetClientPort() != 0)
         {
             tdf.Append( _T("SourcePort"), sett().GetClientPort() ); /// this allows to play with broken router by setting SourcePort to some forwarded port.
         }
     }
-    tdf.Append( _T("IsHost"), battle.IsFounderMe() );
+    tdf.Append( _T("IsHost"), battle->IsFounderMe() );
 
-    User& me = battle.GetMe();
+    const ConstUserPtr  me = battle->GetMe();
     tdf.Append(_T("MyPlayerName"), me.Nick() );
 
     if ( !me.BattleStatus().scriptPassword.empty() )
@@ -286,7 +267,7 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
         tdf.Append( _T("MyPasswd"), me.BattleStatus().scriptPassword );
     }
 
-    if ( !battle.IsFounderMe() )
+    if ( !battle->IsFounderMe() )
     {
         tdf.LeaveSection();
         return ret;
@@ -298,20 +279,20 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
 
     tdf.AppendLineBreak();
 
-    tdf.Append(_T("ModHash"), battle.LoadMod().hash );
-    tdf.Append(_T("MapHash"), battle.LoadMap().hash );
+    tdf.Append(_T("ModHash"), battle->LoadMod().hash );
+    tdf.Append(_T("MapHash"), battle->LoadMap().hash );
 
-    tdf.Append( _T("Mapname"), battle.GetHostMapName() );
-    tdf.Append( _T("GameType"), battle.GetHostModName() );
+    tdf.Append( _T("Mapname"), battle->GetHostMapName() );
+    tdf.Append( _T("GameType"), battle->GetHostModName() );
 
     tdf.AppendLineBreak();
 
-    switch ( battle.GetBattleType() )
+    switch ( battle->GetBattleType() )
     {
     case BT_Played: break;
     case BT_Replay:
     {
-        std::string path = battle.GetPlayBackFilePath();
+        std::string path = battle->GetPlayBackFilePath();
         if ( path.Find(_T("/")) != wxNOT_FOUND ) path.BeforeLast(_T('/'));
         tdf.Append( _T("DemoFile"), path );
         tdf.AppendLineBreak();
@@ -319,7 +300,7 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
     }
     case BT_Savegame:
     {
-        std::string path = battle.GetPlayBackFilePath();
+        std::string path = battle->GetPlayBackFilePath();
         if ( path.Find(_T("/")) != wxNOT_FOUND ) path.BeforeLast(_T('/'));
         tdf.Append( _T("Savefile"), path );
         tdf.AppendLineBreak();
@@ -330,17 +311,17 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
     }
 
     long startpostype;
-    battle.CustomBattleOptions().getSingleValue( _T("startpostype"), OptionsWrapper::EngineOption ).ToLong( &startpostype );
+    battle->CustomBattleOptions().getSingleValue( _T("startpostype"), OptionsWrapper::EngineOption ).ToLong( &startpostype );
 
     std::vector<StartPos> remap_positions;
-    if ( battle.IsProxy() && ( startpostype != IBattle::ST_Pick ) && ( startpostype != IBattle::ST_Choose ) )
+    if ( battle->IsProxy() && ( startpostype != IBattle::ST_Pick ) && ( startpostype != IBattle::ST_Choose ) )
     {
         std::set<int> parsedteams;
-        unsigned int NumUsers = battle.GetNumUsers();
+        unsigned int NumUsers = battle->GetNumUsers();
         unsigned int NumTeams = 0;
         for ( unsigned int i = 0; i < NumUsers; i++ )
         {
-            User& usr = battle.GetUser( i );
+            const ConstUserPtr  usr = battle->GetUser( i );
             UserBattleStatus& status = usr.BattleStatus();
             if ( status.spectator ) continue;
             if ( parsedteams.find( status.team ) != parsedteams.end() ) continue; // skip duplicates
@@ -348,7 +329,7 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
             NumTeams++;
         }
 
-        MapInfo infos = battle.LoadMap().info;
+        MapInfo infos = battle->LoadMap().info;
         unsigned int nummapstartpositions = infos.positions.size();
         unsigned int copysize = std::min( nummapstartpositions, NumTeams );
         remap_positions = std::vector<StartPos> ( infos.positions.begin(), infos.positions.begin() + copysize ); // only add the first x positions
@@ -359,7 +340,7 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
         }
 
     }
-    if ( battle.IsProxy() )
+    if ( battle->IsProxy() )
     {
         if ( ( startpostype == IBattle::ST_Random ) || ( startpostype == IBattle::ST_Fixed ) )
         {
@@ -370,7 +351,7 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
     else tdf.Append( _T("startpostype"), startpostype );
 
     tdf.EnterSection( _T("mapoptions") );
-    OptionsWrapper::std::stringTripleVec optlistMap = battle.CustomBattleOptions().getOptions( OptionsWrapper::MapOption );
+    OptionsWrapper::std::stringTripleVec optlistMap = battle->CustomBattleOptions().getOptions( OptionsWrapper::MapOption );
     for (OptionsWrapper::std::stringTripleVec::const_iterator it = optlistMap.begin(); it != optlistMap.end(); ++it)
     {
         tdf.Append(it->first,it->second.second);
@@ -380,14 +361,14 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
 
     tdf.EnterSection(_T("modoptions"));
     tdf.Append( _T("relayhoststartpostype"), startpostype ); // also save the original wanted setting
-    OptionsWrapper::std::stringTripleVec optlistMod = battle.CustomBattleOptions().getOptions( OptionsWrapper::ModOption );
+    OptionsWrapper::std::stringTripleVec optlistMod = battle->CustomBattleOptions().getOptions( OptionsWrapper::ModOption );
     for (OptionsWrapper::std::stringTripleVec::const_iterator it = optlistMod.begin(); it != optlistMod.end(); ++it)
     {
         tdf.Append(it->first,it->second.second);
     }
     tdf.LeaveSection();
 
-    std::map<std::string,int> units = battle.RestrictedUnits();
+    std::map<std::string,int> units = battle->RestrictedUnits();
     tdf.Append( _T("NumRestrictions"), units.size());
     tdf.EnterSection( _T("RESTRICT") );
     int restrictcount = 0;
@@ -402,30 +383,30 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
 
     tdf.AppendLineBreak();
 
-    if ( battle.IsProxy() )
+    if ( battle->IsProxy() )
     {
-        tdf.Append( _T("NumPlayers"), battle.GetNumPlayers() -1 );
-        tdf.Append( _T("NumUsers"), battle.GetNumUsers() -1 );
+        tdf.Append( _T("NumPlayers"), battle->GetNumPlayers() -1 );
+        tdf.Append( _T("NumUsers"), battle->GetNumUsers() -1 );
     }
     else
     {
-        tdf.Append( _T("NumPlayers"), battle.GetNumPlayers() );
-        tdf.Append( _T("NumUsers"), battle.GetNumUsers() );
+        tdf.Append( _T("NumPlayers"), battle->GetNumPlayers() );
+        tdf.Append( _T("NumUsers"), battle->GetNumUsers() );
     }
 
     tdf.AppendLineBreak();
 
-    unsigned int NumUsers = battle.GetNumUsers();
+    unsigned int NumUsers = battle->GetNumUsers();
 
     typedef std::map<int, int> ProgressiveTeamsVec;
     typedef ProgressiveTeamsVec::iterator ProgressiveTeamsVecIter;
     ProgressiveTeamsVec teams_to_sorted_teams; // original team -> progressive team
     int free_team = 0;
-    std::map<UserPtr, int> player_to_number; // player -> ordernumber
+    std::map<const ConstUserPtr, int> player_to_number; // player -> ordernumber
     srand ( time(NULL) );
     for ( unsigned int i = 0; i < NumUsers; i++ )
     {
-        User& user = battle.GetUser( i );
+        const ConstUserPtr  user = battle->GetUser( i );
         UserBattleStatus& status = user.BattleStatus();
         if ( !status.spectator )
         {
@@ -436,7 +417,7 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
                 free_team++;
             }
         }
-        if ( battle.IsProxy() && ( user.Nick() == battle.GetFounder().Nick() ) ) continue;
+        if ( battle->IsProxy() && ( user.Nick() == battle->GetFounder().Nick() ) ) continue;
         if ( status.IsBot() ) continue;
         tdf.EnterSection( _T("PLAYER") + Tostd::string( i ) );
         tdf.Append( _T("Name"), user.Nick() );
@@ -465,7 +446,7 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
     {
         for ( unsigned int i = 0; i < NumUsers; i++ )
         {
-            User& user = battle.GetUser( i );
+            const ConstUserPtr  user = battle->GetUser( i );
             UserBattleStatus& status = user.BattleStatus();
             if ( !status.IsBot() ) continue;
             tdf.EnterSection( _T("AI") + Tostd::string( i ) );
@@ -474,12 +455,12 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
             tdf.Append( _T("Version"), status.aiversion ); // AI libtype version
             tdf.Append( _T("Team"), teams_to_sorted_teams[status.team] );
             tdf.Append( _T("IsFromDemo"), int(status.isfromdemo) );
-            tdf.Append( _T("Host"), player_to_number[&battle.GetUser( status.owner )] );
+            tdf.Append( _T("Host"), player_to_number[battle->GetUser( status.owner )] );
             tdf.EnterSection( _T("Options") );
-            int optionmapindex = battle.CustomBattleOptions().GetAIOptionIndex( user.Nick() );
+            int optionmapindex = battle->CustomBattleOptions().GetAIOptionIndex( user.Nick() );
             if ( optionmapindex > 0 )
             {
-                OptionsWrapper::std::stringTripleVec optlistMod_ = battle.CustomBattleOptions().getOptions( (OptionsWrapper::GameOption)optionmapindex );
+                OptionsWrapper::std::stringTripleVec optlistMod_ = battle->CustomBattleOptions().getOptions( (OptionsWrapper::GameOption)optionmapindex );
                 for (OptionsWrapper::std::stringTripleVec::const_iterator it = optlistMod_.begin(); it != optlistMod_.end(); ++it)
                 {
                     tdf.Append(it->first,it->second.second);
@@ -494,10 +475,10 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
     tdf.AppendLineBreak();
 
     std::set<int> parsedteams;
-    StringVector sides = usync().GetSides( battle.GetHostModName() );
+    StringVector sides = usync().GetSides( battle->GetHostModName() );
     for ( unsigned int i = 0; i < NumUsers; i++ )
     {
-        User& usr = battle.GetUser( i );
+        const ConstUserPtr  usr = battle->GetUser( i );
         UserBattleStatus& status = usr.BattleStatus();
         if ( status.spectator ) continue;
         if ( parsedteams.find( status.team ) != parsedteams.end() ) continue; // skip duplicates
@@ -507,20 +488,20 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
         if ( !usync().VersionSupports( SpringUnitSync::USYNC_GetSkirmishAI ) && status.IsBot() )
         {
             tdf.Append( _T("AIDLL"), status.aishortname );
-            tdf.Append( _T("TeamLeader"), player_to_number[&battle.GetUser( status.owner )] ); // bot owner is the team leader
+            tdf.Append( _T("TeamLeader"), player_to_number[battle->GetUser( status.owner )] ); // bot owner is the team leader
         }
         else
         {
             if ( status.IsBot() )
             {
-                tdf.Append( _T("TeamLeader"), player_to_number[&battle.GetUser( status.owner )] );
+                tdf.Append( _T("TeamLeader"), player_to_number[battleGetUser( status.owner )] );
             }
             else
             {
                 tdf.Append( _T("TeamLeader"), player_to_number[&usr] );
             }
         }
-        if ( battle.IsProxy() )
+        if ( battle->IsProxy() )
         {
             if ( startpostype == IBattle::ST_Pick )
             {
@@ -563,14 +544,14 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
 
     tdf.AppendLineBreak();
 
-    unsigned int maxiter = std::max( NumUsers, battle.GetLastRectIdx() + 1 );
+    unsigned int maxiter = std::max( NumUsers, battleGetLastRectIdx() + 1 );
     std::set<int> parsedallys;
     for ( unsigned int i = 0; i < maxiter; i++ )
     {
 
-        User& usr = battle.GetUser( i );
+        const ConstUserPtr  usr = battleGetUser( i );
         UserBattleStatus& status = usr.BattleStatus();
-        BattleStartRect sr = battle.GetStartRect( i );
+        BattleStartRect sr = battleGetStartRect( i );
         if ( status.spectator && !sr.IsOk() )
             continue;
         int ally = status.ally;
@@ -578,7 +559,7 @@ std::string Spring::WriteScriptTxt( IBattle& battle ) const
             ally = i;
         if ( parsedallys.find( ally ) != parsedallys.end() )
             continue; // skip duplicates
-        sr = battle.GetStartRect( ally );
+        sr = battleGetStartRect( ally );
         parsedallys.insert( ally );
 
         tdf.EnterSection( _T("ALLYTEAM") + Tostd::string( ally ) );

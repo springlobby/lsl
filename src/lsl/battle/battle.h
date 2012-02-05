@@ -5,6 +5,7 @@
     \copyright GPL v2 **/
 
 #include <set>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <lslutils/type_forwards.h>
 #include "ibattle.h"
@@ -21,7 +22,7 @@ namespace Battle {
 
 /** \brief model of a multiplayer battle
 * \todo DOCME */
-class Battle : public IBattle
+class Battle : public IBattle, public boost::enable_shared_from_this<Battle>
 {
 public:
     Battle(IServerPtr serv, int id );

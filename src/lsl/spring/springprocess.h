@@ -6,20 +6,23 @@
 
 namespace LSL {
 
+class Spring;
+
 class SpringProcess
 {
   public:
-    SpringProcess( const SpringPtr sp );
+    SpringProcess( const Spring& sp );
     ~SpringProcess();
 
     void OnExit();
 
     void SetCommand( const std::string& cmd );
 
-    int Entry();
+    void Create() {}
+    void Run() {}
 
   protected:
-    const SpringPtr m_sp;
+    const Spring& m_sp;
     std::string m_cmd;
     int m_exit_code;
 };
