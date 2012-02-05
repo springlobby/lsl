@@ -1,16 +1,14 @@
 #ifndef SPRINGLOBBY_HEADERGUARD_SPRING_H
 #define SPRINGLOBBY_HEADERGUARD_SPRING_H
 
-class IBattle;
-class SinglePlayerBattle;
-class NoGuiSinglePlayerBattle;
-class OfflineBattle;
-class Battle;
-class SpringProcess;
-class wxSpringProcess;
-class wxString;
-class ScriptedSinglePlayerBattle;
+#include <lslutils/type_forwards.h>
+#include <boost/signals2.hpp>
 
+namespace LSL {
+namespace Battle {
+class OfflineBattle;
+}
+class SpringProcess;
 
 class Spring
 {
@@ -19,40 +17,37 @@ class Spring
     ~Spring();
 
     bool IsRunning() const;
-    bool Run( Battle& battle );
-    bool Run( SinglePlayerBattle& battle );
-    bool Run( NoGuiSinglePlayerBattle& battle );
-    bool Run( OfflineBattle& battle );
-    bool RunScript(const wxString& script );
-
-    //! executes spring with replay as parameter
-    /*!
-     * \param filename the full path for the replayfile
+    /**
+     * @brief executes spring with abs path to script
+     * @param script
+     * @return true on launch success, false otherwise
      */
-    bool RunReplay ( const wxString& filename );
+    bool Run( const std::string& script );
+    bool Run( const BattlePtr battle );
+    bool Run( Battle::OfflineBattle& battle );
 
-    wxString WriteScriptTxt( IBattle& battle ) const;
-    void OnTerminated( wxCommandEvent& event );
+    /** @brief executes spring with replay abs path
+     * @param filename the full path for the replayfile
+     * @return true on launch success, false otherwise
+     **/
+    bool RunReplay ( const std::string& filename );
 
-#ifdef SL_QT_MODE
-public slots:
-	void OnStopped( int exitCode, QProcess::ExitStatus exitStatus );
-	void OnStarted();
-signals:
-	void springStarted();
-	void springStopped();
-private:
-	QProcess* qt_process_;
-#endif
+    std::string WriteScriptTxt( const ConstIBattlePtr battle ) const;
+    void OnTerminated( int event );
 
-  protected:
-		bool LaunchSpring( const wxString& params );
+    boost::signals2::signal<void (int,std::string)> sig_springStopped;
+    boost::signals2::signal<void ()> sig_springStarted;
+
+protected:
+    bool LaunchSpring( const std::string& params );
 
     SpringProcess* m_process;
     bool m_running;
 };
 
 Spring& spring();
+
+} // namespace LSL {
 
 #endif // SPRINGLOBBY_HEADERGUARD_SPRING_H
 

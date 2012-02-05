@@ -124,22 +124,25 @@ ContainerBase<T>::Vectorize()
     return ret;
 }
 
+template < class PtrType >
+struct map_data_compare
+{
+    const PtrType ptr_;
+    map_data_compare( const PtrType ptr ) : ptr_(ptr) {}
+    template < class PairType >
+    bool operator() ( const PairType& pair ) const
+    {
+        return pair.second == ptr_;
+    }
+};
+
 template < class T >
 bool ContainerBase<T>::Exists( const ConstPointerType ptr ) const
 {
-    struct map_data_compare : public std::binary_function<typename MapType::value_type,
-                                                          typename MapType::mapped_type,
-                                                          bool>
-    {
-    public:
-        bool operator() (typename MapType::value_type &pair,
-                         typename MapType::mapped_type i) const
-        {
-            return pair.second == i;
-        }
-    };
+    typedef ContainerBase<T>::ConstPointerType
+            PP;
     return end() != std::find_if( begin(), end(),
-                                  std::bind2nd(map_data_compare(), ptr) );
+                                  map_data_compare<PP>(ptr) );
 }
 
 }

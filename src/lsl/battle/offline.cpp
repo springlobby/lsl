@@ -1,12 +1,11 @@
-#include "offlinebattle.h"
+#include "offline.h"
 #include "spring.h"
-#include "ui.h"
 
-#include <wx/timer.h>
+namespace LSL {
 
 OfflineBattle::OfflineBattle(  const int id  ):
 m_id( id ),
-m_me( User(_T("Spectator")) )
+m_me( new User( "Spectator" ) )
 {
 	m_opts.founder = m_me.GetNick();
 	OnUserAdded( m_me );
@@ -71,3 +70,5 @@ OfflineBattle& OfflineBattle::operator = ( const OfflineBattle& other )
     m_timer = new wxTimer( other.m_timer ); //!no idea if this is proper
     return *this;
 }
+
+} // namespace LSL {

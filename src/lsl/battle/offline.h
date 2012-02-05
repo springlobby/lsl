@@ -3,6 +3,9 @@
 
 #include "ibattle.h"
 
+namespace LSL {
+namespace Battle {
+
 class OfflineBattle : public IBattle
 {
 	public:
@@ -11,15 +14,18 @@ class OfflineBattle : public IBattle
 			OfflineBattle ( const OfflineBattle&  );
 			OfflineBattle& operator = ( const OfflineBattle&  );
 			~OfflineBattle (){}
-			User& GetMe() { return m_me; }
-            const User& GetMe() const { return m_me; }
+            virtual const UserPtr GetMe() { return m_me; }
+            virtual const ConstUserPtr GetMe() const { return m_me; }
 			bool IsFounderMe() const { return true; }
 			void StartSpring();
 
 	protected:
 			int m_id;
-			User m_me;
+            UserPtr m_me;
 };
+
+} // namespace Battle {
+} // namespace LSL {
 
 #endif // OFFLINEBATTLE_H_INCLUDED
 

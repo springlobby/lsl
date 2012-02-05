@@ -9,9 +9,13 @@
 #include <fstream>
 #include <iomanip>
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 
+#define ASSERT_LOGIC(...)   do {} while(0)
 
 namespace LSL { namespace TDF {
+
+namespace BA = boost::algorithm;
 
 TDFWriter::TDFWriter(std::stringstream &s ):
 		m_stream( s ),
@@ -48,7 +52,7 @@ void TDFWriter::Close() {
 	while ( m_depth > 0 )
 		LeaveSection();
 	if ( m_depth < 0 ) {
-        wxLogWarning( "error in TDFWriter usage: more LeaveSection() calls than EnterSection(). Please contact springlobby developers" );
+        LslError( "error in TDFWriter usage: more LeaveSection() calls than EnterSection(). Please contact springlobby developers" );
 	}
 }
 
@@ -57,7 +61,7 @@ void TDFWriter::AppendLineBreak() {
 }
 
 void Tokenizer::ReportError( const Token &t, const std::string &err ) {
-    wxLogMessage( "TDF parsing error at (%s), on token \"%s\" : %s", t.pos_string.c_str(), t.value_s.c_str(), err.c_str() );
+    LslError( "TDF parsing error at (%s), on token \"%s\" : %s", t.pos_string.c_str(), t.value_s.c_str(), err.c_str() );
 	errors++;
 }
 
@@ -116,8 +120,6 @@ void Tokenizer::ReadToken( Token &token ) {
 start:
 
 	SkipSpaces();
-
-
 	token.value_s.clear();
 
 	if ( !Good() ) {
@@ -126,9 +128,11 @@ start:
 		return;
 	}
 
-	token.pos_string = std::string();
-    if ( !include_stack.empty() && !include_stack.back().name.empty() )token.pos_string << include_stack.back().name << " , ";
-    token.pos_string << "line " << include_stack.back().line << " , column " << include_stack.back().column;
+    std::stringstream token_tmp;
+    if ( !include_stack.empty() && !include_stack.back().name.empty() )
+        token_tmp << include_stack.back().name << " , ";
+    token_tmp << "line " << include_stack.back().line << " , column " << include_stack.back().column;
+    token.pos_string = token_tmp.str();
 
 	char c = GetNextChar();
 	token.value_s += c;
@@ -324,7 +328,7 @@ DataList::~DataList() {// disconnect from childs
 bool DataList::Insert( PNode node )/// return false if such entry already exists.
 {
 	if ( !node.Ok() )return false;
-	bool inserted = nodes.insert( std::pair<std::string, PNode>( ( *node ).name.Lower(), node ) ).second;
+    bool inserted = nodes.insert( std::pair<std::string, PNode>( BA::to_lower_copy( node->name ), node ) ).second;
 	if ( !inserted )return false;
 
 	node->parent = this;
@@ -344,11 +348,7 @@ bool DataList::InsertAt( PNode node, PNode where )/// return false if such entry
 	return true;
 }
 
-#ifdef use_std_string
 static const char* rename_prefix = "!";
-#else
-static const wxChar* rename_prefix = "!";
-#endif
 
 void DataList::InsertRename( PNode node ) {/// rename if such entry already exists. str contains new name.
 	if ( !node.Ok() )return;
@@ -357,22 +357,14 @@ void DataList::InsertRename( PNode node ) {/// rename if such entry already exis
 		std::string original_name = node->Name();
 		for ( int n = 0;n < 10000;++n ) {
 			//std::string tmp=str+std::string(rename_prefix);
-#ifdef use_std_string
 			std::ostringstream os;
 			os << original_name << rename_prefix << n;
 			node->name = os.str();
-#else
-			std::string tmp;
-			tmp << original_name;
-			tmp << rename_prefix;
-			tmp << n;
-			node->name = tmp;
-#endif
 			if ( Insert( node ) ) {
 				return;
 			}
 		}
-        wxLogError( "insertRename: iterated over 10 000 names, way too many" );
+        LslError( "insertRename: iterated over 10 000 names, way too many" );
 	}
 }
 
@@ -382,23 +374,14 @@ void DataList::InsertRenameAt( PNode node, PNode where ) {// rename if such entr
 
 	if ( !InsertAt( node, where ) ) {
 		for ( int n = 0;n < 10000;++n ) {
-
-#ifdef use_std_string
 			std::ostringstream os;
 			os << node->Name() << rename_prefix << n;
 			node->name = os.str();
-#else
-			std::string tmp;
-			tmp << ( node->Name() );
-			tmp << rename_prefix;
-			tmp << n;
-			node->name = tmp;
-#endif
 			if ( InsertAt( node, where ) ) {
 				return;
 			}
 		}
-        wxLogError( "insertRename: iterated over 10 000 names, way too many" );
+        LslError( "insertRename: iterated over 10 000 names, way too many" );
 	}
 }
 
@@ -406,7 +389,7 @@ bool DataList::Remove( const std::string &str ) {
 	//PNode node=nodes.find(str.Lower())->last;
 	PNode node = Find( str );
 	if ( !node.Ok() )return false;
-	if ( nodes.erase( str.Lower() ) <= 0 ) return false;
+    if ( nodes.erase( BA::to_lower_copy( str ) ) <= 0 ) return false;
 
 	node->parent = NULL;
 	node->ListRemove();
@@ -415,7 +398,7 @@ bool DataList::Remove( const std::string &str ) {
 
 bool DataList::Remove( PNode node ) {
 	if ( !node.Ok() )return false;
-	if ( nodes.erase( node->Name().Lower() ) <= 0 ) return false;
+    if ( nodes.erase( BA::to_lower_copy( node->Name() ) ) <= 0 ) return false;
 
 	node->parent = NULL;
 	node->ListRemove();
@@ -424,17 +407,17 @@ bool DataList::Remove( PNode node ) {
 
 bool DataList::Rename( const std::string &old_name, const std::string &new_name ) {
 	// check that new name is not used up.
-	if ( nodes.find( new_name.Lower() ) != nodes.end() )return false;
-	nodes_iterator i = nodes.find( old_name.Lower() );
+    if ( nodes.find( BA::to_lower_copy( new_name ) ) != nodes.end() )return false;
+    nodes_iterator i = nodes.find( BA::to_lower_copy( old_name ) );
 	if ( i == nodes.end() )return false;
 	PNode node = i->second;
 
     ASSERT_LOGIC( node.Ok(), "Internal TDF tree consistency (1)" );
     ASSERT_LOGIC( node->Name().Lower() == old_name.Lower(), "Internal TDF tree consistency (2)" );
 
-	node->name = new_name.Lower();
+    node->name = BA::to_lower_copy( new_name );
 	nodes.erase( i );
-	bool inserted = nodes.insert( std::pair<std::string, PNode>( ( *node ).name.Lower(), node ) ).second;
+    bool inserted = nodes.insert( std::pair<std::string, PNode>( BA::to_lower_copy( node->name ), node ) ).second;
     ASSERT_LOGIC( inserted, "DataList::Rename failed" );
 	return inserted;
 }
@@ -443,9 +426,9 @@ bool DataList::Rename( const std::string &old_name, const std::string &new_name 
 PNode DataList::Find( const std::string &str ) {
     if ( str == ".." )return Parent();
     if ( str == "." )return this;
-	nodes_iterator i = nodes.find( str.Lower() );
+    nodes_iterator i = nodes.find( BA::to_lower_copy( str ) );
 	if ( i != nodes.end() ) {
-        ASSERT_LOGIC( i->second->Name().Lower() == str.Lower(), "Internal TDF tree consistency (3)" );
+        ASSERT_LOGIC( BA::to_lower_copy( i->second->Name() ) == BA::to_lower_copy( str ), "Internal TDF tree consistency (3)" );
 		return i->second;
 	}
 	return NULL;
@@ -620,13 +603,7 @@ int DataList::GetInt( const std::string &f_name, int default_value, bool *it_wor
 		return default_value;
 	}
 	std::string s = leaf->GetValue();
-	long result = default_value;
-	if ( !s.ToLong( &result ) ) {
-		if ( it_worked ) {
-			*it_worked = false;
-		}
-		return result;
-	}
+    long result =Util::FromString<long>( s );
 	if ( it_worked ) {
 		*it_worked = true;
 	}
@@ -641,18 +618,11 @@ double DataList::GetDouble( const std::string &f_name, double default_value, boo
 		return default_value;
 	}
 	std::string s = leaf->GetValue();
-	double result = default_value;
-	if ( !s.ToDouble( &result ) ) {
-		if ( it_worked ) {
-			*it_worked = false;
-		}
-		return result;
-	}
+    double result =Util::FromString<double>( s );
 	if ( it_worked ) {
 		*it_worked = true;
 	}
 	return result;
-
 }
 std::string DataList::GetString( const std::string &f_name, const std::string &default_value, bool *it_worked ) {
 	PDataLeaf leaf( Find( f_name ) );
@@ -672,12 +642,14 @@ int DataList::GetDoubleArray( const std::string &f_name, int n_values, double *v
 	if ( !leaf.ok() ) {
 		return 0;
 	}
-	std::stringTokenizer tok( leaf->GetValue() );
+    //! TODO seperator?
+    StringVector tokens = Util::StringTokenize( leaf->GetValue(), "\n" );
 	int i = 0;
 	int values_read = 0;
-	for ( i = 0;i < n_values && tok.HasMoreTokens();++i ) {
-		std::string s = tok.GetNextToken();
-		if ( s.ToDouble( values + i ) )values_read++;
+    for ( i = 0;i < n_values && tokens.size(); ++i ) {
+        std::string s = tokens[i];
+        double d = Util::FromString<double>( s );
+        values_read++;
 	}
 	return values_read;
 }
@@ -719,7 +691,7 @@ void DataLeaf::Load( Tokenizer &f ) {
 PDataList ParseTDF( std::istream &s, int *error_count ) {
 	Tokenizer t;
 	t.EnterStream( s );
-	SL::PDataList result( new SL::DataList );
+    PDataList result( new DataList );
 	result->Load( t );
 	if ( error_count ) {
 		*error_count = t.NumErrors();

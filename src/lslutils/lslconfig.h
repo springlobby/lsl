@@ -29,6 +29,9 @@ public:
     STR_DUMMY( GetCachePath )
     STR_DUMMY( GetForcedSpringConfigFilePath )
     STR_DUMMY( GetCurrentUsedUnitSync )
+    STR_DUMMY( GetCurrentUsedDataDir )
+    STR_DUMMY( GetCurrentUsedSpringBinary )
+    STR_DUMMY( GetCurrentUsedSpringConfigFilePath )
     std::string GetCurrentUsedUnitSync() { return "/usr/lib/spring/libunitsync.so";}
 	StringVector GetPresetList() { return StringVector(); }
     StringMap GetHostingPreset( const std::string&, size_t ) { return StringMap(); }

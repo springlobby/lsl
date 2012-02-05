@@ -93,7 +93,7 @@ public:
 
     void SetImReady( bool ready );
 
-    UserPtr GetMe();
+    const UserPtr GetMe();
     const ConstUserPtr GetMe() const;
 
     void UserPositionChanged( const UserPtr user );

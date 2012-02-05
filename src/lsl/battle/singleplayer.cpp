@@ -1,24 +1,24 @@
 /* Copyright (C) 2007 The SpringLobby Team. All rights reserved. */
 
 #include <stdexcept>
-#include <wx/log.h>
+#include <lslutils/logging.h>
 
-#include "singleplayerbattle.h"
-#include "mainsingleplayertab.h"
-#include "server.h"
-#include "ui.h"
-#include "settings.h"
-#include "spring.h"
-#include "springunitsynclib.h"
-#include "utils/conversion.h"
+#include "singleplayer.h"
+#include <lsl/networking/tasserver.h>
+#include <lslutils/lslconfig.h>
+#include <lsl/spring/spring.h>
+#include <lslutils/conversion.h>
+#include <unitsync++/unitsync.h>
+
+namespace LSL {
 
 SinglePlayerBattle::SinglePlayerBattle( MainSinglePlayerTab& msptab ):
   m_sptab(msptab),
-  m_me( User( usync().IsLoaded() ? usync().GetDefaultNick() : _T("invalid") ) )
+  m_me( new User( usync().IsLoaded() ? usync().GetDefaultNick() : _T("invalid") ) )
 {
 	OnUserAdded( m_me );
 	m_me.BattleStatus().side = sett().GetBattleLastSideSel( GetHostModName() );
-	m_me.BattleStatus().colour = sett().GetBattleLastColour();
+	m_me.BattleStatus().color = sett().GetBattleLastColour();
 	CustomBattleOptions().setSingleOption( _T("startpostype"), wxFormat(_T("%d") ) % ST_Pick, OptionsWrapper::EngineOption );
 }
 
@@ -43,8 +43,8 @@ void SinglePlayerBattle::SendHostInfo( HostInfo update )
   {
     RemoveUnfittingBots();
 	LoadMod();
-    wxString presetname = sett().GetModDefaultPresetName( GetHostModName() );
-    if ( !presetname.IsEmpty() )
+    std::string presetname = sett().GetModDefaultPresetName( GetHostModName() );
+    if ( !presetname.empty() )
     {
       LoadOptionsPreset( presetname );
       SendHostInfo( HI_Send_All_opts );
@@ -56,8 +56,8 @@ void SinglePlayerBattle::SendHostInfo( HostInfo update )
   {
     for ( int i = 0; i < (int)OptionsWrapper::LastOption; i++)
     {
-      const std::map<wxString,wxString>& options = CustomBattleOptions().getOptionsMap( (OptionsWrapper::GameOption)i );
-      for ( std::map<wxString,wxString>::const_iterator itor = options.begin(); itor != options.end(); ++itor )
+      const std::map<std::string,std::string>& options = CustomBattleOptions().getOptionsMap( (OptionsWrapper::GameOption)i );
+      for ( std::map<std::string,std::string>::const_iterator itor = options.begin(); itor != options.end(); ++itor )
       {
 		Update(  wxFormat(_T("%d_%s") ) % i % itor->first );
       }
@@ -67,8 +67,8 @@ void SinglePlayerBattle::SendHostInfo( HostInfo update )
 
 void SinglePlayerBattle::RemoveUnfittingBots()
 {
-    wxArrayString old_ais = usync().GetAIList( m_previous_local_mod_name );
-    wxArrayString new_ais = usync().GetAIList( m_local_mod.name );
+    StringVector old_ais = usync().GetAIList( m_previous_local_mod_name );
+    StringVector new_ais = usync().GetAIList( m_local_mod.name );
     for ( size_t i = 0; i < old_ais.GetCount(); ++i) {
         if ( new_ais.Index(old_ais[i]) == wxNOT_FOUND  ) {
             for( size_t j = 0; j < GetNumUsers(); ++j  ) {
@@ -80,7 +80,7 @@ void SinglePlayerBattle::RemoveUnfittingBots()
     }
 }
 
-void SinglePlayerBattle::Update( const wxString& Tag )
+void SinglePlayerBattle::Update( const std::string& Tag )
 {
   m_sptab.UpdateTag( Tag );
 }
@@ -91,4 +91,4 @@ void SinglePlayerBattle::StartSpring()
 	ui().OnSpringStarting();
 }
 
-
+} // namespace LSL {

@@ -185,7 +185,7 @@ public:
 
 	virtual int GetFreeTeam( bool excludeme = false ) const;
 
-	virtual UserPtr GetMe() = 0;
+    virtual const UserPtr GetMe() = 0;
 	virtual const ConstUserPtr GetMe() const = 0;
     virtual void SetChannel( const ChannelPtr channel ) = 0;
     virtual const ChannelPtr GetChannel() = 0;

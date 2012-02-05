@@ -48,6 +48,7 @@ class UserBattleStatus;
 class UserPosition;
 class OptionsWrapper;
 struct GameOptions;
+class Spring;
 
 typedef std::map< std::string, std::string> StringMap;
 typedef std::vector< std::string > StringVector;
@@ -76,6 +77,7 @@ typedef std::vector< ConstUserPtr > ConstUserVector;
 typedef boost::shared_ptr< OptionsWrapper > OptionsWrapperPtr;
 typedef boost::shared_ptr< const OptionsWrapper > ConstOptionsWrapperPtr;
 
+typedef boost::shared_ptr< Spring > SpringPtr;
 
 class mmOptionBool;
 class mmOptionFloat;

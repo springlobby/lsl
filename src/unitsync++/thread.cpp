@@ -79,7 +79,7 @@ void WorkerThread::operator()()
     while ( true ) {
         WorkItem* item = NULL;
         boost::unique_lock<boost::mutex> lock(m_mutex);
-        while ( item = m_workItems.Pop() ) {
+        while ( (item = m_workItems.Pop()) ) {
             try {
                 LslDebug( "running WorkItem %p, prio = %d", item, item->m_priority );
                 item->Run();

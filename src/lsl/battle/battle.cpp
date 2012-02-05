@@ -7,6 +7,7 @@
 #include "battle.h"
 #include "signals.h"
 
+#include <boost/make_shared.hpp>
 #include <lsl/networking/iserver.h>
 #include <lsl/user/user.h>
 #include <lslutils/misc.h>
@@ -14,6 +15,7 @@
 #include <lslutils/logging.h>
 #include <lslutils/conversion.h>
 #include <lslutils/lslconfig.h>
+#include <lsl/spring/spring.h>
 #include <unitsync++/optionswrapper.h>
 
 #define ASSERT_LOGIC(...)   do {} while(0)
@@ -120,7 +122,12 @@ void Battle::SetLocalMap( const UnitsyncMap& map )
     if ( IsFounderMe() )  LoadMapDefaults( map.name );
 }
 
-UserPtr Battle::GetMe()
+const UserPtr Battle::GetMe()
+{
+    return m_serv->GetMe();
+}
+
+const ConstUserPtr Battle::GetMe() const
 {
     return m_serv->GetMe();
 }
@@ -635,11 +642,13 @@ void Battle::StartSpring()
         SendMyBattleStatus();
         // set m_generating_script, this will make the script.txt writer realize we're just clients even if using a relayhost
         m_generating_script = true;
-        me->Status().in_game = spring().Run( *this );
+//        auto p = boost::make_shared<Battle>( this );
+        boost::shared_ptr<Battle> b_ptr( this );
+        me->Status().in_game = spring().Run( b_ptr );
         m_generating_script = false;
         me->SendMyUserStatus();
     }
-    ui().OnBattleStarted( *this );
+//    ui().OnBattleStarted( *this );
 }
 
 void Battle::OnTimer( const boost::system::error_code& error  )
