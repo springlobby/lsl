@@ -60,12 +60,6 @@ ENDIF(NOT CMAKE_CROSSCOMPILING)
 
 # If we build for windows Systems, we also include the Resource-File containing the Manifest, Icon and other Resources.
 IF(WIN32)
-	IF(MINGW OR CMAKE_CROSSCOMPILING)
-		FIND_PROGRAM(WINDRES NAMES i586-pc-mingw32-windres windres i686-mingw32-windres DOC "path to mingw's windres executable")
-		ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sl_icon.o COMMAND ${WINDRES} -I${libSpringLobby_SOURCE_DIR}/src -I${wxWidgets_RC_DIR} -i${libSpringLobby_SOURCE_DIR}/src/libSpringLobby.rc -o ${CMAKE_CURRENT_BINARY_DIR}/sl_icon.o)
-		SET(libSpringLobby_RC_FILE ${CMAKE_CURRENT_BINARY_DIR}/sl_icon.o )
-	ENDIF(MINGW OR CMAKE_CROSSCOMPILING)
-
 	SET(libSpringLobbySrc ${libSpringLobbySrc} src/libSpringLobby.rc)
 ENDIF(WIN32)
 
