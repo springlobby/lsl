@@ -73,16 +73,15 @@ class iServer
     boost::signals2::signal<void (int)> sig_MyInternalUdpSourcePort;
 
 	// Server interface
-	virtual bool ExecuteSayCommand( const std::string& cmd ) = 0;
-
-	virtual bool Register( const std::string& addr, const int port, const std::string& nick, const std::string& password,std::string& reason ) = 0;
+//	virtual bool ExecuteSayCommand( const std::string& cmd ) = 0;
+    virtual int Register( const std::string& addr, const int port, const std::string& nick, const std::string& password,std::string& reason ) = 0;
 	virtual void AcceptAgreement() = 0;
 
 	void Connect( const std::string& servername, const std::string& addr, const int port );
     void Disconnect(const std::string& reason);
     bool IsConnected();
 
-	virtual void Login() = 0;
+    virtual void Login( const std::string& user, const std::string& password) = 0;
 	virtual void Logout() = 0;
 	bool IsOnline()  const ;
 
@@ -98,7 +97,7 @@ class iServer
 	virtual void SayPrivate( const UserPtr user, const std::string& msg ) ;
 	virtual void SayPrivate( const std::string& user, const std::string& msg ) = 0;
 	virtual void DoActionPrivate( const UserPtr user, const std::string& msg );
-	virtual void DoActionPrivate( const std::string& user, const std::string& msg ) = 0;
+    virtual void DoActionPrivate( const std::string& user, const std::string& msg ) = 0;
 
 	virtual void SayBattle( const int battle_id, const std::string& msg ) = 0;
 	virtual void DoActionBattle( const int battle_id, const std::string& msg ) = 0;

@@ -115,7 +115,8 @@ void TASServer::GetLastUserIP(const std::string& user)
 	SendCmd( "GETLASTIP", user );
 }
 
-int TASServer::Register( const std::string& addr, const int port, const std::string& nick, const std::string& password )
+int TASServer::Register( const std::string& addr, const int port, const std::string& nick,
+                         const std::string& password, std::string& reason )
 {
 	assert( false );
 #if 0
@@ -135,7 +136,7 @@ int TASServer::Register( const std::string& addr, const int port, const std::str
 
 	data = tempsocket.Receive().BeforeLast('\n');
 	tempsocket.Disconnect();
-	if ( data.find( "\r" ) != -1 ) data = data.BeforeLast('\r');
+    if ( data.find( "\r" ) != std::string::npos ) data = data.BeforeLast('\r');
 	if ( data.length() > 0 )
 	{
 		return 1;
@@ -147,6 +148,7 @@ int TASServer::Register( const std::string& addr, const int port, const std::str
 	}
 	else if ( cmd == "REGISTRATIONDENIED" )
 	{
+        reason = data;
 		return 2;
 	}
 #endif

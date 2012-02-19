@@ -20,7 +20,7 @@ public:
 	void Login(const std::string& user, const std::string& password);
 	std::string GetPasswordHash(const std::string& pass) const;
 	bool IsPasswordHash(const std::string& pass) const;
-	int Register(const std::string& addr, const int port, const std::string& nick, const std::string& password);
+    int Register(const std::string& addr, const int port, const std::string& nick, const std::string& password, std::string& reason);
 	void GetLastUserIP(const std::string& user);
 	void GetUserIP(const std::string& user);
 	void GetLastLoginTime(const std::string& user);
