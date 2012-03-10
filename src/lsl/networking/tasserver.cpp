@@ -20,20 +20,19 @@ namespace LSL {
 
 ServerImpl::ServerImpl(Server *serv)
 	: m_cmd_dict( new CommandDictionary(this) )
-    , m_account_id_count(0)
-    , m_sock( new Socket() ),
-    m_keepalive(15),
-        m_ping_timeout(40),
-        m_ping_interval(10),
-        m_server_rate_limit(800),
-        m_message_size_limit(1024),
-        m_connected(false),
-        m_online(false),
-        //m_impl->m_last_udp_ping(0),
-        m_udp_private_port(0),
-        m_udp_reply_timeout(0),
-        m_buffer(""),
-        m_iface( serv )
+    , m_sock( new Socket() )
+    , m_keepalive(15)
+    , m_ping_timeout(40)
+    , m_ping_interval(10)
+    , m_server_rate_limit(800)
+    , m_message_size_limit(1024)
+    , m_connected(false)
+    , m_online(false)
+    //, m_impl->m_last_udp_ping(0)
+    , m_udp_private_port(0)
+    , m_udp_reply_timeout(0)
+    , m_buffer("")
+    , m_iface( serv )
 {
     m_sock->sig_dataReceived.connect( boost::bind( &ServerImpl::ExecuteCommand, this, _1, _2 ) );
 }
@@ -109,9 +108,14 @@ void ServerImpl::Rename(const std::string& newnick)
 
 void ServerImpl::_Disconnect(const std::string& reason)
 {
-	SendCmd( "EXIT", reason ); // EXIT command for new protocol compatibility
+    SendCmd( "EXIT", reason ); // EXIT command for new protocol compatibility
 }
 
+void ServerImpl::Ping()
+{
+    SendCmd("PING");
+    GetPingList()[GetLastPingID()] = time(0);
+}
 
 void ServerImpl::GetLastLoginTime(const std::string& user)
 {
@@ -238,11 +242,6 @@ void ServerImpl::SendCmd( const std::string& command, const std::string& param )
 //	sig_SentMessage(send_success, msg, GetLastID());
 }
 
-void ServerImpl::SendPing()
-{
-	SendCmd( "PING" );
-}
-
 void ServerImpl::JoinChannel( const std::string& channel, const std::string& key )
 {
 	//JOIN channame [key]
@@ -357,7 +356,7 @@ void ServerImpl::AdminSetBotMode( const std::string& nick, bool isbot )
 	SendCmd( "SETBOTMODE", nick + " " + (isbot?"1":"0") );
 }
 
-void ServerImpl::_HostBattle( Battle::BattleOptions bo )
+void ServerImpl::HostBattle( Battle::BattleOptions bo )
 {
     boost::format cmd( "0 %d %s %d %d %s %d %s %s\t%s\t");
     cmd % bo.nattype
@@ -383,7 +382,7 @@ void ServerImpl::_HostBattle( Battle::BattleOptions bo )
 	// OPENBATTLE type natType password port maphash {map} {title} {modname}
 }
 
-void ServerImpl::_JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword )
+void ServerImpl::JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword )
 {
     SendCmd( "JOINBATTLE", Util::ToString(battle->Id()) + " " + password + " " + scriptpassword );
 }
@@ -548,12 +547,19 @@ void ServerImpl::SendRaw( const std::string& raw )
 
 void ServerImpl::RequestInGameTime( const std::string& nick )
 {
-	SendCmd( "GETINGAMETIME", nick );
+    SendCmd( "GETINGAMETIME", nick );
+}
+
+BattlePtr ServerImpl::AddBattle(const int &id)
+{
+    BattlePtr b( new Battle::Battle(m_iface->shared_from_this(), id) );
+    m_battles.Add(b);
+    return b;
 }
 
 void ServerImpl::StartHostedBattle()
 {
-
+    assert(false);
 }
 
 void ServerImpl::RequestSpringUpdate(std::string& currentspringversion)
@@ -574,10 +580,15 @@ void ServerImpl::OnAcceptAgreement()
 
 void ServerImpl::OnNewUser( const std::string& nick, const std::string& country, int cpu, int id )
 {
-    if ( !id ) id = GetNewUserId();
-    const std::string str_id = Util::ToString( id );
+    std::string str_id;
+    if ( !id )
+        str_id = Util::ToString(id);
+    else
+        str_id = User::GetNewUserId();
     UserPtr user = m_users.Get( str_id );
-    if ( !user ) user = m_iface->AddUser( id );
+    if ( !user )  {
+        user = UserPtr( new User( m_iface->shared_from_this(), str_id, nick, country, cpu ) );
+    }
 	user->SetCountry( country );
 	user->SetCpu( cpu );
 	user->SetNick( nick );
@@ -596,7 +607,7 @@ void ServerImpl::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType na
 								   bool haspass, int rank, const std::string& maphash, const std::string& map,
 								   const std::string& title, const std::string& mod )
 {
-    BattlePtr battle = m_iface->AddBattle( id );
+    BattlePtr battle = AddBattle( id );
     const UserPtr user = m_users.FindByNick( nick );
     battle->OnUserAdded( user );
 	battle->SetBattleType( type );
@@ -655,13 +666,6 @@ void ServerImpl::OnHostedBattle( int battleid )
 	if(!battle) return;
     m_iface->OnSelfHostedBattle(battle);
     m_iface->OnSelfJoinedBattle(battle);
-}
-
-int ServerImpl::GetNewUserId()
-{
-	// if server didn't send any account id to us, fill with an always increasing number
-	m_account_id_count++;
-	return m_account_id_count;
 }
 
 void ServerImpl::OnUserQuit(const std::string &nick )
@@ -1160,7 +1164,7 @@ void ServerImpl::OnBattleAddBot( int battleid, const std::string& nick, const st
     status.color = lslColor( color.color.red, color.color.green, color.color.blue );
 	status.aishortname = aidll;
     status.owner = owner;
-    UserPtr user( new User( nick, "", -1, m_iface->shared_from_this() ) );
+    UserPtr user( new User( m_iface->shared_from_this(), User::GetNewUserId(), nick ) );
     battle->OnUserAdded( user );
     m_iface->OnUserJoinedBattle( battle, user );
     m_iface->OnUserBattleStatusUpdated( battle, user, status );

@@ -60,15 +60,10 @@ private:
 	void SendPing();
 
     void LeaveBattle( const int& battle_id );
-    void StartHostedBattle();
     ChannelPtr GetCreatePrivateChannel(const UserPtr user);
-    void RemoveUser( const UserPtr user );
-    void RemoveChannel( const ChannelPtr chan );
-    void RemoveBattle( const IBattlePtr battle );
 
 	void SendMyUserStatus();
 	void RequestSpringUpdate(std::string &currentspringversion);
-	int GetNewUserId();
 
 	std::string GetBattleChannelName(const BattlePtr battle);
 
@@ -78,11 +73,13 @@ private:
 
 	void OnNewUser( const std::string& nick, const std::string& country, int cpu, int id );
 
-
 	void SendCmd( const std::string& command, const std::string& param = "" );
 	void SendCmd( const std::string& command, const boost::format& param );
 	void SendRaw(const std::string &raw);
 	void RequestInGameTime(const std::string &nick);
+
+    BattlePtr AddBattle( const int& id );
+    ChannelPtr AddChannel( const std::string& chan );
 
     void JoinChannel( const std::string& channel, const std::string& key );
     void PartChannel( const std::string& channel );
@@ -98,12 +95,10 @@ private:
 
     void Ring(const ConstUserPtr user );
     void _Disconnect(const std::string& reason);
-    void _Ping();
-    void _JoinChannel( const std::string& channel, const std::string& key );
-    void _JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword );
-    void _HostBattle( Battle::BattleOptions bo );
-    void _StartHostedBattle();
-    void _LeaveBattle( const IBattlePtr battle);
+    void Ping();
+    void JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword );
+    void HostBattle( Battle::BattleOptions bo );
+    void StartHostedBattle();
 
     friend class CommandDictionary;
     CommandDictionary* m_cmd_dict;
@@ -117,7 +112,6 @@ private:
 
     std::string m_delayed_open_command;
     std::string m_agreement;
-    unsigned int m_account_id_count;
     MuteList m_mutelist;
     std::string m_mutelist_current_channelname;
 
@@ -238,8 +232,6 @@ private:
     }
 
     UserPtr m_relay_host_manager;
-
-
 
     UserVector m_relay_masters;
     Socket* m_sock;

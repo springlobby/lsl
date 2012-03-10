@@ -249,9 +249,9 @@ void IBattle::OnUserAdded(const UserPtr user )
 	}
 }
 
-UserPtr IBattle::OnBotAdded( const std::string& nick, const UserBattleStatus& bs )
+CommonUserPtr IBattle::OnBotAdded( const std::string& nick, const UserBattleStatus& bs )
 {
-	UserPtr bot( new User( nick ) );
+    CommonUserPtr bot( new CommonUser( User::GetNewUserId(), nick ) );
     m_internal_bot_list.Add( bot );
 	bot->UpdateBattleStatus( bs );
     return bot;
@@ -1025,7 +1025,7 @@ void IBattle::UserPositionChanged( const UserPtr /*unused*/ )
 {
 }
 
-void IBattle::AddUserFromDemo( UserPtr user )
+void IBattle::AddUserFromDemo( CommonUserPtr user )
 {
 	user->BattleStatus().isfromdemo = true;
     m_internal_user_list.Add( user );
@@ -1147,7 +1147,8 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 			if ( player.ok() || bot.ok() )
 			{
 				if ( bot.ok() ) player = bot;
-				const UserPtr user( new User ( player->GetString( "Name" ), boost::to_upper_copy(player->GetString( "CountryCode") ), 0) );
+                const CommonUserPtr user( new CommonUser( User::GetNewUserId(), player->GetString( "Name" ),
+                                                    boost::to_upper_copy(player->GetString( "CountryCode") )) );
 				UserBattleStatus& status = user->BattleStatus();
 				status.isfromdemo = true;
 				status.spectator = player->GetInt( "Spectator", 0 );

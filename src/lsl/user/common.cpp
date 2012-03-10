@@ -1,5 +1,8 @@
 #include "common.h"
 
+#include <lslutils/conversion.h>
+
+
 namespace LSL {
 
 void CommonUser::UpdateBattleStatus( const UserBattleStatus& status )
@@ -29,7 +32,20 @@ void CommonUser::UpdateBattleStatus( const UserBattleStatus& status )
 
 void CommonUser::SetStatus( const UserStatus& status )
 {
-	m_status = status;
+    m_status = status;
 }
+
+CommonUser::CommonUser(const std::string id, const std::string nick, const std::string country, const int cpu)
+    : m_id(id), m_nick(nick), m_country(country), m_cpu(cpu)
+{}
+
+std::string CommonUser::GetNewUserId()
+{
+    // if server didn't send any account id to us, fill with an always increasing number
+    //TODO: needs to be a pool of sorts?
+    static unsigned int m_account_id_count = 0;
+    return Util::ToString(m_account_id_count++);
+}
+
 
 } //namespace LSL {

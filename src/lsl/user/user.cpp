@@ -102,6 +102,25 @@ std::string User::GetClan()
 	return "";
 }
 
+User::User(IServerPtr serv,
+           const std::string id,
+           const std::string nick,
+           const std::string country,
+           const int cpu)
+    : CommonUser(id,nick,country,cpu)
+    , m_serv(serv)
+{
+}
+
+//User::User(const std::string id,
+//           const std::string nick,
+//           const std::string country,
+//           const int cpu)
+//    : CommonUser(id,nick,country,cpu)
+//    , m_serv(IBattlePtr(0))
+//{
+//}
+
 User::~User()
 {
 }

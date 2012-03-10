@@ -109,16 +109,14 @@ class Server : public boost::enable_shared_from_this<Server>
 
     std::string GetServerName() const;
 
-	virtual void RequestSpringUpdate();
-
 	void SetRelayIngamePassword( const UserPtr user );
 
 	UserPtr AcquireRelayhost();
 	void SendScriptToProxy( const std::string& script );
 
     void SetPrivateUdpPort(int port);
-	std::string GenerateScriptPassword();
-	int RelayScriptSendETA( const std::string& script ); //!in seconds
+    std::string GenerateScriptPassword() const;
+    int RelayScriptSendETA( const std::string& script ); //!in seconds
 
     void SendMyUserStatus();
     void SendMyBattleStatus(const UserBattleStatus &bs);
@@ -143,6 +141,10 @@ class Server : public boost::enable_shared_from_this<Server>
     void SendHostInfo(Enum::HostInfo update);
     void SendHostInfo(const std::string &key);
 
+    void RemoveUser( const UserPtr user );
+    void RemoveChannel( const ChannelPtr chan );
+    void RemoveBattle( const IBattlePtr battle );
+
 private:
     UserVector GetAvailableRelayHostList();
     void HandlePong( int replyid );
@@ -150,7 +152,6 @@ private:
 public:
 
 	void OpenBattle( Battle::BattleOptions bo );
-	void Ping();
 
 	void OnSocketError( const Enum::SocketError& /*unused*/ );
 	void OnProtocolError( const Enum::Protocolerror /*unused*/ );
@@ -226,9 +227,6 @@ private:
     //! toogle == true -> RelayCmd, else SendCmd
     void SendOrRelayCmd( bool toggle, const std::string& command, const std::string& param );
 
-    UserPtr AddUser( const int id );
-    BattlePtr AddBattle( const int& id );
-    ChannelPtr AddChannel( const std::string& chan );
     ServerImpl* m_impl;
 };
 

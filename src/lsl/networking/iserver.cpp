@@ -111,12 +111,6 @@ void Server::SayChannel(const ChannelPtr channel, const std::string &msg)
     m_impl->SayChannel( channel->Name(), msg );
 }
 
-void Server::Ping()
-{
-    m_impl->_Ping();
-    m_impl->GetPingList()[m_impl->GetLastPingID()] = time(0);
-}
-
 void Server::HandlePong( int replyid )
 {
     PingList& pinglist = m_impl->GetPingList();
@@ -131,7 +125,7 @@ void Server::HandlePong( int replyid )
 void Server::JoinChannel( const std::string& channel, const std::string& key )
 {
     m_impl->m_channel_pw[channel] = key;
-    m_impl->_JoinChannel(channel,key);
+    m_impl->JoinChannel(channel,key);
 }
 
 UserPtr Server::AcquireRelayhost()
@@ -158,10 +152,10 @@ void Server::OpenBattle( Battle::BattleOptions bo )
 
 	if ( bo.nattype > 0 )
 		UdpPingTheServer();
-    m_impl->_HostBattle(bo);
+    m_impl->HostBattle(bo);
 }
 
-std::string GenerateScriptPassword()
+std::string Server::GenerateScriptPassword() const
 {
 	char buff[8];
 	sprintf(buff,"%04x%04x", rand()&0xFFFF, rand()&0xFFFF);
@@ -182,7 +176,7 @@ void Server::JoinBattle( const IBattlePtr battle, const std::string& password )
 			}
 		}
 		srand ( time(NULL) );
-        m_impl->_JoinBattle(battle,password,GenerateScriptPassword());
+        m_impl->JoinBattle(battle,password,GenerateScriptPassword());
     }
 }
 
@@ -217,14 +211,16 @@ void Server::StartHostedBattle()
 			UdpPingAllClients();
 		}
 	}
-    m_impl->_StartHostedBattle();
+    m_impl->StartHostedBattle();
     sig_StartHostedBattle( m_impl->m_current_battle->Id() );
 }
 
 void Server::LeaveBattle( const IBattlePtr battle)
 {
+    if(!battle)
+        return;
     m_impl->m_relay_host_bot = UserPtr();
-    m_impl->_LeaveBattle(battle);
+    m_impl->LeaveBattle(battle->Id());
 }
 
 void Server::BattleKickPlayer( const IBattlePtr battle, const UserPtr user )
@@ -534,7 +530,7 @@ void Server::OnUserQuit(const UserPtr user)
 {
 	if ( !user ) return;
     if (user == m_impl->m_me) return;
-    m_impl->RemoveUser( user );
+    RemoveUser( user );
 	//TODO: event
 }
 
@@ -625,7 +621,7 @@ void Server::OnUserLeftBattle(const IBattlePtr battle, const UserPtr user)
 
 void Server::OnBattleClosed(const IBattlePtr battle )
 {
-    m_impl->RemoveBattle( battle );
+    RemoveBattle( battle );
 	//TODO:event
 }
 
@@ -838,6 +834,21 @@ void Server::SendHostInfo(Enum::HostInfo update)
 void Server::SendHostInfo(const std::string &key)
 {
     m_impl->SendHostInfo(key);
+}
+
+void Server::RemoveUser(const UserPtr user)
+{
+    m_impl->m_users.Remove( user->key() );
+}
+
+void Server::RemoveChannel(const ChannelPtr chan)
+{
+    m_impl->m_channels.Remove( chan->key() );
+}
+
+void Server::RemoveBattle(const IBattlePtr battle)
+{
+    m_impl->m_battles.Remove( battle->key() );
 }
 
 void Server::SendMyBattleStatus( const UserBattleStatus& bs )

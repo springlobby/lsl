@@ -2,7 +2,6 @@
 #define LSL_HEADERGUARD_BATTLE_H
 
 #include <set>
-#include <boost/enable_shared_from_this.hpp>
 
 #include <lslutils/type_forwards.h>
 #include "ibattle.h"
@@ -19,7 +18,7 @@ namespace Battle {
 
 /** \brief model of a multiplayer battle
 * \todo DOCME */
-class Battle : public IBattle, public boost::enable_shared_from_this<Battle>
+class Battle : public IBattle
 {
 public:
     Battle(IServerPtr serv, int id );

@@ -14,12 +14,11 @@ namespace LSL {
 class User : public CommonUser, public boost::enable_shared_from_this<User>
 {
 public:
-	User( IServerPtr serv );
-	User( const std::string& nick, IServerPtr serv );
-    User( const std::string& nick, const std::string& country, const int cpu, IServerPtr serv);
-	User( const std::string& nick );
-    User( const std::string& nick, const std::string& country, const int cpu );
-	User();
+    User( IServerPtr serv,
+          const std::string id = GetNewUserId(),
+          const std::string nick = "invalid",
+          const std::string country = "",
+          const int cpu = DEFAULT_CPU_ID );
 
 	virtual ~User();
 

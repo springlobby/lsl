@@ -5,6 +5,7 @@ SET(libSpringLobbyUtilsSrc
 	"${CMAKE_CURRENT_SOURCE_DIR}/crc.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/net.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/globalsmanager.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/md5.c"
 	)
 	
 FILE( GLOB RECURSE libSpringLobbyUtilsHeader "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )

@@ -9,16 +9,23 @@
 
 namespace LSL {
 
+static const int DEFAULT_CPU_ID = 9001;
+
+
 //! parent class leaving out server related functionality
 class CommonUser : public HasKey< std::string >
 {
 public:
-	CommonUser(const std::string& nick, const std::string& country, const int& cpu)
-		: m_nick(std::string(nick)), m_country(std::string(country)), m_cpu(cpu)  {}
-
+    CommonUser(const std::string id = GetNewUserId(),
+               const std::string nick = "invalid",
+               const std::string country = "",
+               const int cpu = DEFAULT_CPU_ID );
 	virtual ~CommonUser(){}
 
-	std::string key() const {return m_id;}
+    //! provide ids from a pool in case server doesn't send one/we create a local bot that needs one
+    static std::string GetNewUserId();
+
+    std::string key() const {return Id();}
 	static std::string className() { return "Channel"; }
 
 	const std::string& Nick() const { return m_nick; }
@@ -31,7 +38,6 @@ public:
 	void SetCpu( const int& cpu ) { m_cpu = cpu; }
 
     const std::string& Id() const { return m_id; }
-	void SetID( const std::string& id ) { m_id = id; }
 
 	UserStatus& Status() { return m_status; }
     const UserStatus& Status() const { return m_status; }
@@ -49,7 +55,7 @@ public:
 protected:
 	std::string m_nick;
 	std::string m_country;
-	std::string m_id;
+    const std::string m_id;
 	int m_cpu;
 	UserStatus m_status;
 	UserBattleStatus m_bstatus;

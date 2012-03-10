@@ -6,12 +6,19 @@
 
 namespace LSL {
 
-//! contaier for user pointers
+//! container for user pointers
 class UserList : public ContainerBase< User >
 {
 public:
     const ConstUserPtr FindByNick( const std::string& nick ) const;
     const UserPtr FindByNick( const std::string& nick );
+};
+
+class CommonUserList : public ContainerBase< CommonUser >
+{
+public:
+    const ConstCommonUserPtr FindByNick( const std::string& nick ) const;
+    const CommonUserPtr FindByNick( const std::string& nick );
 };
 
 } // namespace LSL

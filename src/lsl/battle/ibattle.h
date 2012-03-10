@@ -13,6 +13,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/date_time/posix_time/ptime.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 namespace LSL {
 namespace Battle {
@@ -96,7 +97,7 @@ struct BattleOptions
 /** \brief base model for all Battle types
  * \todo this is way too fat, at the very minimum pimple the internl processing
  **/
-class IBattle : public HasKey< int >
+class IBattle : public HasKey< int >, public boost::enable_shared_from_this<IBattle>
 {
 public:
     int key() const { return GetBattleId(); }
@@ -192,7 +193,7 @@ public:
 	virtual void Update ( const std::string& Tag );
 
 	virtual unsigned int GetNumBots() const;
-	virtual UserPtr OnBotAdded( const std::string& nick, const UserBattleStatus& bs );
+    virtual CommonUserPtr OnBotAdded( const std::string& nick, const UserBattleStatus& bs );
 
 	virtual UserPosition GetFreePosition() ;
 	virtual int GetFreeAlly( bool excludeme = false ) const;
@@ -312,7 +313,7 @@ public:
 	virtual void SetPlayBackFilePath( const std::string& path ) { m_playback_file_path = path; }
 	virtual std::string GetPlayBackFilePath() const { return m_playback_file_path; }
 
-	virtual void AddUserFromDemo( UserPtr user );
+    virtual void AddUserFromDemo(CommonUserPtr user );
 
 	virtual void GetBattleFromScript( bool loadmapmod );
 
@@ -365,7 +366,7 @@ private:
 
 	std::string m_preset;
 
-    UserList m_internal_bot_list;
+    CommonUserList m_internal_bot_list;
 
 	/// replay&savegame stuff
 	std::stringstream m_script;
