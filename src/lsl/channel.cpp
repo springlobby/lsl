@@ -14,7 +14,17 @@ Channel::Channel(const std::string &name)
 
 void Channel::OnChannelJoin(const ConstUserPtr user)
 {
-    assert( false );
+    assert(false);
+}
+
+void Channel::SetNumUsers(size_t numusers)
+{
+    assert(false);
+}
+
+void Channel::SetTopic(const std::string topic)
+{
+    m_topic = topic;
 }
 
 

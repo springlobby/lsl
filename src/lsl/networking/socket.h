@@ -29,7 +29,7 @@ public:
     virtual ~Socket();
 
     void Connect(const std::string& server, int port);
-    void Disconnect();
+    void Disconnect() {}
 
 	bool SendData(const std::string& msg);
 

@@ -703,7 +703,6 @@ void Battle::FixColors()
     }
 }
 
-
 bool PlayerRankCompareFunction( const ConstCommonUserPtr a, const ConstCommonUserPtr b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
 {
 	ASSERT_LOGIC( a, "fail in Autobalance, NULL player" );
@@ -1140,5 +1139,9 @@ void Battle::SetAutoUnspec(bool value)
     ShouldAutoUnspec();
 }
 
+const ChannelPtr Battle::GetChannel()
+{
+    return m_channel;
+}
 } // namespace Battle {
 } // namespace LSL {

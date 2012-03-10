@@ -27,7 +27,6 @@ int main(int,char**)
 {
     using namespace LSL;
     Battle battle;
-    User user;
     battle.update();
 }
 

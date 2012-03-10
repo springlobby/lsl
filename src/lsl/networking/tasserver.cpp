@@ -40,7 +40,7 @@ ServerImpl::ServerImpl(Server *serv)
 void ServerImpl::ExecuteCommand(const std::string& cmd, std::string& inparams, int replyid )
 {
     if ( cmd == "PONG")
-        HandlePong( replyid );
+        m_iface->HandlePong( replyid );
     else
 		m_cmd_dict->Process(cmd,inparams);
 }
@@ -1246,6 +1246,10 @@ void ServerImpl::OnJoinBattleFailed( const std::string& msg )
 
 
 void ServerImpl::OnOpenBattleFailed( const std::string& msg )
+{
+}
+
+void ServerImpl::OnLoginFailed(const std::string &reason)
 {
 }
 

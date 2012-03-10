@@ -20,6 +20,11 @@ Socket::Socket()
 {
 }
 
+Socket::~Socket()
+{
+
+}
+
 void Socket::Connect(const std::string &server, int port)
 {
     m_last_net_packet = 0;

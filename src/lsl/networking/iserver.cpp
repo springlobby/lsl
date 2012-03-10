@@ -712,7 +712,11 @@ void Server::OnChannelSaid( const ChannelPtr channel, const CommonUserPtr user, 
 //                return;
 //			}
 //		}
-//	}
+    //	}
+}
+
+void Server::OnChannelPart(ChannelPtr channel, UserPtr user, const std::string &message)
+{
 }
 
 void Server::OnBattleStartRectAdd( const IBattlePtr battle, int allyno, int left, int top, int right, int bottom )
@@ -779,6 +783,10 @@ void Server::OnSelfHostedBattle(IBattlePtr battle )
 }
 
 void Server::OnSelfJoinedBattle( IBattlePtr battle )
+{
+}
+
+void Server::OnSetBattleOption(IBattlePtr battle, const std::string &param, const std::string &value)
 {
 }
 
@@ -1057,6 +1065,19 @@ void Server::SendScriptToClients( const std::string& script )
     m_impl->RelayCmd( "SCRIPTEND" );
 }
 
+
+void Server::OnClientBattleStatus(IBattlePtr battle, UserPtr user, UserBattleStatus bstatus)
+{
+}
+
+void Server::OnBattleEnableUnits(IBattlePtr battle, const StringVector unitlist)
+{
+}
+
+void Server::OnUserStartPositionUpdated(IBattlePtr battle, CommonUserPtr player, const UserPosition &pos)
+{
+}
+
 //**************Get/Setters ******************
 IBattlePtr Server::GetCurrentBattle() { return m_impl->m_current_battle; }
 const ConstIBattlePtr Server::GetCurrentBattle() const { return m_impl->m_current_battle; }
@@ -1071,6 +1092,18 @@ const UserPtr Server::GetMe() const {return m_impl->m_me;}
 std::string Server::GetServerName() const { return m_impl->m_server_name; }
 
 void Server::SetPrivateUdpPort(int port) { m_impl->m_udp_private_port = port;}
+
+void Server::OnUserLeftChannel(ChannelPtr channel, UserPtr user)
+{
+}
+
+void Server::OnChannelAction(ChannelPtr channel, UserPtr user, const std::string &action)
+{
+}
+
+void Server::OnChannelTopic(ChannelPtr channel, UserPtr user, const std::string &message)
+{
+}
 
 //END **************Get/Setters ******************
 } // namespace LSL

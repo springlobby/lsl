@@ -235,7 +235,6 @@ private:
 
     UserVector m_relay_masters;
     Socket* m_sock;
-    void HandlePong( int replyid );
     CRC m_crc;
     IBattlePtr m_current_battle;
     UserPtr m_relay_host_bot;
