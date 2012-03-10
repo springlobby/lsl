@@ -93,7 +93,7 @@ private:
     void SayBattle( const int battle_id, const std::string& msg );
     void DoActionBattle( const int battle_id, const std::string& msg );
 
-    void Ring(const ConstUserPtr user );
+    void Ring(const ConstCommonUserPtr user );
     void _Disconnect(const std::string& reason);
     void Ping();
     void JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword );

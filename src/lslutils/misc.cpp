@@ -191,8 +191,9 @@ lslColor ColorFromFloatString(const std::string &rgb_string)
     return lslColor( decimal_colors[0], decimal_colors[1], decimal_colors[2] );
 }
 
-lslColor GetFreeColor( const ConstUserPtr /*user*/ )
+lslColor GetFreeColor( const ConstCommonUserPtr /*user*/ )
 {
+    assert(false);
     return lslColor();
 }
 

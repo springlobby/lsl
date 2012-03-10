@@ -35,7 +35,7 @@ UserBattleStatus ConvTasbattlestatus( TASBattleStatus tas )
 }
 
 
-TASBattleStatus ConvTasbattlestatus( UserBattleStatus bs)
+TASBattleStatus ConvTasbattlestatus( const UserBattleStatus& bs)
 {
     TASBattleStatus stat;
     stat.ally = bs.ally;

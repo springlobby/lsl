@@ -133,7 +133,7 @@ inline int IndexInSequenceIf( const StlContainer& ct,
 }
 
 /** \TODO docme **/
-lslColor GetFreeColor( const ConstUserPtr user );
+lslColor GetFreeColor(const ConstCommonUserPtr user );
 
 //! dll/module related Util functionality
 namespace Lib {

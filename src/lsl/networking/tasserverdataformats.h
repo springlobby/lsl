@@ -108,7 +108,7 @@ class UserStatus;
 class UserBattleStatus;
 UserStatus ConvTasclientstatus( TASClientstatus );
 UserBattleStatus ConvTasbattlestatus( TASBattleStatus );
-TASBattleStatus ConvTasbattlestatus( UserBattleStatus );
+TASBattleStatus ConvTasbattlestatus(const UserBattleStatus & );
 //IBattle::StartType IntToStartType( int start );
 //NatType IntToNatType( int nat );
 //IBattle::GameType IntToGameType( int gt );

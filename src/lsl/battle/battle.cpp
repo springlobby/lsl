@@ -46,11 +46,6 @@ void Battle::SendHostInfo( const std::string& Tag )
     m_serv->SendHostInfo( Tag );
 }
 
-void Battle::Update()
-{
-    Signals::sig_BattleInfoUpdate( shared_from_this(), "" );
-}
-
 void Battle::Update( const std::string& Tag )
 {
     Signals::sig_BattleInfoUpdate( shared_from_this(), Tag );
@@ -119,12 +114,12 @@ void Battle::SetLocalMap( const UnitsyncMap& map )
         LoadMapDefaults( map.name );
 }
 
-const UserPtr Battle::GetMe()
+const ConstCommonUserPtr Battle::GetMe() const
 {
     return m_serv->GetMe();
 }
 
-const ConstUserPtr Battle::GetMe() const
+const CommonUserPtr Battle::GetMe()
 {
     return m_serv->GetMe();
 }
@@ -172,7 +167,7 @@ void Battle::LoadMapDefaults( const std::string& mapname )
 	SendHostInfo( Enum::HI_StartRects );
 }
 
-void Battle::OnUserAdded( const UserPtr user )
+void Battle::OnUserAdded( const CommonUserPtr user )
 {
     if (!user)
         return;
@@ -213,7 +208,7 @@ void Battle::OnUserAdded( const UserPtr user )
     return;
 }
 
-void Battle::OnUserBattleStatusUpdated( const UserPtr user, UserBattleStatus status )
+void Battle::OnUserBattleStatusUpdated( const CommonUserPtr user, UserBattleStatus status )
 {
     if ( IsFounderMe() )
     {
@@ -265,7 +260,7 @@ void Battle::OnUserBattleStatusUpdated( const UserPtr user, UserBattleStatus sta
 //    ui().OnUserBattleStatus( *this, user );
 }
 
-void Battle::OnUserRemoved( UserPtr user )
+void Battle::OnUserRemoved( CommonUserPtr user )
 {
 //    m_ah.OnUserRemoved(user);
     IBattle::OnUserRemoved( user );
@@ -276,7 +271,7 @@ void Battle::RingNotReadyPlayers()
 {
 	for (size_t i = 0; i < m_userlist.size(); i++)
     {
-		const ConstUserPtr u = m_userlist.At(i);
+        const ConstCommonUserPtr u = m_userlist.At(i);
 		const UserBattleStatus& bs = u->BattleStatus();
 		if ( bs.IsBot() ) continue;
         if ( !bs.ready && !bs.spectator ) m_serv->Ring( u );
@@ -287,7 +282,7 @@ void Battle::RingNotSyncedPlayers()
 {
 	for (size_t i = 0; i < m_userlist.size(); i++)
     {
-		const ConstUserPtr u = m_userlist.At(i);
+        const ConstCommonUserPtr u = m_userlist.At(i);
 		const UserBattleStatus& bs = u->BattleStatus();
         if ( bs.IsBot() ) continue;
         if ( !bs.sync && !bs.spectator ) m_serv->Ring( u );
@@ -298,7 +293,7 @@ void Battle::RingNotSyncedAndNotReadyPlayers()
 {
 	for (size_t i = 0; i < m_userlist.size(); i++)
     {
-		const ConstUserPtr u = m_userlist.At(i);
+        const ConstCommonUserPtr u = m_userlist.At(i);
 		const UserBattleStatus& bs = u->BattleStatus();
         if ( bs.IsBot() ) continue;
         if ( ( !bs.sync || !bs.ready ) && !bs.spectator ) m_serv->Ring( u );
@@ -335,8 +330,9 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
             m_banned_users.insert(nick);
             try
             {
-                UserPtr user = GetUser( nick );
-                m_serv->BattleKickPlayer( shared_from_this(), user );
+                const CommonUserPtr user = GetUser( nick );
+                const IBattlePtr b = shared_from_this();
+                m_serv->BattleKickPlayer( b, user );
             }
             catch( /*assert_exception*/... ) {}
 //            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
@@ -397,10 +393,10 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
 //						UiEvents::OnBattleActionData( std::string(" ") , nick+" banned" )
 //                        );
 
-            UserPtr user = m_userlist.FindByNick(nick);
+            CommonUserPtr user = m_userlist.FindByNick(nick);
             if ( user )
             {
-                const UserPtr user=GetUser(nick);
+                const CommonUserPtr user=GetUser(nick);
 				if (!user->BattleStatus().ip.empty())
                 {
 					m_banned_ips.insert(user->BattleStatus().ip);
@@ -422,7 +418,7 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
 
 ///< quick hotfix for bans
 /// returns true if user is banned (and hence has been kicked)
-bool Battle::IsBanned( const UserPtr user )
+bool Battle::IsBanned( const CommonUserPtr user )
 {
     if (IsFounderMe())
     {
@@ -476,40 +472,40 @@ void Battle::AddBot( const std::string& nick, UserBattleStatus status )
     m_serv->AddBot( shared_from_this(), nick, status );
 }
 
-void Battle::ForceSide( UserPtr user, int side )
+void Battle::ForceSide( CommonUserPtr user, int side )
 {
     m_serv->ForceSide( shared_from_this(), user, side );
 }
 
-void Battle::ForceTeam( UserPtr user, int team )
+void Battle::ForceTeam( CommonUserPtr user, int team )
 {
     IBattle::ForceTeam( user, team );
     m_serv->ForceTeam( shared_from_this(), user, team );
 }
 
-void Battle::ForceAlly( UserPtr user, int ally )
+void Battle::ForceAlly( CommonUserPtr user, int ally )
 {
     IBattle::ForceAlly( user, ally );
     m_serv->ForceAlly( shared_from_this(), user, ally );
 }
 
-void Battle::ForceColor( UserPtr user, const lslColor& col )
+void Battle::ForceColor( CommonUserPtr user, const lslColor& col )
 {
     IBattle::ForceColor( user, col );
     m_serv->ForceColor( shared_from_this(), user, col );
 }
 
-void Battle::ForceSpectator( UserPtr user, bool spectator )
+void Battle::ForceSpectator( CommonUserPtr user, bool spectator )
 {
     m_serv->ForceSpectator( shared_from_this(), user, spectator );
 }
 
-void Battle::KickPlayer( UserPtr user )
+void Battle::KickPlayer( CommonUserPtr user )
 {
     m_serv->BattleKickPlayer( shared_from_this(), user );
 }
 
-void Battle::SetHandicap( UserPtr user, int handicap)
+void Battle::SetHandicap( CommonUserPtr user, int handicap)
 {
     m_serv->SetHandicap ( shared_from_this(), user, handicap );
 }
@@ -519,7 +515,7 @@ void Battle::ForceUnsyncedToSpectate()
     const size_t numusers = m_userlist.size();
     for ( size_t i = 0; i < numusers; ++i )
     {
-        const UserPtr user = m_userlist.At(i);
+        const CommonUserPtr user = m_userlist.At(i);
 		UserBattleStatus& bs = user->BattleStatus();
         if ( bs.IsBot() ) continue;
         if ( !bs.spectator && !bs.sync ) ForceSpectator( user, true );
@@ -531,7 +527,7 @@ void Battle::ForceUnReadyToSpectate()
     const size_t numusers = m_userlist.size();
     for ( size_t i = 0; i < numusers; ++i )
     {
-        const UserPtr user = m_userlist.At(i);
+        const CommonUserPtr user = m_userlist.At(i);
 		UserBattleStatus& bs = user->BattleStatus();
         if ( bs.IsBot() ) continue;
         if ( !bs.spectator && !bs.ready ) ForceSpectator( user, true );
@@ -543,14 +539,14 @@ void Battle::ForceUnsyncedAndUnreadyToSpectate()
     const size_t numusers = m_userlist.size();
     for ( size_t i = 0; i < numusers; ++i )
     {
-        const UserPtr user = m_userlist.At(i);
+        const CommonUserPtr user = m_userlist.At(i);
 		UserBattleStatus& bs = user->BattleStatus();
         if ( bs.IsBot() ) continue;
         if ( !bs.spectator && ( !bs.sync || !bs.ready ) ) ForceSpectator( user, true );
     }
 }
 
-void Battle::UserPositionChanged(const UserPtr user )
+void Battle::UserPositionChanged(const CommonUserPtr user )
 {
     m_serv->SendUserPosition( user );
 }
@@ -614,7 +610,7 @@ void Battle::StartHostedBattle()
 
 void Battle::StartSpring()
 {
-    const UserPtr me = GetMe();
+    const CommonUserPtr me = GetMe();
     if ( me && !me->Status().in_game )
     {
         me->BattleStatus().ready = false;
@@ -639,7 +635,7 @@ void Battle::OnTimer( const boost::system::error_code& error  )
     time_t now = time(0);
     for ( unsigned int i = 0; i < m_userlist.size(); ++i )
     {
-        const UserPtr usr = m_userlist[i];
+        const CommonUserPtr usr = m_userlist[i];
         UserBattleStatus& status = usr->BattleStatus();
         if ( status.IsBot() || status.spectator ) continue;
         if ( status.sync && status.ready ) continue;
@@ -662,7 +658,7 @@ void Battle::SetInGame( bool value )
     {
         for ( int i = 0; i < long(m_userlist.size()); ++i )
         {
-            const UserPtr user = m_userlist[i];
+            const CommonUserPtr user = m_userlist[i];
 			UserBattleStatus& status = user->BattleStatus();
             if ( status.IsBot() || status.spectator ) continue;
             if ( status.ready && status.sync ) continue;
@@ -686,7 +682,7 @@ void Battle::FixColors()
 
     for ( size_t i = 0; i < m_userlist.size(); i++ )
     {
-        const UserPtr user = m_userlist.At(i);
+        const CommonUserPtr user = m_userlist.At(i);
         if ( user == GetMe() ) continue; // skip founder ( yourself )
 		UserBattleStatus& status = user->BattleStatus();
         if ( status.spectator ) continue;
@@ -698,7 +694,7 @@ void Battle::FixColors()
         palette_use[user_col_i]++;
         for ( size_t j = 0; j < m_userlist.size(); ++j )
         {
-            const UserPtr other_user = m_userlist.At(j);
+            const CommonUserPtr other_user = m_userlist.At(j);
             if ( other_user->BattleStatus().team == status.team )
             {
                 ForceColor( other_user, palette[user_col_i]);
@@ -708,14 +704,14 @@ void Battle::FixColors()
 }
 
 
-bool PlayerRankCompareFunction( const ConstUserPtr a, const ConstUserPtr b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
+bool PlayerRankCompareFunction( const ConstCommonUserPtr a, const ConstCommonUserPtr b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
 {
 	ASSERT_LOGIC( a, "fail in Autobalance, NULL player" );
 	ASSERT_LOGIC( b, "fail in Autobalance, NULL player" );
     return ( a->GetBalanceRank() > b->GetBalanceRank() );
 }
 
-bool PlayerTeamCompareFunction( const ConstUserPtr a, const ConstUserPtr b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
+bool PlayerTeamCompareFunction( const ConstCommonUserPtr a, const ConstCommonUserPtr b ) // should never operate on nulls. Hence, ASSERT_LOGIC is appropriate here.
 {
 	ASSERT_LOGIC( a, "fail in Autobalance, NULL player" );
 	ASSERT_LOGIC( b, "fail in Autobalance, NULL player" );
@@ -724,12 +720,12 @@ bool PlayerTeamCompareFunction( const ConstUserPtr a, const ConstUserPtr b ) // 
 
 struct Alliance
 {
-    ConstUserVector players;
+    CommonUserVector players;
     float ranksum;
     int allynum;
     Alliance(): ranksum(0), allynum(-1) {}
     Alliance(int i): ranksum(0), allynum(i) {}
-    void AddPlayer( const ConstUserPtr player )
+    void AddPlayer( const CommonUserPtr player )
     {
         if ( player )
         {
@@ -739,7 +735,7 @@ struct Alliance
     }
     void AddAlliance( const Alliance &other )
     {
-        for ( ConstUserVector::const_iterator i = other.players.begin(); i != other.players.end(); ++i )
+        for ( CommonUserVector::const_iterator i = other.players.begin(); i != other.players.end(); ++i )
             AddPlayer( *i );
     }
     bool operator < ( const Alliance &other ) const
@@ -750,12 +746,12 @@ struct Alliance
 
 struct ControlTeam
 {
-    UserVector players;
+    CommonUserVector players;
     float ranksum;
     int teamnum;
     ControlTeam(): ranksum(0), teamnum(-1) {}
     ControlTeam( int i ): ranksum(0), teamnum(i) {}
-    void AddPlayer( const UserPtr player )
+    void AddPlayer( const CommonUserPtr player )
     {
         if ( player )
         {
@@ -765,7 +761,7 @@ struct ControlTeam
     }
     void AddTeam( ControlTeam &other )
     {
-        for ( UserVector::const_iterator i = other.players.begin(); i != other.players.end(); ++i ) AddPlayer( *i );
+        for ( CommonUserVector::const_iterator i = other.players.begin(); i != other.players.end(); ++i ) AddPlayer( *i );
     }
     bool operator < (const ControlTeam &other) const
     {
@@ -778,12 +774,12 @@ int my_random( int range )
     return rand() % range;
 }
 
-void shuffle( UserVector& players) // proper shuffle.
+void shuffle( CommonUserVector& players) // proper shuffle.
 {
     for ( size_t i=0; i < players.size(); ++i ) // the players below i are shuffled, the players above arent
     {
         int rn = i + my_random( players.size() - i ); // the top of shuffled part becomes random card from unshuffled part
-        UserPtr tmp = players[i];
+        CommonUserPtr tmp = players[i];
         players[i] = players[rn];
         players[rn] = tmp;
     }
@@ -837,12 +833,12 @@ void Battle::Autobalance( Enum::BalanceType balance_type, bool support_clans, bo
 
     //for(i=0;i<alliances.size();++i)alliances[i].allynum=i;
 
-    UserVector players_sorted;
+    CommonUserVector players_sorted;
     players_sorted.reserve( m_userlist.size() );
 
     for ( size_t i = 0; i < m_userlist.size(); ++i )
     {
-        UserPtr usr = m_userlist[i];
+        CommonUserPtr usr = m_userlist[i];
         if ( !usr->BattleStatus().spectator )
         {
             players_sorted.push_back( usr );
@@ -850,14 +846,14 @@ void Battle::Autobalance( Enum::BalanceType balance_type, bool support_clans, bo
     }
 
     // remove players in the same team so only one remains
-    std::map< int, UserPtr> dedupe_teams;
-    for ( std::vector<UserPtr>::const_iterator it = players_sorted.begin(); it != players_sorted.end(); ++it )
+    std::map< int, CommonUserPtr> dedupe_teams;
+    for ( std::vector<CommonUserPtr>::const_iterator it = players_sorted.begin(); it != players_sorted.end(); ++it )
     {
         dedupe_teams[(*it)->BattleStatus().team] = *it;
     }
     players_sorted.clear();
     players_sorted.reserve( dedupe_teams.size() );
-    for ( std::map<int, UserPtr>::const_iterator it = dedupe_teams.begin(); it != dedupe_teams.end(); ++it )
+    for ( std::map<int, CommonUserPtr>::const_iterator it = dedupe_teams.begin(); it != dedupe_teams.end(); ++it )
     {
         players_sorted.push_back( it->second );
     }
@@ -947,7 +943,7 @@ void Battle::Autobalance( Enum::BalanceType balance_type, bool support_clans, bo
             int balanceteam = alliances[i].players[j]->BattleStatus().team;
             for ( size_t h = 0; h < totalplayers; h++ ) // change ally num of all players in the team
             {
-                UserPtr usr = m_userlist[h];
+                CommonUserPtr usr = m_userlist[h];
                 if ( usr->BattleStatus().team == balanceteam )
                     ForceAlly( usr, alliances[i].allynum );
             }
@@ -980,14 +976,14 @@ void Battle::FixTeamIDs( Enum::BalanceType balance_type, bool support_clans, boo
         const size_t numusers = m_userlist.size();
         for( size_t i = 0; i < numusers; ++i )
         {
-            const UserPtr user = m_userlist.At(i);
+            const CommonUserPtr user = m_userlist.At(i);
 			if( !user->BattleStatus().spectator ) allteams.insert( user->BattleStatus().team );
         }
         std::set<int> teams;
         int t = 0;
         for( size_t i = 0; i < m_userlist.size(); ++i )
         {
-            const UserPtr user = m_userlist.At(i);
+            const CommonUserPtr user = m_userlist.At(i);
 			if( !user->BattleStatus().spectator )
             {
 				if( teams.count( user->BattleStatus().team ) )
@@ -1007,7 +1003,7 @@ void Battle::FixTeamIDs( Enum::BalanceType balance_type, bool support_clans, boo
     for ( int i = 0; i < numcontrolteams; i++ )
         control_teams.push_back( ControlTeam( i ) );
 
-    std::vector<UserPtr> players_sorted;
+    std::vector<CommonUserPtr> players_sorted;
     players_sorted.reserve( m_userlist.size() );
 
     int player_team_counter = 0;

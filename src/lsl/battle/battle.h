@@ -30,14 +30,12 @@ public:
 
 		void SendHostInfo( Enum::HostInfo update );
     void SendHostInfo( const std::string& Tag );
-
-    void Update();
     void Update( const std::string& Tag );
 
     void Join( const std::string& password = "" );
     void Leave();
 
-    void KickPlayer( const UserPtr user );
+    void KickPlayer( const CommonUserPtr user );
 
     void RingNotReadyPlayers();
     void RingNotSyncedPlayers();
@@ -56,17 +54,17 @@ public:
 
     void AddBot( const std::string& nick, UserBattleStatus status );
 
-    void ForceSide( const UserPtr user, int side );
-    void ForceTeam( const UserPtr user, int team );
-    void ForceAlly( const UserPtr user, int ally );
-    void ForceColor( const UserPtr user, const lslColor& col );
-    void ForceSpectator( const UserPtr user, bool spectator );
-    void BattleKickPlayer( const UserPtr user );
-    void SetHandicap( const UserPtr user, int handicap);
+    void ForceSide( const CommonUserPtr user, int side );
+    void ForceTeam( const CommonUserPtr user, int team );
+    void ForceAlly( const CommonUserPtr user, int ally );
+    void ForceColor( const CommonUserPtr user, const lslColor& col );
+    void ForceSpectator( const CommonUserPtr user, bool spectator );
+    void BattleKickPlayer( const CommonUserPtr user );
+    void SetHandicap( const CommonUserPtr user, int handicap);
 
-    void OnUserAdded( const UserPtr user );
-    void OnUserBattleStatusUpdated( const UserPtr user, UserBattleStatus status );
-    void OnUserRemoved( const UserPtr user );
+    void OnUserAdded( const CommonUserPtr user );
+    void OnUserBattleStatusUpdated( const CommonUserPtr user, UserBattleStatus status );
+    void OnUserRemoved( const CommonUserPtr user );
 
     void ForceUnsyncedToSpectate();
     void ForceUnReadyToSpectate();
@@ -85,15 +83,15 @@ public:
     void SendScriptToClients();
 
     ///< quick hotfix for bans
-    bool IsBanned(const UserPtr user );
+    bool IsBanned(const CommonUserPtr user );
     ///>
 
     void SetImReady( bool ready );
 
-    const UserPtr GetMe();
-    const ConstUserPtr GetMe() const;
+    const CommonUserPtr GetMe();
+    const ConstCommonUserPtr GetMe() const;
 
-    void UserPositionChanged( const UserPtr user );
+    void UserPositionChanged( const CommonUserPtr user );
 
     void SaveMapDefaults();
     void LoadMapDefaults( const std::string& mapname );

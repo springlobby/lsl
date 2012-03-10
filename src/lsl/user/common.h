@@ -5,6 +5,8 @@
 #include <lslutils/type_forwards.h>
 #include <lslutils/misc.h>
 #include <lsl/user/userdata.h>
+
+#include <boost/enable_shared_from_this.hpp>
 #include <string>
 
 namespace LSL {
@@ -13,7 +15,7 @@ static const int DEFAULT_CPU_ID = 9001;
 
 
 //! parent class leaving out server related functionality
-class CommonUser : public HasKey< std::string >
+class CommonUser : public HasKey< std::string >,public boost::enable_shared_from_this<CommonUser>
 {
 public:
     CommonUser(const std::string id = GetNewUserId(),
@@ -42,6 +44,7 @@ public:
 	UserStatus& Status() { return m_status; }
     const UserStatus& Status() const { return m_status; }
 	virtual void SetStatus( const UserStatus& status );
+    virtual void SendMyUserStatus() const {}
 
 	UserBattleStatus& BattleStatus() { return m_bstatus; }
     const UserBattleStatus& BattleStatus() const { return m_bstatus; }
@@ -51,6 +54,11 @@ public:
 
 	bool Equals( const CommonUser& other ) const { return ( m_nick == other.Nick() ); }
 
+    const IBattlePtr GetBattle() const;
+    void SetBattle( IBattlePtr battle );
+    float GetBalanceRank() const;
+    virtual std::string GetClan() const { return ""; }
+    virtual UserStatus::RankContainer GetRank() const { return UserStatus::RANK_1; }
 
 protected:
 	std::string m_nick;
@@ -59,6 +67,7 @@ protected:
 	int m_cpu;
 	UserStatus m_status;
 	UserBattleStatus m_bstatus;
+    IBattlePtr m_battle;
 };
 
 } // namespace LSL

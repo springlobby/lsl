@@ -47,5 +47,19 @@ std::string CommonUser::GetNewUserId()
     return Util::ToString(m_account_id_count++);
 }
 
+const IBattlePtr CommonUser::GetBattle() const
+{
+    return m_battle;
+}
+
+void CommonUser::SetBattle( IBattlePtr battle )
+{
+    m_battle = battle;
+}
+
+float CommonUser::GetBalanceRank() const
+{
+    return 1.0 + 0.1 * float( Status().rank - UserStatus::RANK_1 ) / float( UserStatus::RANK_8 - UserStatus::RANK_1 );
+}
 
 } //namespace LSL {

@@ -20,16 +20,6 @@ void User::DoAction( const std::string& message ) const
     m_serv->DoActionPrivate( shared_from_this(), message );
 }
 
-BattlePtr User::GetBattle() const
-{
-	return m_battle;
-}
-
-void User::SetBattle( BattlePtr battle )
-{
-	m_battle = battle;
-}
-
 void User::SetStatus( const UserStatus& status )
 {
 	m_status = status;
@@ -37,9 +27,9 @@ void User::SetStatus( const UserStatus& status )
 	if ( m_battle ) {
 		try
 		{
-			const ConstUserPtr user = m_battle->GetFounder();
+            const ConstCommonUserPtr user = m_battle->GetFounder();
 			if ( user->Nick() == m_nick ) {
-				m_battle->Update();
+                m_battle->Update("");
 			}
 		}catch(...){}
 	}
@@ -86,12 +76,7 @@ std::string User::GetRankName(UserStatus::RankContainer rank)
 	}
 }
 
-float User::GetBalanceRank() const
-{
-    return 1.0 + 0.1 * float( Status().rank - UserStatus::RANK_1 ) / float( UserStatus::RANK_8 - UserStatus::RANK_1 );
-}
-
-std::string User::GetClan()
+std::string User::GetClan() const
 {
 	std::string tmp = Util::AfterFirst( m_nick, "[" );
 	if ( tmp != m_nick )
@@ -111,15 +96,6 @@ User::User(IServerPtr serv,
     , m_serv(serv)
 {
 }
-
-//User::User(const std::string id,
-//           const std::string nick,
-//           const std::string country,
-//           const int cpu)
-//    : CommonUser(id,nick,country,cpu)
-//    , m_serv(IBattlePtr(0))
-//{
-//}
 
 User::~User()
 {

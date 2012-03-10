@@ -5,13 +5,12 @@
 
 #include <lslutils/type_forwards.h>
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 
 namespace LSL {
 
 //! actual "Online user"
-class User : public CommonUser, public boost::enable_shared_from_this<User>
+class User : public CommonUser
 {
 public:
     User( IServerPtr serv,
@@ -30,9 +29,6 @@ public:
 	void Say( const std::string& message ) const;
 	void DoAction( const std::string& message ) const;
 
-	BattlePtr GetBattle() const;
-	void SetBattle( BattlePtr battle );
-
 	void SendMyUserStatus() const;
 	void SetStatus( const UserStatus& status );
 	void SetCountry( const std::string& country );
@@ -41,18 +37,14 @@ public:
 
 	static std::string GetRankName(UserStatus::RankContainer rank);
 
-    float GetBalanceRank() const;
     UserStatus::RankContainer GetRank() const;
-	std::string GetClan();
+    std::string GetClan() const;
 
 	//bool operator< ( const ConstUserPtr other ) const { return m_nick < other.GetNick() ; }
 	//User& operator= ( const ConstUserPtr other );
 protected:
 	// User variables
-
 	IServerPtr m_serv;
-	BattlePtr m_battle;
-	//! copy-semantics?
 };
 
 } // namespace LSL {

@@ -77,6 +77,9 @@ typedef boost::shared_ptr< const CommonUser > ConstCommonUserPtr;
 typedef std::vector< UserPtr > UserVector;
 typedef std::vector< ConstUserPtr > ConstUserVector;
 
+typedef std::vector< CommonUserPtr > CommonUserVector;
+typedef std::vector< ConstCommonUserPtr > ConstCommonUserVector;
+
 typedef boost::shared_ptr< OptionsWrapper > OptionsWrapperPtr;
 typedef boost::shared_ptr< const OptionsWrapper > ConstOptionsWrapperPtr;
 

@@ -70,7 +70,7 @@ bool Spring::RunReplay ( const std::string& filename )
     return LaunchSpring( "\"" + filename + "\"");
 }
 
-bool Spring::Run( const BattlePtr battle )
+bool Spring::Run(const IBattlePtr battle )
 {
     BF::path path = sett().GetCurrentUsedDataDir();
     path /= "script.txt";
@@ -265,7 +265,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     }
     tdf.Append( "IsHost", battle->IsFounderMe() );
 
-    const ConstUserPtr  me = battle->GetMe();
+    const ConstCommonUserPtr  me = battle->GetMe();
     tdf.Append("MyPlayerName", me->Nick() );
 
     if ( !me->BattleStatus().scriptPassword.empty() )
@@ -328,7 +328,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     {
         std::set<int> parsedteams;
         unsigned int NumTeams = 0;
-        BOOST_FOREACH( const ConstUserPtr usr, battle->Users() )
+        BOOST_FOREACH( const ConstCommonUserPtr usr, battle->Users() )
         {
             const UserBattleStatus& status = usr->BattleStatus();
             if ( status.spectator )
@@ -409,11 +409,11 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     typedef ProgressiveTeamsVec::iterator ProgressiveTeamsVecIter;
     ProgressiveTeamsVec teams_to_sorted_teams; // original team -> progressive team
     int free_team = 0;
-    std::map<const ConstUserPtr, int> player_to_number; // player -> ordernumber
+    std::map<const ConstCommonUserPtr, int> player_to_number; // player -> ordernumber
     srand ( time(NULL) );
     int i = 0;
     const unsigned int NumUsers = battle->Users().size();
-    BOOST_FOREACH( const ConstUserPtr user, battle->Users() )
+    BOOST_FOREACH( const ConstCommonUserPtr user, battle->Users() )
     {
         const UserBattleStatus& status = user->BattleStatus();
         if ( !status.spectator )
@@ -456,7 +456,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     if ( usync().VersionSupports( LSL::USYNC_GetSkirmishAI ) )
     {
         unsigned int i = 0;
-        BOOST_FOREACH( const ConstUserPtr user, battle->Users() )
+        BOOST_FOREACH( const ConstCommonUserPtr user, battle->Users() )
         {
             const UserBattleStatus& status = user->BattleStatus();
             if ( !status.IsBot() ) continue;
@@ -488,7 +488,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
 
     std::set<int> parsedteams;
     StringVector sides = usync().GetSides( battle->GetHostModName() );
-    BOOST_FOREACH( const ConstUserPtr usr, battle->Users() )
+    BOOST_FOREACH( const ConstCommonUserPtr usr, battle->Users() )
     {
         const UserBattleStatus& status = usr->BattleStatus();
         if ( status.spectator ) continue;
@@ -559,7 +559,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     std::set<int> parsedallys;
     for ( unsigned int i = 0; i < maxiter; i++ )
     {
-        const ConstUserPtr  usr = battle->Users()[i];
+        const ConstCommonUserPtr  usr = battle->Users()[i];
         const UserBattleStatus& status = usr->BattleStatus();
         Battle::BattleStartRect sr = battle->GetStartRect( i );
         if ( status.spectator && !sr.IsOk() )

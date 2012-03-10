@@ -23,7 +23,7 @@ class Spring
      * @return true on launch success, false otherwise
      */
     bool Run( const std::string& script );
-    bool Run( const BattlePtr battle );
+    bool Run( const IBattlePtr battle );
     bool Run( Battle::OfflineBattle& battle );
 
     /** @brief executes spring with replay abs path

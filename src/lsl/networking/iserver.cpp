@@ -192,7 +192,7 @@ void Server::DoActionBattle(const IBattlePtr battle, const std::string &msg)
         m_impl->DoActionBattle(battle->Id(), msg);
 }
 
-void Server::Ring(const ConstUserPtr user)
+void Server::Ring(const ConstCommonUserPtr user)
 {
     if(user)
         m_impl->Ring( user );
@@ -223,18 +223,7 @@ void Server::LeaveBattle( const IBattlePtr battle)
     m_impl->LeaveBattle(battle->Id());
 }
 
-void Server::BattleKickPlayer( const IBattlePtr battle, const UserPtr user )
-{
-	if (!battle) return;
-	if (!battle->IsFounderMe()) return;
-	if (!battle->IsProxy()) return;
-	if (!user) return;
-	user->BattleStatus().scriptPassword = GenerateScriptPassword(); // reset user script password, so he can't rejoin
-	SetRelayIngamePassword( user );
-}
-
-
-void Server::AddBot( const BattlePtr battle, const std::string& nick, UserBattleStatus& status )
+void Server::AddBot(const IBattlePtr battle, const std::string& nick, UserBattleStatus& status )
 {
     if (!battle) return;
 
@@ -252,7 +241,7 @@ void Server::AddBot( const BattlePtr battle, const std::string& nick, UserBattle
     m_impl->SendCmd( "ADDBOT", nick + Util::ToString(tasbs.data) + " " + Util::ToString( tascl.data ) + " " + ailib );
 }
 
-void Server::RemoveBot( const BattlePtr battle, const UserPtr user )
+void Server::RemoveBot( const IBattlePtr battle, const CommonUserPtr user )
 {
     if (!battle) return;
     if (!user) return;
@@ -263,7 +252,7 @@ void Server::RemoveBot( const BattlePtr battle, const UserPtr user )
     m_impl->RelayCmd( "REMOVEBOT", user->Nick() );
 }
 
-void Server::UpdateBot( const BattlePtr battle, const UserPtr bot, UserBattleStatus& status )
+void Server::UpdateBot( const IBattlePtr battle, const CommonUserPtr bot, const UserBattleStatus& status )
 {
     if (!battle) return;
     if (!bot) return;
@@ -305,7 +294,7 @@ UserVector Server::GetAvailableRelayHostList()
 	return ret;
 }
 
-void Server::SetRelayIngamePassword( const UserPtr user )
+void Server::SetRelayIngamePassword( const CommonUserPtr user )
 {
 	if (!user) return;
     if ( !m_impl->m_current_battle ) return;
@@ -392,12 +381,12 @@ void Server::UdpPingAllClients()
 
 
 	// copypasta from spring.cpp
-    UserVector ordered_users = m_impl->m_current_battle->Users();
+    CommonUserVector ordered_users = m_impl->m_current_battle->Users();
 	//TODO this uses ptr diff atm
 	std::sort(ordered_users.begin(),ordered_users.end());
 
     int i = -1;
-    BOOST_FOREACH( const ConstUserPtr user, ordered_users )
+    BOOST_FOREACH( const ConstCommonUserPtr user, ordered_users )
 	{
         i++;
 		if (!user)
@@ -526,7 +515,7 @@ void Server::OnPong( long long ping_time )
 	//TODO: event
 }
 
-void Server::OnUserQuit(const UserPtr user)
+void Server::OnUserQuit(const CommonUserPtr user)
 {
 	if ( !user ) return;
     if (user == m_impl->m_me) return;
@@ -605,7 +594,7 @@ void Server::OnBattleLockUpdated(const IBattlePtr battle,bool locked)
 	battle->SetLocked(locked);
 }
 
-void Server::OnUserLeftBattle(const IBattlePtr battle, const UserPtr user)
+void Server::OnUserLeftBattle(const IBattlePtr battle, const CommonUserPtr user)
 {
 	if (!user) return;
 	bool isbot = user->BattleStatus().IsBot();
@@ -669,7 +658,7 @@ void Server::OnKickedFromChannel( const ChannelPtr channel, const std::string& f
 	if (!channel) return;
 }
 
-void Server::OnChannelSaid( const ChannelPtr channel, const UserPtr user, const std::string& message )
+void Server::OnChannelSaid( const ChannelPtr channel, const CommonUserPtr user, const std::string& message )
 {
     if ( m_impl->m_relay_host_bot != 0 &&
          channel == m_impl->m_channels.Get( "U" + Util::ToString(m_impl->m_relay_host_bot->Id()) ) )
@@ -763,18 +752,18 @@ void Server::OnKickedFromBattle( const IBattlePtr battle)
 }
 
 
-void Server::OnUserInternalUdpPort( const UserPtr user, int udpport )
+void Server::OnUserInternalUdpPort( const CommonUserPtr user, int udpport )
 {
 	if (!user) return;
 }
 
-void Server::OnUserExternalUdpPort( const UserPtr user, int udpport )
+void Server::OnUserExternalUdpPort( const CommonUserPtr user, int udpport )
 {
 	if (!user) return;
     user->BattleStatus().udpport = udpport;
 }
 
-void Server::OnUserIP( const UserPtr user, const std::string& ip )
+void Server::OnUserIP( const CommonUserPtr user, const std::string& ip )
 {
 	if (!user) return;
 	user->BattleStatus().ip = ip;
@@ -798,7 +787,7 @@ void Server::OnRequestBattleStatus(IBattlePtr battle)
 //	if(!m_battle) return;
 }
 
-void Server::OnUserScriptPassword(const UserPtr user, const std::string &pw)
+void Server::OnUserScriptPassword(const CommonUserPtr user, const std::string &pw)
 {
     assert( false );
 }
@@ -807,7 +796,7 @@ void Server::OnBattleHostchanged(IBattlePtr battle, int udpport)
 {
 }
 
-void Server::OnUserBattleStatusUpdated(IBattlePtr battle, UserPtr user, const UserBattleStatus &status)
+void Server::OnUserBattleStatusUpdated(IBattlePtr battle, CommonUserPtr user, const UserBattleStatus &status)
 {
 }
 
@@ -816,12 +805,12 @@ int Server::GetNextAvailableID()
     return 1;
 }
 
-void Server::SayPrivate( const ConstUserPtr user, const std::string& msg )
+void Server::SayPrivate( const ConstCommonUserPtr user, const std::string& msg )
 {
     m_impl->SayPrivate( user->Nick(), msg );
 }
 
-void Server::DoActionPrivate(const ConstUserPtr user, const std::string& msg )
+void Server::DoActionPrivate(const ConstCommonUserPtr user, const std::string& msg )
 {
     m_impl->DoActionPrivate( user->Nick(), msg );
 }
@@ -836,7 +825,7 @@ void Server::SendHostInfo(const std::string &key)
     m_impl->SendHostInfo(key);
 }
 
-void Server::RemoveUser(const UserPtr user)
+void Server::RemoveUser(const CommonUserPtr user)
 {
     m_impl->m_users.Remove( user->key() );
 }
@@ -876,7 +865,7 @@ void Server::SendMyUserStatus()
     m_impl->SendCmd( "MYSTATUS", Util::ToString( taus.byte ) );
 }
 
-void Server::ForceSide( const BattlePtr battle, const UserPtr user, int side )
+void Server::ForceSide( const IBattlePtr battle, const CommonUserPtr user, int side )
 {
     if (!battle) return;
     if (!user) return;
@@ -896,7 +885,7 @@ void Server::ForceSide( const BattlePtr battle, const UserPtr user, int side )
     }
 }
 
-void Server::ForceTeam( const BattlePtr battle, const UserPtr user, int team )
+void Server::ForceTeam( const IBattlePtr battle, const CommonUserPtr user, int team )
 {
     if (!battle) return;
     if (!user) return;
@@ -919,7 +908,7 @@ void Server::ForceTeam( const BattlePtr battle, const UserPtr user, int team )
     SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCETEAMNO", user->Nick() + " " + Util::ToString(team) );
 }
 
-void Server::ForceAlly( const BattlePtr battle, const UserPtr user, int ally )
+void Server::ForceAlly( const IBattlePtr battle, const CommonUserPtr user, int ally )
 {
     if (!battle) return;
     if (!user) return;
@@ -944,7 +933,7 @@ void Server::ForceAlly( const BattlePtr battle, const UserPtr user, int ally )
     SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCEALLYNO", user->Nick() + " " + Util::ToString(ally) );
 }
 
-void Server::ForceColor(const BattlePtr battle, const UserPtr user, const lslColor& rgb)
+void Server::ForceColor(const IBattlePtr battle, const CommonUserPtr user, const lslColor& rgb)
 {
     if (!battle) return;
     if (!user) return;
@@ -973,7 +962,7 @@ void Server::ForceColor(const BattlePtr battle, const UserPtr user, const lslCol
     SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCETEAMCOLOR", user->Nick() + " " + Util::ToString( tascl.data ) );
 }
 
-void Server::ForceSpectator( const BattlePtr battle, const UserPtr user, bool spectator )
+void Server::ForceSpectator( const IBattlePtr battle, const CommonUserPtr user, bool spectator )
 {
     if (!battle) return;
     if (!user) return;
@@ -997,7 +986,7 @@ void Server::ForceSpectator( const BattlePtr battle, const UserPtr user, bool sp
     SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCESPECTATORMODE", user->Nick() );
 }
 
-void Server::BattleKickPlayer( const BattlePtr battle, const UserPtr user )
+void Server::BattleKickPlayer( const IBattlePtr battle, const CommonUserPtr user )
 {
     if (!battle) return;
     if (!user) return;
@@ -1015,11 +1004,17 @@ void Server::BattleKickPlayer( const BattlePtr battle, const UserPtr user )
     }
     if (!m_impl->m_current_battle->IsFounderMe()) return;
 
+    if( !m_impl->m_current_battle->IsProxy() )
+    {
+        // reset his password to something random, so he can't rejoin
+        user->BattleStatus().scriptPassword = (boost::format("%04x%04x") % (rand()&0xFFFF) % (rand()&0xFFFF) ).str();
+        SetRelayIngamePassword( user );
+    }
     //KICKFROMBATTLE username
     SendOrRelayCmd( m_impl->m_current_battle->IsProxy(),"KICKFROMBATTLE", user->Nick() );
 }
 
-void Server::SetHandicap( const BattlePtr battle, const UserPtr user, int handicap)
+void Server::SetHandicap( const IBattlePtr battle, const CommonUserPtr user, int handicap)
 {
     if (!battle) return;
     if (!user) return;
@@ -1038,7 +1033,7 @@ void Server::SetHandicap( const BattlePtr battle, const UserPtr user, int handic
     SendOrRelayCmd( m_impl->m_current_battle->IsProxy(),"HANDICAP", user->Nick() + " " + Util::ToString(handicap) );
 }
 
-void Server::SendUserPosition( const UserPtr user )
+void Server::SendUserPosition( const CommonUserPtr user )
 {
     if (!m_impl->m_current_battle) return;
     if (!m_impl->m_current_battle->IsFounderMe()) return;

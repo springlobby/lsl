@@ -645,7 +645,7 @@ void ServerImpl::OnUserStatusChanged( const std::string& nick, int intstatus )
 	tasstatus.byte = intstatus;
 	UserStatus status = ConvTasclientstatus( tasstatus.tasdata );
     m_iface->sig_UserStatusChanged( user, status );
-    BattlePtr battle = user->GetBattle();
+    IBattlePtr battle = user->GetBattle();
 	if ( battle )
 	{
 		if ( battle->GetFounder() == user )
@@ -781,7 +781,7 @@ void ServerImpl::OnSetBattleOption( std::string key, const std::string& value )
             int team = Util::FromString<int>( Util::BeforeFirst(key,"/").substr( 4, std::string::npos ) );
             if ( key.find( "startposx" ) != std::string::npos )
 			{
-                BOOST_FOREACH( const UserPtr player, battle->Users() )
+                BOOST_FOREACH( const CommonUserPtr player, battle->Users() )
 				{
                     UserBattleStatus& status = player->BattleStatus();
 					if ( status.team == team )
@@ -793,7 +793,7 @@ void ServerImpl::OnSetBattleOption( std::string key, const std::string& value )
 			 }
              else if ( key.find( "startposy" ) != std::string::npos )
 			 {
-                BOOST_FOREACH( const UserPtr player, battle->Users() )
+                BOOST_FOREACH( const CommonUserPtr player, battle->Users() )
 				{
                     UserBattleStatus& status = player->BattleStatus();
 					if ( status.team == team )
@@ -1125,7 +1125,7 @@ void ServerImpl::OnClientIPPort( const std::string &username, const std::string 
 void ServerImpl::OnHostExternalUdpPort( const int udpport )
 {
     if (!m_current_battle) return;
-    const UserPtr host = m_current_battle->GetFounder();
+    const CommonUserPtr host = m_current_battle->GetFounder();
     m_iface->OnUserExternalUdpPort(host, udpport);
     m_iface->OnBattleHostchanged( m_current_battle, udpport );
 }
@@ -1181,7 +1181,7 @@ void ServerImpl::OnBattleUpdateBot( int battleid, const std::string& nick, int i
 	status = ConvTasbattlestatus( tasbstatus.tasdata );
 	color.data = intcolor;
     status.color = lslColor( color.color.red, color.color.green, color.color.blue );
-    UserPtr user = battle->GetUser( nick );
+    CommonUserPtr user = battle->GetUser( nick );
     m_iface->OnUserBattleStatusUpdated( battle, user, status );
 }
 
@@ -1189,7 +1189,7 @@ void ServerImpl::OnBattleRemoveBot( int battleid, const std::string& nick )
 {
     BattlePtr battle = m_battles.Get(battleid);
 	if (!battle) return;
-    UserPtr user = battle->GetUser( nick );
+    CommonUserPtr user = battle->GetUser( nick );
 	if (!user ) return;
     m_iface->OnUserLeftBattle( battle, user );
     if (user->BattleStatus().IsBot())
@@ -1211,7 +1211,7 @@ void ServerImpl::SendCmd( const std::string& command, const boost::format& param
 
 
 
-void ServerImpl::Ring( const ConstUserPtr user )
+void ServerImpl::Ring( const ConstCommonUserPtr user )
 {
     if ( m_current_battle && m_current_battle->IsProxy() )
         RelayCmd( "RING", user->Nick() );

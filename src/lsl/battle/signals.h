@@ -10,11 +10,11 @@ namespace LSL { namespace Signals {
  *  @{
  */
 //! battle that was left | User that left | user is a bot
-static boost::signals2::signal<void (ConstIBattlePtr, ConstUserPtr, bool)> sig_UserLeftBattle;
+static boost::signals2::signal<void (const ConstIBattlePtr, const ConstCommonUserPtr, bool)> sig_UserLeftBattle;
 //! battle that updated | Tag that updated, or empty string
-static boost::signals2::signal<void (ConstIBattlePtr, std::string)> sig_BattleInfoUpdate;
+static boost::signals2::signal<void (const ConstIBattlePtr, std::string)> sig_BattleInfoUpdate;
 //! Hosted battle that is ready to start
-static boost::signals2::signal<void (ConstIBattlePtr)> sig_BattleCouldStartHosted;
+static boost::signals2::signal<void (const ConstIBattlePtr)> sig_BattleCouldStartHosted;
 //! battle preset stuff has changed
 static boost::signals2::signal<void ()> sig_ReloadPresetList;
 /** @}*/

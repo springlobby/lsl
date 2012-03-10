@@ -90,7 +90,7 @@ lslColor IBattle::GetFixColor(int i) const
 	return palette[i];
 }
 
-int IBattle::GetPlayerNum( const ConstUserPtr user ) const
+int IBattle::GetPlayerNum( const ConstCommonUserPtr user ) const
 {
 	for ( size_t i = 0; i < m_userlist.size(); ++i )
 	{
@@ -131,7 +131,7 @@ public:
 	}
 };
 
-lslColor IBattle::GetFreeColor( const ConstUserPtr user) const
+lslColor IBattle::GetFreeColor( const ConstCommonUserPtr user) const
 {
 	typedef std::vector<lslColor>
 		ColorVec;
@@ -172,7 +172,7 @@ int IBattle::GetFreeTeam( bool excludeme ) const
 		changed = false;
 		for ( size_t i = 0; i < m_userlist.size(); i++ )
 		{
-			const ConstUserPtr user = m_userlist.At( i );
+            const ConstCommonUserPtr user = m_userlist.At( i );
 			if ( ( user == GetMe() ) && excludeme ) continue;
 			if ( user->BattleStatus().spectator ) continue;
 			if ( user->BattleStatus().team == lowest )
@@ -215,7 +215,7 @@ void IBattle::Update ( const std::string& /*unused*/)
 {
 }
 
-void IBattle::OnUserAdded(const UserPtr user )
+void IBattle::OnUserAdded(const CommonUserPtr user )
 {
 	UserBattleStatus& bs = user->BattleStatus();
 	bs.spectator = false;
@@ -272,7 +272,7 @@ unsigned int IBattle::GetNumActivePlayers() const
 	return GetNumPlayers() - m_opts.spectators;
 }
 
-void IBattle::OnUserBattleStatusUpdated( UserPtr user, UserBattleStatus status )
+void IBattle::OnUserBattleStatusUpdated( CommonUserPtr user, UserBattleStatus status )
 {
 	UserBattleStatus previousstatus = user->BattleStatus();
 
@@ -286,7 +286,7 @@ void IBattle::OnUserBattleStatusUpdated( UserPtr user, UserBattleStatus status )
 	m_ally_sizes.clear();
 	for ( unsigned int i = 0; i < m_userlist.size(); i++ )
 	{
-		const ConstUserPtr loopuser = m_userlist.At( i );
+        const ConstCommonUserPtr loopuser = m_userlist.At( i );
 		const UserBattleStatus& loopstatus = loopuser->BattleStatus();
 		if ( loopstatus.spectator ) m_opts.spectators++;
 		if ( !loopstatus.IsBot() )
@@ -334,7 +334,7 @@ bool IBattle::ShouldAutoStart() const
 	return true;
 }
 
-void IBattle::OnUserRemoved( UserPtr user )
+void IBattle::OnUserRemoved( CommonUserPtr user )
 {
 	UserBattleStatus& bs = user->BattleStatus();
 	if ( !bs.spectator )
@@ -359,7 +359,7 @@ void IBattle::OnUserRemoved( UserPtr user )
 	}
 	m_userlist.Remove( user->Nick() );
 	if ( !bs.IsBot() )
-		user->SetBattle( BattlePtr() );
+        user->SetBattle( IBattlePtr() );
 	else
     {
         m_internal_bot_list.Remove( user->Nick() );
@@ -371,7 +371,7 @@ bool IBattle::IsEveryoneReady() const
 {
 	for ( unsigned int i = 0; i < GetNumPlayers(); i++ )
 	{
-		const ConstUserPtr usr = m_userlist.At( i );
+        const ConstCommonUserPtr usr = m_userlist.At( i );
 		const UserBattleStatus& status = usr->BattleStatus();
 		if ( status.IsBot() ) continue;
 		if ( status.spectator ) continue;
@@ -498,7 +498,7 @@ void IBattle::ClearStartRects()
 	m_rects.clear();
 }
 
-void IBattle::ForceSide(const UserPtr user, int side )
+void IBattle::ForceSide(const CommonUserPtr user, int side )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -506,7 +506,7 @@ void IBattle::ForceSide(const UserPtr user, int side )
 	}
 }
 
-void IBattle::ForceTeam(const UserPtr user, int team )
+void IBattle::ForceTeam(const CommonUserPtr user, int team )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -520,7 +520,7 @@ void IBattle::ForceTeam(const UserPtr user, int team )
 }
 
 
-void IBattle::ForceAlly(const UserPtr user, int ally )
+void IBattle::ForceAlly(const CommonUserPtr user, int ally )
 {
 
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
@@ -536,7 +536,7 @@ void IBattle::ForceAlly(const UserPtr user, int ally )
 }
 
 
-void IBattle::ForceColor(const UserPtr user, const lslColor& col )
+void IBattle::ForceColor(const CommonUserPtr user, const lslColor& col )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -585,7 +585,7 @@ void IBattle::PlayerLeftAlly( int ally )
 	}
 }
 
-void IBattle::ForceSpectator(const UserPtr user, bool spectator )
+void IBattle::ForceSpectator(const CommonUserPtr user, bool spectator )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -624,7 +624,7 @@ void IBattle::ForceSpectator(const UserPtr user, bool spectator )
 	}
 }
 
-void IBattle::SetHandicap(const UserPtr user, int handicap)
+void IBattle::SetHandicap(const CommonUserPtr user, int handicap)
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -633,7 +633,7 @@ void IBattle::SetHandicap(const UserPtr user, int handicap)
 }
 
 
-void IBattle::KickPlayer(const UserPtr user )
+void IBattle::KickPlayer(const CommonUserPtr user )
 {
 	if ( IsFounderMe() || user->BattleStatus().IsBot() )
 	{
@@ -650,7 +650,7 @@ int IBattle::GetFreeAlly( bool excludeme ) const
 		changed = false;
 		for ( unsigned int i = 0; i < m_userlist.size(); i++ )
 		{
-			const ConstUserPtr user = m_userlist.At( i );
+            const ConstCommonUserPtr user = m_userlist.At( i );
 			if ( ( user == GetMe() ) && excludeme ) continue;
 			if ( user->BattleStatus().spectator ) continue;
 			if ( user->BattleStatus().ally == lowest )
@@ -672,8 +672,8 @@ UserPosition IBattle::GetFreePosition()
 		bool taken = false;
 		for ( unsigned int bi = 0; bi < m_userlist.size(); bi++ )
 		{
-			UserPtr user = m_userlist.At( bi );
-			UserBattleStatus& status = user->BattleStatus();
+            ConstCommonUserPtr user = m_userlist.At( bi );
+            const UserBattleStatus& status = user->BattleStatus();
 			if ( status.spectator ) continue;
 			if ( ( map.info.positions[i].x == status.pos.x ) && ( map.info.positions[i].y == status.pos.y ) )
 			{
@@ -847,13 +847,11 @@ void IBattle::OnSelfLeftBattle()
 	m_is_self_in = false;
 	for( size_t j = 0; j < m_userlist.size(); ++j  )
 	{
-        UserPtr u = m_userlist.At( j );
+        CommonUserPtr u = m_userlist.At( j );
         if ( u->BattleStatus().IsBot() )
 		{
 			OnUserRemoved( u );
-			ConstIBattlePtr bp( this );
-			ConstUserPtr up(u);
-			Signals::sig_UserLeftBattle( bp, up, true );
+            Signals::sig_UserLeftBattle( shared_from_this(), u, true );
 			j--;
 		}
 	}
@@ -1021,7 +1019,7 @@ StringVector IBattle::GetPresetList()
 	return sett().GetPresetList();
 }
 
-void IBattle::UserPositionChanged( const UserPtr /*unused*/ )
+void IBattle::UserPositionChanged( const CommonUserPtr /*unused*/ )
 {
 }
 
@@ -1052,7 +1050,7 @@ bool IBattle::IsFounderMe() const
 	return ( ( m_opts.founder == GetMe()->Nick() ) || ( IsProxy()  && !m_generating_script ) );
 }
 
-bool IBattle::IsFounder( const UserPtr user ) const
+bool IBattle::IsFounder( const CommonUserPtr user ) const
 {
 	if ( m_userlist.Exists( m_opts.founder ) ) {
 		try
@@ -1272,7 +1270,7 @@ long IBattle::GetBattleRunningTime() const
     return td.seconds();
 }
 
-UserPtr IBattle::GetUser(const std::string &nick)
+CommonUserPtr IBattle::GetUser(const std::string &nick)
 {
     return m_userlist.FindByNick( nick );
 }

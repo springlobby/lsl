@@ -142,11 +142,11 @@ public:
 	virtual bool IsProxy() const;
 	virtual bool IsSynced(); //cannot be const
 	virtual bool IsFounderMe() const;
-	virtual bool IsFounder( const UserPtr user ) const;
+    virtual bool IsFounder( const CommonUserPtr user ) const;
 	bool IsEveryoneReady() const;
 
 	virtual int GetMyPlayerNum() const;
-	virtual int GetPlayerNum(const ConstUserPtr user ) const;
+    virtual int GetPlayerNum(const ConstCommonUserPtr user ) const;
 
 	virtual void SetHostMod( const std::string& modname, const std::string& hash );
 	virtual void SetLocalMod( const UnitsyncMod& mod );
@@ -158,17 +158,17 @@ public:
 	virtual bool ModExists() const;
 
 	virtual BattleStartRect GetStartRect( unsigned int allyno ) const;
-    void OnUserAdded( const UserPtr user );
-	void OnUserBattleStatusUpdated(UserPtr user, UserBattleStatus status );
-	void OnUserRemoved( UserPtr user );
+    void OnUserAdded(const CommonUserPtr user );
+    void OnUserBattleStatusUpdated(CommonUserPtr user, UserBattleStatus status );
+    void OnUserRemoved(CommonUserPtr user );
 
-	void ForceSide(const UserPtr user, int side );
-	void ForceAlly( const UserPtr user, int ally );
-	void ForceTeam(const UserPtr user, int team );
-    void ForceColor( const UserPtr user, const lslColor& col );
-	void ForceSpectator( const UserPtr user, bool spectator );
-	void SetHandicap( const UserPtr user, int handicap);
-	void KickPlayer( const UserPtr user );
+    void ForceSide(const CommonUserPtr user, int side );
+    void ForceAlly( const CommonUserPtr user, int ally );
+    void ForceTeam(const CommonUserPtr user, int team );
+    void ForceColor( const CommonUserPtr user, const lslColor& col );
+    void ForceSpectator( const CommonUserPtr user, bool spectator );
+    void SetHandicap( const CommonUserPtr user, int handicap);
+    void KickPlayer( const CommonUserPtr user );
 
 	virtual void AddStartRect( unsigned int allyno, unsigned int left, unsigned int top, unsigned int right, unsigned int bottom );
 	virtual void RemoveStartRect( unsigned int allyno );
@@ -183,8 +183,8 @@ public:
 
 	virtual int GetFreeTeam( bool excludeme = false ) const;
 
-    virtual const UserPtr GetMe() = 0;
-	virtual const ConstUserPtr GetMe() const = 0;
+    virtual const CommonUserPtr GetMe() = 0;
+    virtual const ConstCommonUserPtr GetMe() const = 0;
     virtual void SetChannel( const ChannelPtr channel ) = 0;
     virtual const ChannelPtr GetChannel() = 0;
 
@@ -217,17 +217,17 @@ public:
     std::vector<lslColor> &GetFixColorsPalette( int numteams ) const;
     virtual int GetClosestFixColor(const lslColor &col, const std::vector<int> &excludes, int difference) const;
     lslColor GetFixColor(int i) const;
-    virtual lslColor GetFreeColor( const ConstUserPtr for_whom = UserPtr() ) const;
+    virtual lslColor GetFreeColor( const ConstCommonUserPtr for_whom = UserPtr() ) const;
     lslColor GetNewColor() const;
     int ColorDifference(const lslColor &a, const lslColor &b)  const;
 
-    const ConstUserPtr GetFounder() const { return m_userlist.Get( m_opts.founder ); }
-    UserPtr GetFounder() { return m_userlist.Get( m_opts.founder ); }
+    const ConstCommonUserPtr GetFounder() const { return m_userlist.Get( m_opts.founder ); }
+    CommonUserPtr GetFounder() { return m_userlist.Get( m_opts.founder ); }
 
 	bool IsFull() const { return GetMaxPlayers() == GetNumActivePlayers(); }
 
-    ConstUserVector Users() const { return m_userlist.Vectorize(); }
-    UserVector Users() { return m_userlist.Vectorize(); }
+    ConstCommonUserVector Users() const { return m_userlist.Vectorize(); }
+    CommonUserVector Users() { return m_userlist.Vectorize(); }
     unsigned int GetNumUsers() { return m_userlist.size(); }
     unsigned int GetNumPlayers() const;
     unsigned int GetNumActivePlayers() const;
@@ -303,7 +303,7 @@ public:
 
 	virtual void DisableHostStatusInProxyMode( bool value ) { m_generating_script = value; }
 
-	virtual void UserPositionChanged( const UserPtr usr );
+    virtual void UserPositionChanged( const CommonUserPtr usr );
 
 	virtual void SetScript( const std::string& script ) { m_script.str() = script; }
 	virtual void AppendScriptLine( const std::string& line ) { m_script << line; }
@@ -331,7 +331,7 @@ public:
     void LoadScriptMMOpts(const std::string &sectionname, const TDF::PDataList &node);
     void LoadScriptMMOpts(const TDF::PDataList &node);
 
-    UserPtr GetUser( const std::string& nick );
+    CommonUserPtr GetUser( const std::string& nick );
 
 private:
 	void PlayerLeftTeam( int team );
@@ -373,13 +373,13 @@ private:
 	std::string m_playback_file_path;
 	TeamVec m_parsed_teams;
 	AllyVec m_parsed_allies;
-    UserList m_internal_user_list; /// to store users from savegame/replay
+    CommonUserList m_internal_user_list; /// to store users from savegame/replay
     boost::posix_time::ptime m_start_time;
 
 protected:
 	BattleOptions m_opts;
 	bool m_is_self_in;
-	UserList m_userlist;
+    CommonUserList m_userlist;
     boost::scoped_ptr< boost::asio::deadline_timer > m_timer;
     bool m_generating_script;
     std::map<std::string, time_t> m_ready_up_map; // player name -> time counting from join/unspect

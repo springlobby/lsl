@@ -20,8 +20,8 @@ class SinglePlayerBattle: public IBattle
 
 	bool IsFounderMe() const { return true; }
 
-    virtual const UserPtr GetMe() { return m_me; }
-    virtual const ConstUserPtr GetMe() const { return m_me; }
+    virtual const CommonUserPtr GetMe() { return m_me; }
+    virtual const ConstCommonUserPtr GetMe() const { return m_me; }
 
     void SendHostInfo( Enum::HostInfo update );
     void SendHostInfo( const std::string& /*unused*/ ){ }

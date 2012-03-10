@@ -14,8 +14,8 @@ class OfflineBattle : public IBattle
 			OfflineBattle ( const OfflineBattle&  );
 			OfflineBattle& operator = ( const OfflineBattle&  );
 			~OfflineBattle (){}
-            virtual const UserPtr GetMe() { return m_me; }
-            virtual const ConstUserPtr GetMe() const { return m_me; }
+            virtual const CommonUserPtr GetMe() { return m_me; }
+            virtual const ConstCommonUserPtr GetMe() const { return m_me; }
 			bool IsFounderMe() const { return true; }
 			void StartSpring();
 
