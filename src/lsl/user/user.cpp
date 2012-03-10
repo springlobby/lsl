@@ -12,12 +12,12 @@ void User::Said( const std::string& /*message*/ ) const
 
 void User::Say( const std::string& message ) const
 {
-	m_serv->SayPrivate( m_nick, message );
+    m_serv->SayPrivate( shared_from_this(), message );
 }
 
 void User::DoAction( const std::string& message ) const
 {
-	m_serv->DoActionPrivate( m_nick, message );
+    m_serv->DoActionPrivate( shared_from_this(), message );
 }
 
 BattlePtr User::GetBattle() const
@@ -58,7 +58,7 @@ void User::SendMyUserStatus() const
 bool User::ExecuteSayCommand( const std::string& cmd ) const
 {
 	if ( boost::to_lower_copy( Util::BeforeFirst(cmd," " ) ) == "/me" ) {
-		m_serv->DoActionPrivate( m_nick, Util::AfterFirst(cmd," " ) );
+        m_serv->DoActionPrivate( shared_from_this(), Util::AfterFirst(cmd," " ) );
 		return true;
 	} else return false;
 }

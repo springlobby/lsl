@@ -20,7 +20,7 @@ namespace LSL {
  * \param sep the character params is split at
  * \return N==0: params, N>0:everything before the first seperator
  **/
-std::string GetParamByChar( std::string& params, const char sep )
+static std::string GetParamByChar( std::string& params, const char sep )
 {
     const std::string::size_type pos = params.find( sep );
 	std::string ret;
@@ -38,26 +38,26 @@ std::string GetParamByChar( std::string& params, const char sep )
 }
 
 //! convenience wrapper around GetParamByChar for single whitespace delimited words
-std::string GetWordParam( std::string& params )
+static std::string GetWordParam( std::string& params )
 {
 	return GetParamByChar( params, ' ');
 }
 
 //! convenience wrapper around GetParamByChar for tabulator delimited sentences
-std::string GetSentenceParam( std::string& params )
+static std::string GetSentenceParam( std::string& params )
 {
 	return GetParamByChar( params, '\t' );
 }
 
 //! convenience wrapper around GetParamByChar for whitespace delimited integers
-long GetIntParam( std::string& params )
+static long GetIntParam( std::string& params )
 {
 	const std::string d = GetParamByChar( params, ' ');
 	return Util::FromString<long>( d );
 }
 
 //! convenience wrapper around GetParamByChar for whitespace delimited booleans
-bool GetBoolParam( std::string& params )
+static bool GetBoolParam( std::string& params )
 {
 	return (bool)GetIntParam( params );
 }
@@ -166,10 +166,10 @@ struct Command : public CommandBase  {
 class CommandDictionary {
 private:
 	//! only TASSERVER can construct a CommandDictionary
-	friend class TASServer;
-	CommandDictionary( TASServer* tas );
+    friend class ServerImpl;
+    CommandDictionary( ServerImpl* tas );
 
-	TASServer* m_tas;
+    ServerImpl* m_tas;
 	typedef std::map<std::string,boost::shared_ptr<CommandBase> >
 		MapType;
 	MapType cmd_map_;

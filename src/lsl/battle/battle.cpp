@@ -48,25 +48,23 @@ void Battle::SendHostInfo( const std::string& Tag )
 
 void Battle::Update()
 {
-	Signals::sig_BattleInfoUpdate( boost::shared_ptr<const Battle>( this ), "" );
+    Signals::sig_BattleInfoUpdate( shared_from_this(), "" );
 }
 
 void Battle::Update( const std::string& Tag )
 {
-	Signals::sig_BattleInfoUpdate( boost::shared_ptr<const Battle>( this ), Tag );
+    Signals::sig_BattleInfoUpdate( shared_from_this(), Tag );
 }
 
 void Battle::Join( const std::string& password )
 {
-    BattlePtr jp( this );
-    m_serv->JoinBattle( jp, password );
+    m_serv->JoinBattle( shared_from_this(), password );
     m_is_self_in = true;
 }
 
 void Battle::Leave()
 {
-    BattlePtr jp( this );
-    m_serv->LeaveBattle( jp );
+    m_serv->LeaveBattle( shared_from_this() );
 }
 
 void Battle::OnRequestBattleStatus()
@@ -94,9 +92,7 @@ void Battle::SendMyBattleStatus()
 void Battle::SetImReady( bool ready )
 {
     UserBattleStatus& bs = m_serv->GetMe()->BattleStatus();
-
     bs.ready = ready;
-
     //m_serv->GetMe()->SetBattleStatus( bs );
     SendMyBattleStatus();
 }
@@ -108,18 +104,19 @@ void Battle::SetImReady( bool ready )
 
 void Battle::Say( const std::string& msg )
 {
-    m_serv->SayBattle( m_opts.battleid, msg );
+    m_serv->SayBattle( shared_from_this(), msg );
 }
 
 void Battle::DoAction( const std::string& msg )
 {
-    m_serv->DoActionBattle( m_opts.battleid, msg );
+    m_serv->DoActionBattle( shared_from_this(), msg );
 }
 
 void Battle::SetLocalMap( const UnitsyncMap& map )
 {
     IBattle::SetLocalMap( map );
-    if ( IsFounderMe() )  LoadMapDefaults( map.name );
+    if ( IsFounderMe() )
+        LoadMapDefaults( map.name );
 }
 
 const UserPtr Battle::GetMe()
@@ -185,15 +182,15 @@ void Battle::OnUserAdded( const UserPtr user )
     {
         m_timer->async_wait( boost::bind( &Battle::OnTimer, this, _1 ) );
     }
-    BattlePtr bptr( this );
-    user->SetBattle( bptr );
+    user->SetBattle( shared_from_this() );
 	user->BattleStatus().isfromdemo = false;
 
     if ( IsFounderMe() )
     {
         if ( IsBanned( user ) ) return;
 
-		if ( ( user != GetMe() ) && !user->BattleStatus().IsBot() && ( m_opts.rankneeded != UserStatus::RANK_1 ) && !user->BattleStatus().spectator )
+        if ( ( user != GetMe() ) && !user->BattleStatus().IsBot() &&
+             ( m_opts.rankneeded != UserStatus::RANK_1 ) && !user->BattleStatus().spectator )
         {
 			if ( m_opts.rankneeded > UserStatus::RANK_1 && user->Status().rank < m_opts.rankneeded )
             {
@@ -259,7 +256,7 @@ void Battle::OnUserBattleStatusUpdated( const UserPtr user, UserBattleStatus sta
     {
         if ( ShouldAutoStart() )
         {
-			Signals::sig_BattleCouldStartHosted( ConstBattlePtr( this ) );
+            Signals::sig_BattleCouldStartHosted( shared_from_this() );
         }
     }
 	if ( !GetMe()->BattleStatus().spectator )
@@ -319,7 +316,7 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
     std::string cmd_name = boost::algorithm::to_lower_copy( Util::BeforeFirst(cmd," ") );
 	if ( cmd_name == "/me" )
     {
-        m_serv->DoActionBattle( m_opts.battleid, Util::AfterFirst(cmd," ") );
+        m_serv->DoActionBattle( shared_from_this(), Util::AfterFirst(cmd," ") );
         return true;
     }
 	if ( cmd_name == "/replacehostip" )
@@ -338,9 +335,8 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
             m_banned_users.insert(nick);
             try
             {
-				UserPtr user = GetUser( nick );
-                const BattlePtr ptr( this );
-                m_serv->BattleKickPlayer( ptr, user );
+                UserPtr user = GetUser( nick );
+                m_serv->BattleKickPlayer( shared_from_this(), user );
             }
             catch( /*assert_exception*/... ) {}
 //            UiEvents::GetUiEventSender( UiEvents::OnBattleActionEvent ).SendEvent(
@@ -412,8 +408,7 @@ bool Battle::ExecuteSayCommand( const std::string& cmd )
 //								UiEvents::OnBattleActionData( std::string(" ") , user->BattleStatus().ip+" banned" )
 //                                );
                 }
-                BattlePtr ptr( this );
-                m_serv->BattleKickPlayer( ptr, user );
+                m_serv->BattleKickPlayer( shared_from_this(), user );
             }
             //m_banned_ips.erase(nick);
 
@@ -478,60 +473,45 @@ bool Battle::GetLockExternalBalanceChanges()
 
 void Battle::AddBot( const std::string& nick, UserBattleStatus status )
 {
-    BattlePtr ptr( this );
-    m_serv->AddBot( ptr, nick, status );
+    m_serv->AddBot( shared_from_this(), nick, status );
 }
-
-
 
 void Battle::ForceSide( UserPtr user, int side )
 {
-    BattlePtr ptr( this );
-    m_serv->ForceSide( ptr, user, side );
+    m_serv->ForceSide( shared_from_this(), user, side );
 }
-
 
 void Battle::ForceTeam( UserPtr user, int team )
 {
     IBattle::ForceTeam( user, team );
-    BattlePtr ptr( this );
-    m_serv->ForceTeam( ptr, user, team );
+    m_serv->ForceTeam( shared_from_this(), user, team );
 }
-
 
 void Battle::ForceAlly( UserPtr user, int ally )
 {
     IBattle::ForceAlly( user, ally );
-    BattlePtr ptr( this );
-    m_serv->ForceAlly( ptr, user, ally );
+    m_serv->ForceAlly( shared_from_this(), user, ally );
 }
-
 
 void Battle::ForceColor( UserPtr user, const lslColor& col )
 {
     IBattle::ForceColor( user, col );
-    BattlePtr ptr( this );
-    m_serv->ForceColor( ptr, user, col );
+    m_serv->ForceColor( shared_from_this(), user, col );
 }
-
 
 void Battle::ForceSpectator( UserPtr user, bool spectator )
 {
-    BattlePtr ptr( this );
-    m_serv->ForceSpectator( ptr, user, spectator );
+    m_serv->ForceSpectator( shared_from_this(), user, spectator );
 }
-
 
 void Battle::KickPlayer( UserPtr user )
 {
-    BattlePtr ptr( this );
-    m_serv->BattleKickPlayer( ptr, user );
+    m_serv->BattleKickPlayer( shared_from_this(), user );
 }
 
 void Battle::SetHandicap( UserPtr user, int handicap)
 {
-    BattlePtr ptr( this );
-    m_serv->SetHandicap ( ptr, user, handicap );
+    m_serv->SetHandicap ( shared_from_this(), user, handicap );
 }
 
 void Battle::ForceUnsyncedToSpectate()
@@ -574,7 +554,6 @@ void Battle::UserPositionChanged(const UserPtr user )
 {
     m_serv->SendUserPosition( user );
 }
-
 
 void Battle::SendScriptToClients()
 {
@@ -642,9 +621,7 @@ void Battle::StartSpring()
         SendMyBattleStatus();
         // set m_generating_script, this will make the script.txt writer realize we're just clients even if using a relayhost
         m_generating_script = true;
-//        auto p = boost::make_shared<Battle>( this );
-        boost::shared_ptr<Battle> b_ptr( this );
-        me->Status().in_game = spring().Run( b_ptr );
+        me->Status().in_game = spring().Run( shared_from_this() );
         m_generating_script = false;
         me->SendMyUserStatus();
     }

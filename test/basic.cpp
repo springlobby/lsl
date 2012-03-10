@@ -1,7 +1,7 @@
 #include <lsl/container/userlist.h>
 #include <lsl/container/battlelist.h>
 #include <lsl/container/channellist.h>
-#include <lsl/networking/tasserver.h>
+#include <lsl/networking/iserver.h>
 #include <lslutils/misc.h>
 
 #include "common.h"
@@ -34,7 +34,7 @@ int main(int, char**)
 //    TESTLIST(UserList)
 //    TESTLIST(Battle::BattleList)
 //    TESTLIST(ChannelList)
-    LSL::TASServer tas;
+    LSL::Server tas;
 
 
 	dummySync();

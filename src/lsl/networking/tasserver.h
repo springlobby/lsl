@@ -9,10 +9,14 @@
 namespace LSL {
 
 class CommandDictionary;
+class Server;
 
-class TASServer : public iServer {
-public:
-	TASServer();
+class ServerImpl
+{
+    friend class Server;
+private:
+    ServerImpl( Server* serv );
+
 
 	void AcceptAgreement();
 	void RequestChannels();
@@ -55,23 +59,14 @@ public:
 
 	void SendPing();
 
-	virtual void LeaveBattle( const int& battle_id );
-	virtual void StartHostedBattle();
-	void SendHostInfo(Enum::HostInfo update);
-	void SendHostInfo(int type, const std::string &key);
-	void SendMyBattleStatus(UserBattleStatus &bs);
+    void LeaveBattle( const int& battle_id );
+    void StartHostedBattle();
+    ChannelPtr GetCreatePrivateChannel(const UserPtr user);
+    void RemoveUser( const UserPtr user );
+    void RemoveChannel( const ChannelPtr chan );
+    void RemoveBattle( const IBattlePtr battle );
+
 	void SendMyUserStatus();
-	void ForceSide(const BattlePtr battle, const UserPtr user, int side);
-	void ForceTeam(const BattlePtr battle, const UserPtr user, int team);
-	void ForceAlly(const BattlePtr battle, const UserPtr user, int ally);
-	void ForceColor(const BattlePtr battle, const UserPtr user, int r, int g, int b);
-	void ForceSpectator(const BattlePtr battle, const UserPtr user, bool spectator);
-	void BattleKickPlayer(const BattlePtr battle, const UserPtr user);
-	void SetHandicap(const BattlePtr battle, const UserPtr user, int handicap);
-	void AddBot(const BattlePtr battle, const std::string &nick, UserBattleStatus &status);
-	void RemoveBot(const BattlePtr battle, const UserPtr user);
-	void UpdateBot(const BattlePtr battle, const UserPtr user, UserBattleStatus &incoming_status);
-	void SendScriptToClients(const std::string &script);
 	void RequestSpringUpdate(std::string &currentspringversion);
 	int GetNewUserId();
 
@@ -86,30 +81,29 @@ private:
 
 	void SendCmd( const std::string& command, const std::string& param = "" );
 	void SendCmd( const std::string& command, const boost::format& param );
-	void SendUserPosition(const UserPtr user);
 	void SendRaw(const std::string &raw);
 	void RequestInGameTime(const std::string &nick);
 
-	virtual void JoinChannel( const std::string& channel, const std::string& key );
-	virtual void PartChannel( const std::string& channel );
+    void JoinChannel( const std::string& channel, const std::string& key );
+    void PartChannel( const std::string& channel );
 
-	virtual void DoActionChannel( const std::string& channel, const std::string& msg );
-	virtual void SayChannel( const std::string& channel, const std::string& msg );
+    void DoActionChannel( const std::string& channel, const std::string& msg );
+    void SayChannel( const std::string& channel, const std::string& msg );
 
-	virtual void SayPrivate( const std::string& user, const std::string& msg );
-	virtual void DoActionPrivate( const std::string& user, const std::string& msg );
+    void SayPrivate( const std::string& user, const std::string& msg );
+    void DoActionPrivate( const std::string& user, const std::string& msg );
 
-	virtual void SayBattle( const int battle_id, const std::string& msg );
-	virtual void DoActionBattle( const int battle_id, const std::string& msg );
+    void SayBattle( const int battle_id, const std::string& msg );
+    void DoActionBattle( const int battle_id, const std::string& msg );
 
-    virtual void Ring(const ConstUserPtr user );
-	virtual void _Disconnect(const std::string& reason);
-	virtual void _Ping();
-	virtual void _JoinChannel( const std::string& channel, const std::string& key );
-	virtual void _JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword );
-	virtual void _HostBattle( Battle::BattleOptions bo );
-	virtual void _StartHostedBattle();
-	virtual void _LeaveBattle( const IBattlePtr battle);
+    void Ring(const ConstUserPtr user );
+    void _Disconnect(const std::string& reason);
+    void _Ping();
+    void _JoinChannel( const std::string& channel, const std::string& key );
+    void _JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword );
+    void _HostBattle( Battle::BattleOptions bo );
+    void _StartHostedBattle();
+    void _LeaveBattle( const IBattlePtr battle);
 
     friend class CommandDictionary;
     CommandDictionary* m_cmd_dict;
@@ -129,6 +123,17 @@ private:
 
 private:
 	//! command handlers
+    void OnConnected( const std::string&, const int, const std::string&, const int);
+    void OnMotd( const std::string& msg );
+    void OnLoginInfoComplete();
+    void OnChannelListEnd();
+    void OnServerMessage( const std::string& message );
+    void OnServerMessageBox( const std::string& message );
+    void OnJoinBattleFailed( const std::string& msg );
+    void OnOpenBattleFailed( const std::string& msg );
+    void OnLoginFailed( const std::string& reason );
+    void OnServerBroadcast( const std::string& message );
+    void OnRedirect( const std::string& address, int port );
 	void OnBattleOpened(int id, Enum::BattleType type, Enum::NatType nat, const std::string &nick, const std::string &host, int port, int maxplayers, bool haspass, int rank, const std::string &maphash, const std::string &map, const std::string &title, const std::string &mod);
 	void OnUserStatusChanged(const std::string &nick, int intstatus);
 	void OnHostedBattle(int battleid);
@@ -159,7 +164,6 @@ private:
 	void OnChannelPart(const std::string &channel, const std::string &who, const std::string &message);
 	void OnChannelTopic(const std::string &channel, const std::string &who, int, const std::string &message);
 	void OnChannelAction(const std::string &channel, const std::string &who, const std::string &action);
-	ChannelPtr GetCreatePrivateChannel(const UserPtr user);
 	void OnSayPrivateMessageEx(const std::string &user, const std::string &action);
 	void OnSaidPrivateMessageEx(const std::string &user, const std::string &action);
 	void OnSayPrivateMessage(const std::string &user, const std::string &message);
@@ -189,6 +193,66 @@ private:
 	void OnBattleUpdateBot(int battleid, const std::string &nick, int intstatus, int intcolor);
 	void OnBattleRemoveBot(int battleid, const std::string &nick);
 	void OnFileDownload(int intdata, const std::string &FileName, const std::string &url, const std::string &description);
+
+    void RelayCmd( const std::string& command, const std::string& param = "" );
+    void RelayCmd( const std::string& command, const boost::format& param );
+    void SendHostInfo(Enum::HostInfo update);
+    void SendHostInfo(int type, const std::string &key);
+    void SendHostInfo(const std::string& tag );
+
+private:
+    std::map<std::string,std::string> m_channel_pw;  /// channel name -> password, filled on channel join
+
+    int m_keepalive; //! in seconds
+    int m_ping_timeout; //! in seconds
+    int m_ping_interval; //! in seconds
+    int m_server_rate_limit; //! in bytes/sec
+    std::string m_min_required_spring_ver;
+    std::string m_last_denied_connection_reason;
+    std::string m_server_name;
+    std::string m_server_ver;
+    std::string m_last_relay_host_password;
+    PingThread* m_ping_thread;
+    std::string m_buffer;
+    std::string m_addr;
+    std::string m_last_denied;
+    bool m_redirecting;
+    bool m_connected;
+    bool m_online;
+    int m_udp_private_port;
+    int m_nat_helper_port;
+    int m_udp_reply_timeout;
+    time_t m_last_udp_ping;
+
+    MutexWrapper<unsigned int> m_last_ping_id;
+    unsigned int& GetLastPingID()
+    {
+        ScopedLocker<unsigned int> l_last_ping_id(m_last_ping_id);
+        return l_last_ping_id.Get();
+    }
+    MutexWrapper<PingList> m_pinglist;
+    PingList& GetPingList()
+    {
+        ScopedLocker<PingList> l_pinglist(m_pinglist);
+        return l_pinglist.Get();
+    }
+
+    UserPtr m_relay_host_manager;
+
+
+
+    UserVector m_relay_masters;
+    Socket* m_sock;
+    void HandlePong( int replyid );
+    CRC m_crc;
+    IBattlePtr m_current_battle;
+    UserPtr m_relay_host_bot;
+    int m_message_size_limit; //! in bytes
+    UserPtr m_me;
+    Battle::BattleList m_battles;
+    UserList m_users;
+    ChannelList m_channels;
+    Server* m_iface;
 };
 
 } //namespace LSL

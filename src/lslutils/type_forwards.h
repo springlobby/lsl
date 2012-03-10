@@ -41,7 +41,7 @@ namespace TDF {
 class CommonUser;
 class User;
 class Channel;
-class iServer;
+class Server;
 struct UnitsyncMap;
 struct UnitsyncMod;
 class UserBattleStatus;
@@ -49,6 +49,9 @@ class UserPosition;
 class OptionsWrapper;
 struct GameOptions;
 class Spring;
+
+//! @brief map used internally by the iServer class to calculate ping roundtimes.
+typedef std::map<int, long long> PingList;
 
 typedef std::map< std::string, std::string> StringMap;
 typedef std::vector< std::string > StringVector;
@@ -65,8 +68,8 @@ typedef boost::shared_ptr< const Battle::Battle > ConstBattlePtr;
 typedef boost::shared_ptr< Channel > ChannelPtr;
 typedef boost::shared_ptr< const Channel > ConstChannelPtr;
 
-typedef boost::shared_ptr< iServer > IServerPtr;
-typedef boost::shared_ptr< const iServer > ConstIServerPtr;
+typedef boost::shared_ptr< Server > IServerPtr;
+typedef boost::shared_ptr< const Server > ConstIServerPtr;
 
 typedef boost::shared_ptr< CommonUser > CommonUserPtr;
 typedef boost::shared_ptr< const CommonUser > ConstCommonUserPtr;

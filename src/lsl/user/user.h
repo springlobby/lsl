@@ -5,14 +5,13 @@
 
 #include <lslutils/type_forwards.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 
 namespace LSL {
 
-class iServer;
-
 //! actual "Online user"
-class User : public CommonUser
+class User : public CommonUser, public boost::enable_shared_from_this<User>
 {
 public:
 	User( IServerPtr serv );

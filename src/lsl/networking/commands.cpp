@@ -4,7 +4,7 @@
 #include <boost/shared_ptr.hpp>
 
 #define NEWCMD(Name,Func,...) \
-	cmd_map_[Name] = CommandFactory< __VA_ARGS__ >::make(&TASServer::Func, m_tas)
+    cmd_map_[Name] = CommandFactory< __VA_ARGS__ >::make(&ServerImpl::Func, m_tas)
 
 namespace LSL {
 
@@ -19,14 +19,14 @@ struct CommandFactory {
 		ReturnType;
 
 	template < class F >
-	static ReturnType	make(F f, TASServer* tas)
+    static ReturnType	make(F f, ServerImpl* tas)
 	{
 		ReturnType tmp ( new ActualCommandType(f,tas) );
 		return tmp;
 	}
 };
 
-CommandDictionary::CommandDictionary( TASServer* tas )
+CommandDictionary::CommandDictionary( ServerImpl* tas )
     :m_tas(tas)
 {
 	using namespace LSL;
