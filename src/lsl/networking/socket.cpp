@@ -2,6 +2,7 @@
 
 #include <lslutils/net.h>
 #include <lslutils/conversion.h>
+#include <lslutils/logging.h>
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -197,9 +198,10 @@ bool Socket::SendData(const std::string &msg)
 {
 	if (m_sock.is_open())
 	{
+        LslDebug("SEND: %s",msg.c_str());
 		return m_sock.send(boost::asio::buffer(msg));
 	}
-	return 0;
+    return false;
 }
 
 } // namespace LSL

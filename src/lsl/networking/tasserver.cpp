@@ -26,9 +26,10 @@ ServerImpl::ServerImpl(Server *serv)
     , m_ping_interval(10)
     , m_server_rate_limit(800)
     , m_message_size_limit(1024)
+    , m_id_transmission( true )
+    , m_redirecting( false )
     , m_connected(false)
     , m_online(false)
-    //, m_impl->m_last_udp_ping(0)
     , m_udp_private_port(0)
     , m_udp_reply_timeout(0)
     , m_buffer("")
@@ -202,9 +203,15 @@ void ServerImpl::Login(const std::string& user, const std::string& password)
     const std::string pass = GetPasswordHash( password );
     const std::string protocol = "\t" + Util::ToString(m_crc.GetCRC());
     std::string localaddr = m_sock->GetLocalAddress();
-	if ( localaddr.length() < 1 ) localaddr = "*";
-    SendCmd ( "LOGIN", user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
-			  + localaddr + " liblobby " + Util::GetLibLobbyVersion() + protocol  + "\ta sp");
+//    m_id_transmission = false;
+    if ( localaddr.length() < 1 )
+        localaddr = "*";
+//    SendCmd ( "LOGIN", user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
+//			  + localaddr + " liblobby " + Util::GetLibLobbyVersion() + protocol  + "\ta sp");
+    boost::format login_cmd( "%s %s %s %s %s\t%s\ta m sp" );
+    SendCmd ( "LOGIN", (login_cmd % user % pass % Util::GetHostCPUSpeed() % localaddr % "lsl" % protocol).str() );
+
+    m_id_transmission = true;
 }
 
 void ServerImpl::RequestChannels()
@@ -229,13 +236,18 @@ void ServerImpl::ExecuteCommand( const std::string& cmd, std::string& params )
 	ExecuteCommand( cmd, params, replyid );
 }
 
-void ServerImpl::SendCmd( const std::string& command, const std::string& param )
+void ServerImpl::SendCmd( const std::string& cmd, const std::string& param )
 {
     std::string msg;
-	GetLastID()++;
-	msg = msg + "#" + Util::ToString( GetLastID() ) + " ";
-	if ( !param.length() ) msg = msg + command + "\n";
-	else msg = msg + command + " " + param + "\n";
+    if ( m_id_transmission )
+    {
+        GetLastID()++;
+        msg = msg + "#" + Util::ToString( GetLastID() ) + " ";
+    }
+    if ( param.empty() )
+        msg = msg + cmd + "\n";
+    else
+        msg = msg + cmd + " " + param + "\n";
 	bool send_success = m_sock->SendData( msg );
     assert( send_success );
 //	sig_SentMessage(send_success, msg, GetLastID());

@@ -73,7 +73,7 @@ private:
 
 	void OnNewUser( const std::string& nick, const std::string& country, int cpu, int id );
 
-	void SendCmd( const std::string& command, const std::string& param = "" );
+    void SendCmd(const std::string& cmd, const std::string& param = "" );
 	void SendCmd( const std::string& command, const boost::format& param );
 	void SendRaw(const std::string &raw);
 	void RequestInGameTime(const std::string &nick);
@@ -210,6 +210,7 @@ private:
     std::string m_buffer;
     std::string m_addr;
     std::string m_last_denied;
+    bool m_id_transmission;
     bool m_redirecting;
     bool m_connected;
     bool m_online;

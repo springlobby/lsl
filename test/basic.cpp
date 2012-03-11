@@ -34,14 +34,15 @@ int main(int argc, char** argv)
 //    TESTLIST(UserList)
 //    TESTLIST(Battle::BattleList)
 //    TESTLIST(ChannelList)
-    LSL::Server tas;
+    LSL::Server* tas = new LSL::Server();
 
-    tas.Connect("springrts.com","springrts.com",8200);
+    tas->Connect("localhost","localhost",8200);
     if (argc>2)
-        tas.Login( argv[1], argv[2] );
+        tas->Login( argv[1], argv[2] );
     else
-        tas.Login( "dummy", "password" );
-    tas.JoinChannel("springlobby","");
+        tas->Login( "dummy", "password" );
+    sleep(5);
+    tas->JoinChannel("springlobby","");
 //	dummySync();
 
 //	std::string sequence("/root/path/jijij.png");
