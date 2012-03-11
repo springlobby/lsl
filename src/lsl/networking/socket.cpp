@@ -166,8 +166,21 @@ bool Socket::InTimeout(int timeout_seconds) const
 
 std::string Socket::GetLocalAddress() const
 {
-    assert( false );
-    return std::string();
+    using boost::asio::ip::tcp;
+    boost::asio::io_service io_service;
+    tcp::resolver resolver(io_service);
+    tcp::resolver::query query(boost::asio::ip::host_name(),"");
+    tcp::resolver::iterator it=resolver.resolve(query);
+
+    while(it!=tcp::resolver::iterator())
+    {
+        boost::asio::ip::address addr=(it++)->endpoint().address();
+        if(addr.is_v6())
+            continue;
+        else
+            return addr.to_string();
+    }
+    return "";
 }
 
 void Socket::SetSendRateLimit(int Bps)

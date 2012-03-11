@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace LSL {
+//namespace LSL {
 
 /** @brief Object representing an updateable CRC-32 checksum. */
 class CRC
@@ -26,7 +26,7 @@ private:
 	unsigned int crc;
 };
 
-} // namespace LSL
+//} // namespace LSL
 
 /**
  * \file crc.h

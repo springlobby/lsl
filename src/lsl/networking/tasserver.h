@@ -20,7 +20,7 @@ private:
 
 	void AcceptAgreement();
 	void RequestChannels();
-	/*** these are only in this class */
+
 	void Login(const std::string& user, const std::string& password);
 	std::string GetPasswordHash(const std::string& pass) const;
 	bool IsPasswordHash(const std::string& pass) const;
@@ -29,7 +29,7 @@ private:
 	void GetUserIP(const std::string& user);
 	void GetLastLoginTime(const std::string& user);
 	void Rename(const std::string& newnick);
-	void GetMD5(const std::string& text, const std::string& newpassword);
+//	void GetMD5(const std::string& text, const std::string& newpassword);
 	void ChangePassword(const std::string& oldpassword, const std::string& newpassword);
 	void GetChannelMutelist(const std::string& channel);
 	void GetIP(const std::string& user);

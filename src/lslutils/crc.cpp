@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-namespace LSL {
+//namespace LSL {
 
 unsigned int CRC::crcTable[256];
 
@@ -79,4 +79,4 @@ bool CRC::UpdateFile(const std::string& filename)
 	return true;
 }
 
-} // namespace LSL
+//} // namespace LSL

@@ -95,11 +95,10 @@ void ServerImpl::ChangePassword(const std::string& oldpassword, const std::strin
 	SendCmd( "CHANGEPASSWORD",GetPasswordHash(oldpassword) + " " + GetPasswordHash(newpassword) );
 }
 
-void ServerImpl::GetMD5(const std::string& text, const std::string& newpassword )
-{
-	assert( false );
-//	return GetPasswordHash(params);
-}
+//void ServerImpl::GetMD5(const std::string& text, const std::string& newpassword )
+//{
+//    return GetPasswordHash(params);
+//}
 
 void ServerImpl::Rename(const std::string& newnick)
 {
@@ -195,14 +194,13 @@ std::string ServerImpl::GetPasswordHash( const std::string& pass ) const
 	for (di = 0; di < 16; ++di)
 		sprintf(hex_output + di * 2, "%02x", digest[di]);
 
-	std::string coded = base64::encode( digest, 16 );
-	return coded;
+    return base64::encode( digest, 16 );
 }
 
 void ServerImpl::Login(const std::string& user, const std::string& password)
 {
-	std::string pass = GetPasswordHash( password );
-	std::string protocol = "\t" + m_crc.GetCRC();
+    const std::string pass = GetPasswordHash( password );
+    const std::string protocol = "\t" + Util::ToString(m_crc.GetCRC());
     std::string localaddr = m_sock->GetLocalAddress();
 	if ( localaddr.length() < 1 ) localaddr = "*";
     SendCmd ( "LOGIN", user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
@@ -239,6 +237,7 @@ void ServerImpl::SendCmd( const std::string& command, const std::string& param )
 	if ( !param.length() ) msg = msg + command + "\n";
 	else msg = msg + command + " " + param + "\n";
 	bool send_success = m_sock->SendData( msg );
+    assert( send_success );
 //	sig_SentMessage(send_success, msg, GetLastID());
 }
 
@@ -623,7 +622,7 @@ void ServerImpl::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType na
     m_iface->OnBattleMapChanged( battle,UnitsyncMap(map, maphash) );
     m_iface->OnBattleModChanged( battle, UnitsyncMod(mod, "") );
 
-    std::string battlechanname = m_battles.GetChannelName(battle);
+    const std::string battlechanname = m_battles.GetChannelName(battle);
     ChannelPtr channel = m_channels.Get( battlechanname );
 	if (!channel)
 	{
@@ -643,7 +642,7 @@ void ServerImpl::OnUserStatusChanged( const std::string& nick, int intstatus )
 	if (!user) return;
 	UTASClientStatus tasstatus;
 	tasstatus.byte = intstatus;
-	UserStatus status = ConvTasclientstatus( tasstatus.tasdata );
+    const UserStatus status = ConvTasclientstatus( tasstatus.tasdata );
     m_iface->sig_UserStatusChanged( user, status );
     IBattlePtr battle = user->GetBattle();
 	if ( battle )
@@ -670,7 +669,7 @@ void ServerImpl::OnHostedBattle( int battleid )
 
 void ServerImpl::OnUserQuit(const std::string &nick )
 {
-    UserPtr user = m_users.FindByNick( nick );
+    const UserPtr user = m_users.FindByNick( nick );
 	if ( !user ) return;
     m_iface->OnUserQuit( user );
 }

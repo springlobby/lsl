@@ -80,6 +80,7 @@ class Server : public boost::enable_shared_from_this<Server>
     bool IsConnected();
 
     void Logout();
+    void Login(const std::string& user, const std::string& password);
 	bool IsOnline()  const ;
 
 	void TimerUpdate();

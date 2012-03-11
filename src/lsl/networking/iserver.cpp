@@ -1105,5 +1105,10 @@ void Server::OnChannelTopic(ChannelPtr channel, UserPtr user, const std::string 
 {
 }
 
+void Server::Login(const std::string &user, const std::string &password)
+{
+    m_impl->Login( user, password );
+}
+
 //END **************Get/Setters ******************
 } // namespace LSL

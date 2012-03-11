@@ -28,7 +28,7 @@
 
 //#include <unitsync++/c_api.h>
 void dummySync();
-int main(int, char**)
+int main(int argc, char** argv)
 {
     using namespace LSL;
 //    TESTLIST(UserList)
@@ -36,8 +36,13 @@ int main(int, char**)
 //    TESTLIST(ChannelList)
     LSL::Server tas;
 
-
-	dummySync();
+    tas.Connect("springrts.com","springrts.com",8200);
+    if (argc>2)
+        tas.Login( argv[1], argv[2] );
+    else
+        tas.Login( "dummy", "password" );
+    tas.JoinChannel("springlobby","");
+//	dummySync();
 
 //	std::string sequence("/root/path/jijij.png");
 //	std::cout	<< "\n\nBeforeLast: " << LSL::Util::BeforeLast( sequence, "/" ) << "\n"
@@ -45,7 +50,6 @@ int main(int, char**)
 //				<< "BeforeFirst: " << LSL::Util::BeforeFirst( sequence, "/" ) << "\n"
 //				<< "AfterFirst: " << LSL::Util::AfterFirst( sequence, "/" ) << "\n";
 
-	std::cout << std::endl;
 	return 0;
 }
 
