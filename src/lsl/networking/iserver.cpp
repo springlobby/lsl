@@ -27,7 +27,7 @@ Server::~Server()
     delete m_impl->m_sock;
 }
 
-void Server::Connect( const std::string& servername ,const std::string& addr, const int port )
+void Server::Connect( const std::string& /*servername */,const std::string& addr, const int port )
 {
     m_impl->m_buffer = "";
     m_impl->m_sock->Connect( addr, port );

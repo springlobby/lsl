@@ -80,7 +80,7 @@ std::string User::GetClan() const
 {
 	std::string tmp = Util::AfterFirst( m_nick, "[" );
 	if ( tmp != m_nick )
-	{
+    {
 		std::string clan = Util::BeforeFirst( tmp, "]" );
 		if ( clan != tmp ) return clan;
 	}

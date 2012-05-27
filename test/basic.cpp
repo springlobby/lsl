@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 //    TESTLIST(ChannelList)
     LSL::Server* tas = new LSL::Server();
 
-    tas->Connect("localhost","localhost",8200);
+    tas->Connect("lobby.springrts.com","lobby.springrts.com",8200);
     if (argc>2)
         tas->Login( argv[1], argv[2] );
     else
