@@ -78,7 +78,7 @@ T Min(T a, T b, T c)
 
 /** \brief Array with runtime determined size which is not initialized on creation.
 
-This RAII type is ment as output buffer for interfaces with e.g. C, where
+This RAII type is meant as output buffer for interfaces with e.g. C, where
 initializing a temp buffer to zero is waste of time because it gets overwritten
 with real data anyway.
 
