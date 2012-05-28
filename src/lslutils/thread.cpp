@@ -29,6 +29,7 @@ void WorkItemQueue::Push( WorkItem* item )
 	m_queue.push_back( item );
 	std::push_heap( m_queue.begin(), m_queue.end(), WorkItemCompare() );
 	item->m_queue = this;
+    m_cond.notify_one();
 }
 
 WorkItem* WorkItemQueue::Pop()
@@ -59,27 +60,31 @@ bool WorkItemQueue::Remove( WorkItem* item )
 }
 
 
+WorkerThread::WorkerThread()
+    :m_thread(new boost::thread(&WorkItemQueue::Process, &m_workItems))
+{}
+
 void WorkerThread::DoWork( WorkItem* item, int priority, bool toBeDeleted )
 {
     LslDebug( "scheduling WorkItem %p, prio = %d", item, priority );
 	item->m_priority = priority;
 	item->m_toBeDeleted = toBeDeleted;
 	m_workItems.Push( item );
-    m_cond.notify_one();
 }
 
 void WorkerThread::Wait()
 {
     if ( m_thread )
         m_thread->join();
+    delete m_thread;
 }
 
-void WorkerThread::operator()()
+void WorkItemQueue::Process()
 {
     while ( true ) {
         WorkItem* item = NULL;
         boost::unique_lock<boost::mutex> lock(m_mutex);
-        while ( (item = m_workItems.Pop()) ) {
+        while ( (item = Pop()) ) {
             try {
                 LslDebug( "running WorkItem %p, prio = %d", item, item->m_priority );
                 item->Run();
@@ -94,7 +99,7 @@ void WorkerThread::operator()()
             CleanupWorkItem( item );
         }
         // cleanup leftover WorkItems
-        while ( ( item = m_workItems.Pop() ) != NULL ) {
+        while ( ( item = Pop() ) != NULL ) {
             CleanupWorkItem( item );
         }
         //wait for the next Push
@@ -102,7 +107,7 @@ void WorkerThread::operator()()
     }
 }
 
-void WorkerThread::CleanupWorkItem( WorkItem* item )
+void WorkItemQueue::CleanupWorkItem( WorkItem* item )
 {
 	if ( item->m_toBeDeleted ) {
 		try {

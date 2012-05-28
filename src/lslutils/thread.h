@@ -48,6 +48,7 @@ class WorkItem : public boost::noncopyable
 class WorkItemQueue : public boost::noncopyable
 {
   public:
+    WorkItemQueue(){}
     /** @brief Push more work onto the queue */
     void Push(WorkItem* item);
 
@@ -58,9 +59,15 @@ class WorkItemQueue : public boost::noncopyable
     /** @brief Remove a specific workitem from the queue
         @return true if it was removed, false otherwise */
     bool Remove(WorkItem* item);
-
+    /** @brief thread entry point */
+    void Process();
   private:
+    friend class boost::thread;
+    void CleanupWorkItem(WorkItem* item);
+
+    boost::mutex m_mutex;
     boost::mutex m_lock;
+    boost::condition_variable m_cond;
     // this is a priority queue maintained as a heap stored in a vector :o
     std::vector<WorkItem*> m_queue;
 };
@@ -70,20 +77,16 @@ class WorkItemQueue : public boost::noncopyable
 class WorkerThread
 {
   public:
+    WorkerThread();
     /** @brief Adds a new WorkItem to the queue */
     void DoWork(WorkItem* item, int priority = 0, bool toBeDeleted = true);
 	//! joins underlying thread
 	void Wait();
   private:
-	friend class boost::thread;
-	/** @brief thread entry point */
-	void operator()();
-    void CleanupWorkItem(WorkItem* item);
-
+    friend class boost::thread;
     WorkItemQueue m_workItems;
 	boost::thread* m_thread;
-	boost::mutex m_mutex;
-	boost::condition_variable m_cond;
+    boost::mutex m_mutex;
 };
 
 } // namespace LSL

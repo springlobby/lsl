@@ -1,7 +1,7 @@
 #ifndef LIBSPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_H
 #define LIBSPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_H
 
-#include "thread.h"
+#include <lslutils/thread.h>
 #include "mmoptionmodel.h"
 #include "data.h"
 #include "mru_cache.h"
