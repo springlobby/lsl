@@ -56,7 +56,13 @@ bool WorkItemQueue::Remove( WorkItem* item )
 	// recreate the heap...
 	std::make_heap( m_queue.begin(), m_queue.end(), WorkItemCompare() );
 	item->m_queue = NULL;
-	return true;
+    return true;
+}
+
+void WorkItemQueue::Cancel()
+{
+    m_dying = true;
+    m_cond.notify_all();
 }
 
 
@@ -74,14 +80,25 @@ void WorkerThread::DoWork( WorkItem* item, int priority, bool toBeDeleted )
 
 void WorkerThread::Wait()
 {
+    m_workItems.Cancel();
     if ( m_thread )
-        m_thread->join();
+        m_thread->detach();
     delete m_thread;
+}
+
+WorkItemQueue::WorkItemQueue()
+    : m_dying(false)
+{
+}
+
+WorkItemQueue::~WorkItemQueue()
+{
+    Cancel();
 }
 
 void WorkItemQueue::Process()
 {
-    while ( true ) {
+    while (!m_dying) {
         WorkItem* item = NULL;
         boost::unique_lock<boost::mutex> lock(m_mutex);
         while ( (item = Pop()) ) {

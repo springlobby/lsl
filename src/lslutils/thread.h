@@ -48,19 +48,23 @@ class WorkItem : public boost::noncopyable
 class WorkItemQueue : public boost::noncopyable
 {
   public:
-    WorkItemQueue(){}
+    WorkItemQueue();
+    ~WorkItemQueue();
+    /** @brief thread entry point */
+    void Process();
     /** @brief Push more work onto the queue */
     void Push(WorkItem* item);
+    /** @brief Remove a specific workitem from the queue
+        @return true if it was removed, false otherwise */
+    bool Remove(WorkItem* item);
+    //! dangerous
+    void Cancel();
 
+  private:
     /** @brief Pop one work item from the queue
         @return A work item or NULL when the queue is empty */
     WorkItem* Pop();
 
-    /** @brief Remove a specific workitem from the queue
-        @return true if it was removed, false otherwise */
-    bool Remove(WorkItem* item);
-    /** @brief thread entry point */
-    void Process();
   private:
     friend class boost::thread;
     void CleanupWorkItem(WorkItem* item);
@@ -70,6 +74,7 @@ class WorkItemQueue : public boost::noncopyable
     boost::condition_variable m_cond;
     // this is a priority queue maintained as a heap stored in a vector :o
     std::vector<WorkItem*> m_queue;
+    bool m_dying;
 };
 
 
