@@ -1,7 +1,7 @@
 PROJECT(libSpringLobby)
 
 #set minimum cmake version
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 SET(CMAKE_COLOR_MAKEFILE ON)
 
 # Add Definitions, Compiler-Switches, etc.: -Wall -O2 -g3 ...
@@ -20,7 +20,6 @@ ENDIF(NOT MSVC)
 # General Settings
 #----------------------------------------------------------------------------------------------------
 SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true )
-SET( CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".lib" ".a" )
 
 #----------------------------------------------------------------------------------------------------
 # Load needed Modules
@@ -54,13 +53,10 @@ SET( LIBSPRINGLOBBY_REV
 	"${LIBSPRINGLOBBY_REV}" CACHE STRING
 	"The revision string used in packages etc." )
 
-IF(NOT CMAKE_CROSSCOMPILING)
-ENDIF(NOT CMAKE_CROSSCOMPILING)
-
-
 # If we build for windows Systems, we also include the Resource-File containing the Manifest, Icon and other Resources.
 IF(WIN32)
-	SET(libSpringLobbySrc ${libSpringLobbySrc} src/libSpringLobby.rc)
+	CreateResourceCompileCommand(libspringlobby_RC_FILE ${libSpringLobby_SOURCE_DIR}/src/ libSpringLobby.rc lsl_icon.o )
+	SET(libSpringLobbySrc ${libSpringLobbySrc} ${libspringlobby_RC_FILE})
 ENDIF(WIN32)
 
 
@@ -70,8 +66,6 @@ ENDIF(WIN32)
 
 # Here we define the executable libSpringLobby ( or on Windows libSpringLobby.exe )
 
-#auto-remove whitespaces before/after lib paths
-cmake_policy(SET CMP0004 OLD)
 #ignore warnings about macosx app bundle output dir
 cmake_policy(SET CMP0006 OLD)
 

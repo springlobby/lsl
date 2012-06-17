@@ -70,14 +70,14 @@ find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
 	find_file(DOXYFILE_IN "Doxyfile.in"
-			PATHS "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_ROOT}/Modules/")
+			PATHS "." "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_ROOT}/Modules/")
 
 	include(FindPackageHandleStandardArgs)
 	find_package_handle_standard_args(Doxyfile.in DEFAULT_MSG DOXYFILE_IN)
 endif()
 
 if(DOXYGEN_FOUND AND DOXYFILE_IN)
-	add_custom_target(doxygen ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+	add_custom_target(lsldoxygen ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
 	usedoxygen_set_default(DOXYFILE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
 	usedoxygen_set_default(DOXYFILE_HTML_DIR "html")
@@ -114,5 +114,5 @@ if(DOXYGEN_FOUND AND DOXYFILE_IN)
 		add_custom_target(doc)
 	endif()
 		
-	add_dependencies(doc doxygen)
+	add_dependencies(doc lsldoxygen)
 endif()
