@@ -5,6 +5,7 @@
 #include <unitsync++/unitsync.h>
 #include <boost/format.hpp>
 #include <cmath>
+#include <iostream>
 
 void dummySync()
 {

@@ -47,15 +47,9 @@ struct CaseInsensitive {
  							token_compress_on --> empty tokens are discarded 
  * \return all tokens in a vector, if msg contains no seperators, this'll contain msg as its only element
  **/
-static StringVector StringTokenize( const std::string& msg,
+StringVector StringTokenize( const std::string& msg,
                              const std::string& seperators,
-                             const boost::algorithm::token_compress_mode_type mode = boost::algorithm::token_compress_off )
-{
-    StringVector strings;
-    boost::algorithm::split( strings, msg, boost::algorithm::is_any_of(seperators),
-                             mode );
-    return strings;
-}
+                             const boost::algorithm::token_compress_mode_type mode = boost::algorithm::token_compress_off );
 
 //! delegate to boost::filesystem::exists
 bool FileExists( const std::string path );

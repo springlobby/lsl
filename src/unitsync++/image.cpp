@@ -6,6 +6,24 @@
 #include <lslutils/misc.h>
 #include <lslutils/logging.h>
 
+
+#ifdef WIN32
+#include <boost/filesystem.hpp>
+//! we need our own fmemopen implementation since its posix only
+FILE* fmemopen(void* data, size_t size, const char* mode)
+{
+    std::string fn( boost::filesystem::unique_path(
+                        boost::filesystem::temp_directory_path() /
+                            "tmp-lsl-cimage-%%%%-%%%%-%%%%-%%%%").string() );
+    FILE *f = fopen(fn.c_str(), "wb");
+    if (NULL == f)
+        return NULL;
+    fwrite(data, size, 1, f);
+    fclose(f);
+    return fopen(fn.c_str(), mode);
+}
+#endif
+
 namespace cimg_library {
 
 template < class T>

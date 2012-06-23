@@ -41,7 +41,7 @@ int main(int argc, char** argv)
         tas->Login( argv[1], argv[2] );
     else
         tas->Login( "dummy", "password" );
-    sleep(5);
+//    sleep(5);
     tas->JoinChannel("springlobby","");
 //	dummySync();
 

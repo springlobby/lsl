@@ -20,7 +20,7 @@ namespace LSL {
  * \param sep the character params is split at
  * \return N==0: params, N>0:everything before the first seperator
  **/
-static std::string GetParamByChar( std::string& params, const char sep )
+inline  std::string GetParamByChar( std::string& params, const char sep )
 {
     const std::string::size_type pos = params.find( sep );
 	std::string ret;
@@ -38,26 +38,26 @@ static std::string GetParamByChar( std::string& params, const char sep )
 }
 
 //! convenience wrapper around GetParamByChar for single whitespace delimited words
-static std::string GetWordParam( std::string& params )
+inline std::string GetWordParam( std::string& params )
 {
 	return GetParamByChar( params, ' ');
 }
 
 //! convenience wrapper around GetParamByChar for tabulator delimited sentences
-static std::string GetSentenceParam( std::string& params )
+inline std::string GetSentenceParam( std::string& params )
 {
 	return GetParamByChar( params, '\t' );
 }
 
 //! convenience wrapper around GetParamByChar for whitespace delimited integers
-static long GetIntParam( std::string& params )
+inline long GetIntParam( std::string& params )
 {
 	const std::string d = GetParamByChar( params, ' ');
 	return Util::FromString<long>( d );
 }
 
 //! convenience wrapper around GetParamByChar for whitespace delimited booleans
-static bool GetBoolParam( std::string& params )
+inline bool GetBoolParam( std::string& params )
 {
 	return (bool)GetIntParam( params );
 }

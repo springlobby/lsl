@@ -63,15 +63,14 @@ void UnitsyncLib::Load( const std::string& path, const std::string& forceConfigF
 	//unitsync failed to initialize for me given a path like
 	//"d:\Games\Spring\unitsync.dll"
 	//but worked for "D:\Games\Spring\unitsync.dll"
-	std::string g = path;
-	if ( g.find( wxT( ":\\" ) ) == 1 )
-	{
-		g.SetChar( 0, wxToupper( g.at(0) ) );
-	}
-	_Load( g );
-#else
-	_Load( path );
+    //lets hope this sin't needed no mores
+//	std::string g = path;
+//	if ( g.find( wxT( ":\\" ) ) == 1 )
+//	{
+//		g.SetChar( 0, wxToupper( g.at(0) ) );
+//	}
 #endif
+	_Load( path );
 
 	if ( !forceConfigFilePath.empty() )
 	{

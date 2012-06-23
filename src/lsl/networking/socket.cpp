@@ -8,6 +8,10 @@
 #include <boost/system/error_code.hpp>
 #include <sstream>
 
+#ifdef WIN32
+    #include <iphlpapi.h>
+#endif
+
 namespace BA = boost::asio;
 namespace BS = boost::system;
 namespace IP = boost::asio::ip;
@@ -109,7 +113,7 @@ std::string Socket::GetHandle() const
     for (unsigned int i=0; i<std::min( (unsigned int)6, (unsigned int)AdapterInfo[0].AddressLength); i++)
     {
         handle += Util::ToString(((unsigned int)AdapterInfo[0].Address[i])&255);
-        if (i != 5) handle += \1;
+        if (i != 5) handle += 1;
     }
     #elif defined(linux)
     int sock = socket (AF_INET, SOCK_DGRAM, 0);

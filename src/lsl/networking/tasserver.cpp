@@ -429,7 +429,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 		for (OptionsWrapper::stringTripleVec::const_iterator it = optlistMap.begin(); it != optlistMap.end(); ++it)
 		{
 			std::string newcmd = "game/mapoptions/" + it->first + "=" + it->second.second + "\t";
-			if ( relayhostmessagesize + cmd.length() + newcmd.length() > m_message_size_limit )
+            if ( int(relayhostmessagesize + cmd.length() + newcmd.length()) > m_message_size_limit )
 			{
 				RelayCmd( "SETSCRIPTTAGS", cmd );
 				cmd = "";
@@ -440,7 +440,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 		for (OptionsWrapper::stringTripleVec::const_iterator it = optlistMod.begin(); it != optlistMod.end(); ++it)
 		{
 			std::string newcmd = "game/modoptions/" + it->first + "=" + it->second.second + "\t";
-			if (relayhostmessagesize + cmd.length() + newcmd.length() > m_message_size_limit  )
+            if ( int(relayhostmessagesize + cmd.length() + newcmd.length()) > m_message_size_limit )
 			{
 				RelayCmd( "SETSCRIPTTAGS", cmd );
 				cmd = "";
@@ -451,7 +451,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 		for (OptionsWrapper::stringTripleVec::const_iterator it = optlistEng.begin(); it != optlistEng.end(); ++it)
 		{
 			std::string newcmd = "game/" + it->first + "=" + it->second.second + "\t";
-			if ( relayhostmessagesize + cmd.length() + newcmd.length() > m_message_size_limit  )
+            if ( int(relayhostmessagesize + cmd.length() + newcmd.length()) > m_message_size_limit )
 			{
 				RelayCmd( "SETSCRIPTTAGS", cmd );
 				cmd = "";

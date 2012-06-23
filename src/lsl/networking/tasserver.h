@@ -197,6 +197,7 @@ private:
 private:
     std::map<std::string,std::string> m_channel_pw;  /// channel name -> password, filled on channel join
 
+    Socket* m_sock;
     int m_keepalive; //! in seconds
     int m_ping_timeout; //! in seconds
     int m_ping_interval; //! in seconds
@@ -235,7 +236,6 @@ private:
     UserPtr m_relay_host_manager;
 
     UserVector m_relay_masters;
-    Socket* m_sock;
     CRC m_crc;
     IBattlePtr m_current_battle;
     UserPtr m_relay_host_bot;

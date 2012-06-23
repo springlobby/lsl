@@ -27,6 +27,17 @@ bool FileCanOpen( const std::string path )
 	return std::ifstream(path.c_str()).is_open();
 }
 
+StringVector StringTokenize( const std::string& msg,
+                             const std::string& seperators,
+                             const boost::algorithm::token_compress_mode_type mode )
+{
+    StringVector strings;
+    boost::algorithm::split( strings, msg, boost::algorithm::is_any_of(seperators),
+                             mode );
+    return strings;
+}
+
+
 namespace Lib {
 
 std::string GetDllExt()

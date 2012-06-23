@@ -1,6 +1,8 @@
 #include <boost/signals2.hpp>
 #include <boost/function.hpp>
 
+#include <iostream>
+
 namespace LSL {
     boost::signals2::signal<void ()> battleSig;
 

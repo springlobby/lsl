@@ -380,8 +380,8 @@ protected:
 	BattleOptions m_opts;
 	bool m_is_self_in;
     CommonUserList m_userlist;
-    boost::scoped_ptr< boost::asio::deadline_timer > m_timer;
     bool m_generating_script;
+    boost::scoped_ptr< boost::asio::deadline_timer > m_timer;
     std::map<std::string, time_t> m_ready_up_map; // player name -> time counting from join/unspect
     std::map<int, int> m_teams_sizes; // controlteam -> number of people in
 };
