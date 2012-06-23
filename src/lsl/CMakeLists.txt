@@ -28,7 +28,7 @@ LIST( APPEND libSpringLobbyHeader ${templatesources} )
 set_source_files_properties(  ${libSpringLobbyHeader} PROPERTIES HEADER_FILE_ONLY 1 )
 
 ADD_LIBRARY(libSpringLobby STATIC ${libSpringLobbyHeader} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE} )
-TARGET_LINK_LIBRARIES(libSpringLobby  libSpringLobbyUtils boost_system boost_filesystem boost_thread )
+TARGET_LINK_LIBRARIES(libSpringLobby  libSpringLobbyUtils boost_system-mt boost_filesystem-mt boost_thread-mt )
 
 IF(MINGW)
 	TARGET_LINK_LIBRARIES( libSpringLobby iphlpapi )

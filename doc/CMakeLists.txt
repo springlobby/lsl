@@ -1,4 +1,6 @@
-add_custom_target(doc)
+if( NOT TARGET doc )
+	add_custom_target( doc )
+endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 set(DOXYFILE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doxygen" )
@@ -23,6 +25,5 @@ if( EXISTS ${XSLTPROC} )
 		${XSLTPROC} ${CMAKE_CURRENT_SOURCE_DIR}/protocol/index.xsl 
 		${CMAKE_CURRENT_SOURCE_DIR}/protocol/ProtocolDescription.xml  > ${CMAKE_CURRENT_BINARY_DIR}/index.html 
 		)
-	target_exists( doc doc_exists )
 	add_dependencies( doc protocol )
 endif( EXISTS ${XSLTPROC} )

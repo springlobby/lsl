@@ -16,7 +16,7 @@ LIST( APPEND libUnitsyncHeader ${templatesources} )
 set_source_files_properties(  ${libUnitsyncHeader} PROPERTIES HEADER_FILE_ONLY 1 )
 	
 ADD_LIBRARY(libUnitsync++ STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} )
-TARGET_LINK_LIBRARIES(libUnitsync++ dl boost_filesystem boost_thread )
+TARGET_LINK_LIBRARIES(libUnitsync++ dl boost_filesystem-mt boost_thread-mt )
 
 #cimage deps
 FIND_PACKAGE( PNG REQUIRED)

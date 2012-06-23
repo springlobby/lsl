@@ -37,6 +37,11 @@ INCLUDE(cmake/sources_list.cmake)
 
 FIND_PACKAGE( PkgConfig )
 
+set(Boost_USE_MULTITHREADED      ON)
+if( ${CMAKE_CROSSCOMPILING} )
+	set(Boost_USE_STATIC_LIBS       ON)
+	set(Boost_USE_STATIC_RUNTIME    ON)
+endif()
 FIND_PACKAGE(Boost 1.40.0 COMPONENTS system thread filesystem  REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})

@@ -17,6 +17,7 @@ SET( templatesources
 )
 LIST( APPEND libSpringLobbyUtilsHeader ${templatesources} )
 set_source_files_properties(  ${libSpringLobbyUtilsHeader} PROPERTIES HEADER_FILE_ONLY 1 )
-
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 ADD_LIBRARY(libSpringLobbyUtils STATIC ${libSpringLobbyHeader} ${libSpringLobbyUtilsSrc} )
-TARGET_LINK_LIBRARIES(libSpringLobbyUtils )
+TARGET_LINK_LIBRARIES(libSpringLobbyUtils boost_thread-mt)

@@ -8,7 +8,7 @@
 #include <string>
 #include <sstream>
 #include <assert.h>
-
+#include <iostream>
 #include <lsl/networking/commands.h>
 
 struct ServerEvents {
