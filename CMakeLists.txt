@@ -51,9 +51,13 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 # Options, that can be changed be the User in order to customise libSpringLobby
 #----------------------------------------------------------------------------------------------------
 SET( BUILD_SHARED_LIBS
-	1 CACHE BOOL
+	0 CACHE BOOL
 	"Chooses whether to link dynamic or static libraries. Recommend keeping this activated unless you know what you're doing." )
 
+SET( BUILD_TESTS
+	0 CACHE BOOL
+	"build example and test binaries" )
+	
 SET( LIBSPRINGLOBBY_REV
 	"${LIBSPRINGLOBBY_REV}" CACHE STRING
 	"The revision string used in packages etc." )
@@ -101,6 +105,8 @@ INCLUDE(cmake/compat_flags.cmake)
 # add_dependencies( distcheck dist )
 # add_dependencies( libSpringLobby version )
 
-add_subdirectory( test )
 add_subdirectory( src )
 add_subdirectory( doc )
+if (${BUILD_TESTS} )
+	add_subdirectory( test )
+endif()

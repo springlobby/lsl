@@ -15,14 +15,11 @@ SET( templatesources
 LIST( APPEND libUnitsyncHeader ${templatesources} )
 set_source_files_properties(  ${libUnitsyncHeader} PROPERTIES HEADER_FILE_ONLY 1 )
 	
-ADD_LIBRARY(libUnitsync++ STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} )
-TARGET_LINK_LIBRARIES(libUnitsync++ dl boost_filesystem-mt boost_thread-mt )
-
 #cimage deps
 FIND_PACKAGE( PNG REQUIRED)
 ADD_DEFINITIONS( -Dcimg_use_png )
-TARGET_LINK_LIBRARIES(libUnitsync++ ${PNG_LIBRARY} )
-
-if( ${CMAKE_CROSS_COMPILING} )
+ADD_LIBRARY(libUnitsync++ STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} )
+if( WIN32 )
 	TARGET_LINK_LIBRARIES(libUnitsync++ dl )
 endif()
+TARGET_LINK_LIBRARIES(libUnitsync++ ${Boost_LIBRARIES} ${PNG_LIBRARY})
