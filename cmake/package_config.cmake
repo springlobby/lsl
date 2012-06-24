@@ -1,26 +1,12 @@
 #http://www.cmake.org/Wiki/CMake:CPackConfiguration
 
-#don't write when git errored out resulting in unset version (ie when compiling from tarball)
-IF ( NOT GIT_ERROR )
-    CONFIGURE_FILE( ${libSpringLobby_SOURCE_DIR}/cmake/config.h ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h )
-ENDIF ( NOT GIT_ERROR )
-
 SET( PACKAGE_NAME libSpringLobby )
 SET( PACKAGE_VERSION ${LIBSPRINGLOBBY_REV} )
 
 IF (WIN32)
     SET(CPACK_GENERATOR "ZIP")
     SET(CPACK_PACKAGE_FILE_NAME "libSpringLobby-${LIBSPRINGLOBBY_REV}-win32")
-	FOREACH ( file boost_thread-gcc44-mt-1_41
-		boost_filesystem-gcc44-mt-1_41
-		boost_system-gcc44-mt-1_41 )
-		INSTALL(FILES ${wxWidgets_LIB_DIR}/${file}.dll DESTINATION . )
- 	ENDFOREACH( file )
 	SET( BASEPATH /opt/mingw32/ )
-	INSTALL(FILES
-		${BASEPATH}/i586-pc-mingw32/bin/mingwm10.dll
-		DESTINATION . )
-	
 ELSE (WIN32)
     SET(CPACK_CMAKE_GENERATOR "Unix Makefiles")
     SET(CPACK_GENERATOR "TBZ2;TGZ")
@@ -54,5 +40,6 @@ set(CPACK_SOURCE_IGNORE_FILES
 "^${libSpringLobby_SOURCE_DIR}/doc/"
 "^${libSpringLobby_SOURCE_DIR}/m4/"
 "^${libSpringLobby_SOURCE_DIR}/obj/"
+${CPACK_SOURCE_IGNORE_FILES}
 )
 INCLUDE(CPack)

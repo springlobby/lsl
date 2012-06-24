@@ -16,6 +16,12 @@ ELSE(NOT MSVC)
 	ADD_DEFINITIONS(-D_RC_MSVC)
 ENDIF(NOT MSVC)
 
+macro( install_if_standalone )
+	if( NOT DEFINED springlobby_SOURCE_DIR ) #we're not included as submodule	
+		install( ${ARGN} )
+	endif()
+endmacro()
+
 #----------------------------------------------------------------------------------------------------
 # General Settings
 #----------------------------------------------------------------------------------------------------
@@ -31,6 +37,7 @@ if(NOT DEFINED LIBSPRINGLOBBY_REV)
     OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 endif(NOT DEFINED LIBSPRINGLOBBY_REV)
+
 
 INCLUDE(cmake/package_config.cmake)
 INCLUDE(cmake/sources_list.cmake)
@@ -104,6 +111,13 @@ INCLUDE(cmake/compat_flags.cmake)
 # 				)
 # add_dependencies( distcheck dist )
 # add_dependencies( libSpringLobby version )
+
+IF (WIN32)
+    install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
+	install_if_standalone(DIRECTORY ${CMAKE_INSTALL_PREFIX}/locale DESTINATION .)
+ELSE (WIN32)
+    install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/libSpringLobby )
+ENDIF (WIN32)
 
 add_subdirectory( src )
 add_subdirectory( doc )
