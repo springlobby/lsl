@@ -11,6 +11,7 @@
 #include <cmath>
 #include <boost/extension/shared_library.hpp>
 #include <boost/foreach.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/typeof/typeof.hpp>
 
 #include <lslutils/logging.h>
@@ -110,7 +111,7 @@ void UnitsyncLib::_Load( const std::string& path )
 		try {
 #ifdef __WXMSW__
 			boost::filesystem::path us_path( path );
-			boost::filesystem::current_path( path.parent_path() );
+            boost::filesystem::current_path( us_path.parent_path() );
 #endif
 			m_libhandle = new boost::extensions::shared_library( path );
 			if ( !m_libhandle->open() ) {
@@ -309,7 +310,7 @@ std::map<std::string, std::string> UnitsyncLib::GetSpringVersionList(const std::
 
 #ifdef __WXMSW__
 			boost::filesystem::path us_path( path );
-			boost::filesystem::current_path( path.parent_path() );
+            boost::filesystem::current_path( us_path.parent_path() );
 #endif
 			boost::extensions::shared_library temphandle( path );
 			if( !temphandle.open())

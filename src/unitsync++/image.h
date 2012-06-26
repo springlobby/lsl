@@ -7,7 +7,7 @@
 // header here, it's 2.1MB of template magic :)
 namespace cimg_library {
 template <class T>
-class CImg;
+struct CImg;
 }
 
 namespace LSL {

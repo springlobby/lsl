@@ -86,7 +86,7 @@ private:
 };
 
 class UnitsyncImage;
-class MapInfo;
+struct MapInfo;
 typedef MostRecentlyUsedCache<std::string,UnitsyncImage> MostRecentlyUsedImageCache;
 typedef MostRecentlyUsedCache<std::string,MapInfo> MostRecentlyUsedMapInfoCache;
 typedef MostRecentlyUsedCache<std::string,std::vector<std::string> > MostRecentlyUsedArrayStringCache;

@@ -19,7 +19,7 @@ namespace LSL {
 namespace Battle {
 	class IBattle;
 	class Battle;
-	class BattleOptions;
+    struct BattleOptions;
 }
 
 template <class T, bool TDestroy>
@@ -44,8 +44,8 @@ class Channel;
 class Server;
 struct UnitsyncMap;
 struct UnitsyncMod;
-class UserBattleStatus;
-class UserPosition;
+struct UserBattleStatus;
+struct UserPosition;
 class OptionsWrapper;
 struct GameOptions;
 class Spring;
@@ -85,11 +85,11 @@ typedef boost::shared_ptr< const OptionsWrapper > ConstOptionsWrapperPtr;
 
 typedef boost::shared_ptr< Spring > SpringPtr;
 
-class mmOptionBool;
-class mmOptionFloat;
-class mmOptionString;
-class mmOptionList;
-class mmOptionSection;
+struct mmOptionBool;
+struct mmOptionFloat;
+struct mmOptionString;
+struct mmOptionList;
+struct mmOptionSection;
 
 typedef std::map<std::string,mmOptionBool> OptionMapBool;
 typedef std::map<std::string,mmOptionFloat> OptionMapFloat;

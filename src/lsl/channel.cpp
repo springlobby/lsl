@@ -8,16 +8,16 @@ Channel::Channel()
 {
 }
 
-Channel::Channel(const std::string &name)
+Channel::Channel(const std::string &/*name*/)
 {
 }
 
-void Channel::OnChannelJoin(const ConstUserPtr user)
+void Channel::OnChannelJoin(const ConstUserPtr /*user*/)
 {
     assert(false);
 }
 
-void Channel::SetNumUsers(size_t numusers)
+void Channel::SetNumUsers(size_t /*numusers*/)
 {
     assert(false);
 }

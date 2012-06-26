@@ -11,8 +11,8 @@ namespace LSL {
 
 class Server;
 class User;
-class UnitsyncMap;
-class UnitsyncMod;
+struct UnitsyncMap;
+struct UnitsyncMod;
 
 namespace Battle {
 

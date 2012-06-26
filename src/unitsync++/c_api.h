@@ -62,7 +62,7 @@ struct SpringMapInfo
 class UnitsyncLib : public boost::noncopyable
 {
 	//! we use this to offload the mind numblingly boring pointer loading
-	friend class UnitsyncFunctionLoader;
+    friend struct UnitsyncFunctionLoader;
 
 public:
 	/**

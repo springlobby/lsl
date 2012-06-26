@@ -48,6 +48,7 @@ std::string GetDllExt()
 	return ".dll";
 #else
 	assert( false );
+    return ".so";
 #endif
 }
 

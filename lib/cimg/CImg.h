@@ -2151,7 +2151,7 @@ namespace cimg_library {
       static T max() { return (T)-1>0?(T)-1:~((T)-1<<(8*sizeof(T)-1)); }
       static T cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(T)val; }
       static const char* format() { return "%s"; }
-      static const char* format(const T val) { static const char *const s = "unknown"; return s; }
+      static const char* format(const T /*val*/) { static const char *const s = "unknown"; return s; }
     };
 
     template<> struct type<bool> {

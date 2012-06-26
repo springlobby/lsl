@@ -14,7 +14,7 @@ class wxFileConfig;
 
 namespace LSL {
 
-class mmOptionSection;
+struct mmOptionSection;
 
 struct dummyConfig {};
 

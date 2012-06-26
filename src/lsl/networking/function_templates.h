@@ -231,9 +231,11 @@ struct Signature<Tuple,0> {
 		return Type( boost::bind( f, x ) );
 	}
 
-	static void call( Type& func, std::string& params )
+    //string param is empty
+    static void call( Type& func, std::string& params )
 	{
-		func(  );
+        assert(params.empty());
+        func();
 	}
 };
 

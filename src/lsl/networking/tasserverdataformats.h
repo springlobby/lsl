@@ -104,8 +104,8 @@ union UTASColor
 myteamcolor:  Should be 32-bit signed integer in decimal form (e.g. 255 and not FF) where each color channel should occupy 1 byte (e.g. in hexdecimal: $00BBGGRR, B = blue, G = green, R = red). Example: 255 stands for $000000FF.
 
 */
-class UserStatus;
-class UserBattleStatus;
+struct UserStatus;
+struct UserBattleStatus;
 UserStatus ConvTasclientstatus( TASClientstatus );
 UserBattleStatus ConvTasbattlestatus( TASBattleStatus );
 TASBattleStatus ConvTasbattlestatus(const UserBattleStatus & );

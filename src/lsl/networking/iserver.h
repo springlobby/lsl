@@ -21,20 +21,20 @@ namespace LSL {
 
 namespace Battle {
 class IBattle;
-class BattleOptions;
+struct BattleOptions;
 }
 
 const unsigned int FIRST_UDP_SOURCEPORT = 8300;
 
 class Channel;
 class User;
-class UserBattleStatus;
+struct UserBattleStatus;
 class Socket;
-class PingThread;
+struct PingThread;
 class ServerImpl;
-class UnitsyncMap;
-class UnitsyncMod;
-class UserStatus;
+struct UnitsyncMap;
+struct UnitsyncMod;
+struct UserStatus;
 class Server;
 
 struct PingThread { PingThread(Server*,int){}

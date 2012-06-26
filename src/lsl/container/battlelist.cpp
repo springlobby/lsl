@@ -3,7 +3,7 @@
 namespace LSL {
 namespace Battle {
 
-std::string BattleList::GetChannelName( const ConstIBattlePtr battle )
+std::string BattleList::GetChannelName( const ConstIBattlePtr /*battle*/ )
 {
     assert( false );
     return "";

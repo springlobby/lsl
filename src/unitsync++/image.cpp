@@ -136,7 +136,7 @@ UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<un
 }
 
 UnitsyncImage UnitsyncImage::FromVfsFileData( Util::uninitialized_array<char>& data, size_t size,
-											 const std::string& fn, bool useWhiteAsTransparent)
+                                             const std::string& fn, bool useWhiteAsTransparent)
 {
 	PrivateImageType* img_p = new PrivateImageType( 100, 100, 1, 4 );
 	try {
