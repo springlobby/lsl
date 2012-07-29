@@ -26,8 +26,8 @@
 #include <lsl/battle/singleplayer.h>
 #include <lsl/battle/offline.h>
 #include <lsl/user/user.h>
-#include <unitsync++/unitsync.h>
-#include <unitsync++/optionswrapper.h>
+#include <lslunitsync/unitsync.h>
+#include <lslunitsync/optionswrapper.h>
 #include <lsl/battle/tdfcontainer.h>
 #include <lslutils/globalsmanager.h>
 

@@ -5,8 +5,8 @@
 #include <lslutils/conversion.h>
 #include <lslutils/lslconfig.h>
 #include <lslutils/autopointers.h>
-#include <unitsync++/unitsync.h>
-#include <unitsync++/optionswrapper.h>
+#include <lslunitsync/unitsync.h>
+#include <lslunitsync/optionswrapper.h>
 
 #include "signals.h"
 #include "tdfcontainer.h"

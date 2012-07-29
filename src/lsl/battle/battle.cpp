@@ -16,7 +16,7 @@
 #include <lslutils/conversion.h>
 #include <lslutils/lslconfig.h>
 #include <lsl/spring/spring.h>
-#include <unitsync++/optionswrapper.h>
+#include <lslunitsync/optionswrapper.h>
 
 #define ASSERT_LOGIC(...)   do {} while(0)
 

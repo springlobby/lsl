@@ -13,4 +13,4 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory( lslutils )
 add_subdirectory( lsl )
-add_subdirectory( unitsync++ )
+add_subdirectory( lslunitsync )

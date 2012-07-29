@@ -5,7 +5,7 @@
 #include <lslutils/misc.h>
 #include <lslutils/type_forwards.h>
 #include <lsl/container/userlist.h>
-#include <unitsync++/data.h>
+#include <lslunitsync/data.h>
 
 #include "enum.h"
 

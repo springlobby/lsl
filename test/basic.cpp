@@ -43,7 +43,7 @@ int main(int argc, char** argv)
         tas->Login( "dummy", "password" );
 //    sleep(5);
     tas->JoinChannel("springlobby","");
-//	dummySync();
+	dummySync();
 
 //	std::string sequence("/root/path/jijij.png");
 //	std::cout	<< "\n\nBeforeLast: " << LSL::Util::BeforeLast( sequence, "/" ) << "\n"

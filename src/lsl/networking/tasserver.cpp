@@ -2,7 +2,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
-#include <unitsync++/optionswrapper.h>
+#include <lslunitsync/optionswrapper.h>
 
 #include <lslutils/base64.h>
 #include <lslutils/md5.h>
