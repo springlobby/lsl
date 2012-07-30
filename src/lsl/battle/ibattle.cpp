@@ -735,7 +735,7 @@ const UnitsyncMap& IBattle::LoadMap()
 		try {
 			ASSERT_EXCEPTION( m_map_exists, "Map does not exist." );
 			m_local_map = usync().GetMapEx( m_host_map.name );
-			bool options_loaded = CustomBattleOptions()->loadOptions( OptionsWrapper::MapOption, m_host_map.name );
+			bool options_loaded = CustomBattleOptions()->loadOptions( LSL::OptionsWrapper::MapOption, m_host_map.name );
 			ASSERT_EXCEPTION( options_loaded, "couldn't load the map options" );
 			m_map_loaded = true;
 
@@ -785,7 +785,7 @@ const UnitsyncMod& IBattle::LoadMod()
 		try {
 			ASSERT_EXCEPTION( m_mod_exists, "Mod does not exist." );
 			m_local_mod = usync().GetMod( m_host_mod.name );
-			bool options_loaded = CustomBattleOptions()->loadOptions( OptionsWrapper::ModOption, m_host_mod.name );
+			bool options_loaded = CustomBattleOptions()->loadOptions( LSL::OptionsWrapper::ModOption, m_host_mod.name );
 			ASSERT_EXCEPTION( options_loaded, "couldn't load the mod options" );
 			m_mod_loaded = true;
 		} catch (...) {}
@@ -889,14 +889,14 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 	if (preset == "") return false; //preset not found
 	m_preset = preset;
 
-	for ( unsigned int i = 0; i < OptionsWrapper::LastOption; i++)
+	for ( unsigned int i = 0; i < LSL::OptionsWrapper::LastOption; i++)
 	{
 		std::map<std::string,std::string> options = sett().GetHostingPreset( m_preset, i );
-		if ( (OptionsWrapper::GameOption)i != OptionsWrapper::PrivateOptions )
+		if ( (LSL::OptionsWrapper::GameOption)i != LSL::OptionsWrapper::PrivateOptions )
 		{
 			for ( std::map<std::string,std::string>::const_iterator itor = options.begin(); itor != options.end(); itor++ )
 			{
-				CustomBattleOptions()->setSingleOption( itor->first, itor->second, (OptionsWrapper::GameOption)i );
+				CustomBattleOptions()->setSingleOption( itor->first, itor->second, (LSL::OptionsWrapper::GameOption)i );
 			}
 		}
 		else
@@ -941,7 +941,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 						Util::FromString<long>( Util::AfterLast(unitinfo,"=") ) );
 			}
 			SendHostInfo( Enum::HI_Restrictions );
-			Update( (boost::format( "%d_restrictions" ) % OptionsWrapper::PrivateOptions).str() );
+			Update( (boost::format( "%d_restrictions" ) % LSL::OptionsWrapper::PrivateOptions).str() );
 
 		}
 	}
@@ -958,16 +958,16 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 
 	for ( int i = 0; i < (int)OptionsWrapper::LastOption; i++)
 	{
-		if ( (OptionsWrapper::GameOption)i != OptionsWrapper::PrivateOptions )
+		if ( (LSL::OptionsWrapper::GameOption)i != LSL::OptionsWrapper::PrivateOptions )
 		{
-			sett().SetHostingPreset( m_preset, (OptionsWrapper::GameOption)i, CustomBattleOptions()->getOptionsMap( (OptionsWrapper::GameOption)i ) );
+			sett().SetHostingPreset( m_preset, (LSL::OptionsWrapper::GameOption)i, CustomBattleOptions()->getOptionsMap( (LSL::OptionsWrapper::GameOption)i ) );
 		}
 		else
 		{
 			std::map<std::string,std::string> opts;
 			opts["mapname"] = GetHostMapName();
 			unsigned int validrectcount = 0;
-			if ( Util::FromString<long> (CustomBattleOptions()->getSingleValue( "startpostype", OptionsWrapper::EngineOption ) )
+			if ( Util::FromString<long> (CustomBattleOptions()->getSingleValue( "startpostype", LSL::OptionsWrapper::EngineOption ) )
 				 == Enum::ST_Choose )
 			{
 				unsigned int boxcount = GetLastRectIdx();
@@ -994,7 +994,7 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 			}
 			opts["restrictions"] = restrictionsstring.str();
 
-			sett().SetHostingPreset( m_preset, (OptionsWrapper::GameOption)i, opts );
+			sett().SetHostingPreset( m_preset, (LSL::OptionsWrapper::GameOption)i, opts );
 		}
 	}
 	sett().SaveSettings();
@@ -1087,7 +1087,7 @@ void IBattle::LoadScriptMMOpts( const TDF::PDataList& node )
 	if ( !node.ok() ) return;
     OptionsWrapperPtr opts = CustomBattleOptions();
 	typedef std::map<std::string,std::string> optMap;
-    optMap options = opts->getOptionsMap(OptionsWrapper::EngineOption);
+    optMap options = opts->getOptionsMap(LSL::OptionsWrapper::EngineOption);
 	for ( optMap::const_iterator i = options.begin(); i != options.end(); ++i)
 	{
         opts->setSingleOption( i->first, node->GetString( i->first, i->second ) );

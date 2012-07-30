@@ -80,7 +80,7 @@ class WorkItemQueue : public boost::noncopyable
 
 
 /** @brief Thread which processes WorkItems in it's WorkItemQueue */
-class WorkerThread
+class WorkerThread : public boost::noncopyable
 {
   public:
     WorkerThread();

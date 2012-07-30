@@ -619,7 +619,12 @@ UnitsyncLib::StringVector UnitsyncLib::GetSides( const std::string& modName )
 void UnitsyncLib::AddAllArchives( const std::string& root )
 {
 	InitLib( m_add_all_archives );
-	m_add_all_archives( root.c_str() );
+    m_add_all_archives( root.c_str() );
+}
+
+void UnitsyncLib::AddArchive(const std::string &name)
+{
+    assert(false);
 }
 
 std::string UnitsyncLib::GetFullUnitName( int index )
@@ -1224,7 +1229,8 @@ float UnitsyncLib::GetKeyValue( const std::string& key, float defval )
 
 UnitsyncLib& susynclib()
 {
-	static UnitsyncLib ss;
+    static LineInfo<UnitsyncLib> m( AT );
+    static GlobalObjectHolder<UnitsyncLib, LineInfo<UnitsyncLib> > ss( m );
 	return ss;
 }
 

@@ -280,7 +280,7 @@ OptionsWrapper::stringTripleVec OptionsWrapper::getOptions( GameOption modmapFla
 	return list;
 }
 
-std::map<std::string,std::string> OptionsWrapper::getOptionsMap( GameOption modmapFlag ) const
+std::map<std::string,std::string> LSL::OptionsWrapper::getOptionsMap( GameOption modmapFlag ) const
 {
     std::map<std::string,std::string> map;
     GameOptionsMapCIter optIt = m_opts.find((int)modmapFlag);
@@ -415,7 +415,7 @@ std::string OptionsWrapper::getDefaultValue( const std::string& key, GameOption 
 	return ret;
 }
 
-bool  OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, const std::string& value, GameOption modmapFlag, Enum::OptionType optType)
+bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, const std::string& value, GameOption modmapFlag, Enum::OptionType optType)
 {
 	GameOptions& gameoptions = m_opts[modmapFlag];
 	switch (optType)

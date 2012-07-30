@@ -187,6 +187,7 @@ public:
 	 * @note Not sure what this does, but adding the mod archive path to this when setting new mod seems to work :)
 	 */
 	void AddAllArchives( const std::string& root );
+    void AddArchive(const std::string& name);
 
 	void SetCurrentMod( const std::string& modname );
 	void UnSetCurrentMod( );
@@ -545,7 +546,7 @@ private:
     ///@}
 };
 
-//UnitsyncLib& susynclib();
+UnitsyncLib& susynclib();
 
 } // namespace LSL
 

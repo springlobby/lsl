@@ -128,7 +128,7 @@ void Battle::SaveMapDefaults()
 {
     // save map preset
     std::string mapname = LoadMap().name;
-	std::string startpostype = CustomBattleOptions()->getSingleValue( "startpostype", OptionsWrapper::EngineOption );
+	std::string startpostype = CustomBattleOptions()->getSingleValue( "startpostype", LSL::OptionsWrapper::EngineOption );
     sett().SetMapLastStartPosType( mapname, startpostype);
     std::vector<Settings::SettStartBox> rects;
     for( unsigned int i = 0; i <= GetLastRectIdx(); ++i )
@@ -150,8 +150,8 @@ void Battle::SaveMapDefaults()
 
 void Battle::LoadMapDefaults( const std::string& mapname )
 {
-	CustomBattleOptions()->setSingleOption( "startpostype", sett().GetMapLastStartPosType( mapname ), OptionsWrapper::EngineOption );
-	SendHostInfo( (boost::format( "%d_startpostype" ) % OptionsWrapper::EngineOption).str() );
+	CustomBattleOptions()->setSingleOption( "startpostype", sett().GetMapLastStartPosType( mapname ), LSL::OptionsWrapper::EngineOption );
+	SendHostInfo( (boost::format( "%d_startpostype" ) % LSL::OptionsWrapper::EngineOption).str() );
 
 	for( unsigned int i = 0; i <= GetLastRectIdx(); ++i ) {
 		if ( GetStartRect( i ).IsOk() )
@@ -957,7 +957,7 @@ void Battle::FixTeamIDs( Enum::BalanceType balance_type, bool support_clans, boo
 
     if ( numcontrolteams == 0 || numcontrolteams == -1 ) numcontrolteams = m_userlist.size() - GetSpectators(); // 0 or -1 -> use num players, will use comshare only if no available team slots
     Enum::StartType position_type = (Enum::StartType)
-            Util::FromString<long>( CustomBattleOptions()->getSingleValue( "startpostype", OptionsWrapper::EngineOption ) );
+            Util::FromString<long>( CustomBattleOptions()->getSingleValue( "startpostype", LSL::OptionsWrapper::EngineOption ) );
     if ( ( position_type == Enum::ST_Fixed ) || ( position_type == Enum::ST_Random ) ) // if fixed start pos type or random, use max teams = start pos count
     {
         try
