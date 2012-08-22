@@ -6,7 +6,6 @@
 
 namespace LSL {
 namespace Util {
-
 std::string GetHostCPUSpeed()
 {
 	return "667";

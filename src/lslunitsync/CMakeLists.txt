@@ -18,8 +18,8 @@ set_source_files_properties(  ${libUnitsyncHeader} PROPERTIES HEADER_FILE_ONLY 1
 #cimage deps
 FIND_PACKAGE( PNG REQUIRED)
 ADD_DEFINITIONS( -Dcimg_use_png )
-ADD_LIBRARY(libUnitsync++ STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} )
+ADD_LIBRARY(lsl-unitsync STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} )
 if( WIN32 )
-	TARGET_LINK_LIBRARIES(libUnitsync++ dl )
+	TARGET_LINK_LIBRARIES(lsl-unitsync dl )
 endif()
-TARGET_LINK_LIBRARIES(libUnitsync++ ${Boost_LIBRARIES} ${PNG_LIBRARY})
+TARGET_LINK_LIBRARIES(lsl-unitsync ${Boost_LIBRARIES} ${PNG_LIBRARY})

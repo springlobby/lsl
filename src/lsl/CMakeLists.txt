@@ -27,17 +27,17 @@ SET( templatesources
 LIST( APPEND libSpringLobbyHeader ${templatesources} )
 set_source_files_properties(  ${libSpringLobbyHeader} PROPERTIES HEADER_FILE_ONLY 1 )
 
-ADD_LIBRARY(libSpringLobby STATIC ${libSpringLobbyHeader} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE} )
-TARGET_LINK_LIBRARIES(libSpringLobby  libSpringLobbyUtils boost_system-mt boost_filesystem-mt boost_thread-mt )
+ADD_LIBRARY(lsl-server STATIC ${libSpringLobbyHeader} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE} )
+TARGET_LINK_LIBRARIES(lsl-server  lsl-utils boost_system-mt boost_filesystem-mt boost_thread-mt )
 
 IF(MINGW)
-	TARGET_LINK_LIBRARIES( libSpringLobby iphlpapi )
+	TARGET_LINK_LIBRARIES( lsl-server iphlpapi )
 ENDIF(MINGW)
 
 IF (WIN32)
-    install_if_standalone(TARGETS libSpringLobby DESTINATION . )
+    install_if_standalone(TARGETS lsl-server DESTINATION . )
 ELSE (WIN32)
-    install_if_standalone(TARGETS libSpringLobby 
+    install_if_standalone(TARGETS lsl-server 
 		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib 
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
 ENDIF (WIN32)

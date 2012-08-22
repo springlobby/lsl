@@ -16,6 +16,7 @@
 
 #include <lslutils/logging.h>
 #include <lslutils/misc.h>
+#include <lslutils/globalsmanager.h>
 #include <lslutils/debug.h>
 #include <lslutils/conversion.h>
 
@@ -1229,8 +1230,8 @@ float UnitsyncLib::GetKeyValue( const std::string& key, float defval )
 
 UnitsyncLib& susynclib()
 {
-    static LineInfo<UnitsyncLib> m( AT );
-    static GlobalObjectHolder<UnitsyncLib, LineInfo<UnitsyncLib> > ss( m );
+    static LSL::Util::LineInfo<UnitsyncLib> m( AT );
+    static LSL::Util::GlobalObjectHolder<UnitsyncLib, LSL::Util::LineInfo<UnitsyncLib> > ss( m );
 	return ss;
 }
 

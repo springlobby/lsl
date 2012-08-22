@@ -43,8 +43,8 @@ namespace BA = boost::algorithm;
 
 Spring& spring()
 {
-    static LineInfo<Spring> m( AT );
-    static GlobalObjectHolder<Spring,LineInfo<Spring> > m_spring( m );
+    static LSL::Util::LineInfo<Spring> m( AT );
+    static LSL::Util::GlobalObjectHolder<Spring, LSL::Util::LineInfo<Spring> > m_spring( m );
     return m_spring;
 }
 

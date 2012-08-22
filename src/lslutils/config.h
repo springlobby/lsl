@@ -5,11 +5,15 @@
 #define INT_DUMMY(name) int name () const { return 0; }
 
 #include <string>
+#include <boost/filesystem/path.hpp>
 #include <lslutils/type_forwards.h>
 
 namespace LSL {
+namespace Util {
 
-namespace Settings {
+template <class PB, class I >
+class GlobalObjectHolder;
+
 struct SettStartBox
 {
     int ally;
@@ -18,43 +22,47 @@ struct SettStartBox
     int bottomx;
     int bottomy;
 };
-} // namespace Settings {
 
 class Config
 {
-public:
     Config();
-    STR_DUMMY( GetCachePath )
-    STR_DUMMY( GetForcedSpringConfigFilePath )
-    STR_DUMMY( GetCurrentUsedUnitSync )
-    STR_DUMMY( GetCurrentUsedDataDir )
-    STR_DUMMY( GetCurrentUsedSpringBinary )
-    STR_DUMMY( GetCurrentUsedSpringConfigFilePath )
+
+public:
+    boost::filesystem::path GetCachePath() const;
+    boost::filesystem::path GetForcedSpringConfigFilePath() const;
+    boost::filesystem::path GetCurrentUsedUnitSync() const;
+    boost::filesystem::path GetCurrentUsedDataDir() const;
+    boost::filesystem::path GetCurrentUsedSpringBinary() const;
+    boost::filesystem::path GetCurrentUsedSpringConfigFilePath() const;
     STR_DUMMY( GetMyInternalUdpSourcePort )
     INT_DUMMY( GetClientPort )
-    std::string GetCurrentUsedUnitSync() { return "/usr/lib/spring/libunitsync.so";}
-	StringVector GetPresetList() { return StringVector(); }
-    StringMap GetHostingPreset( const std::string&, size_t ) { return StringMap(); }
-    void SetHostingPreset( const std::string&, size_t, const StringMap& ) {  }
+
+    StringVector GetPresetList();
+    StringMap GetHostingPreset( const std::string&, size_t );
+    void SetHostingPreset( const std::string&, size_t, const StringMap& );
     lslColor GetBattleLastColor() const;
-    int GetBattleLastSideSel( const std::string& /*modname*/ ) const {return 0;}
-    void SaveSettings(){}
-    void DeletePreset( const std::string& /*modname*/ ) {}
+    int GetBattleLastSideSel( const std::string& /*modname*/ ) const;
+    void SaveSettings();
+    void DeletePreset( const std::string& /*modname*/ );
 
-    void SetMapLastStartPosType( const std::string& , const std::string&  ){}
-    std::string GetMapLastStartPosType( const std::string&){ return std::string(); }
-
+    void SetMapLastStartPosType( const std::string& , const std::string&  );
+    std::string GetMapLastStartPosType( const std::string&);
 
     template < class T >
     void SetMapLastRectPreset( const std::string&, const T&) {}
     template < class T > T GetMapLastRectPreset( const std::string& ) { return T(); }
 
-    bool GetBattleLastAutoAnnounceDescription() { return true; }
-    int GetBattleLastAutoSpectTime() {return 1;}
+    bool GetBattleLastAutoAnnounceDescription();
+    int GetBattleLastAutoSpectTime();
+
+    template <class PB, class I >
+    friend class GlobalObjectHolder;
+
 };
 
-Config& sett();
+Config& config();
 
+} // namespace Util
 } // namespace LSL
 
 /**

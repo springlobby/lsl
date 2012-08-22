@@ -6,6 +6,10 @@
 #include <lslutils/misc.h>
 #include <lslutils/logging.h>
 
+#ifdef HAVE_WX
+    #include <wx/bitmap.h>
+    #include <wx/image.h>
+#endif
 
 #ifdef WIN32
 #include <boost/filesystem.hpp>
@@ -27,6 +31,7 @@ FILE* fmemopen(void* data, size_t size, const char* mode)
 namespace cimg_library {
 
 template < class T>
+//! extends cimg to loading images from in-memory buffer
 void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size,
 		const std::string& fn, CImg<T>& img) {
   const char* filename = fn.c_str();
@@ -252,5 +257,22 @@ int UnitsyncImage::GetWidth() const
 {
 	return m_data_ptr->width();
 }
+
+#ifdef HAVE_WX
+wxBitmap UnitsyncImage::wxbitmap() const
+{
+    wxBitmap bmp;
+    auto handler = bmp.FindHandler(wxBITMAP_TYPE_PNG);
+    if(handler)
+        handler->Create(&bmp, static_cast<const void*>(m_data_ptr->data()), wxBITMAP_TYPE_PNG, m_data_ptr->width(), m_data_ptr->height());
+    else
+        LslError("png handler missing");
+    return bmp;
+}
+wxImage UnitsyncImage::wximage () const
+{
+    return wxImage(this->wxbitmap().ConvertToImage());
+}
+#endif
 
 } // namespace LSL

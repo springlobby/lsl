@@ -11,6 +11,9 @@
 #include <boost/signals2/signal.hpp>
 #include <map>
 
+#ifdef HAVE_WX
+#include <wx/event.h>
+#endif
 namespace LSL {
 
 class UnitsyncImage;
@@ -18,6 +21,10 @@ struct GameOptions;
 struct CachedMapInfo;
 struct SpringMapInfo;
 class UnitsyncLib;
+
+#ifdef HAVE_WX
+extern const wxEventType UnitSyncAsyncOperationCompletedEvt;
+#endif
 
 class Unitsync : public boost::noncopyable
 {
@@ -120,8 +127,8 @@ public:
     /// schedule a map for prefetching
     void PrefetchMap( const std::string& mapname );
 
-	void RegisterEvtHandler( StringSignalSlotType handler );
-	void UnregisterEvtHandler(StringSignalSlotType handler );
+    boost::signals2::connection RegisterEvtHandler(const StringSignalSlotType &handler );
+    void UnregisterEvtHandler(boost::signals2::connection& conn );
 	void PostEvent(const std::string evt ); // helper for WorkItems
 
 	void GetMinimapAsync( const std::string& mapname );
@@ -216,16 +223,17 @@ struct GameOptions
 };
 
 /// Helper class for managing async operations safely
-class UnitSyncAsyncOps
+class UnitSyncAsyncOps : public boost::noncopyable
 {
 public:
-	UnitSyncAsyncOps( Unitsync::StringSignalSlotType evtHandler )
-		: m_evtHandler( evtHandler )
-	{
-		usync().RegisterEvtHandler( evtHandler );
-	}
+    UnitSyncAsyncOps( const Unitsync::StringSignalSlotType& evtHandler )
+//        : m_evtHandler_connection()
+    {
+        usync().RegisterEvtHandler(evtHandler);
+    }
+
 	~UnitSyncAsyncOps() {
-		usync().UnregisterEvtHandler( m_evtHandler );
+//        usync().UnregisterEvtHandler(m_evtHandler_connection);
 	}
 
 	void GetMinimap( const std::string& mapname )                 { usync().GetMinimapAsync( mapname ); }
@@ -237,7 +245,7 @@ public:
 	void GetMapEx( const std::string& mapname )                   { usync().GetMapExAsync( mapname ); }
 
 private:
-	Unitsync::StringSignalSlotType m_evtHandler;
+//    boost::signals2::connection m_evtHandler_connection;
 };
 
 } // namespace LSL

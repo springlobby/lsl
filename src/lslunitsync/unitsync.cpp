@@ -15,7 +15,7 @@
 #include "c_api.h"
 #include "image.h"
 
-#include <lslutils/lslconfig.h>
+#include <lslutils/config.h>
 #include <lslutils/debug.h>
 #include <lslutils/conversion.h>
 #include <lslutils/misc.h>
@@ -94,7 +94,7 @@ bool Unitsync::FastLoadUnitSyncLibInit()
 	LOCK_UNITSYNC;
 	m_cache_thread = new WorkerThread();
 	if ( IsLoaded() ) {
-		m_cache_path = sett().GetCachePath();
+        m_cache_path = Util::config().GetCachePath().string();
 		PopulateArchiveList();
 	}
 	return true;
@@ -107,7 +107,7 @@ bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
-		m_cache_path = sett().GetCachePath();
+        m_cache_path = LSL::Util::config().GetCachePath().string();
 		PopulateArchiveList();
 //		GetGlobalEventSender(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
 	}
@@ -195,7 +195,7 @@ void Unitsync::PopulateArchiveList()
 bool Unitsync::_LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	try {
-		m_susynclib->Load( unitsyncloc, sett().GetForcedSpringConfigFilePath() );
+        m_susynclib->Load( unitsyncloc, LSL::Util::config().GetForcedSpringConfigFilePath().string() );
 	} catch (...) {
 		return false;
 	}
@@ -577,6 +577,7 @@ StringVector Unitsync::GetAIList( const std::string& modname ) const
 		}
 		catch ( ... ) {}
 	}
+    std::sort(std::begin(ret), std::end(ret));
 	return ret;
 }
 
@@ -812,7 +813,7 @@ StringVector Unitsync::FindFilesVFS( const std::string& pattern ) const
 
 bool Unitsync::ReloadUnitSyncLib()
 {
-	return LoadUnitSyncLib( sett().GetCurrentUsedUnitSync() );
+    return LoadUnitSyncLib( LSL::Util::config().GetCurrentUsedUnitSync().string() );
 }
 
 
@@ -1090,15 +1091,14 @@ void Unitsync::PrefetchMap( const std::string& mapname )
 	}
 }
 
-void Unitsync::RegisterEvtHandler( StringSignalSlotType handler )
+boost::signals2::connection Unitsync::RegisterEvtHandler( const StringSignalSlotType& handler )
 {
-	m_async_ops_complete_sig.connect( handler );
+    return m_async_ops_complete_sig.connect( handler );
 }
 
-void Unitsync::UnregisterEvtHandler( StringSignalSlotType handler )
+void Unitsync::UnregisterEvtHandler(boost::signals2::connection &conn )
 {
-//	m_async_ops_complete_sig.disconnect( handler );
-	assert( false );
+    conn.disconnect();
 }
 
 void Unitsync::PostEvent( const std::string evt )
@@ -1208,8 +1208,8 @@ void Unitsync::AddReloadEvent(  )
 }
 
 Unitsync& usync() {
-	static LineInfo<Unitsync> m( AT );
-	static GlobalObjectHolder<Unitsync, LineInfo<Unitsync> > m_sync( m );
+    static LSL::Util::LineInfo<Unitsync> m( AT );
+    static LSL::Util::GlobalObjectHolder<Unitsync, LSL::Util::LineInfo<Unitsync> > m_sync( m );
 	return m_sync;
 }
 

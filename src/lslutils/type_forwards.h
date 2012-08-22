@@ -6,6 +6,10 @@
 #include <map>
 #include <vector>
 
+#ifdef HAVE_WX
+class wxArrayString;
+#endif
+
 namespace boost {
 template < class T >
 class shared_ptr;

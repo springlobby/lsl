@@ -10,6 +10,11 @@ template <class T>
 struct CImg;
 }
 
+#ifdef HAVE_WX
+    class wxBitmap;
+    class wxImage;
+#endif
+
 namespace LSL {
 
 namespace Util {
@@ -49,6 +54,10 @@ public:
 	static UnitsyncImage FromVfsFileData(  Util::uninitialized_array<char>& data, size_t size, const std::string& fn, bool useWhiteAsTransparent = true );
     ///@}
 
+    #ifdef HAVE_WX
+    wxBitmap wxbitmap() const;
+    wxImage wximage() const;
+    #endif
 	int GetWidth() const;
 	int GetHeight() const;
 	void Rescale( const int new_width, const int new_height);

@@ -10,6 +10,7 @@
 #define AT __FILE__ ":" TOSTRING(__LINE__)
 
 namespace LSL {
+namespace Util {
 
 template < class T >
 struct LineInfo {
@@ -106,7 +107,7 @@ template<class T, class I >
 int GlobalObjectHolder<T,I>::count = 0;
 
 } // namespace LSL {
-
+} // namespace Util {
 /**
  * \file globalsmanager.h
  * \section LICENSE

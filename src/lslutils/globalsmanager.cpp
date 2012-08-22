@@ -1,4 +1,4 @@
-#include "globalsmanager.h"
+#include <lslutils/globalsmanager.h>
 #include <assert.h>
 #include <vector>
 
@@ -6,6 +6,7 @@
 #include "lslutils/debug.h"
 
 namespace LSL {
+namespace Util {
 
 class GlobalsManager
 {
@@ -97,3 +98,4 @@ GlobalsManager::~GlobalsManager()
 }
 
 } // namespace LSL {
+} // namespace Util {

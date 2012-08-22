@@ -80,7 +80,7 @@ ENDIF(WIN32)
 # Build target defintions
 #----------------------------------------------------------------------------------------------------
 
-# Here we define the executable libSpringLobby ( or on Windows libSpringLobby.exe )
+# Here we define the executable lsl-server ( or on Windows libSpringLobby.exe )
 
 #ignore warnings about macosx app bundle output dir
 cmake_policy(SET CMP0006 OLD)
@@ -110,13 +110,13 @@ INCLUDE(cmake/compat_flags.cmake)
 # 				${libSpringLobby_SOURCE_DIR}/tools/regen_config_header.sh ${libSpringLobby_SOURCE_DIR}/cmake/config.h ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h
 # 				)
 # add_dependencies( distcheck dist )
-# add_dependencies( libSpringLobby version )
+# add_dependencies( lsl-server version )
 
 IF (WIN32)
     install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
 	install_if_standalone(DIRECTORY ${CMAKE_INSTALL_PREFIX}/locale DESTINATION .)
 ELSE (WIN32)
-    install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/libSpringLobby )
+    install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/lsl-server )
 ENDIF (WIN32)
 
 add_subdirectory( src )

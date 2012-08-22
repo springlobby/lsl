@@ -37,6 +37,14 @@ struct CaseInsensitive {
 	bool operator () ( const std::string& o ) {
 		return boost::to_lower_copy( o ) == m_ref;
 	}
+    int cmp( const std::string& o ) {
+        const auto ol = boost::to_lower_copy(o);
+        if(m_ref > ol)
+            return 1;
+        if(m_ref < ol)
+            return -1;
+        return 0;
+    }
 };
 } //namespace Predicates {
 
@@ -58,14 +66,14 @@ bool FileCanOpen( const std::string path );
 
 //! return value in [min,max]
 template <typename T> 
-T Clamp(const T var,const T min,const T max)
+inline T Clamp(const T var,const T min,const T max)
 {
 	return ( (var < min) ? min : ( var > max ) ? max : var );
 }
 
 //! three argument version based on std::min
 template<typename T>
-T Min(T a, T b, T c)
+inline T Min(T a, T b, T c)
 {
 	return std::min(a, std::min(b, c));
 }

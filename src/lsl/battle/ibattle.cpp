@@ -3,7 +3,7 @@
 #include <lslutils/debug.h>
 #include <lslutils/misc.h>
 #include <lslutils/conversion.h>
-#include <lslutils/lslconfig.h>
+#include <lslutils/config.h>
 #include <lslutils/autopointers.h>
 #include <lslunitsync/unitsync.h>
 #include <lslunitsync/optionswrapper.h>
