@@ -114,7 +114,7 @@ UnitsyncImage::UnitsyncImage( int width, int height )
 UnitsyncImage::UnitsyncImage(const std::string &filename)
 	: m_data_ptr( NewImagePtr(1,1) )
 {
-	m_data_ptr->load( filename.c_str() );
+    Load(filename);
 }
 
 UnitsyncImage::UnitsyncImage(PrivateImagePtrType ptr)
@@ -174,7 +174,12 @@ void UnitsyncImage::Save(const std::string& path) const
 
 void UnitsyncImage::Load(const std::string &path) const
 {
-	m_data_ptr->load( path.c_str() );
+    try {
+        m_data_ptr->load( path.c_str() );
+    } catch ( cimg_library::CImgException& c ) {
+        LslError("cimg load of %s failed: %s", path.c_str(), c.what());
+        throw c;
+    }
 }
 
 UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *colors, int width, int height)
@@ -250,7 +255,7 @@ int UnitsyncImage::GetHeight() const
 
 void UnitsyncImage::Rescale(const int new_width, const int new_height)
 {
-	m_data_ptr->resize( new_width, new_height, -100 /*c-default*/, 1 /*interpolation type*/);
+    m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 5 /*interpolation type*/);
 }
 
 int UnitsyncImage::GetWidth() const
@@ -261,17 +266,18 @@ int UnitsyncImage::GetWidth() const
 #ifdef HAVE_WX
 wxBitmap UnitsyncImage::wxbitmap() const
 {
-    wxBitmap bmp;
-    auto handler = bmp.FindHandler(wxBITMAP_TYPE_PNG);
-    if(handler)
-        handler->Create(&bmp, static_cast<const void*>(m_data_ptr->data()), wxBITMAP_TYPE_PNG, m_data_ptr->width(), m_data_ptr->height());
-    else
-        LslError("png handler missing");
-    return bmp;
+    return wxBitmap(this->wximage());
 }
+
 wxImage UnitsyncImage::wximage () const
 {
-    return wxImage(this->wxbitmap().ConvertToImage());
+    wxImage img(m_data_ptr->width(), m_data_ptr->height());
+    const auto ptr = *m_data_ptr;
+    cimg_forXY(ptr,x,y) {
+        img.SetRGB(x, y, ptr(x,y,0,0), ptr(x,y,0,1), ptr(x,y,0,2));
+    }
+
+    return img;
 }
 #endif
 
