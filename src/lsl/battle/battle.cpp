@@ -14,9 +14,17 @@
 #include <lslutils/debug.h>
 #include <lslutils/logging.h>
 #include <lslutils/conversion.h>
-#include <lslutils/lslconfig.h>
+#include <lslutils/config.h>
 #include <lsl/spring/spring.h>
 #include <lslunitsync/optionswrapper.h>
+
+//SL includes -- bad
+#if HAVE_SPRINGLOBBY
+    #include "settings.h"
+    #include "utils/conversion.h"
+#else
+#include <lslutils/mock_settings.h>
+#endif
 
 #define ASSERT_LOGIC(...)   do {} while(0)
 

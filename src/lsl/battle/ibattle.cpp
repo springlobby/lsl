@@ -8,6 +8,13 @@
 #include <lslunitsync/unitsync.h>
 #include <lslunitsync/optionswrapper.h>
 
+//SL includes -- bad
+#if HAVE_SPRINGLOBBY
+    #include "settings.h"
+#else
+#include <lslutils/mock_settings.h>
+#endif
+
 #include "signals.h"
 #include "tdfcontainer.h"
 

@@ -6,8 +6,12 @@
 #include "globalsmanager.h"
 
 //SL includes -- bad
-#include "settings.h"
-#include "utils/conversion.h"
+#if HAVE_SPRINGLOBBY
+    #include "settings.h"
+    #include "utils/conversion.h"
+#else
+#include "mock_settings.h"
+#endif
 
 namespace bf = boost::filesystem;
 

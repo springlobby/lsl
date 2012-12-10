@@ -113,10 +113,10 @@ INCLUDE(cmake/compat_flags.cmake)
 # add_dependencies( lsl-server version )
 
 IF (WIN32)
-    install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
+	install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
 	install_if_standalone(DIRECTORY ${CMAKE_INSTALL_PREFIX}/locale DESTINATION .)
 ELSE (WIN32)
-    install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/lsl-server )
+	install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/lsl-server )
 ENDIF (WIN32)
 
 add_subdirectory( src )
