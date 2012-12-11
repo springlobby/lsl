@@ -11,6 +11,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <iterator>
 
 #include "c_api.h"
 #include "image.h"
