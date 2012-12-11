@@ -20,7 +20,7 @@
 #include "springprocess.h"
 #include <lslutils/debug.h>
 #include <lslutils/conversion.h>
-#include <lslutils/lslconfig.h>
+#include <lslutils/config.h>
 #include <lsl/container/userlist.h>
 #include <lsl/battle/battle.h>
 #include <lsl/battle/singleplayer.h>

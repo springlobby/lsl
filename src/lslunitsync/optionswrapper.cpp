@@ -648,7 +648,7 @@ void mmSectionTree::AddSection( const mmOptionSection& section)
 	}
 }
 
-bool mmSectionTree::FindRecursive( const std::string& parent_key, std::string& path )
+bool mmSectionTree::FindRecursive( const std::string& /*parent_key*/, std::string& /*path */)
 {
 //    std::string current;
 //    long cur_index;
