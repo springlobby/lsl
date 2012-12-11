@@ -112,6 +112,9 @@ INCLUDE(cmake/compat_flags.cmake)
 # add_dependencies( distcheck dist )
 # add_dependencies( lsl-server version )
 
+set(OPTION_LSLSERVER
+	TRUE CACHE BOOL
+	"Compile and install lsl-server")
 IF (WIN32)
 	install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
 	install_if_standalone(DIRECTORY ${CMAKE_INSTALL_PREFIX}/locale DESTINATION .)

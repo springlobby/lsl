@@ -11,3 +11,5 @@ Makefile
 doc/html/
 CMakeLists.txt.user*
 *kate-swp
+cmake_install.cmake
+CMakeFiles/

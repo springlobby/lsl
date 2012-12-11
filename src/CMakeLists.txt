@@ -12,5 +12,7 @@ INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/lib)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory( lslutils )
-add_subdirectory( lsl )
+if (OPTION_LSLSERVER)
+	add_subdirectory( lsl )
+endif()
 add_subdirectory( lslunitsync )
