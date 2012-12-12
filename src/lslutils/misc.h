@@ -33,7 +33,7 @@ namespace Predicates {
 //! Functor to compare given string w/o considering case
 struct CaseInsensitive {
 	const std::string m_ref;
-	CaseInsensitive( const std::string r ) : m_ref(boost::to_lower_copy(r)){}
+	CaseInsensitive( const std::string& r ) : m_ref(boost::to_lower_copy(r)){}
 	bool operator () ( const std::string& o ) {
 		return boost::to_lower_copy( o ) == m_ref;
 	}
@@ -52,7 +52,7 @@ struct CaseInsensitive {
  * \param msg the spring to be split
  * \param seperators a list of seperaors, duh
  * \param mode token_compress_off --> potentially empty strings in return,
- 							token_compress_on --> empty tokens are discarded 
+ 							token_compress_on --> empty tokens are discarded
  * \return all tokens in a vector, if msg contains no seperators, this'll contain msg as its only element
  **/
 StringVector StringTokenize( const std::string& msg,
@@ -65,7 +65,7 @@ bool FileExists( const std::string path );
 bool FileCanOpen( const std::string path );
 
 //! return value in [min,max]
-template <typename T> 
+template <typename T>
 inline T Clamp(const T var,const T min,const T max)
 {
 	return ( (var < min) ? min : ( var > max ) ? max : var );
@@ -187,7 +187,7 @@ public:
 	void Set(int wi, int hi){set(wi,hi);}
 	void set(int wi, int hi){w = wi; h = hi;}
 	//! takes best fitting size of original inside bounds keeping aspect ratio
-	lslSize MakeFit(const lslSize bounds);
+	lslSize MakeFit(const lslSize& bounds);
 };
 
 //! a color tuple class with arbitrarily typed fields
@@ -200,10 +200,10 @@ public:
 	explicit lslColorBase(T _r, T _g, T _b, T _a = 0)
 		:r(_r),g(_g),b(_b),a(_a){}
 
-	bool operator == (const lslColor o) const {
+	bool operator == (const lslColor& o) const {
 		return r == o.r && 	g == o.g && b == o.b && a == o.a;
 	}
-	bool operator != (const lslColor o) const {
+	bool operator != (const lslColor& o) const {
 		return !(this->operator ==(o));
 	}
 	T Red()   const { return r; }

@@ -129,7 +129,7 @@ public:
 
     boost::signals2::connection RegisterEvtHandler(const StringSignalSlotType &handler );
     void UnregisterEvtHandler(boost::signals2::connection& conn );
-	void PostEvent(const std::string evt ); // helper for WorkItems
+	void PostEvent(const std::string& evt ); // helper for WorkItems
 
 	void GetMinimapAsync( const std::string& mapname );
 	void GetMinimapAsync( const std::string& mapname, int width, int height );

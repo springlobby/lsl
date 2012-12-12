@@ -183,7 +183,7 @@ std::string ServerImpl::GetPasswordHash( const std::string& pass ) const
 
 	md5_state_t state;
 	md5_byte_t digest[16];
-	char hex_output[16*2 + 1];
+//	char hex_output[16*2 + 1];
 	int di;
 
 	char* cstr = new char [pass.size()+1];
@@ -192,9 +192,9 @@ std::string ServerImpl::GetPasswordHash( const std::string& pass ) const
 	md5_init(&state);
 	md5_append(&state, (const md5_byte_t *) cstr, strlen( cstr ));
 	md5_finish(&state, digest);
-	for (di = 0; di < 16; ++di)
+/*	for (di = 0; di < 16; ++di)
 		sprintf(hex_output + di * 2, "%02x", digest[di]);
-
+*/
     return base64::encode( digest, 16 );
 }
 
@@ -490,11 +490,11 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 	{
 		std::map<std::string, int> units = m_current_battle->RestrictedUnits();
 		RelayCmd( "ENABLEALLUNITS" );
-		if ( units.size() > 0 )
+		if ( !units.empty() )
 		{
 			std::stringstream msg;
 			std::stringstream scriptmsg;
-			for ( std::map<std::string, int>::const_iterator itor = units.begin(); itor != units.end(); itor++ )
+			for ( std::map<std::string, int>::const_iterator itor = units.begin(); itor != units.end(); ++itor )
 			{
 				 msg << itor->first + " ";
 				 scriptmsg << "game/restrict/" + itor->first + "=" + Util::ToString(itor->second) + '\t'; // this is a serious protocol abuse, but on the other hand, the protocol fucking suck and it's unmaintained so it will do for now
@@ -908,7 +908,7 @@ void ServerImpl::OnChannelJoinUserList( const std::string& channel_name, const s
     m_iface->OnChannelJoinUserList(channel,users);
 }
 
-void ServerImpl::OnJoinedBattle(const int battleid, const std::string msg)
+void ServerImpl::OnJoinedBattle(const int battleid, const std::string& msg)
 {
 	assert( false );
 }

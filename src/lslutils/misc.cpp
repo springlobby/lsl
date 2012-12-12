@@ -16,12 +16,12 @@ std::string GetLibLobbyVersion()
 	return "0";
 }
 
-bool FileExists( const std::string path )
+bool FileExists( const std::string& path )
 {
     return boost::filesystem::exists( boost::filesystem::path( path ) );
 }
 
-bool FileCanOpen( const std::string path )
+bool FileCanOpen( const std::string& path )
 {
 	return std::ifstream(path.c_str()).is_open();
 }
@@ -211,7 +211,7 @@ lslColor GetFreeColor( const ConstCommonUserPtr /*user*/ )
 } //namespace Util
 
 
-lslSize lslSize::MakeFit(const lslSize bounds)
+lslSize lslSize::MakeFit(const lslSize& bounds)
 {
 	if( ( bounds.GetWidth() <= 0 ) || ( bounds.GetHeight() <= 0 ) )
 		return lslSize(0,0);

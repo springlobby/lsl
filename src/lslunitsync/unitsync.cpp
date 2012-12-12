@@ -1102,7 +1102,7 @@ void Unitsync::UnregisterEvtHandler(boost::signals2::connection &conn )
     conn.disconnect();
 }
 
-void Unitsync::PostEvent( const std::string evt )
+void Unitsync::PostEvent( const std::string& evt )
 {
 	m_async_ops_complete_sig( evt );
 }

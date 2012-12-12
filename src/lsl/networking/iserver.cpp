@@ -157,7 +157,7 @@ void Server::OpenBattle( Battle::BattleOptions bo )
 
 std::string Server::GenerateScriptPassword() const
 {
-	char buff[8];
+	char buff[9];
 	sprintf(buff,"%04x%04x", rand()&0xFFFF, rand()&0xFFFF);
 	return std::string(buff);
 }
@@ -235,7 +235,6 @@ void Server::AddBot(const IBattlePtr battle, const std::string& nick, UserBattle
     tascl.color.blue = status.color.Blue();
     tascl.color.zero = 0;
     //ADDBOT name battlestatus teamcolor {AIDLL}
-    std::string msg;
     std::string ailib;
     ailib += status.aishortname; // + "|" + status.aiversion;
     m_impl->SendCmd( "ADDBOT", nick + Util::ToString(tasbs.data) + " " + Util::ToString( tascl.data ) + " " + ailib );
@@ -317,7 +316,7 @@ void Server::SendScriptToProxy( const std::string& script )
 {
     const StringVector strings = Util::StringTokenize( script, "\n" );
     m_impl->RelayCmd( "CLEANSCRIPT" );
-	for (StringVector::const_iterator itor; itor != strings.end(); itor++)
+	for (StringVector::const_iterator itor; itor != strings.end(); ++itor)
 	{
         m_impl->RelayCmd( "APPENDSCRIPTLINE", *itor );
 	}
@@ -411,7 +410,7 @@ void Server::UdpPingAllClients()
 /////                       Internal Server Events                         /////
 ////////////////////////////////////////////////////////////////////////////////
 
-void Server::OnSocketConnected(bool connection_ok, const std::string msg)
+void Server::OnSocketConnected(bool connection_ok, const std::string& msg)
 {
     assert( connection_ok );//add proper error handling
     m_impl->m_connected = connection_ok;
@@ -597,7 +596,7 @@ void Server::OnBattleLockUpdated(const IBattlePtr battle,bool locked)
 void Server::OnUserLeftBattle(const IBattlePtr battle, const CommonUserPtr user)
 {
 	if (!user) return;
-	bool isbot = user->BattleStatus().IsBot();
+	//bool isbot = user->BattleStatus().IsBot();
 	user->BattleStatus().scriptPassword.clear();
 	if (!battle) return;
 	battle->OnUserRemoved( user );
@@ -1058,7 +1057,7 @@ void Server::SendScriptToClients( const std::string& script )
 {
     m_impl->RelayCmd( "SCRIPTSTART" );
     const StringVector lines = Util::StringTokenize(script,"\n");
-    for(StringVector::iterator itor; itor != lines.end(); itor++)
+    for(StringVector::iterator itor; itor != lines.end(); ++itor)
     {
         m_impl->RelayCmd( "SCRIPT", *itor );
     }

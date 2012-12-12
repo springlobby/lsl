@@ -83,7 +83,7 @@ void GlobalsManager::DestroyAll()
 		{
 			(*i)->Destroy();
 		}
-		catch ( std::runtime_error e )
+		catch ( std::runtime_error& e )
 		{
 			LslDebug( "GlobalsManager::DestroyAll(), runtume_error '%s' when destroying", e.what() );
 		}

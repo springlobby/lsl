@@ -69,11 +69,12 @@ mmOptionString::mmOptionString(std::string name_, std::string key_, std::string 
 	def(def_),value(def_),max_len(max_len_)
 {}
 
-mmOptionString::mmOptionString():mmOptionModel()
+mmOptionString::mmOptionString():
+	mmOptionModel(),
+	def(""),
+	max_len(0)
 {
-    def = std::string();
 	value = def;
-	max_len = 0;
 }
 
 mmOptionList::mmOptionList(std::string name_, std::string key_, std::string description_, std::string def_,
@@ -84,10 +85,12 @@ mmOptionList::mmOptionList(std::string name_, std::string key_, std::string desc
 	cur_choice_index = 0;
 }
 
-mmOptionList::mmOptionList():mmOptionModel()
+mmOptionList::mmOptionList():
+	mmOptionModel(),
+	def(""),
+	value(""),
+	cur_choice_index(0)
 {
-    value = std::string();
-    def = std::string();
 }
 
 void mmOptionList::addItem(std::string key_, std::string name_, std::string desc_)

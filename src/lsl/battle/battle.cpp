@@ -34,6 +34,7 @@ namespace Battle {
 Battle::Battle(IServerPtr serv, int id ) :
     m_serv(serv),
     m_autolock_on_start(false),
+    m_auto_unspeck(false),
     m_id( id )
 
 {

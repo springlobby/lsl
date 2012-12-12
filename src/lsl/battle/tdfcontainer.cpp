@@ -435,7 +435,7 @@ PNode DataList::Find( const std::string &str ) {
 }
 
 std::string DataList::Path() {
-	std::string result;
+	std::string result; //FIXME: is not used?!
 	PDataList tmp( this );
 	while ( tmp.Ok() ) {
         result = std::string( "/" ) + tmp->Name();

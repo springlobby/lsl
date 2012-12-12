@@ -40,15 +40,30 @@ struct MapInfo
 	std::vector<StartPos> positions;
 
 	std::string author;
+	MapInfo():
+		description(""),
+		tidalStrength(0),
+		gravity(0),
+		maxMetal(0.0f),
+		extractorRadius(0),
+		minWind(0),
+		maxWind(0),
+		width(0),
+		height(0),
+		author("")
+	{
+	}
 };
 
 struct UnitsyncMap
 {
-    UnitsyncMap()
-        : name(std::string()),hash(std::string())
+    UnitsyncMap():
+		name(std::string()),
+        hash(std::string())
     {}
-    UnitsyncMap(const std::string& name, const std::string& hash)
-        : name(name),hash(hash)
+    UnitsyncMap(const std::string& name, const std::string& hash):
+		name(name),
+		hash(hash)
     {}
 	std::string name;
 	std::string hash;

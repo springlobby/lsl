@@ -52,7 +52,7 @@ template < class F> struct LibFunc<F,5> {
 template < class FunctionPointerType >
 void GetLibFuncPtr( boost::extensions::shared_library* libhandle, const std::string& name, FunctionPointerType& p )
 {
-    if ( !libhandle && libhandle->is_open() )
+    if ( libhandle!=NULL && libhandle->is_open() )
         throw std::runtime_error("libhandle not open");
     p = LibFunc<FunctionPointerType,FunctionPointerType::arity>::get( name, libhandle );
     if ( !p ) {

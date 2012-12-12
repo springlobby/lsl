@@ -44,7 +44,7 @@ struct PingThread { PingThread(Server*,int){}
 struct MuteListEntry {
     const ConstUserPtr who;
     const std::string msg;
-    MuteListEntry( const ConstUserPtr _who, const std::string _msg )
+    MuteListEntry( const ConstUserPtr _who, const std::string& _msg )
         : who(_who), msg(_msg)
     {}
 };

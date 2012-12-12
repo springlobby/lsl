@@ -902,7 +902,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 		std::map<std::string,std::string> options = sett().GetHostingPreset( m_preset, i );
 		if ( (LSL::OptionsWrapper::GameOption)i != LSL::OptionsWrapper::PrivateOptions )
 		{
-			for ( std::map<std::string,std::string>::const_iterator itor = options.begin(); itor != options.end(); itor++ )
+			for ( std::map<std::string,std::string>::const_iterator itor = options.begin(); itor != options.end(); ++itor )
 			{
 				CustomBattleOptions()->setSingleOption( itor->first, itor->second, (LSL::OptionsWrapper::GameOption)i );
 			}
@@ -996,7 +996,7 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 			opts["numrects"] = Util::ToString( validrectcount );
 
 			std::stringstream restrictionsstring;
-			for ( std::map<std::string, int>::const_iterator itor = m_restricted_units.begin(); itor != m_restricted_units.end(); itor++ )
+			for ( std::map<std::string, int>::const_iterator itor = m_restricted_units.begin(); itor != m_restricted_units.end(); ++itor )
 			{
 				restrictionsstring << itor->first << '=' << Util::ToString(itor->second) << '\t';
 			}

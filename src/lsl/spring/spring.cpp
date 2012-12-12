@@ -382,7 +382,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     tdf.Append( "NumRestrictions", units.size());
     tdf.EnterSection( "RESTRICT" );
     int restrictcount = 0;
-    for ( std::map<std::string, int>::const_iterator itor = units.begin(); itor != units.end(); itor++ )
+    for ( std::map<std::string, int>::const_iterator itor = units.begin(); itor != units.end(); ++itor )
     {
         tdf.Append("Unit" + Util::ToString( restrictcount ), itor->first );
         tdf.Append("Limit" + Util::ToString( restrictcount ), itor->second );
@@ -444,7 +444,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
         else
         {
             int speccteam = 0;
-            if ( teams_to_sorted_teams.size() != 0 )
+            if ( !teams_to_sorted_teams.empty() )
                 speccteam = rand() % teams_to_sorted_teams.size();
             tdf.Append( "Team", speccteam );
         }
