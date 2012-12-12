@@ -1006,8 +1006,12 @@ protected:
 
 	virtual void RunCore() = 0;
 
-	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId )
-		: m_usync(usync), m_mapname(mapname.c_str()), m_evtId(evtId) {}
+	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId ):
+		m_usync(usync),
+		m_mapname(mapname.c_str()),
+		m_evtHandlerId(0),
+		m_evtId(evtId)
+	{}
 };
 
 class GetMapImageAsyncWorkItem : public GetMapImageAsyncResult

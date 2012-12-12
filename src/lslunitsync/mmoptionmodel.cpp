@@ -22,23 +22,27 @@ mmOptionModel::mmOptionModel(std::string name_, std::string key_, std::string de
 }
 
 mmOptionModel::mmOptionModel(std::string name_, std::string key_, std::string description_, Enum::OptionType type_,
-							 std::string section_ , Enum::OptionControlType style_ )
-	: name(name_),key(key_),description(description_),type(type_),
-      ct_type(style_), section(section_)
+							 std::string section_ , Enum::OptionControlType style_ ):
+	name(name_),
+	key(key_),
+	description(description_),
+	type(type_),
+	ct_type(style_),
+	section(section_)
 {
 }
 
 mmOptionModel::~mmOptionModel()
 {}
 
-mmOptionModel::mmOptionModel()
+mmOptionModel::mmOptionModel():
+	name(""),
+	key(""),
+	description(""),
+	type(Enum::opt_undefined),
+	ct_type(Enum::oct_undefined),
+	section(Constants::nosection_name)
 {
-	type = Enum::opt_undefined;
-    name = std::string();
-	key = name;
-	description = name;
-    section = Constants::nosection_name;
-	ct_type = Enum::oct_undefined;
 }
 
 mmOptionBool::mmOptionBool(std::string name_, std::string key_, std::string description_, bool def_,

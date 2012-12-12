@@ -581,7 +581,7 @@ void OptionsWrapper::ParseSectionMap( mmSectionTree& section_tree, const OptionM
 
     RelationMapIter rit = relation_map.begin();
     // no more items in the map means we've added them all
-    while ( relation_map.size() > 0 )
+    while ( !relation_map.empty() )
     {
         RelationMapIter rit_next = rit; // in case we need to delete
         ++rit_next;

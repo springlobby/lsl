@@ -59,7 +59,7 @@ std::string CanonicalizeName( const std::string& name, Category cat)
 	switch ( cat )
 	{
 		default:
-			wxFAIL_MSG( \1;
+			wxFAIL_MSG( \1 );
 			// fall through
 		case wxDL_MODULE:
 			// don't do anything for modules, their names are arbitrary
