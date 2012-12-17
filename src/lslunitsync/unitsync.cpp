@@ -628,7 +628,7 @@ StringVector Unitsync::GetUnitsList( const std::string& modname )
 	} catch(...)
 	{
 		m_susynclib->SetCurrentMod( modname );
-		while ( m_susynclib->ProcessUnitsNoChecksum() ) {}
+		while ( m_susynclib->ProcessUnitsNoChecksum() > 0 ) {}
 		const unsigned int unitcount = m_susynclib->GetUnitCount();
 		for ( unsigned int i = 0; i < unitcount; i++ )
 		{
