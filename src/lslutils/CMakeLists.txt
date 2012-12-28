@@ -20,4 +20,4 @@ set_source_files_properties(  ${libSpringLobbyUtilsHeader} PROPERTIES HEADER_FIL
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 ADD_LIBRARY(lsl-utils STATIC ${libSpringLobbyHeader} ${libSpringLobbyUtilsSrc} )
-TARGET_LINK_LIBRARIES(lsl-utils boost_thread-mt)
+TARGET_LINK_LIBRARIES(lsl-utils ${Boost_THREAD_LIBRARY})
