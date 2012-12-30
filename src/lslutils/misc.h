@@ -60,9 +60,9 @@ StringVector StringTokenize( const std::string& msg,
                              const boost::algorithm::token_compress_mode_type mode = boost::algorithm::token_compress_off );
 
 //! delegate to boost::filesystem::exists
-bool FileExists( const std::string path );
+bool FileExists( const std::string& path );
 //! create temporary filestream, return is_open()
-bool FileCanOpen( const std::string path );
+bool FileCanOpen( const std::string& path );
 
 //! return value in [min,max]
 template <typename T>

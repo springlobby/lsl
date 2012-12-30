@@ -1207,9 +1207,8 @@ void Unitsync::OnReload( wxCommandEvent& /*event*/ )
 
 void Unitsync::AddReloadEvent(  )
 {
-	assert( false );
-//	wxCommandEvent evt( wxUnitsyncReloadEvent, wxNewId() );
-//	AddPendingEvent( evt );
+  //implement me :)
+  assert( false );
 }
 
 Unitsync& usync() {

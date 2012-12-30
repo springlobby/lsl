@@ -43,10 +43,10 @@ namespace LSL {
 
 UnitsyncLib::UnitsyncLib()
 	: m_loaded(false),
-	m_libhandle(NULL),
+  m_libhandle(nullptr),
 	m_path(std::string()),
-	m_init(NULL),
-	m_uninit(NULL)
+  m_init(NULL),
+  m_uninit(NULL)
 {
 }
 
@@ -120,7 +120,7 @@ void UnitsyncLib::_Load( const std::string& path )
 				m_libhandle = 0;
 			}
 		} catch(std::exception& e) {
-			LslDebug( "UNITSYNC, loading failed, nulling handle: %s\n", e.what() );
+      LslDebug( "UNITSYNC, loading failed, nulling handle: %s\n", e.what() );
 			m_libhandle = 0;
 		}
 	}
@@ -142,7 +142,7 @@ void UnitsyncLib::_Load( const std::string& path )
 	catch ( std::exception& e )
 	{
 		// don't uninit unitsync in _Unload -- it hasn't been init'ed yet
-		m_uninit = NULL;
+    m_uninit = NULL;
 		_Unload();
 		LSL_THROW( unitsync, e.what() );
 	}
@@ -150,7 +150,7 @@ void UnitsyncLib::_Load( const std::string& path )
 
 void UnitsyncLib::_Init()
 {
-	if ( _IsLoaded() && m_init != NULL )
+  if ( _IsLoaded() && m_init != NULL )
 	{
 		m_current_mod = std::string();
 		m_init( true, 1 );
@@ -189,10 +189,10 @@ void UnitsyncLib::_Unload()
 		m_uninit();
 
 	delete m_libhandle;
-	m_libhandle = NULL;
+  m_libhandle = NULL;
 
-	m_init = NULL;
-	m_uninit = NULL;
+  m_init = NULL;
+  m_uninit = NULL;
 }
 
 bool UnitsyncLib::IsLoaded() const
@@ -410,7 +410,7 @@ UnitsyncLib::StringVector UnitsyncLib::GetMapDeps( int index )
 
 MapInfo UnitsyncLib::GetMapInfoEx( int index, int version )
 {
-	if (m_get_map_description == NULL) {
+  if (m_get_map_description == NULL) {
 		// old fetch method
 		InitLib( m_get_map_info_ex );
 
