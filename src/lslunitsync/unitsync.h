@@ -117,6 +117,7 @@ public:
 	bool FastLoadUnitSyncLibInit();
 
     void SetSpringDataPath( const std::string& path );
+    bool GetSpringDataPath( std::string& path);
 
     StringVector GetPlaybackList( bool ReplayType = true ) const; //savegames otehrwise
 
