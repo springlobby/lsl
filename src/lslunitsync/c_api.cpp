@@ -695,25 +695,6 @@ void UnitsyncLib::CloseFileVFS( int handle )
 	m_close_file_vfs( handle );
 }
 
-int UnitsyncLib::GetLuaAICount( const std::string& modname )
-{
-	InitLib( m_get_luaai_count );
-	_SetCurrentMod( modname );
-	return m_get_luaai_count();
-}
-
-std::string UnitsyncLib::GetLuaAIName( int aiIndex )
-{
-	InitLib( m_get_luaai_name );
-	return m_get_luaai_name( aiIndex );
-}
-
-std::string UnitsyncLib::GetLuaAIDesc( int aiIndex )
-{
-	InitLib( m_get_luaai_desc );
-	return m_get_luaai_desc( aiIndex );
-}
-
 unsigned int UnitsyncLib::GetValidMapCount( const std::string& modname )
 {
 	InitLib( m_get_mod_valid_map_count );

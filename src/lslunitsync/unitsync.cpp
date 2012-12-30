@@ -566,19 +566,8 @@ StringVector Unitsync::GetAIList( const std::string& modname ) const
 			if ( Util::IndexInSequence( ret, Util::BeforeLast( jarlist[i], "/" ) ) == lslNotFound )
 				ret.push_back ( jarlist[i] ); // don't add duplicates //TODO(koshi) make ret a set instead :)
 		}
-
-		// luaai
-		try
-		{
-			const int LuaAICount = m_susynclib->GetLuaAICount( modname );
-			for ( int i = 0; i < LuaAICount; i++ )
-			{
-				ret.push_back( "LuaAI:" +  m_susynclib->GetLuaAIName( i ) );
-			}
-		}
-		catch ( ... ) {}
 	}
-    std::sort(std::begin(ret), std::end(ret));
+  std::sort(std::begin(ret), std::end(ret));
 	return ret;
 }
 

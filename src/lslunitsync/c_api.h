@@ -208,10 +208,6 @@ public:
 	int ReadFileVFS( int handle, void* buffer, int bufferLength );
 	void CloseFileVFS( int handle );
 
-	int GetLuaAICount( const std::string& modname );
-	std::string GetLuaAIName( int aiIndex );
-	std::string GetLuaAIDesc( int aiIndex );
-
 	unsigned int GetValidMapCount( const std::string& modname );
 	std::string GetValidMapName( unsigned int MapIndex );
 
@@ -445,10 +441,6 @@ private:
 	GetPrimaryModChecksumFromNamePtr m_get_primary_mod_checksum_from_name;
 	GetModValidMapCountPtr m_get_mod_valid_map_count;
 	GetModValidMapPtr m_get_valid_map;
-
-	GetLuaAICountPtr m_get_luaai_count;
-	GetLuaAINamePtr m_get_luaai_name;
-	GetLuaAIDescPtr m_get_luaai_desc;
 
 	GetMapOptionCountPtr m_get_map_option_count;
 	GetCustomOptionCountPtr m_get_custom_option_count;

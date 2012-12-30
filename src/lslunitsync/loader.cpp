@@ -161,10 +161,6 @@ void UnitsyncFunctionLoader::Basic(UnitsyncLib *s)
     GetLibFuncPtr( s->m_libhandle, "GetInfoKey",					s->m_get_skirmish_ai_info_key );
     GetLibFuncPtr( s->m_libhandle, "GetInfoValue",					s->m_get_skirmish_ai_info_value );
     GetLibFuncPtr( s->m_libhandle, "GetInfoDescription",			s->m_get_skirmish_ai_info_description );
-
-    GetLibFuncPtr( s->m_libhandle, "GetLuaAICount",                 s->m_get_luaai_count );
-    GetLibFuncPtr( s->m_libhandle, "GetLuaAIName",					s->m_get_luaai_name );
-    GetLibFuncPtr( s->m_libhandle, "GetLuaAIDesc",					s->m_get_luaai_desc );
 }
 
 void UnitsyncFunctionLoader::Config(UnitsyncLib *s)
