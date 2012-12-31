@@ -35,14 +35,11 @@ Unitsync::Unitsync()
 	, m_tiny_minimap_cache( 200, "m_tiny_minimap_cache" ) // takes at most 30k per image (   100x100 24 bpp minimap )
 	, m_mapinfo_cache( 1000000, "m_mapinfo_cache" )       // this one is just misused as thread safe std::map ...
 	, m_sides_cache( 200, "m_sides_cache" )               // another misuse
-{
-//	Connect( wxUnitsyncReloadEvent, wxCommandEventHandler( Unitsync::OnReload ), NULL, this );
-}
+{}
 
 
 Unitsync::~Unitsync()
 {
-//	Disconnect( wxUnitsyncReloadEvent, wxCommandEventHandler( Unitsync::OnReload ), NULL, this );
 	if ( m_cache_thread )
 		m_cache_thread->Wait();
 	delete m_cache_thread;
@@ -108,9 +105,9 @@ bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
-        m_cache_path = LSL::Util::config().GetCachePath().string();
+    m_cache_path = LSL::Util::config().GetCachePath().string();
 		PopulateArchiveList();
-//		GetGlobalEventSender(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
+    GetGlobalEventSender(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
 	}
 	return ret;
 }
@@ -1193,17 +1190,11 @@ std::string Unitsync::GetNameForShortname( const std::string& shortname, const s
 	return std::string();
 }
 
-#if 0
-void Unitsync::OnReload( wxCommandEvent& /*event*/ )
+void Unitsync::AddReloadEvent()
 {
-	ReloadUnitSyncLib();
-}
-#endif
-
-void Unitsync::AddReloadEvent(  )
-{
-  //implement me :)
-  assert( false );
+  //previously this inserted a command into aa  queue that was worked on in
+  //the main thread. direct reloading from any non-main thread would crash horribly
+  ReloadUnitSyncLib();
 }
 
 Unitsync& usync() {
