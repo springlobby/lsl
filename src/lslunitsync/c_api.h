@@ -47,6 +47,19 @@ struct SpringMapInfo
 	StartPos positions[MapInfoMaxStartPositions];
 
 	char* author;
+
+  SpringMapInfo()
+    : description(nullptr)
+    , tidalStrength(0)
+    , gravity(0)
+    , maxMetal(0.0f)
+    , extractorRadius(0)
+    , minWind(0)
+    , maxWind(0)
+    , width(0)
+    , height(0)
+    , author(nullptr)
+  {}
 };
 
 /**
