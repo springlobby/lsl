@@ -107,7 +107,8 @@ bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 	{
     m_cache_path = LSL::Util::config().GetCachePath().string();
 		PopulateArchiveList();
-    GetGlobalEventSender(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
+    //this bit will be used to notify GUI listeners that they may need to update after usync reload
+//    GetGlobalEventSender(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
 	}
 	return ret;
 }
