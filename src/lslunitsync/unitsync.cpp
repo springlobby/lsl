@@ -564,7 +564,7 @@ StringVector Unitsync::GetAIList( const std::string& modname ) const
 				ret.push_back ( jarlist[i] ); // don't add duplicates //TODO(koshi) make ret a set instead :)
 		}
 	}
-  std::sort(std::begin(ret), std::end(ret));
+	std::sort(ret.begin(), ret.end());
 	return ret;
 }
 
