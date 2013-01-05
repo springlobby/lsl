@@ -43,7 +43,7 @@ namespace LSL {
 
 UnitsyncLib::UnitsyncLib()
 	: m_loaded(false),
-  m_libhandle(nullptr),
+  m_libhandle(NULL),
 	m_path(std::string()),
   m_init(NULL),
   m_uninit(NULL)

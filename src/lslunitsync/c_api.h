@@ -49,7 +49,7 @@ struct SpringMapInfo
 	char* author;
 
   SpringMapInfo()
-    : description(nullptr)
+    : description(NULL)
     , tidalStrength(0)
     , gravity(0)
     , maxMetal(0.0f)
@@ -58,7 +58,7 @@ struct SpringMapInfo
     , maxWind(0)
     , width(0)
     , height(0)
-    , author(nullptr)
+    , author(NULL)
   {}
 };
 
