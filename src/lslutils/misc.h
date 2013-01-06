@@ -38,7 +38,7 @@ struct CaseInsensitive {
 		return boost::to_lower_copy( o ) == m_ref;
 	}
     int cmp( const std::string& o ) {
-        const auto ol = boost::to_lower_copy(o);
+        const std::string ol = boost::to_lower_copy(o);
         if(m_ref > ol)
             return 1;
         if(m_ref < ol)
