@@ -16,8 +16,7 @@
 #include <cstring>
 
 #if (defined(_WIN32) || defined(__WIN32__) || defined(WIN32)) \
-    && !defined(BOOST_DISABLE_WIN32) && !defined(__GNUC__)
-
+    && !defined(BOOST_DISABLE_WIN32)
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
 #endif
@@ -27,8 +26,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #endif
-
-#include <Windows.h>
+#include <windows.h>
 namespace boost {
 namespace extensions {
 namespace impl {
