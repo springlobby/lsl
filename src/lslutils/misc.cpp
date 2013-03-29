@@ -41,13 +41,12 @@ namespace Lib {
 
 std::string GetDllExt()
 {
-#if defined(__UNIX__)
-	return ".so";
-#elif defined(WIN32)
+#if defined(WIN32)
 	return ".dll";
+#elif defined(__DARWIN__)
+  return ".bundle";
 #else
-	assert( false );
-    return ".so";
+  return ".so";
 #endif
 }
 
@@ -180,13 +179,8 @@ std::vector<lslColor>& GetBigFixColorsPalette( int numteams )
 			value = satvalsplittings[satvalbifurcatepos -1];
 		}
 		hue += 0.17; // use as starting point a zone where color band is narrow so that small variations means high change in visual effect
-		if ( hue > 1 ) hue-= 1;
-//		wxImage::HSVValue hsvcolor( hue, saturation, value );
-//		wxImage::RGBValue rgbvalue = wxImage::HSVtoRGB( hsvcolor );
-//		lslColor col( rgbvalue.red, rgbvalue.green, rgbvalue.blue );
-		assert( false );//conversion needs implementing
-		lslColor col;
-		result.push_back( col );
+    if ( hue > 1 ) hue-= 1;
+    result.push_back(lslColor::fromHSV(hue, saturation, value));
 	}
 	return result;
 }
@@ -225,6 +219,32 @@ lslSize lslSize::MakeFit(const lslSize& bounds)
 	  const int sizey = ( this->GetHeight() * bounds.GetWidth() ) / this->GetWidth();
 	  return lslSize( bounds.GetWidth(), sizey );
     }
+}
+
+template <class T>
+lslColorBase<T> lslColorBase<T>::fromHSV(T H, T S, T V)
+{
+  T R = 0, G = 0, B = 0;
+  if (H==0 && S==0) R = G = B = V;
+  else {
+    H/=60;
+    const int i = (int)std::floor(H);
+    const T
+      f = (i&1)?(H - i):(1 - H + i),
+      m = V*(1 - S),
+      n = V*(1 - S*f);
+    switch (i) {
+    case 6 :
+    case 0 : R = V; G = n; B = m; break;
+    case 1 : R = n; G = V; B = m; break;
+    case 2 : R = m; G = V; B = n; break;
+    case 3 : R = m; G = n; B = V; break;
+    case 4 : R = n; G = m; B = V; break;
+    case 5 : R = V; G = m; B = n; break;
+    }
+  }
+  R*=255; G*=255; B*=255;
+  return lslColorBase<T>((T)(R<0?0:(R>255?255:R)), (T)(G<0?0:(G>255?255:G)), (T)(B<0?0:(B>255?255:B)));
 }
 
 } //namespace LSL

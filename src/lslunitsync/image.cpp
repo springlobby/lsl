@@ -2,6 +2,7 @@
 
 #include <cstdio>
 
+#define cimg_verbosity 1
 #include <cimg/CImg.h>
 #include <lslutils/misc.h>
 #include <lslutils/logging.h>

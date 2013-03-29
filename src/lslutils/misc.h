@@ -210,6 +210,8 @@ public:
 	T Green() const { return g; }
 	T Blue()  const { return b; }
 
+  static lslColorBase<T> fromHSV(T h, T s, T v);
+
     //!dunno if this replacement can actually  be  not OK
     bool IsOk() const { return true; }
 };
