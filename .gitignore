@@ -6,10 +6,14 @@ build
 *.suo
 *.ncb
 *.o
+*.a
 Makefile
 *.diff
-doc/html/
+/doc/html/
+/doc/Doxyfile
 CMakeLists.txt.user*
 *kate-swp
 cmake_install.cmake
 CMakeFiles/
+/libSpringLobby.cbp
+/libSpringLobby_config.h
