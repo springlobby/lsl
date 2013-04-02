@@ -8,8 +8,9 @@
 #include <lslutils/logging.h>
 
 #ifdef HAVE_WX
-    #include <wx/bitmap.h>
-    #include <wx/image.h>
+	#include <wx/intl.h>
+	#include <wx/image.h>
+	#include <wx/bitmap.h>
 #endif
 
 #ifdef WIN32
