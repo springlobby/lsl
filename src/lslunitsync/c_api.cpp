@@ -625,7 +625,8 @@ void UnitsyncLib::AddAllArchives( const std::string& root )
 
 void UnitsyncLib::AddArchive(const std::string &name)
 {
-    assert(false);
+	InitLib( m_add_archive);
+	m_add_archive(name.c_str());
 }
 
 std::string UnitsyncLib::GetFullUnitName( int index )
