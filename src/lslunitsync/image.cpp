@@ -2,16 +2,17 @@
 
 #include <cstdio>
 
+//these need to go before cimg
+#ifdef HAVE_WX
+  #include <wx/image.h>
+  #include <wx/bitmap.h>
+#endif
+
 #define cimg_verbosity 1
 #include <cimg/CImg.h>
 #include <lslutils/misc.h>
 #include <lslutils/logging.h>
 
-#ifdef HAVE_WX
-	#include <wx/intl.h>
-	#include <wx/image.h>
-	#include <wx/bitmap.h>
-#endif
 
 #ifdef WIN32
 #include <boost/filesystem.hpp>
