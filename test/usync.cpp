@@ -11,7 +11,7 @@ void dummySync()
 {
 	LSL::Unitsync usync;
 	{
-		const bool usync_loaded = usync.ReloadUnitSyncLib();
+		/*const bool usync_loaded =*/ usync.ReloadUnitSyncLib();
 	}
 	std::cout << boost::format( "found %d maps and %d games\n") % usync.GetNumMaps() % usync.GetNumMods() ;
 	LSL::UnitsyncImage mini = usync.GetMinimap( "Alaska" );

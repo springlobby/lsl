@@ -71,7 +71,7 @@ bool Unitsync::FastLoadUnitSyncLib( const std::string& unitsyncloc )
 	m_mods_unchained_hash.clear();
 
 	const int numMods = m_susynclib->GetPrimaryModCount();
-	std::string name, hash;
+	std::string name;
 	for ( int i = 0; i < numMods; i++ )
 	{
 		try

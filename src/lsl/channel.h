@@ -22,7 +22,7 @@ public:
     void OnChannelJoin( const ConstUserPtr user );
 
     void SetNumUsers( size_t numusers );
-    void SetTopic( const std::string topic);
+    void SetTopic( const std::string& topic);
 
 private:
     std::string m_topic;

@@ -22,7 +22,7 @@ void Channel::SetNumUsers(size_t /*numusers*/)
     assert(false);
 }
 
-void Channel::SetTopic(const std::string topic)
+void Channel::SetTopic(const std::string& topic)
 {
     m_topic = topic;
 }

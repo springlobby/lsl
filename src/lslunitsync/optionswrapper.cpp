@@ -188,7 +188,7 @@ bool OptionsWrapper::keyExists( const std::string& key ) const
 
 bool OptionsWrapper::keyExists( const std::string& key, const GameOption modmapFlag, bool showError, Enum::OptionType& optType ) const
 {
-    std::string duplicateKeyError = "Please contact the game's author and tell him\nto use unique keys in his ModOptions.lua";
+    //std::string duplicateKeyError = "Please contact the game's author and tell him\nto use unique keys in his ModOptions.lua";
 	bool exists = false;
     optType = Enum::opt_undefined;
     GameOptionsMap::const_iterator optIt = m_opts.find((int)modmapFlag);
@@ -613,7 +613,7 @@ mmSectionTree::mmSectionTree()
 	: m_tree ( new ConfigType() )
 {
 	//this class is basically nonfunctional atm
-	assert( false );
+	//FIXME: assert( false );
 }
 
 mmSectionTree::~mmSectionTree()
@@ -627,7 +627,8 @@ mmSectionTree::~mmSectionTree()
 
 void mmSectionTree::AddSection ( const std::string& parentpath, const mmOptionSection& section )
 {
-	std::string fullpath = parentpath + tree_sep + section.key + tree_sep;
+//FIXME
+//	std::string fullpath = parentpath + tree_sep + section.key + tree_sep;
 //	m_tree->Write( fullpath + "key", section.key );
 	#ifndef NDEBUG
 //		m_tree->Flush();
@@ -635,7 +636,7 @@ void mmSectionTree::AddSection ( const std::string& parentpath, const mmOptionSe
 }
 void mmSectionTree::AddSection( const mmOptionSection& section)
 {
-	m_section_map[section.key] = section;
+	//m_section_map[section.key] = section;
 	std::string name = section.section;
 	if ( section.section == Constants::nosection_name )
 	{

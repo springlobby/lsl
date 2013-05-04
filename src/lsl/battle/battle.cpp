@@ -1112,7 +1112,7 @@ void Battle::FixTeamIDs( Enum::BalanceType balance_type, bool support_clans, boo
         for ( size_t j = 0; j < control_teams[i].players.size(); ++j )
         {
 			ASSERT_LOGIC( control_teams[i].players[j], "fail in Autobalance teams, NULL player" );
-            std::string msg = (boost::format( "setting player %s to team and ally %d" ) % control_teams[i].players[j]->Nick() % i).str();
+//			std::string msg = (boost::format( "setting player %s to team and ally %d" ) % control_teams[i].players[j]->Nick() % i).str();
 //			wxLogMessage( "%s", msg.c_str() );
             ForceTeam( control_teams[i].players[j], control_teams[i].teamnum );
             ForceAlly( control_teams[i].players[j], control_teams[i].teamnum );

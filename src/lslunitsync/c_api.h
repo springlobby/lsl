@@ -58,6 +58,7 @@ struct SpringMapInfo
     , maxWind(0)
     , width(0)
     , height(0)
+    , posCount(0)
     , author(NULL)
   {}
 };

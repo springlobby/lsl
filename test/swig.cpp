@@ -8,7 +8,7 @@ namespace LSL {
 
     struct User
     {
-        User(const std::string id, const std::string nick, const std::string country, const int cpu)
+        User(const std::string& id, const std::string& nick, const std::string& country, const int cpu)
         {
             battleSig.connect( *this );
         }

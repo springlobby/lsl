@@ -435,12 +435,14 @@ PNode DataList::Find( const std::string &str ) {
 }
 
 std::string DataList::Path() {
+/*
 	std::string result; //FIXME: is not used?!
 	PDataList tmp( this );
 	while ( tmp.Ok() ) {
-        result = std::string( "/" ) + tmp->Name();
+		result = std::string( "/" ) + tmp->Name();
 		tmp = tmp->Parent();
 	}
+*/
 	return name;
 }
 
@@ -646,10 +648,10 @@ int DataList::GetDoubleArray( const std::string &f_name, int n_values, double *v
     StringVector tokens = Util::StringTokenize( leaf->GetValue(), "\n" );
 	int i = 0;
 	int values_read = 0;
-    for ( i = 0;i < n_values && tokens.size(); ++i ) {
-        std::string s = tokens[i];
-        double d = Util::FromString<double>( s );
-        values_read++;
+	for ( i = 0;i < n_values && tokens.size(); ++i ) {
+		std::string s = tokens[i];
+		//double d = Util::FromString<double>( s );
+		values_read++;
 	}
 	return values_read;
 }
