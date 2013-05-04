@@ -69,8 +69,6 @@ SET( LIBSPRINGLOBBY_REV
 	"${LIBSPRINGLOBBY_REV}" CACHE STRING
 	"The revision string used in packages etc." )
 
-option(WX_HELPER "Enable wxWidgets helper functions" OFF)
-
 # If we build for windows Systems, we also include the Resource-File containing the Manifest, Icon and other Resources.
 IF(WIN32)
 	CreateResourceCompileCommand(libspringlobby_RC_FILE ${libSpringLobby_SOURCE_DIR}/src/ libSpringLobby.rc lsl_icon.o )

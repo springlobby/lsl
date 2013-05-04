@@ -27,7 +27,3 @@ if(WIN32)
 endif()
 ADD_LIBRARY(lsl-utils STATIC ${libSpringLobbyHeader} ${libSpringLobbyUtilsSrc} )
 TARGET_LINK_LIBRARIES(lsl-utils ${Boost_THREAD_LIBRARY})
-set_target_properties(lsl-utils PROPERTIES
-		LINK_FLAGS "${WX_LD_FLAGS}"
-	)
-
