@@ -228,7 +228,7 @@ std::vector<std::string> UnitsyncLib::GetUnitsyncErrors() const
 		}
 		return ret;
 	}
-	catch ( unitsync_assert &e )
+	catch ( std::runtime_error &e )
 	{
 		ret.push_back( e.what() );
 		return ret;

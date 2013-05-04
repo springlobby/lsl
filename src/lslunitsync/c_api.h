@@ -24,11 +24,13 @@ struct UnitsyncFunctionLoader;
 static const unsigned int MapInfoMaxStartPositions = 16;
 
 /** \todo needs to be replaced in favor of the ones in out excpetion header **/
+/*  FIXME: doesn't catch LSL::unitsync
 class unitsync_assert : public std::runtime_error
 {
 public:
 	unitsync_assert(std::string msg) : std::runtime_error(msg) {}
 };
+*/
 
 //! Everything spring makes available about a map
 struct SpringMapInfo

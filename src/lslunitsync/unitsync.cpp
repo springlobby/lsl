@@ -574,7 +574,7 @@ void Unitsync::UnSetCurrentMod()
 	try
 	{
 		m_susynclib->UnSetCurrentMod();
-	} catch( unitsync_assert ) {}
+	} catch( std::runtime_error ) {}
 }
 
 StringVector Unitsync::GetAIInfos( int index ) const
@@ -584,7 +584,7 @@ StringVector Unitsync::GetAIInfos( int index ) const
 	{
 		ret = m_susynclib->GetAIInfo( index );
 	}
-	catch ( unitsync_assert ) {}
+	catch ( std::runtime_error ) {}
 	return ret;
 }
 
