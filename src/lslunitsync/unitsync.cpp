@@ -614,8 +614,8 @@ StringVector Unitsync::GetUnitsList( const std::string& modname )
 	{
 		susynclib().SetCurrentMod( modname );
 		while ( susynclib().ProcessUnitsNoChecksum() > 0 ) {}
-		const unsigned int unitcount = susynclib().GetUnitCount();
-		for ( unsigned int i = 0; i < unitcount; i++ )
+		const int unitcount = susynclib().GetUnitCount();
+		for ( int i = 0; i < unitcount; i++ )
 		{
 			cache.push_back( susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")" );
 		}
@@ -850,7 +850,7 @@ StringVector Unitsync::GetCacheFile( const std::string& path ) const
 
 void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 {
-	std::ofstream file( path.c_str() );
+	std::ofstream file( path.c_str(), std::ios::trunc );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
 	unsigned int arraycount = data.size();
 	for ( unsigned int count = 0; count < arraycount; count++ )
