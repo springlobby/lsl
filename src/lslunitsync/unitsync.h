@@ -151,7 +151,6 @@ public:
     StringVector FindFilesVFS( const std::string& pattern ) const;
 
   private:
-	UnitsyncLib* m_susynclib;
 	typedef std::map< std::pair<std::string,std::string>, std::string> ShortnameVersionToNameMap;
 	ShortnameVersionToNameMap m_shortname_to_name_map;
 

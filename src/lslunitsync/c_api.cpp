@@ -35,18 +35,18 @@
 //! Macro that checks if a function is present/loaded, unitsync is loaded, and locks it on call.
 #define InitLib( arg ) \
 	LOCK_UNITSYNC; \
-	UNITSYNC_EXCEPTION( m_loaded, "Unitsync not loaded."); \
+	UNITSYNC_EXCEPTION( m_loaded, "Unitsync function not loaded:" #arg ); \
 	CHECK_FUNCTION( arg );
 
 
 namespace LSL {
 
-UnitsyncLib::UnitsyncLib()
-	: m_loaded(false),
-  m_libhandle(NULL),
+UnitsyncLib::UnitsyncLib():
+	m_loaded(false),
+	m_libhandle(NULL),
 	m_path(std::string()),
-  m_init(NULL),
-  m_uninit(NULL)
+	m_init(NULL),
+	m_uninit(NULL)
 {
 }
 
@@ -60,18 +60,6 @@ void UnitsyncLib::Load( const std::string& path, const std::string& forceConfigF
 {
 	LOCK_UNITSYNC;
 
-#ifdef WIN32
-	//Dirty Hack to make the first character upper char
-	//unitsync failed to initialize for me given a path like
-	//"d:\Games\Spring\unitsync.dll"
-	//but worked for "D:\Games\Spring\unitsync.dll"
-    //lets hope this sin't needed no mores
-//	std::string g = path;
-//	if ( g.find( wxT( ":\\" ) ) == 1 )
-//	{
-//		g.SetChar( 0, wxToupper( g.at(0) ) );
-//	}
-#endif
 	_Load( path );
 
 	if ( !forceConfigFilePath.empty() )
@@ -120,7 +108,7 @@ void UnitsyncLib::_Load( const std::string& path )
 				m_libhandle = 0;
 			}
 		} catch(std::exception& e) {
-      LslDebug( "UNITSYNC, loading failed, nulling handle: %s\n", e.what() );
+			LslDebug( "UNITSYNC, loading failed, nulling handle: %s\n", e.what() );
 			m_libhandle = 0;
 		}
 	}
@@ -130,19 +118,19 @@ void UnitsyncLib::_Load( const std::string& path )
 
 	// Load all function from library.
 	try {
-		UnitsyncFunctionLoader::Basic		( this );
-		UnitsyncFunctionLoader::Map			( this );
-		UnitsyncFunctionLoader::Mod			( this );
-		UnitsyncFunctionLoader::Config		( this );
-		UnitsyncFunctionLoader::MMOptions	( this );
-		UnitsyncFunctionLoader::LuaParser	( this );
+		UnitsyncFunctionLoader::Basic( this );
+		UnitsyncFunctionLoader::Map( this );
+		UnitsyncFunctionLoader::Mod( this );
+		UnitsyncFunctionLoader::Config( this );
+		UnitsyncFunctionLoader::MMOptions( this );
+		UnitsyncFunctionLoader::LuaParser( this );
 		// only when we end up here unitsync was succesfully loaded.
 		m_loaded = true;
 	}
 	catch ( std::exception& e )
 	{
 		// don't uninit unitsync in _Unload -- it hasn't been init'ed yet
-    m_uninit = NULL;
+		m_uninit = NULL;
 		_Unload();
 		LSL_THROW( unitsync, e.what() );
 	}
@@ -189,10 +177,9 @@ void UnitsyncLib::_Unload()
 		m_uninit();
 
 	delete m_libhandle;
-  m_libhandle = NULL;
-
-  m_init = NULL;
-  m_uninit = NULL;
+	m_libhandle = NULL;
+	m_init = NULL;
+	m_uninit = NULL;
 }
 
 bool UnitsyncLib::IsLoaded() const
