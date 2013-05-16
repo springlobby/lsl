@@ -606,7 +606,7 @@ int Unitsync::GetNumUnits( const std::string& modname ) const
 
 StringVector Unitsync::GetUnitsList( const std::string& modname )
 {
-    StringVector cache;
+	StringVector cache;
 	try
 	{
 		cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
@@ -852,8 +852,6 @@ void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 {
 	std::ofstream file( path.c_str(), std::ios::trunc );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
-	unsigned int arraycount = data.size();
-	for ( unsigned int count = 0; count < arraycount; count++ )
 	BOOST_FOREACH( const std::string line, data )
 	{
 		file << line << std::endl;
