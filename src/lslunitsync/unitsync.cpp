@@ -422,7 +422,7 @@ GameOptions Unitsync::GetMapOptions( const std::string& name )
 
 StringVector Unitsync::GetMapDeps( const std::string& mapname )
 {
-    StringVector ret;
+	StringVector ret;
 	try
 	{
 		ret = susynclib().GetMapDeps( Util::IndexInSequence( m_unsorted_map_array, mapname ) );
@@ -756,7 +756,10 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 		}
 		catch (...)
 		{
-			info = susynclib().GetMapInfoEx( Util::IndexInSequence( m_unsorted_map_array, mapname), 1 );
+			const int index = Util::IndexInSequence( m_unsorted_map_array, mapname);
+			ASSERT_EXCEPTION(index>=0, "Map not found");
+
+			info = susynclib().GetMapInfoEx( index, 1 );
 
 			cache.push_back ( info.author );
 			cache.push_back( Util::ToString( info.tidalStrength ) );
@@ -775,7 +778,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			}
 			cache.push_back( postring );
 
-            const StringVector descrtokens = Util::StringTokenize( info.description, "\n" );
+			const StringVector descrtokens = Util::StringTokenize( info.description, "\n" );
 			BOOST_FOREACH( const std::string descrtoken, descrtokens ) {
 				cache.push_back( descrtoken );
 			}
@@ -837,7 +840,7 @@ std::string Unitsync::GetFileCachePath( const std::string& name, const std::stri
 
 StringVector Unitsync::GetCacheFile( const std::string& path ) const
 {
-    StringVector ret;
+	StringVector ret;
 	std::ifstream file( path.c_str() );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
 	std::string line;
