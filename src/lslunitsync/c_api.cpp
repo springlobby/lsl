@@ -421,7 +421,11 @@ MapInfo UnitsyncLib::GetMapInfoEx( int index, int version )
 		InitLib( m_get_map_description )
 
 		MapInfo info;
-		info.description = m_get_map_description( index);
+		const char* desc = m_get_map_description( index);
+		if (desc == NULL)
+			info.description="";
+		else
+			info.description = desc;
 		info.tidalStrength = m_get_map_tidalStrength(index);
 		info.gravity = m_get_map_gravity(index);
 
@@ -447,7 +451,11 @@ MapInfo UnitsyncLib::GetMapInfoEx( int index, int version )
 			sp.y = m_get_map_pos_z(index, p);
 			info.positions.push_back(sp);
 		}
-		info.author = m_get_map_author(index);
+		const char* author = m_get_map_author(index);
+		if (author == NULL)
+			info.author = "";
+		else
+			info.author = m_get_map_author(index);
 		return info;
 	}
 }
