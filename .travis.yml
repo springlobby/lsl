@@ -3,6 +3,6 @@ compiler:
   - gcc
 before_script:
   - sudo apt-get install libboost-thread-dev libboost-system-dev libboost-filesystem-dev
-  - cmake .
+  - cmake -DBUILD_TESTS=ON .
 script:
-  - make
+  - make && make tests
