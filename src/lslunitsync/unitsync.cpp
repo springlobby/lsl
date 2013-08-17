@@ -88,7 +88,9 @@ bool Unitsync::FastLoadUnitSyncLib( const std::string& unitsyncloc )
 bool Unitsync::FastLoadUnitSyncLibInit()
 {
 	LOCK_UNITSYNC;
-	m_cache_thread = new WorkerThread();
+	if (m_cache_thread == NULL) {
+		m_cache_thread = new WorkerThread();
+	}
 	if ( IsLoaded() ) {
         m_cache_path = Util::config().GetCachePath().string();
 		PopulateArchiveList();
@@ -99,7 +101,9 @@ bool Unitsync::FastLoadUnitSyncLibInit()
 bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	LOCK_UNITSYNC;
-	m_cache_thread = new WorkerThread();
+	if (m_cache_thread == NULL) {
+		m_cache_thread = new WorkerThread();
+	}
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
