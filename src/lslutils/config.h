@@ -46,7 +46,7 @@ public:
     void DeletePreset( const std::string& /*modname*/ );
 
     void SetMapLastStartPosType( const std::string& , const std::string&  ) {};
-    std::string GetMapLastStartPosType( const std::string&) const {};
+    std::string GetMapLastStartPosType( const std::string&) const { return "";}
 
     template < class T >
     void SetMapLastRectPreset( const std::string&, const T&) {}
