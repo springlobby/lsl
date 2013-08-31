@@ -609,11 +609,7 @@ int Unitsync::GetNumUnits( const std::string& modname ) const
 
 StringVector Unitsync::GetUnitsList( const std::string& modname )
 {
-	StringVector cache;
-	try
-	{
-		cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
-	} catch(...)
+	StringVector cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
 	{
 		susynclib().SetCurrentMod( modname );
 		while ( susynclib().ProcessUnitsNoChecksum() > 0 ) {}
@@ -845,7 +841,8 @@ StringVector Unitsync::GetCacheFile( const std::string& path ) const
 {
 	StringVector ret;
 	std::ifstream file( path.c_str() );
-	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
+	if (!file.good())
+		return ret;
 	std::string line;
 	while(std::getline(file,line))
 	{
