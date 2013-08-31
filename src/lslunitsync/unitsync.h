@@ -227,14 +227,14 @@ struct GameOptions
 class UnitSyncAsyncOps : public boost::noncopyable
 {
 public:
-    UnitSyncAsyncOps( const Unitsync::StringSignalSlotType& evtHandler )
-//        : m_evtHandler_connection()
+    UnitSyncAsyncOps( const Unitsync::StringSignalSlotType& evtHandler ):
+		m_evtHandler_connection()
     {
-        usync().RegisterEvtHandler(evtHandler);
+		m_evtHandler_connection = usync().RegisterEvtHandler(evtHandler);
     }
 
 	~UnitSyncAsyncOps() {
-//        usync().UnregisterEvtHandler(m_evtHandler_connection);
+        usync().UnregisterEvtHandler(m_evtHandler_connection);
 	}
 
 	void GetMinimap( const std::string& mapname )                 { usync().GetMinimapAsync( mapname ); }
@@ -246,7 +246,7 @@ public:
 	void GetMapEx( const std::string& mapname )                   { usync().GetMapExAsync( mapname ); }
 
 private:
-//    boost::signals2::connection m_evtHandler_connection;
+	boost::signals2::connection m_evtHandler_connection;
 };
 
 } // namespace LSL
