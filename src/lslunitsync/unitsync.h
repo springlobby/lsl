@@ -112,7 +112,7 @@ public:
 	std::string GetTextfileAsString( const std::string& modname, const std::string& file_path );
 
 	bool ReloadUnitSyncLib(  );
-//	void ReloadUnitSyncLib( GlobalEvents::GlobalEventData /*data*/ ) { ReloadUnitSyncLib(); }
+//	void ReloadUnitSyncLib( wxCommandEvent& /*data*/ ) { ReloadUnitSyncLib(); }
 	bool FastLoadUnitSyncLib( const std::string& unitsyncloc );
 	bool FastLoadUnitSyncLibInit();
 
@@ -189,11 +189,6 @@ public:
     //! the extension itself would be added in the function as needed
     std::string GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod );
 
-    //! returns an array where each element is a line of the file
-    StringVector GetCacheFile( const std::string& path ) const;
-    //! write a file where each element of the array is a line
-    void SetCacheFile( const std::string& path, const StringVector& data );
-
     bool _LoadUnitSyncLib( const std::string& unitsyncloc );
     void _FreeUnitSyncLib();
 
@@ -209,6 +204,12 @@ public:
 	friend Unitsync& usync();
 public:
 	std::string GetNameForShortname( const std::string& shortname, const std::string& version ) const;
+private:
+	//! returns an array where each element is a line of the file
+	StringVector GetCacheFile( const std::string& path ) const;
+	//! write a file where each element of the array is a line
+	void SetCacheFile( const std::string& path, const StringVector& data );
+
 };
 
 Unitsync& usync();
