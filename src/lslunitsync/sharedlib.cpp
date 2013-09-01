@@ -9,6 +9,8 @@ namespace LSL {
 
 void _FreeLibrary(void* handle)
 {
+	if (handle == NULL)
+		return;
 #ifdef WIN32
 	FreeLibrary((HMODULE)handle);
 #else
@@ -27,7 +29,7 @@ void* _LoadLibrary(const std::string& libpath)
 		LSL_THROW( unitsync, "Couldn't load the unitsync library" );
 	}
 #else
-	res = dlopen(libpath.c_str());
+	res = dlopen(libpath.c_str(), RTLD_LAZY);
 	if (res == NULL) {
 		const char* err = dlerror();
 		LslDebug( "UNITSYNC, loading failed, nulling handle: %s\n", err );
