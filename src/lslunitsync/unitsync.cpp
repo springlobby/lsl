@@ -11,6 +11,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 #include <iterator>
 
 #include "c_api.h"
@@ -865,13 +866,33 @@ void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 
 StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
 {
-    StringVector ret;
+	StringVector ret;
 	if ( !IsLoaded() ) return ret;
-
-	if ( ReplayType )
-		return susynclib().FindFilesVFS( "demos/*.sdf" );
-	else
-		return susynclib().FindFilesVFS( "Saves/*.ssf" );
+	std::string type;
+	std::string subpath;
+	if ( ReplayType ) {
+		type = ".sdf";
+		subpath = "demos";
+	} else {
+		type = ".ssf";
+		subpath = "Saves";
+	}
+	const int count = susynclib().GetSpringDataDirCount();
+	for(int i=0; i<count; i++) {
+		const std::string dir = susynclib().GetSpringDataDirByIndex(i) + subpath;
+		if (!boost::filesystem::is_directory(dir))
+			continue;
+		boost::filesystem::directory_iterator enditer;
+		for( boost::filesystem::directory_iterator dir_iter(dir) ; dir_iter != enditer; ++dir_iter) {
+			if (!boost::filesystem::is_regular_file(dir_iter->status()))
+				continue;
+			const std::string filename = dir_iter->path().c_str();
+			if (filename.substr(filename.length()-4) != type) // compare file ending
+				continue;
+			ret.push_back(filename);
+		}
+	}
+	return ret;
 }
 
 bool Unitsync::FileExists( const std::string& name ) const
