@@ -611,7 +611,7 @@ int Unitsync::GetNumUnits( const std::string& modname ) const
 StringVector Unitsync::GetUnitsList( const std::string& modname )
 {
 	StringVector cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
-	{
+	if (cache.empty()) {
 		susynclib().SetCurrentMod( modname );
 		while ( susynclib().ProcessUnitsNoChecksum() > 0 ) {}
 		const int unitcount = susynclib().GetUnitCount();
