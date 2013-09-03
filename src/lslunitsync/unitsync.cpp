@@ -723,16 +723,14 @@ UnitsyncImage Unitsync::_GetScaledMapImage( const std::string& mapname, Unitsync
 MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 {
 	MapInfo info;
+	info.width = 1;
+	info.height = 1;
 	if ( m_mapinfo_cache.TryGet( mapname, info ) )
 		return info;
 
-    StringVector cache;
-	try {
-		try
-		{
-			cache = GetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex" );
-
-			ASSERT_EXCEPTION( cache.size() >= 11, "not enough lines found in cache info ex");
+	StringVector cache;
+	cache = GetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex" );
+	if (cache.size()>=11) {
 			info.author = cache[0];
 			info.tidalStrength =  Util::FromString<long>( cache[1] );
 			info.gravity = Util::FromString<long>( cache[2] );
@@ -742,7 +740,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			info.maxWind = Util::FromString<long>( cache[6] );
 			info.width = Util::FromString<long>( cache[7] );
 			info.height = Util::FromString<long>( cache[8] );
-            const StringVector posinfo = Util::StringTokenize( cache[9], " ");
+			const StringVector posinfo = Util::StringTokenize( cache[9], " ");
 			BOOST_FOREACH( const std::string pos, posinfo )
 			{
 				StartPos position;
@@ -753,9 +751,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			const unsigned int LineCount = cache.size();
 			for ( unsigned int i = 10; i < LineCount; i++ )
 				info.description += cache[i] + "\n";
-		}
-		catch (...)
-		{
+	} else {
 			const int index = Util::IndexInSequence( m_unsorted_map_array, mapname);
 			ASSERT_EXCEPTION(index>=0, "Map not found");
 
@@ -783,11 +779,6 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 				cache.push_back( descrtoken );
 			}
 			SetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex", cache );
-		}
-	}
-	catch ( ... ) {
-		info.width = 1;
-		info.height = 1;
 	}
 
 	m_mapinfo_cache.Add( mapname, info );
