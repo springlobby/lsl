@@ -886,7 +886,7 @@ StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
 		for( boost::filesystem::directory_iterator dir_iter(dir) ; dir_iter != enditer; ++dir_iter) {
 			if (!boost::filesystem::is_regular_file(dir_iter->status()))
 				continue;
-			const std::string filename = dir_iter->path().c_str();
+			const std::string filename(dir_iter->path().string());
 			if (filename.substr(filename.length()-4) != type) // compare file ending
 				continue;
 			ret.push_back(filename);
