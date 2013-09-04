@@ -646,19 +646,17 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 		return img;
 
 	std::string originalsizepath = GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + imagename;
-	try
-	{
+	if (FileExists(originalsizepath)) {
 		img = UnitsyncImage( originalsizepath );
 	}
-	catch (...)
-	{
-		try
-		{
-			img = (susynclib().*loadMethod)( mapname );
-			img.Save( originalsizepath );
-		}
-		catch (...)
-		{
+
+	if (img.GetHeight() < 1 || img.GetWidth() < 1) { //image seems invalid, recreate
+		try {
+		//convert and save
+		img = (susynclib().*loadMethod)( mapname );
+		img.Save( originalsizepath );
+		} catch (...) { //we failed horrible, use dummy image
+			//dummy image
 			img = UnitsyncImage( 1, 1 );
 		}
 	}
