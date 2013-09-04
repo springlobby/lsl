@@ -65,10 +65,8 @@ bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
-    m_cache_path = LSL::Util::config().GetCachePath().string();
+		m_cache_path = LSL::Util::config().GetCachePath().string();
 		PopulateArchiveList();
-    //this bit will be used to notify GUI listeners that they may need to update after usync reload
-//    SendGlobalEvent(GlobalEvents::OnUnitsyncReloaded).SendEvent( 0 );
 	}
 	return ret;
 }
@@ -155,7 +153,7 @@ void Unitsync::PopulateArchiveList()
 bool Unitsync::_LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	try {
-        susynclib().Load( unitsyncloc, LSL::Util::config().GetForcedSpringConfigFilePath().string() );
+		susynclib().Load( unitsyncloc, LSL::Util::config().GetForcedSpringConfigFilePath().string() );
 	} catch (...) {
 		return false;
 	}
@@ -1155,13 +1153,6 @@ std::string Unitsync::GetNameForShortname( const std::string& shortname, const s
 	if ( it != m_shortname_to_name_map.end() )
 		return it->second;
 	return std::string();
-}
-
-void Unitsync::AddReloadEvent()
-{
-  //previously this inserted a command into aa  queue that was worked on in
-  //the main thread. direct reloading from any non-main thread would crash horribly
-  ReloadUnitSyncLib();
 }
 
 Unitsync& usync() {

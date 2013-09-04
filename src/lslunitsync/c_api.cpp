@@ -1162,8 +1162,8 @@ float UnitsyncLib::GetKeyValue( const std::string& key, float defval )
 
 UnitsyncLib& susynclib()
 {
-    static LSL::Util::LineInfo<UnitsyncLib> m( AT );
-    static LSL::Util::GlobalObjectHolder<UnitsyncLib, LSL::Util::LineInfo<UnitsyncLib> > ss( m );
+	static LSL::Util::LineInfo<UnitsyncLib> m( AT );
+	static LSL::Util::GlobalObjectHolder<UnitsyncLib, LSL::Util::LineInfo<UnitsyncLib> > ss( m );
 	return ss;
 }
 
