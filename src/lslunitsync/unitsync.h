@@ -112,9 +112,6 @@ public:
 	std::string GetTextfileAsString( const std::string& modname, const std::string& file_path );
 
 	bool ReloadUnitSyncLib(  );
-//	void ReloadUnitSyncLib( wxCommandEvent& /*data*/ ) { ReloadUnitSyncLib(); }
-	bool FastLoadUnitSyncLib( const std::string& unitsyncloc );
-	bool FastLoadUnitSyncLibInit();
 
     void SetSpringDataPath( const std::string& path );
     bool GetSpringDataPath( std::string& path);

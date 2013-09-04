@@ -56,47 +56,6 @@ bool CompareStringNoCase(const std::string& first, const std::string& second)
 	}
 }
 
-bool Unitsync::FastLoadUnitSyncLib( const std::string& unitsyncloc )
-{
-	LOCK_UNITSYNC;
-	if (!_LoadUnitSyncLib( unitsyncloc ))
-		return false;
-
-	m_mods_list.clear();
-	m_mod_array.clear();
-	m_unsorted_mod_array.clear();
-	m_mods_unchained_hash.clear();
-
-	const int numMods = susynclib().GetPrimaryModCount();
-	std::string name;
-	for ( int i = 0; i < numMods; i++ )
-	{
-		try
-		{
-			name = susynclib().GetPrimaryModName( i );
-			m_mods_list[name] = "fakehash";
-			m_mod_array.push_back( name );
-			m_shortname_to_name_map[
-					std::make_pair(susynclib().GetPrimaryModShortName( i ),
-								   susynclib().GetPrimaryModVersion( i )) ] = name;
-		} catch (...) { continue; }
-	}
-	m_unsorted_mod_array = m_mod_array;
-	return true;
-}
-bool Unitsync::FastLoadUnitSyncLibInit()
-{
-	LOCK_UNITSYNC;
-	if (m_cache_thread == NULL) {
-		m_cache_thread = new WorkerThread();
-	}
-	if ( IsLoaded() ) {
-        m_cache_path = Util::config().GetCachePath().string();
-		PopulateArchiveList();
-	}
-	return true;
-}
-
 bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	LOCK_UNITSYNC;
@@ -481,7 +440,7 @@ GameOptions Unitsync::GetSkirmishOptions( const std::string& modname, const std:
 
 StringVector Unitsync::GetModDeps( const std::string& modname ) const
 {
-    StringVector ret;
+	StringVector ret;
 	try
 	{
 		ret = susynclib().GetModDeps( Util::IndexInSequence( m_unsorted_mod_array, modname ) );
@@ -492,14 +451,12 @@ StringVector Unitsync::GetModDeps( const std::string& modname ) const
 
 StringVector Unitsync::GetSides( const std::string& modname )
 {
-    StringVector ret;
-	if ( ! m_sides_cache.TryGet( modname, ret ) ) {
-		try
-		{
+	StringVector ret;
+	if (( ! m_sides_cache.TryGet( modname, ret) ) && (ModExists(modname))){
+		try {
 			ret = susynclib().GetSides( modname );
 			m_sides_cache.Add( modname, ret );
-		}
-		catch( Exceptions::unitsync& u ) {}
+		} catch( Exceptions::unitsync& u ) {}
 	}
 	return ret;
 }
