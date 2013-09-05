@@ -11,7 +11,7 @@ class Settings {
 public:
 	std::string GetCachePath() const { return std::string(); }
 	std::string GetForcedSpringConfigFilePath() const { return std::string(); }
-	std::string GetCurrentUsedUnitSync() const { return std::string(); }
+	std::string GetCurrentUsedUnitSync() const { return std::string("libunitsync.so"); }
 	std::string GetCurrentUsedDataDir() const { return std::string(); }
 	std::string GetCurrentUsedSpringBinary() const { return std::string(); }
 	std::string GetCurrentUsedSpringConfigFilePath() const { return std::string(); }
