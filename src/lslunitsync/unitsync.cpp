@@ -1070,6 +1070,8 @@ void Unitsync::PostEvent( const std::string& evt )
 
 void Unitsync::_GetMapImageAsync( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&) )
 {
+	if (mapname.empty())
+		return;
 	if (! m_cache_thread )
 	{
 		LslDebug( "cache thread not initialised -- %s", mapname.c_str() );
@@ -1087,6 +1089,8 @@ void Unitsync::GetMinimapAsync( const std::string& mapname )
 
 void Unitsync::GetMinimapAsync( const std::string& mapname, int width, int height )
 {
+	if (mapname.empty())
+		return;
 	if (! m_cache_thread )
 	{
 		LslError( "cache thread not initialised" );
@@ -1119,6 +1123,9 @@ void Unitsync::GetHeightmapAsync( const std::string& mapname, int /*width*/, int
 
 void Unitsync::GetMapExAsync( const std::string& mapname )
 {
+	if (mapname.empty())
+		return;
+
 	if (! m_cache_thread )
 	{
 		LslDebug( "cache thread not initialized %s", "GetMapExAsync" );
