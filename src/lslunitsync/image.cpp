@@ -269,11 +269,14 @@ int UnitsyncImage::GetWidth() const
 #ifdef HAVE_WX
 wxBitmap UnitsyncImage::wxbitmap() const
 {
-    return wxBitmap(this->wximage());
+	return wxBitmap(wximage());
 }
 
 wxImage UnitsyncImage::wximage () const
 {
+	if ((m_data_ptr == 0) || (m_data_ptr->width() <= 0) || (m_data_ptr->height() <= 0)) { //return empty image if m_data_ptr isn't initialized/valid
+		return wxImage(1,1);
+	}
     wxImage img(m_data_ptr->width(), m_data_ptr->height());
     const auto ptr = *m_data_ptr;
     cimg_forXY(ptr,x,y) {
