@@ -48,7 +48,7 @@ public:
    * \brief creating UnitsyncImage from raw data pointers
    **/
   ///@{
-  static UnitsyncImage FromMinimapData( const RawDataType* data, int width, int height );
+	static UnitsyncImage FromMinimapData( const RawDataType* data, int width, int height );
 	static UnitsyncImage FromHeightmapData( const Util::uninitialized_array<unsigned short>& data, int width, int height );
 	static UnitsyncImage FromMetalmapData( const Util::uninitialized_array<unsigned char>& data, int width, int height );
 	static UnitsyncImage FromVfsFileData(  Util::uninitialized_array<char>& data, size_t size, const std::string& fn, bool useWhiteAsTransparent = true );
@@ -61,6 +61,7 @@ public:
 	int GetWidth() const;
 	int GetHeight() const;
 	void Rescale( const int new_width, const int new_height);
+	bool isValid() { return ((GetWidth()>0) && (GetHeight()>0));}
 private:
 	UnitsyncImage( PrivateImagePtrType ptr );
 	static PrivateImageType* NewImagePtr( int width = 0, int height = 0 );

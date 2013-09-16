@@ -117,7 +117,7 @@ UnitsyncImage::UnitsyncImage( int width, int height )
 UnitsyncImage::UnitsyncImage(const std::string &filename)
 	: m_data_ptr( NewImagePtr(1,1) )
 {
-    Load(filename);
+	Load(filename);
 }
 
 UnitsyncImage::UnitsyncImage(PrivateImagePtrType ptr)
@@ -181,7 +181,6 @@ void UnitsyncImage::Load(const std::string &path) const
         m_data_ptr->load( path.c_str() );
     } catch ( cimg_library::CImgException& c ) {
         LslError("cimg load of %s failed: %s", path.c_str(), c.what());
-        throw c;
     }
 }
 

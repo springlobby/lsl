@@ -648,7 +648,7 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 		img = UnitsyncImage( originalsizepath );
 	}
 
-	if (img.GetHeight() < 1 || img.GetWidth() < 1) { //image seems invalid, recreate
+	if (!img.isValid()) { //image seems invalid, recreate
 		try {
 		//convert and save
 		img = (susynclib().*loadMethod)( mapname );
