@@ -153,16 +153,12 @@ UnitsyncImage UnitsyncImage::FromVfsFileData( Util::uninitialized_array<char>& d
 	catch ( std::exception& e ) {
 		LslError( "couldn't load VFS file %s: %s", fn.c_str(), e.what() );
 	}
-	//	cache.InitAlpha();
-	//	if ( useWhiteAsTransparent )
-	//	{
-	//		for ( int x = 0; x < cache.GetWidth(); x++ )
-	//			for ( int y = 0; y < cache.GetHeight(); y++ )
-	//				if ( cache.GetBlue( x, y ) == 255 && cache.GetGreen( x, y ) == 255 && cache.GetRed( x, y ) == 255 )
-	//					cache.SetAlpha( x, y, 0 ); // set pixel to be transparent
-	//	}
 	PrivateImagePtrType ptr( img_p );
-	return UnitsyncImage( ptr );
+	UnitsyncImage img( ptr );
+	if ( useWhiteAsTransparent ) {
+		img.MakeTransparent();
+	}
+	return img;
 }
 
 UnitsyncImage::UnitsyncImage()
@@ -258,6 +254,16 @@ int UnitsyncImage::GetHeight() const
 void UnitsyncImage::Rescale(const int new_width, const int new_height)
 {
     m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 5 /*interpolation type*/);
+}
+
+void UnitsyncImage::MakeTransparent()
+{
+	PrivateImageType& img = *m_data_ptr;
+	cimg_forXY(img,x,y) {
+		if ((img(x,y,0,0) == 255) && (img(x,y,0,1) == 255) && (img(x,y,0,2) == 255)) { //pixel is white, make transparent
+			img(x,y,0,2) = 255;
+		}
+	}
 }
 
 int UnitsyncImage::GetWidth() const
