@@ -35,14 +35,13 @@ namespace cimg_library {
 
 template < class T>
 //! extends cimg to loading images from in-memory buffer
-void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size,
-		const std::string& fn, CImg<T>& img) {
-  const char* filename = fn.c_str();
+void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size, const std::string& fn, CImg<T>& img) {
+	const char* filename = fn.c_str();
 
-  std::FILE *file =  fmemopen( (void*)data, size, "r" );
+	std::FILE *file =  fmemopen( (void*)data, size, "r" );
 
-  const char *const ext = cimg::split_filename(filename);
-  cimg::exception_mode() = 0;
+	const char *const ext = cimg::split_filename(filename);
+	cimg::exception_mode() = 0;
 #ifdef cimg_load_plugin
 	cimg_load_plugin(filename);
 #endif
@@ -98,10 +97,10 @@ void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size,
 	else if (!cimg::strcasecmp(ext,"cimg") ||
 			 !cimg::strcasecmp(ext,"cimgz") ||
 			 !*ext)  img.load_cimg(file);
-	else throw CImgIOException("CImg<%s>::load()",
-							   img.pixel_type());
+	else throw CImgIOException("CImg<%s>::load()", img.pixel_type());
 	cimg::exception_mode() = 0;
-  }
+
+}
 } // namespace cimg_library
 
 namespace LSL {
@@ -256,14 +255,20 @@ void UnitsyncImage::Rescale(const int new_width, const int new_height)
     m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 5 /*interpolation type*/);
 }
 
-void UnitsyncImage::MakeTransparent()
+void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned short b)
 {
+//FIXME: if pixel is white, make transparent
+/*
 	PrivateImageType& img = *m_data_ptr;
-	cimg_forXY(img,x,y) {
-		if ((img(x,y,0,0) == 255) && (img(x,y,0,1) == 255) && (img(x,y,0,2) == 255)) { //pixel is white, make transparent
-			img(x,y,0,2) = 255;
+	PrivateImageType tmp(img.width(), img.height(), 1, 1);
+	tmp = img;
+	cimg_forXY(tmp,x,y) {
+		if ((tmp(x,y,0,0) == r) && (tmp(x,y,0,1) == g) && (tmp(x,y,0,2) == b)) { //pixel is white, make transparent
+			tmp(x,y,0,3) = 255;
 		}
 	}
+	m_data_ptr(tmp);
+*/
 }
 
 int UnitsyncImage::GetWidth() const

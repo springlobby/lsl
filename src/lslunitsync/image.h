@@ -62,7 +62,8 @@ public:
 	int GetHeight() const;
 	void Rescale( const int new_width, const int new_height);
 	bool isValid() { return ((GetWidth()>0) && (GetHeight()>0));}
-	void MakeTransparent();
+	// makes given color transparent
+	void MakeTransparent(unsigned short r = 255, unsigned short g = 255, unsigned short b = 255);
 private:
 	UnitsyncImage( PrivateImagePtrType ptr );
 	static PrivateImageType* NewImagePtr( int width = 0, int height = 0 );
