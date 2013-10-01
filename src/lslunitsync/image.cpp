@@ -276,6 +276,27 @@ int UnitsyncImage::GetWidth() const
 	return m_data_ptr->width();
 }
 
+void UnitsyncImage::RescaleIfBigger(const int maxwidth, const int maxheight) {
+	if (!isValid()) return;
+
+	int height= GetHeight();
+	int width = GetWidth();
+	bool rescale=false;
+	if (height > maxheight) {
+		width = (float(maxheight) / height) * width;
+		height = maxheight;
+		rescale = true;
+	}
+	if (width > maxwidth) {
+		height = (float(maxwidth) / width) * height;
+		width = maxwidth;
+		rescale = true;
+	}
+	if (rescale) {
+		Rescale(width, height);
+	}
+}
+
 #ifdef HAVE_WX
 wxBitmap UnitsyncImage::wxbitmap() const
 {
