@@ -39,6 +39,13 @@ Unitsync::Unitsync():
 }
 
 
+enum ASYNC_EVENTS {
+	ASYNC_MAP_IMAGE_EVT = 1,
+	ASYNC_MAP_IMAGE_SCALED_EVT,
+	ASYNC_MAP_EX_EVT,
+	ASYNC_UNITSYNC_LOADED_EVT,
+};
+
 Unitsync::~Unitsync()
 {
 	delete m_cache_thread;
@@ -981,7 +988,7 @@ public:
 	LoadMethodPtr m_loadMethod;
 
 	GetMapImageAsyncWorkItem( Unitsync* usync, const std::string& mapname, LoadMethodPtr loadMethod )
-		: GetMapImageAsyncResult( usync, mapname, 1 ), m_loadMethod(loadMethod) {}
+		: GetMapImageAsyncResult( usync, mapname, ASYNC_MAP_IMAGE_EVT), m_loadMethod(loadMethod) {}
 };
 
 class GetScaledMapImageAsyncWorkItem : public GetMapImageAsyncResult
@@ -997,7 +1004,7 @@ public:
 	ScaledLoadMethodPtr m_loadMethod;
 
 	GetScaledMapImageAsyncWorkItem( Unitsync* usync, const std::string& mapname, int w, int h, ScaledLoadMethodPtr loadMethod )
-		: GetMapImageAsyncResult( usync, mapname, 2 ), m_width(w), m_height(h), m_loadMethod(loadMethod) {}
+		: GetMapImageAsyncResult( usync, mapname, ASYNC_MAP_IMAGE_SCALED_EVT), m_width(w), m_height(h), m_loadMethod(loadMethod) {}
 };
 
 class GetMapExAsyncWorkItem : public GetMapImageAsyncResult
@@ -1009,7 +1016,7 @@ public:
 	}
 
 	GetMapExAsyncWorkItem( Unitsync* usync, const std::string& mapname )
-		: GetMapImageAsyncResult( usync, mapname, 3 ) {}
+		: GetMapImageAsyncResult( usync, mapname, ASYNC_MAP_EX_EVT ) {}
 };
 }
 
@@ -1039,10 +1046,10 @@ private:
 	std::string m_unitsyncloc;
 	int m_evtId;
 public:
-	LoadUnitSyncLibAsyncWorkItem( Unitsync* usync, const std::string& unitsyncLoc, int evtId ):
+	LoadUnitSyncLibAsyncWorkItem( Unitsync* usync, const std::string& unitsyncLoc):
 		m_usync(usync),
 		m_unitsyncloc(unitsyncLoc.c_str()),
-		m_evtId(evtId)
+		m_evtId(ASYNC_UNITSYNC_LOADED_EVT)
 	{}
 };
 
@@ -1201,7 +1208,7 @@ Unitsync& usync() {
 }
 
 void Unitsync::LoadUnitSyncLibAsync(const std::string& filename) {
-	LoadUnitSyncLibAsyncWorkItem* work = new LoadUnitSyncLibAsyncWorkItem( this, filename, 4);
+	LoadUnitSyncLibAsyncWorkItem* work = new LoadUnitSyncLibAsyncWorkItem( this, filename);
 	m_cache_thread->DoWork( work, 500 );
 }
 
