@@ -129,6 +129,7 @@ public:
     void UnregisterEvtHandler(boost::signals2::connection& conn );
 	void PostEvent(const std::string& evt ); // helper for WorkItems
 
+	void LoadUnitSyncLibAsync(const std::string& filename);
 	void GetMinimapAsync( const std::string& mapname );
 	void GetMinimapAsync( const std::string& mapname, int width, int height );
 	void GetMetalmapAsync( const std::string& mapname );

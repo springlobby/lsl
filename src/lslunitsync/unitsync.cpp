@@ -30,12 +30,13 @@
 namespace LSL {
 
 Unitsync::Unitsync():
-	m_cache_thread( NULL ),
+	m_cache_thread( new WorkerThread ),
 	m_map_image_cache( 3, "m_map_image_cache" ),         // may take about 3M per image ( 1024x1024 24 bpp minimap )
 	m_tiny_minimap_cache( 200, "m_tiny_minimap_cache" ), // takes at most 30k per image (   100x100 24 bpp minimap )
 	m_mapinfo_cache( 1000000, "m_mapinfo_cache" ),       // this one is just misused as thread safe std::map ...
 	m_sides_cache( 200, "m_sides_cache" )                // another misuse
-{}
+{
+}
 
 
 Unitsync::~Unitsync()
@@ -59,9 +60,6 @@ bool CompareStringNoCase(const std::string& first, const std::string& second)
 bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	LOCK_UNITSYNC;
-	if (m_cache_thread == NULL) {
-		m_cache_thread = new WorkerThread();
-	}
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
@@ -746,7 +744,10 @@ StringVector Unitsync::FindFilesVFS( const std::string& pattern ) const
 
 bool Unitsync::ReloadUnitSyncLib()
 {
-    return LoadUnitSyncLib( LSL::Util::config().GetCurrentUsedUnitSync().string() );
+	//FIXME: use async call
+	//LoadUnitSyncLibAsync(LSL::Util::config().GetCurrentUsedUnitSync().string());
+	LoadUnitSyncLib(LSL::Util::config().GetCurrentUsedUnitSync().string());
+	return true;
 }
 
 
@@ -953,7 +954,6 @@ public:
 protected:
 	Unitsync* m_usync;
 	std::string m_mapname;
-	int m_evtHandlerId;
 	int m_evtId;
 
 	void PostEvent()
@@ -966,7 +966,6 @@ protected:
 	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId ):
 		m_usync(usync),
 		m_mapname(mapname.c_str()),
-		m_evtHandlerId(0),
 		m_evtId(evtId)
 	{}
 };
@@ -1013,6 +1012,39 @@ public:
 		: GetMapImageAsyncResult( usync, mapname, 3 ) {}
 };
 }
+
+
+class LoadUnitSyncLibAsyncWorkItem: public WorkItem
+{
+public:
+	void Run()
+	{
+		try
+		{
+			m_usync->LoadUnitSyncLib(m_unitsyncloc);
+		}
+		catch (...)
+		{
+			// Event without mapname means some async job failed.
+			// This is sufficient for now, we just need symmetry between
+			// number of initiated async jobs and number of finished/failed
+			// async jobs.
+
+		}
+		m_usync->PostEvent( "" );
+	}
+
+private:
+	Unitsync* m_usync;
+	std::string m_unitsyncloc;
+	int m_evtId;
+public:
+	LoadUnitSyncLibAsyncWorkItem( Unitsync* usync, const std::string& unitsyncLoc, int evtId ):
+		m_usync(usync),
+		m_unitsyncloc(unitsyncLoc.c_str()),
+		m_evtId(evtId)
+	{}
+};
 
 
 void Unitsync::PrefetchMap( const std::string& mapname )
@@ -1168,5 +1200,9 @@ Unitsync& usync() {
 	return m_sync;
 }
 
+void Unitsync::LoadUnitSyncLibAsync(const std::string& filename) {
+	LoadUnitSyncLibAsyncWorkItem* work = new LoadUnitSyncLibAsyncWorkItem( this, filename, 4);
+	m_cache_thread->DoWork( work, 500 );
+}
 
 } // namespace LSL
