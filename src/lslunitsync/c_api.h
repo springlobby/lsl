@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <list>
 
 #include "data.h"
 #include "signatures.h"
@@ -63,6 +64,14 @@ struct SpringMapInfo
     , posCount(0)
     , author(NULL)
   {}
+};
+
+
+struct SpringBundle {
+	std::string unitsync;
+	std::string spring;
+	std::string version;
+	std::string path;
 };
 
 /**
@@ -138,7 +147,7 @@ public:
 	 * This is done by a single function because this "transaction"
 	 * needs to hold the unitsync lock the entire time.
 	 */
-	std::map<std::string, std::string> GetSpringVersionList(const std::map<std::string, std::string>& usync_paths);
+	std::map<std::string, SpringBundle> GetSpringVersionList(const std::list<std::string>& spring_paths);
 
 	std::string GetSpringDataDir();
 	int GetSpringDataDirCount();

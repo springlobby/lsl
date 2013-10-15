@@ -243,30 +243,64 @@ int UnitsyncLib::GetModIndex( const std::string& name )
 	return GetPrimaryModIndex( name );
 }
 
-std::map<std::string, std::string> UnitsyncLib::GetSpringVersionList(const std::map<std::string, std::string>& usync_paths)
+#ifdef __APPLE__
+#define LIBEXT ".dylib"
+#elif __WIN32__
+#define LIBEXT ".dll"
+#else
+#define LIBEXT ".so"
+#endif
+
+#ifdef __WIN32__
+#define EXEEXT ".exe"
+#else
+#define EXEEXT ""
+#endif
+
+std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std::list<std::string>& spring_paths)
 {
 	LOCK_UNITSYNC;
-	std::map<std::string, std::string> ret;
+	std::map<std::string, SpringBundle> ret;
 
-	for (std::map<std::string, std::string>::const_iterator it = usync_paths.begin(); it != usync_paths.end(); ++it)
+	for (const auto path: spring_paths)
 	{
-		std::string path = it->second;
 		try
 		{
-
 			if ( !Util::FileExists( path ) )
 			{
-				LSL_THROW( file_not_found, path);
+				continue;
 			}
-			void* temphandle = _LoadLibrary(path);
+			SpringBundle bundle;
+			bundle.path = path;
+			boost::filesystem::path unitsync1(bundle.path);
+			unitsync1 /= "unitsync" LIBEXT;
+			boost::filesystem::path unitsync2(bundle.path);
+			unitsync2 /= "libunitsync" LIBEXT;
+			if (Util::FileExists(unitsync1.string())) {
+				bundle.unitsync= unitsync1.string();
+			} else if (Util::FileExists(unitsync2.string())) {
+				bundle.unitsync = unitsync2.string();
+			} else {
+				continue;
+			}
 
+			boost::filesystem::path spring(bundle.path);
+			spring /= EXEEXT;
+			if (!Util::FileExists(spring.string())) {
+				continue;
+			}
+			bundle.spring = spring.string();
+
+			void* temphandle = _LoadLibrary(bundle.unitsync);
 			std::string functionname = "GetSpringVersion";
 			GetSpringVersionPtr getspringversion =(GetSpringVersionPtr)GetLibFuncPtr( temphandle, functionname);
-			if( !getspringversion )
-				LSL_THROW( unitsync, "getspringversion: function not found");
-			std::string version = getspringversion();
-			LslDebug( "Found spring version: %s", version.c_str() );
-			ret[it->first] = version;
+			if( !getspringversion ) {
+				LslError("getspringversion: function not found %s", bundle.unitsync.c_str());
+				continue;
+			}
+			bundle.version = getspringversion();
+			LslDebug( "Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
+			ret[bundle.version] = bundle;
 		}
 		catch(...){}
 	}
