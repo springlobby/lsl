@@ -285,7 +285,7 @@ std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std:
 			}
 
 			boost::filesystem::path spring(bundle.path);
-			spring /= EXEEXT;
+			spring /= "spring" EXEEXT;
 			if (!Util::FileExists(spring.string())) {
 				continue;
 			}
