@@ -595,15 +595,23 @@ UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int h
 	UnitsyncImage img;
 	if ( tiny && m_tiny_minimap_cache.TryGet( mapname, img ) )
 	{
-		img.RescaleIfBigger(width, height);
+		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit( lslSize(width, height) );
+		if ( image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight() )
+			img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
+
 		return img;
 	}
 
 	img = GetMinimap( mapname );
-	if (img.isValid()) {
+	// special resizing code because minimap is always square,
+	// and we need to resize it to the correct aspect ratio.
+	if (img.GetWidth() > 1 && img.GetHeight() > 1)
+	{
 		try {
 			MapInfo mapinfo = _GetMapInfoEx( mapname );
-			img.RescaleIfBigger(width, height);
+
+			lslSize image_size = lslSize(mapinfo.width, mapinfo.height).MakeFit( lslSize(width, height) );
+			img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
 		}
 		catch (...) {
 			img = UnitsyncImage( 1, 1 );
@@ -645,7 +653,7 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 		img = UnitsyncImage( originalsizepath );
 	}
 
-	if (!img.isValid()) {
+	if (!img.isValid()) { //image seems invalid, recreate
 		try {
 		//convert and save
 		img = (susynclib().*loadMethod)( mapname );
@@ -662,7 +670,11 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 UnitsyncImage Unitsync::_GetScaledMapImage( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int width, int height )
 {
 	UnitsyncImage img = (this->*loadMethod) ( mapname );
-	img.RescaleIfBigger(width, height);
+	if (img.GetWidth() > 1 && img.GetHeight() > 1)
+	{
+		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit( lslSize(width, height) );
+		img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
+	}
 	return img;
 }
 
