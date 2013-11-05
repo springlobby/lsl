@@ -103,11 +103,10 @@ public:
 	/**
 	 * Loads the unitsync library from path.
 	 * @param path path to the unitsync lib.
-	 * @param ForceConfigFilePath if set forces unitsync to use pointed config file, if empty leaves to spring's default
 	 * @see Unload().
 	 * @note Throws runtime_error if load failed.
 	 */
-	void Load( const std::string& path, const std::string& ForceConfigFilePath );
+	void Load( const std::string& path);
 
 	/**
 	 * Unload the unitsync library. Does nothing if not loaded.

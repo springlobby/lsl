@@ -158,7 +158,7 @@ void Unitsync::PopulateArchiveList()
 bool Unitsync::_LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	try {
-		susynclib().Load( unitsyncloc, LSL::Util::config().GetForcedSpringConfigFilePath().string() );
+		susynclib().Load( unitsyncloc);
 	} catch (...) {
 		return false;
 	}

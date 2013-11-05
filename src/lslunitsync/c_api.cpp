@@ -51,19 +51,10 @@ UnitsyncLib::~UnitsyncLib()
   Unload();
 }
 
-void UnitsyncLib::Load( const std::string& path, const std::string& forceConfigFilePath )
+void UnitsyncLib::Load( const std::string& path)
 {
 	LOCK_UNITSYNC;
-
 	_Load( path );
-
-	if ( !forceConfigFilePath.empty() )
-	{
-		if ( m_set_spring_config_file_path )
-		{
-			m_set_spring_config_file_path( forceConfigFilePath.c_str() );
-		}
-	}
 	_Init();
 }
 
