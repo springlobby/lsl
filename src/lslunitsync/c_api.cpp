@@ -289,7 +289,18 @@ std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std:
 				LslError("getspringversion: function not found %s", bundle.unitsync.c_str());
 				continue;
 			}
+			functionname = "IsSpringReleaseVersion";
+			IsSpringReleaseVersionPtr isspringreleaseversion =(IsSpringReleaseVersionPtr)GetLibFuncPtr( temphandle, functionname);
+
+			functionname = "GetSpringVersionPatchset";
+			GetSpringVersionPatchsetPtr getspringversionpatcheset =(GetSpringVersionPatchsetPtr)GetLibFuncPtr( temphandle, functionname);
+
 			bundle.version = getspringversion();
+			if (isspringreleaseversion && getspringversionpatcheset	&& isspringreleaseversion()) {
+				bundle.version += ".";
+				bundle.version += getspringversionpatcheset();
+			}
+
 			LslDebug( "Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
 			ret[bundle.version] = bundle;
 		}
@@ -307,7 +318,12 @@ std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std:
 std::string UnitsyncLib::GetSpringVersion()
 {
 	InitLib( m_get_spring_version );
-	return m_get_spring_version();
+	std::string version = m_get_spring_version();
+	if (m_is_spring_release_version && m_get_spring_version_patchset && m_is_spring_release_version()) {
+		version += ".";
+		version += m_get_spring_version_patchset();
+	}
+	return version;
 }
 
 std::string UnitsyncLib::GetSpringDataDir()

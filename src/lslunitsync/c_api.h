@@ -444,6 +444,8 @@ private:
 	CloseFileVFSPtr m_close_file_vfs;
 
 	GetSpringVersionPtr m_get_spring_version;
+	GetSpringVersionPatchsetPtr m_get_spring_version_patchset;
+	IsSpringReleaseVersionPtr m_is_spring_release_version;
 
 	ProcessUnitsPtr m_process_units;
 	AddArchivePtr m_add_archive;
