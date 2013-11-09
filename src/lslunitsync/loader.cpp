@@ -134,7 +134,7 @@ void UnitsyncFunctionLoader::Basic(UnitsyncLib *s)
     BIND(GetDataDirectoryPtr, "GetDataDirectory", m_get_data_dir_by_index );
     BIND(GetDataDirectoryCountPtr, "GetDataDirectoryCount", m_get_data_dir_count );
     BIND(GetSpringVersionPtr, "GetSpringVersion", m_get_spring_version );
-    BIND(GetSpringVersionPatchsetPtr, "GetSpringVersionPatchset", m_get_spring_version );
+    BIND(GetSpringVersionPatchsetPtr, "GetSpringVersionPatchset", m_get_spring_version_patchset);
     BIND(IsSpringReleaseVersionPtr, "IsSpringReleaseVersion", m_is_spring_release_version );
 
     BIND(AddAllArchivesPtr, "AddAllArchives", m_add_all_archives );
