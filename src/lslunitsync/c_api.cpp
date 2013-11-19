@@ -248,12 +248,12 @@ int UnitsyncLib::GetModIndex( const std::string& name )
 #define EXEEXT ""
 #endif
 
-std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std::list<std::string>& spring_paths)
+std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std::list<std::string>& unitsync_paths)
 {
 	LOCK_UNITSYNC;
 	std::map<std::string, SpringBundle> ret;
 
-	for (const auto path: spring_paths)
+	for (const auto path: unitsync_paths)
 	{
 		try
 		{
@@ -262,18 +262,14 @@ std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std:
 				continue;
 			}
 			SpringBundle bundle;
-			bundle.path = path;
-			boost::filesystem::path unitsync1(bundle.path);
-			unitsync1 /= "unitsync" LIBEXT;
-			boost::filesystem::path unitsync2(bundle.path);
-			unitsync2 /= "libunitsync" LIBEXT;
-			if (Util::FileExists(unitsync1.string())) {
-				bundle.unitsync= unitsync1.string();
-			} else if (Util::FileExists(unitsync2.string())) {
-				bundle.unitsync = unitsync2.string();
+			const boost::filesystem::path unitsync(path);
+			const boost::filesystem::path bundlepath(unitsync.parent_path());
+			if (Util::FileExists(unitsync.string())) {
+				bundle.unitsync= unitsync.string();
 			} else {
 				continue;
 			}
+			bundle.path = bundlepath.string();
 
 			boost::filesystem::path spring(bundle.path);
 			spring /= "spring" EXEEXT;

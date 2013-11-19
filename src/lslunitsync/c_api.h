@@ -146,7 +146,7 @@ public:
 	 * This is done by a single function because this "transaction"
 	 * needs to hold the unitsync lock the entire time.
 	 */
-	std::map<std::string, SpringBundle> GetSpringVersionList(const std::list<std::string>& spring_paths);
+	std::map<std::string, SpringBundle> GetSpringVersionList(const std::list<std::string>& unitsync_paths);
 
 	std::string GetSpringDataDir();
 	int GetSpringDataDirCount();
