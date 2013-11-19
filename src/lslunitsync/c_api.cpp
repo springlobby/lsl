@@ -248,6 +248,39 @@ int UnitsyncLib::GetModIndex( const std::string& name )
 #define EXEEXT ""
 #endif
 
+std::string GetBundleVersion(const SpringBundle& bundle)
+{
+	std::string version="";
+	if (!Util::FileExists(bundle.path)) {
+		return version;
+	}
+	if (!Util::FileExists(bundle.unitsync)) {
+		return version;
+	}
+	if (!Util::FileExists(bundle.spring)) {
+		return version;
+	}
+	void* temphandle = _LoadLibrary(bundle.unitsync);
+	std::string functionname = "GetSpringVersion";
+	GetSpringVersionPtr getspringversion =(GetSpringVersionPtr)GetLibFuncPtr( temphandle, functionname);
+	if( !getspringversion ) {
+		LslError("getspringversion: function not found %s", bundle.unitsync.c_str());
+		return version;
+	}
+	functionname = "IsSpringReleaseVersion";
+	IsSpringReleaseVersionPtr isspringreleaseversion =(IsSpringReleaseVersionPtr)GetLibFuncPtr( temphandle, functionname);
+
+	functionname = "GetSpringVersionPatchset";
+	GetSpringVersionPatchsetPtr getspringversionpatcheset =(GetSpringVersionPatchsetPtr)GetLibFuncPtr( temphandle, functionname);
+
+	version = getspringversion();
+	if (isspringreleaseversion && getspringversionpatcheset	&& isspringreleaseversion()) {
+		version += ".";
+		version += getspringversionpatcheset();
+	}
+	return version;
+}
+
 std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std::list<std::string>& unitsync_paths)
 {
 	LOCK_UNITSYNC;
@@ -257,46 +290,17 @@ std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std:
 	{
 		try
 		{
-			if ( !Util::FileExists( path ) )
-			{
-				continue;
-			}
 			SpringBundle bundle;
 			const boost::filesystem::path unitsync(path);
 			const boost::filesystem::path bundlepath(unitsync.parent_path());
-			if (Util::FileExists(unitsync.string())) {
-				bundle.unitsync= unitsync.string();
-			} else {
-				continue;
-			}
+			bundle.unitsync = path;
 			bundle.path = bundlepath.string();
-
 			boost::filesystem::path spring(bundle.path);
 			spring /= "spring" EXEEXT;
-			if (!Util::FileExists(spring.string())) {
-				continue;
-			}
 			bundle.spring = spring.string();
-
-			void* temphandle = _LoadLibrary(bundle.unitsync);
-			std::string functionname = "GetSpringVersion";
-			GetSpringVersionPtr getspringversion =(GetSpringVersionPtr)GetLibFuncPtr( temphandle, functionname);
-			if( !getspringversion ) {
-				LslError("getspringversion: function not found %s", bundle.unitsync.c_str());
+			bundle.version = GetBundleVersion(bundle);
+			if (bundle.version.empty())
 				continue;
-			}
-			functionname = "IsSpringReleaseVersion";
-			IsSpringReleaseVersionPtr isspringreleaseversion =(IsSpringReleaseVersionPtr)GetLibFuncPtr( temphandle, functionname);
-
-			functionname = "GetSpringVersionPatchset";
-			GetSpringVersionPatchsetPtr getspringversionpatcheset =(GetSpringVersionPatchsetPtr)GetLibFuncPtr( temphandle, functionname);
-
-			bundle.version = getspringversion();
-			if (isspringreleaseversion && getspringversionpatcheset	&& isspringreleaseversion()) {
-				bundle.version += ".";
-				bundle.version += getspringversionpatcheset();
-			}
-
 			LslDebug( "Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
 			ret[bundle.version] = bundle;
 		}
