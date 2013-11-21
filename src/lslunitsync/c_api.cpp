@@ -244,7 +244,9 @@ int UnitsyncLib::GetModIndex( const std::string& name )
 
 #ifdef __WIN32__
 #define EXEEXT ".exe"
+#define SEP "\\"
 #else
+#define SEP "/"
 #define EXEEXT ""
 #endif
 
@@ -293,17 +295,13 @@ bool SpringBundle::AutoFindUnitsync(const std::string& unitsyncpath)
 {
 	if (!unitsync.empty() && (Util::FileExists(unitsync)))
 		return true;
-	boost::filesystem::path tmp(unitsyncpath);
-	tmp /="unitsync";
-	tmp += boost::filesystem::path(GetLibExtension());
+	boost::filesystem::path tmp(unitsyncpath + SEP + "unitsync" + GetLibExtension());
 	if (Util::FileExists(tmp.string())) {
 		unitsync = tmp.string();
 		return true;
 	}
 
-	tmp = unitsyncpath;
-	tmp /="libunitsync";
-	tmp += boost::filesystem::path(GetLibExtension());
+	tmp = unitsyncpath + SEP + "libunitsync" + GetLibExtension();
 	if (Util::FileExists(tmp.string())) {
 		unitsync = tmp.string();
 		return true;
