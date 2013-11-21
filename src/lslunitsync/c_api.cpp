@@ -287,7 +287,7 @@ bool SpringBundle::IsValid()
 	if (!Util::FileExists(spring)) {
 		return false;
 	}
-	valid = GetBundleVersion(true);
+	valid = GetBundleVersion();
 	return valid;
 }
 
