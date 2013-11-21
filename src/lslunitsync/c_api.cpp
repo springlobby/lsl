@@ -289,39 +289,62 @@ bool SpringBundle::IsValid()
 	return valid;
 }
 
-bool SpringBundle::AutoComplete()
+bool SpringBundle::AutoFindUnitsync(const std::string& unitsyncpath)
+{
+	if (!unitsync.empty())
+		return true;
+	boost::filesystem::path unitsync1(unitsyncpath);
+	unitsync1 /="unitsync";
+	unitsync1 += GetLibExtension();
+	if (Util::FileExists(unitsync1.string())) {
+		unitsync = unitsync1.string();
+	} else {
+		boost::filesystem::path unitsync2(unitsyncpath);
+		unitsync2 /="libunitsync";
+		unitsync2 += GetLibExtension();
+		if (Util::FileExists(unitsync2.string())) {
+			unitsync = unitsync2.string();
+		}
+	}
+}
+
+bool SpringBundle::AutoComplete(std::string searchpath)
 {
 	// try to find unitsync file name from path
-	if (unitsync.empty() && !path.empty()) {
-		boost::filesystem::path unitsync1(path);
-		unitsync1 /="unitsync";
-		unitsync1 += GetLibExtension();
-		if (Util::FileExists(unitsync1.string())) {
-			unitsync = unitsync1.string();
-		} else {
-			boost::filesystem::path unitsync2(path);
-			unitsync2 /="libunitsync";
-			unitsync2 += GetLibExtension();
-			if (Util::FileExists(unitsync2.string())) {
-				unitsync = unitsync2.string();
-			}
-		}
+	if (unitsync.empty()) {
+		if (!searchpath.empty() && (AutoFindUnitsync(searchpath))) {}
+		else if (!path.empty())
+			AutoFindUnitsync(path);
 	}
 	//try to find path from unitsync
 	if (path.empty() && !unitsync.empty()) {
 		const boost::filesystem::path tmp(unitsync);
-		path = tmp.parent_path().string();
+		if (Util::FileExists(tmp.parent_path().string()))
+			path = tmp.parent_path().string();
 	}
 	//try to find path from spring
 	if (path.empty() && !spring.empty()) {
 		const boost::filesystem::path tmp(spring);
-		path = tmp.parent_path().string();
+		if (Util::FileExists(tmp.parent_path().string()))
+			path = tmp.parent_path().string();
 	}
 	if (spring.empty()) {
 		boost::filesystem::path tmp(path);
 		tmp /= "spring" EXEEXT;
-		spring = tmp.string();
+		if (Util::FileExists(tmp.string())) {
+			spring = tmp.string();
+		} else {
+			tmp = searchpath;
+			tmp /= "spring" EXEEXT;
+			if (Util::FileExists(tmp.string())) {
+				spring = tmp.string();
+			}
+		}
 	}
+	if (version.empty()) {
+		GetBundleVersion();
+	}
+	//printf("%s %s %s %s %s\n", __FUNCTION__, searchpath.c_str(), unitsync.c_str(), spring.c_str(), version.c_str());
 	return IsValid();
 }
 

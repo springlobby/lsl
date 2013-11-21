@@ -72,13 +72,14 @@ public:
 	SpringBundle(): valid(false){};
 	bool GetBundleVersion(bool force = false);
 	// try to fill missing information by guessing
-	bool AutoComplete();
+	bool AutoComplete(std::string searchpath="");
 	bool IsValid();
 	std::string unitsync;
 	std::string spring;
 	std::string version;
 	std::string path;
 private:
+	bool AutoFindUnitsync(const std::string& unitsyncpath);
 	std::string GetLibExtension();
 	bool valid;
 };
