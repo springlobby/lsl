@@ -291,21 +291,24 @@ bool SpringBundle::IsValid()
 
 bool SpringBundle::AutoFindUnitsync(const std::string& unitsyncpath)
 {
-	if (!unitsync.empty())
+	if (!unitsync.empty() && (Util::FileExists(unitsync)))
 		return true;
-	boost::filesystem::path unitsync1(unitsyncpath);
-	unitsync1 /="unitsync";
-	unitsync1 += GetLibExtension();
-	if (Util::FileExists(unitsync1.string())) {
-		unitsync = unitsync1.string();
-	} else {
-		boost::filesystem::path unitsync2(unitsyncpath);
-		unitsync2 /="libunitsync";
-		unitsync2 += GetLibExtension();
-		if (Util::FileExists(unitsync2.string())) {
-			unitsync = unitsync2.string();
-		}
+	boost::filesystem::path tmp(unitsyncpath);
+	tmp /="unitsync";
+	tmp += boost::filesystem::path(GetLibExtension());
+	if (Util::FileExists(tmp.string())) {
+		unitsync = tmp.string();
+		return true;
 	}
+
+	tmp = unitsyncpath;
+	tmp /="libunitsync";
+	tmp += boost::filesystem::path(GetLibExtension());
+	if (Util::FileExists(tmp.string())) {
+		unitsync = tmp.string();
+		return true;
+	}
+	return false;
 }
 
 bool SpringBundle::AutoComplete(std::string searchpath)
@@ -351,11 +354,11 @@ bool SpringBundle::AutoComplete(std::string searchpath)
 std::string SpringBundle::GetLibExtension()
 {
 #ifdef __APPLE__
-    return wxString(".dylib");
+	return std::string(".dylib");
 #elif __WIN32__
-	return ".dll";
+	return std::string(".dll");
 #else
-	return ".so";
+	return std::string(".so");
 #endif
 }
 
