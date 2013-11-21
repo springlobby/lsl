@@ -248,24 +248,19 @@ int UnitsyncLib::GetModIndex( const std::string& name )
 #define EXEEXT ""
 #endif
 
-std::string GetBundleVersion(const SpringBundle& bundle)
+bool SpringBundle::GetBundleVersion(bool force)
 {
-	std::string version="";
-	if (!Util::FileExists(bundle.path)) {
-		return version;
+	if (!force && !version.empty()) //get version only once
+		return true;
+	if (!Util::FileExists(unitsync)) {
+		return false;
 	}
-	if (!Util::FileExists(bundle.unitsync)) {
-		return version;
-	}
-	if (!Util::FileExists(bundle.spring)) {
-		return version;
-	}
-	void* temphandle = _LoadLibrary(bundle.unitsync);
+	void* temphandle = _LoadLibrary(unitsync);
 	std::string functionname = "GetSpringVersion";
 	GetSpringVersionPtr getspringversion =(GetSpringVersionPtr)GetLibFuncPtr( temphandle, functionname);
 	if( !getspringversion ) {
-		LslError("getspringversion: function not found %s", bundle.unitsync.c_str());
-		return version;
+		LslError("getspringversion: function not found %s", unitsync.c_str());
+		return false;
 	}
 	functionname = "IsSpringReleaseVersion";
 	IsSpringReleaseVersionPtr isspringreleaseversion =(IsSpringReleaseVersionPtr)GetLibFuncPtr( temphandle, functionname);
@@ -274,35 +269,89 @@ std::string GetBundleVersion(const SpringBundle& bundle)
 	GetSpringVersionPatchsetPtr getspringversionpatcheset =(GetSpringVersionPatchsetPtr)GetLibFuncPtr( temphandle, functionname);
 
 	version = getspringversion();
-	if (isspringreleaseversion && getspringversionpatcheset	&& isspringreleaseversion()) {
+	if (isspringreleaseversion && getspringversionpatcheset && isspringreleaseversion()) {
 		version += ".";
 		version += getspringversionpatcheset();
 	}
-	return version;
+	return !version.empty();
 }
 
-std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std::list<std::string>& unitsync_paths)
+bool SpringBundle::IsValid()
+{
+	if (valid) return true; //verify only once
+	if (!Util::FileExists(path)) {
+		return false;
+	}
+	if (!Util::FileExists(spring)) {
+		return false;
+	}
+	valid = GetBundleVersion(true);
+	return valid;
+}
+
+bool SpringBundle::AutoComplete()
+{
+	// try to find unitsync file name from path
+	if (unitsync.empty() && !path.empty()) {
+		boost::filesystem::path unitsync1(path);
+		unitsync1 /="unitsync";
+		unitsync1 += GetLibExtension();
+		if (Util::FileExists(unitsync1.string())) {
+			unitsync = unitsync1.string();
+		} else {
+			boost::filesystem::path unitsync2(path);
+			unitsync2 /="libunitsync";
+			unitsync2 += GetLibExtension();
+			if (Util::FileExists(unitsync2.string())) {
+				unitsync = unitsync2.string();
+			}
+		}
+	}
+	//try to find path from unitsync
+	if (path.empty() && !unitsync.empty()) {
+		const boost::filesystem::path tmp(unitsync);
+		path = tmp.parent_path().string();
+	}
+	//try to find path from spring
+	if (path.empty() && !spring.empty()) {
+		const boost::filesystem::path tmp(spring);
+		path = tmp.parent_path().string();
+	}
+	if (spring.empty()) {
+		boost::filesystem::path tmp(path);
+		tmp /= "spring" EXEEXT;
+		spring = tmp.string();
+	}
+	return IsValid();
+}
+
+std::string SpringBundle::GetLibExtension()
+{
+#ifdef __APPLE__
+    return wxString(".dylib");
+#elif __WIN32__
+	return ".dll";
+#else
+	return ".so";
+#endif
+}
+
+
+std::map<std::string, SpringBundle> UnitsyncLib::GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths)
 {
 	LOCK_UNITSYNC;
 	std::map<std::string, SpringBundle> ret;
 
-	for (const auto path: unitsync_paths)
+	for (const auto bundle: unitsync_paths)
 	{
 		try
 		{
-			SpringBundle bundle;
-			const boost::filesystem::path unitsync(path);
-			const boost::filesystem::path bundlepath(unitsync.parent_path());
-			bundle.unitsync = path;
-			bundle.path = bundlepath.string();
-			boost::filesystem::path spring(bundle.path);
-			spring /= "spring" EXEEXT;
-			bundle.spring = spring.string();
-			bundle.version = GetBundleVersion(bundle);
-			if (bundle.version.empty())
-				continue;
-			LslDebug( "Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
-			ret[bundle.version] = bundle;
+			SpringBundle tmp(bundle);
+			tmp.AutoComplete();
+			if (tmp.IsValid()) {
+				LslDebug( "Found spring version: %s %s %s", tmp.version.c_str(), tmp.spring.c_str(), tmp.unitsync.c_str());
+				ret[tmp.version] = tmp;
+			}
 		}
 		catch(...){}
 	}
