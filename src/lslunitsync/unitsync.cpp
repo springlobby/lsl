@@ -753,7 +753,10 @@ bool Unitsync::ReloadUnitSyncLib()
 {
 	//FIXME: use async call
 	//LoadUnitSyncLibAsync(LSL::Util::config().GetCurrentUsedUnitSync().string());
-	LoadUnitSyncLib(LSL::Util::config().GetCurrentUsedUnitSync().string());
+	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync().string();
+	if (path.empty())
+		return false;
+	LoadUnitSyncLib(path);
 	return true;
 }
 

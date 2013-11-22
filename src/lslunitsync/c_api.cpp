@@ -61,6 +61,7 @@ void UnitsyncLib::Load( const std::string& path)
 
 void UnitsyncLib::_Load( const std::string& path )
 {
+	assert(!path.empty());
 	if ( _IsLoaded() && path == m_path ) return;
 
 	_Unload();
