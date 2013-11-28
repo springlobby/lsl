@@ -38,7 +38,7 @@ template < class T>
 void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size, const std::string& fn, CImg<T>& img) {
 	const char* filename = fn.c_str();
 
-	std::FILE *file =  fmemopen( (void*)data, size, "r" );
+	std::FILE *file =  fmemopen( (void*)data, size, "rb" );
 
 	const char *const ext = cimg::split_filename(filename);
 	cimg::exception_mode() = 0;
