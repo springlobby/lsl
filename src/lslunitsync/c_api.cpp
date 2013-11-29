@@ -262,6 +262,7 @@ bool SpringBundle::GetBundleVersion(bool force)
 	std::string functionname = "GetSpringVersion";
 	GetSpringVersionPtr getspringversion =(GetSpringVersionPtr)GetLibFuncPtr( temphandle, functionname);
 	if( !getspringversion ) {
+		_FreeLibrary(temphandle);
 		LslError("getspringversion: function not found %s", unitsync.c_str());
 		return false;
 	}
