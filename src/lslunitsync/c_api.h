@@ -66,25 +66,6 @@ struct SpringMapInfo
   {}
 };
 
-class SpringBundle
-{
-public:
-	SpringBundle(): valid(false){};
-	bool GetBundleVersion(bool force = false);
-	// try to fill missing information by guessing
-	bool AutoComplete(std::string searchpath="");
-	bool IsValid();
-	std::string unitsync;
-	std::string spring;
-	std::string version;
-	std::string path;
-private:
-	bool AutoFindUnitsync(const std::string& unitsyncpath);
-	std::string GetLibExtension();
-	bool valid;
-};
-
-
 /**
  * \brief Primitive class handling the unitsync library.
  *
@@ -148,16 +129,6 @@ public:
 	int GetModIndex( const std::string& name );
 
 	std::string GetSpringVersion();
-
-	/**
-	 * Loads unitsync from any number of paths in succession,
-	 * queries the Spring versions supported by these unitsyncs,
-	 * and returns those.
-	 *
-	 * This is done by a single function because this "transaction"
-	 * needs to hold the unitsync lock the entire time.
-	 */
-	std::map<std::string, SpringBundle> GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths);
 
 	std::string GetSpringDataDir();
 	int GetSpringDataDirCount();

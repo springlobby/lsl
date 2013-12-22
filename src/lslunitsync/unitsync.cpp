@@ -16,6 +16,7 @@
 
 #include "c_api.h"
 #include "image.h"
+#include "springbundle.h"
 
 #include <lslutils/config.h>
 #include <lslutils/debug.h>
@@ -153,6 +154,27 @@ void Unitsync::PopulateArchiveList()
 	std::sort( m_mod_array.begin(), m_mod_array.end() , &CompareStringNoCase  );
 }
 
+
+std::map<std::string, SpringBundle> Unitsync::GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths)
+{
+	LOCK_UNITSYNC;
+	std::map<std::string, SpringBundle> ret;
+
+	for (const auto bundle: unitsync_paths)
+	{
+		try
+		{
+			SpringBundle tmp(bundle);
+			tmp.AutoComplete();
+			if (tmp.IsValid()) {
+				LslDebug( "Found spring version: %s %s %s", tmp.version.c_str(), tmp.spring.c_str(), tmp.unitsync.c_str());
+				ret[tmp.version] = tmp;
+			}
+		}
+		catch(...){}
+	}
+	return ret;
+}
 
 
 bool Unitsync::_LoadUnitSyncLib( const std::string& unitsyncloc )
