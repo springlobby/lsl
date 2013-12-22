@@ -3,7 +3,6 @@
 
 #include <string>
 #include <stdexcept>
-#include <list>
 
 #include "data.h"
 #include "signatures.h"

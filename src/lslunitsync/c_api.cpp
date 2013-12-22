@@ -4,10 +4,6 @@
 
 #include <stdexcept>
 #include <cmath>
-#include <boost/extension/shared_library.hpp>
-#include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <lslutils/logging.h>
 #include <lslutils/misc.h>
@@ -98,7 +94,8 @@ void UnitsyncLib::_Init()
 	{
 		m_current_mod = std::string();
 		m_init( true, 1 );
-		BOOST_FOREACH( const std::string error, GetUnitsyncErrors() ) {
+		auto errors = GetUnitsyncErrors();
+		for(const std::string error: errors ) {
 			LslError( "%s", error.c_str() );
 		}
 	}
