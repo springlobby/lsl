@@ -768,8 +768,8 @@ void Unitsync::SetSpringDataPath( const std::string& path )
 
 bool Unitsync::GetSpringDataPath(std::string& path)
 {
-  path = susynclib().GetSpringDataDir();
-  return true;
+	path = susynclib().GetSpringDataDir();
+	return !path.empty();
 }
 
 std::string Unitsync::GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod )
