@@ -9,7 +9,6 @@
 #include <set>
 #include <fstream>
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include <iterator>
@@ -721,7 +720,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			info.width = Util::FromString<long>( cache[7] );
 			info.height = Util::FromString<long>( cache[8] );
 			const StringVector posinfo = Util::StringTokenize( cache[9], " ");
-			BOOST_FOREACH( const std::string pos, posinfo )
+			for( const std::string pos: posinfo )
 			{
 				StartPos position;
 				position.x = Util::FromString<long>( Util::BeforeFirst( pos,  "-" ) );
@@ -755,7 +754,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			cache.push_back( postring );
 
 			const StringVector descrtokens = Util::StringTokenize( info.description, "\n" );
-			BOOST_FOREACH( const std::string descrtoken, descrtokens ) {
+			for( const std::string descrtoken: descrtokens ) {
 				cache.push_back( descrtoken );
 			}
 			SetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex", cache );
@@ -833,7 +832,7 @@ void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 {
 	std::ofstream file( path.c_str(), std::ios::trunc );
 	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
-	BOOST_FOREACH( const std::string line, data )
+	for( const std::string line: data )
 	{
 		file << line << std::endl;
 	}
