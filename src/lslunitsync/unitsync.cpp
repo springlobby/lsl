@@ -49,6 +49,7 @@ enum ASYNC_EVENTS {
 Unitsync::~Unitsync()
 {
 	delete m_cache_thread;
+	m_cache_thread = NULL;
 }
 
 bool CompareStringNoCase(const std::string& first, const std::string& second)
