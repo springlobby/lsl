@@ -90,6 +90,7 @@ void Unitsync::PopulateArchiveList()
 	m_maps_unchained_hash.clear();
 	m_mods_unchained_hash.clear();
 	m_shortname_to_name_map.clear();
+	m_sides_cache.Clear();
 
 	int numMaps = susynclib().GetMapCount();
 	for ( int i = 0; i < numMaps; i++ )
