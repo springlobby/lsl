@@ -1242,4 +1242,39 @@ void Unitsync::LoadUnitSyncLibAsync(const std::string& filename) {
 	m_cache_thread->DoWork( work, 500 );
 }
 
+int Unitsync::GetSpringConfigInt(const std::string& name, int defvalue)
+{
+	return susynclib().GetSpringConfigInt(name, defvalue);
+}
+
+std::string Unitsync::GetSpringConfigString(const std::string& name, const std::string& defvalue)
+{
+	return susynclib().GetSpringConfigString(name, defvalue);
+}
+
+float Unitsync::GetSpringConfigFloat(const std::string& name, float defvalue)
+{
+	return susynclib().GetSpringConfigInt(name, defvalue);
+}
+
+void Unitsync::SetSpringConfigInt(const std::string& name, int value)
+{
+	return susynclib().SetSpringConfigInt(name, value);
+}
+
+void Unitsync::SetSpringConfigString(const std::string& name, const std::string& value)
+{
+	return susynclib().SetSpringConfigString(name, value);
+}
+
+void Unitsync::SetSpringConfigFloat(const std::string& name, float value)
+{
+	return susynclib().SetSpringConfigFloat(name, value);
+}
+
+std::string Unitsync::GetConfigFilePath()
+{
+	return susynclib().GetConfigFilePath();
+}
+
 } // namespace LSL

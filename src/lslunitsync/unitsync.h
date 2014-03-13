@@ -157,6 +157,14 @@ public:
 
     StringVector FindFilesVFS( const std::string& pattern ) const;
 
+	int GetSpringConfigInt(const std::string& name, int defvalue);
+	float GetSpringConfigFloat(const std::string& name, float defvalue);
+	std::string GetSpringConfigString(const std::string& name, const std::string& defvalue);
+
+	void SetSpringConfigInt(const std::string& name, int value);
+	void SetSpringConfigString(const std::string& name, const std::string& value);
+	void SetSpringConfigFloat(const std::string& name, float value);
+	std::string GetConfigFilePath();
   private:
 	typedef std::map< std::pair<std::string,std::string>, std::string> ShortnameVersionToNameMap;
 	ShortnameVersionToNameMap m_shortname_to_name_map;
