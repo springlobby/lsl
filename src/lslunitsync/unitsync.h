@@ -61,8 +61,6 @@ public:
 
 	UnitsyncMap GetMap( const std::string& mapname );
 	UnitsyncMap GetMap( int index );
-	UnitsyncMap GetMapEx( const std::string& mapname );
-	UnitsyncMap GetMapEx( int index );
     GameOptions GetMapOptions( const std::string& name );
     StringVector GetMapDeps( const std::string& name );
 
@@ -258,7 +256,7 @@ public:
 	void GetMetalmap( const std::string& mapname, int w, int h )  { usync().GetMetalmapAsync( mapname, w, h ); }
 	void GetHeightmap( const std::string& mapname )               { usync().GetHeightmapAsync( mapname ); }
 	void GetHeightmap( const std::string& mapname, int w, int h ) { usync().GetHeightmapAsync( mapname, w, h ); }
-	void GetMapEx( const std::string& mapname )                   { usync().GetMapExAsync( mapname ); }
+	void GetMap( const std::string& mapname )                   { usync().GetMapExAsync( mapname ); }
 
 private:
 	boost::signals2::connection m_evtHandler_connection;

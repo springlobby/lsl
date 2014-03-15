@@ -318,23 +318,7 @@ bool Unitsync::MapExists( const std::string& mapname, const std::string& hash ) 
 	return itor->second == hash;
 }
 
-UnitsyncMap Unitsync::GetMap( const std::string& mapname )
-{
-	UnitsyncMap m;
-	m.name = mapname;
-	m.hash = m_maps_list[mapname];
-	return m;
-}
-
 UnitsyncMap Unitsync::GetMap( int index )
-{
-	UnitsyncMap m;
-	m.name = m_map_array[index];
-	m.hash = m_maps_list[m.name];
-	return m;
-}
-
-UnitsyncMap Unitsync::GetMapEx( int index )
 {
 	UnitsyncMap m;
 	if ( index < 0 )
@@ -424,12 +408,12 @@ StringVector Unitsync::GetMapDeps( const std::string& mapname )
 	return ret;
 }
 
-UnitsyncMap Unitsync::GetMapEx( const std::string& mapname )
+UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 {
 	const int i = GetMapIndex( mapname );
 	if( i < 0 )
 		LSL_THROW( unitsync, "Map does not exist");
-	return GetMapEx( i );
+	return GetMap( i );
 }
 
 int Unitsync::GetMapIndex( const std::string& name ) const
@@ -1042,7 +1026,7 @@ class GetMapExAsyncWorkItem : public GetMapImageAsyncResult
 public:
 	void RunCore()
 	{
-		m_usync->GetMapEx( m_mapname );
+		m_usync->GetMap( m_mapname );
 	}
 
 	GetMapExAsyncWorkItem( Unitsync* usync, const std::string& mapname )
