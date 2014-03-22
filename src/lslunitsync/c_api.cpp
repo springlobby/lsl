@@ -157,7 +157,7 @@ std::vector<std::string> UnitsyncLib::GetUnitsyncErrors() const
 	try
 	{
 		UNITSYNC_EXCEPTION( m_loaded, "Unitsync not loaded.");
-		UNITSYNC_EXCEPTION( m_get_next_error, "Function was not in unitsync library.");
+		CHECK_FUNCTION(m_get_next_error);
 
 		const char* msg = m_get_next_error();
 		while ( msg )
@@ -453,8 +453,7 @@ int UnitsyncLib::GetPrimaryModCount()
 std::string UnitsyncLib::GetPrimaryModArchive( int index )
 {
 	InitLib( m_get_mod_archive );
-	if (!m_get_mod_count)
-		LSL_THROW( unitsync, "Function was not in unitsync library.");
+	CHECK_FUNCTION(m_get_mod_count);
 	int count = m_get_mod_count();
 	if (index >= count)
 		LSL_THROW( unitsync, "index out of bounds");
