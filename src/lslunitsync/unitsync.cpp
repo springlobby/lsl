@@ -411,9 +411,14 @@ StringVector Unitsync::GetMapDeps( const std::string& mapname )
 UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 {
 	const int i = GetMapIndex( mapname );
-	if( i < 0 )
-		LSL_THROW( unitsync, "Map does not exist");
-	return GetMap( i );
+	UnitsyncMap m;
+	if( i < 0 ) {
+		LSL_THROWF( unitsync, "Map does not exist: %s", mapname.c_str());
+	}
+	m.name = m_map_array[i];
+	m.hash = m_maps_list[m.name];
+	m.info = _GetMapInfoEx( m.name );
+	return m;
 }
 
 int Unitsync::GetMapIndex( const std::string& name ) const
@@ -493,11 +498,11 @@ UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string&
 	susynclib().SetCurrentMod( modname );
 	int ini = susynclib().OpenFileVFS ( image_path );
 	if( !ini )
-		LSL_THROW( unitsync, "cannot find image");
+		LSL_THROWF( unitsync, "cannot find image %s\n", image_path.c_str());
 	int FileSize = susynclib().FileSizeVFS(ini);
 	if (FileSize == 0) {
 		susynclib().CloseFileVFS(ini);
-		LSL_THROW( unitsync, "image has size 0" );
+		LSL_THROWF( unitsync, "image has size 0 %s\n", image_path.c_str() );
 	}
 	Util::uninitialized_array<char> FileContent(FileSize);
 	susynclib().ReadFileVFS(ini, FileContent, FileSize);

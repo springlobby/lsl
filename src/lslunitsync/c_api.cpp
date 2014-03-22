@@ -388,7 +388,7 @@ UnitsyncImage UnitsyncLib::GetMinimap( const std::string& mapFileName )
 	// this unitsync call returns a pointer to a static buffer
 	unsigned short* colors = (unsigned short*)m_get_minimap( mapFileName.c_str(), miplevel );
 	if (!colors)
-		LSL_THROW( unitsync, "Get minimap failed");
+		LSL_THROWF( unitsync, "Get minimap failed %s", mapFileName.c_str());
 	UnitsyncImage img = UnitsyncImage::FromMinimapData( colors, width, height );
 	img.RescaleIfBigger();
 	return img;
@@ -400,11 +400,11 @@ UnitsyncImage UnitsyncLib::GetMetalmap( const std::string& mapFileName )
 	int width = 0, height = 0, retval;
 	retval = m_get_infomap_size(mapFileName.c_str(), "metal", &width, &height);
 	if ( !(retval != 0 && width * height != 0) )
-		LSL_THROW( unitsync, "Get metalmap size failed");
+		LSL_THROWF( unitsync, "Get metalmap size failed %s", mapFileName.c_str());
 	Util::uninitialized_array<unsigned char> grayscale(width * height);
 	retval = m_get_infomap(mapFileName.c_str(), "metal", grayscale, 1 /*byte per pixel*/);
 	if ( retval == 0 )
-		LSL_THROW( unitsync, "Get metalmap failed");
+		LSL_THROWF( unitsync, "Get metalmap failed %s", mapFileName.c_str());
 	UnitsyncImage img = UnitsyncImage::FromMetalmapData(grayscale, width, height);
 	img.RescaleIfBigger();
 	return img;

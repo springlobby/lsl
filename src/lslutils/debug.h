@@ -37,6 +37,13 @@ struct function_missing : public unitsync {
 
 
 #define LSL_THROW(excp,msg) do { LslDebug( "%s -- %d", __FILE__,__LINE__); throw LSL::Exceptions::excp(msg);} while(0)
+#define LSL_THROWF(excp,msg, ...) do { \
+        char buf[1024]; \
+        snprintf(buf, 1024, "%s -- %d: " msg, __FILE__,__LINE__, ##__VA_ARGS__ ); \
+        LslDebug("%s", buf); \
+        throw LSL::Exceptions::excp(buf); \
+        } while(0)
+
 
 /**
  * \file debug.h
