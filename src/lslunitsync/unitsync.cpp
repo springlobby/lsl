@@ -266,15 +266,11 @@ StringVector Unitsync::GetModValidMapList( const std::string& modname ) const
 	return ret;
 }
 
-bool Unitsync::MapExists( const std::string& mapname ) const
-{
-	return (m_maps_list.find(mapname) != m_maps_list.end());
-}
-
 bool Unitsync::MapExists( const std::string& mapname, const std::string& hash ) const
 {
 	LocalArchivesVector::const_iterator itor = m_maps_list.find(mapname);
 	if ( itor == m_maps_list.end() ) return false;
+	if (hash.empty()) return true;
 	return itor->second == hash;
 }
 
@@ -383,14 +379,6 @@ UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 	m.info = _GetMapInfoEx( m.name );
 	return m;
 }
-
-/*
-int Unitsync::GetMapIndex( const std::string& name ) const
-{
-	assert(!name.empty());
-	return Util::IndexInSequence( m_map_array, name );
-}
-*/
 
 GameOptions Unitsync::GetModOptions( const std::string& name )
 {

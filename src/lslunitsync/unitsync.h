@@ -50,8 +50,7 @@ public:
 
     StringVector GetMapList() const;
     StringVector GetModValidMapList( const std::string& modname ) const;
-	bool MapExists( const std::string& mapname ) const;
-	bool MapExists( const std::string& mapname, const std::string& hash ) const;
+	bool MapExists( const std::string& mapname, const std::string& hash = "" ) const;
 
 	UnitsyncMap GetMap( const std::string& mapname );
 	UnitsyncMap GetMap( int index );
