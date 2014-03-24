@@ -41,14 +41,10 @@ public:
 	virtual ~Unitsync();
 
     StringVector GetModList() const;
-	bool ModExists( const std::string& modname ) const;
-	bool ModExists( const std::string& modname, const std::string& hash ) const;
-    bool ModExistsCheckHash( const std::string& hash ) const;
+	bool ModExists( const std::string& modname, const std::string& hash = "" ) const;
 	UnitsyncMod GetMod( const std::string& modname );
 	UnitsyncMod GetMod( int index );
-	//! this functions returns index CUSTOM ALPHBETICALLY SORTED, DO NOT USE TO ACCESS UNITSYNC DIRECTLY
-	//! use m_unsorted_mod_array for real unitsync index
-	int GetModIndex( const std::string& name ) const;
+
     GameOptions GetModOptions( const std::string& name );
     StringVector GetModDeps( const std::string& name ) const;
 
@@ -60,15 +56,9 @@ public:
 	UnitsyncMap GetMap( const std::string& mapname );
 	UnitsyncMap GetMap( int index );
     GameOptions GetMapOptions( const std::string& name );
-    StringVector GetMapDeps( const std::string& name );
-
-	//! this functions returns index CUSTOM ALPHBETICALLY SORTED, DO NOT USE TO ACCESS UNITSYNC DIRECTLY
-	//! use m_unsorted_map_array for real unitsync index
-	int GetMapIndex( const std::string& name ) const;
 
     StringVector GetSides( const std::string& modname  );
 	UnitsyncImage GetSidePicture( const std::string& modname, const std::string& SideName ) const;
-	UnitsyncImage GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent = true ) const;
 
     bool LoadUnitSyncLib( const std::string& unitsyncloc );
     void FreeUnitSyncLib();
@@ -109,16 +99,12 @@ public:
     /// get heightmap rescaled to given width x height
     UnitsyncImage GetHeightmap( const std::string& mapname, int width, int height );
 
-	std::string GetTextfileAsString( const std::string& modname, const std::string& file_path );
-
 	bool ReloadUnitSyncLib(  );
 
     void SetSpringDataPath( const std::string& path );
     bool GetSpringDataPath( std::string& path);
 
     StringVector GetPlaybackList( bool ReplayType = true ) const; //savegames otehrwise
-
-	bool FileExists( const std::string& name ) const;
 
 	std::string GetArchivePath( const std::string& name ) const;
 
@@ -130,20 +116,9 @@ public:
 	void PostEvent(const std::string& evt ); // helper for WorkItems
 
 	void LoadUnitSyncLibAsync(const std::string& filename);
-	void GetMinimapAsync( const std::string& mapname );
-	void GetMinimapAsync( const std::string& mapname, int width, int height );
-	void GetMetalmapAsync( const std::string& mapname );
-	void GetMetalmapAsync( const std::string& mapname, int width, int height );
-	void GetHeightmapAsync( const std::string& mapname );
-	void GetHeightmapAsync( const std::string& mapname, int width, int height );
-	void GetMapExAsync( const std::string& mapname );
-
-    StringVector GetScreenshotFilenames() const;
 
     virtual GameOptions GetModCustomizations( const std::string& modname );
     virtual GameOptions GetSkirmishOptions( const std::string& modname, const std::string& skirmish_name );
-
-    StringVector FindFilesVFS( const std::string& pattern ) const;
 
 	int GetSpringConfigInt(const std::string& name, int defvalue);
 	float GetSpringConfigFloat(const std::string& name, float defvalue);
@@ -153,7 +128,22 @@ public:
 	void SetSpringConfigString(const std::string& name, const std::string& value);
 	void SetSpringConfigFloat(const std::string& name, float value);
 	std::string GetConfigFilePath();
+
+	void GetMapExAsync( const std::string& mapname );
+	void GetMinimapAsync( const std::string& mapname );
+	void GetMinimapAsync( const std::string& mapname, int width, int height );
+	void GetMetalmapAsync( const std::string& mapname );
+	void GetMetalmapAsync( const std::string& mapname, int width, int height );
+	void GetHeightmapAsync( const std::string& mapname );
+	void GetHeightmapAsync( const std::string& mapname, int width, int height );
+
 private:
+	bool FileExists( const std::string& name ) const;
+	std::string GetTextfileAsString( const std::string& modname, const std::string& file_path );
+
+    StringVector GetMapDeps( const std::string& name );
+
+	UnitsyncImage GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent = true ) const;
 	typedef std::map< std::pair<std::string,std::string>, std::string> ShortnameVersionToNameMap;
 	ShortnameVersionToNameMap m_shortname_to_name_map;
 

@@ -225,34 +225,12 @@ StringVector Unitsync::GetModList() const
 	return m_mod_array;
 }
 
-
-int Unitsync::GetModIndex( const std::string& name ) const
-{
-	return Util::IndexInSequence( m_mod_array, name );
-}
-
-
-bool Unitsync::ModExists( const std::string& modname ) const
-{
-	return (m_mods_list.find(modname) != m_mods_list.end());
-}
-
-
 bool Unitsync::ModExists( const std::string& modname, const std::string& hash ) const
 {
 	LocalArchivesVector::const_iterator itor = m_mods_list.find(modname);
 	if ( itor == m_mods_list.end() ) return false;
+	if (hash.empty()) return true;
 	return itor->second == hash;
-}
-
-bool Unitsync::ModExistsCheckHash( const std::string& hash ) const
-{
-	LocalArchivesVector::const_iterator itor = m_mods_list.begin();
-	for ( ; itor != m_mods_list.end(); ++itor ) {
-		if ( itor->second == hash )
-			return true;
-	}
-	return false;
 }
 
 UnitsyncMod Unitsync::GetMod( const std::string& modname )
@@ -310,7 +288,6 @@ UnitsyncMap Unitsync::GetMap( int index )
 	m.info = _GetMapInfoEx( m.name );
 	return m;
 }
-
 
 void GetOptionEntry(const int i, GameOptions& ret)
 {
@@ -396,7 +373,7 @@ StringVector Unitsync::GetMapDeps( const std::string& mapname )
 UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 {
 	assert(!mapname.empty());
-	const int i = GetMapIndex( mapname );
+	const int i = Util::IndexInSequence( m_map_array, mapname );
 	UnitsyncMap m;
 	if( i < 0 ) {
 		LSL_THROWF( unitsync, "Map does not exist: %s", mapname.c_str());
@@ -407,11 +384,13 @@ UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 	return m;
 }
 
+/*
 int Unitsync::GetMapIndex( const std::string& name ) const
 {
 	assert(!name.empty());
 	return Util::IndexInSequence( m_map_array, name );
 }
+*/
 
 GameOptions Unitsync::GetModOptions( const std::string& name )
 {
@@ -731,11 +710,6 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 	return info;
 }
 
-StringVector Unitsync::FindFilesVFS( const std::string& pattern ) const
-{
-	return susynclib().FindFilesVFS( pattern );
-}
-
 bool Unitsync::ReloadUnitSyncLib()
 {
 	//FIXME: use async call
@@ -848,22 +822,6 @@ bool Unitsync::FileExists( const std::string& name ) const
 std::string Unitsync::GetArchivePath( const std::string& name ) const
 {
 	return susynclib().GetArchivePath( name );
-}
-
-StringVector Unitsync::GetScreenshotFilenames() const
-{
-	if ( !IsLoaded() )
-        return StringVector();
-
-    StringVector ret = susynclib().FindFilesVFS( "screenshots/*.*" );
-	std::set<std::string> ret_set ( ret.begin(), ret.end() );
-//	for ( int i = 0; i < long(ret.size() - 1); ++i ) {
-//		if ( ret[i] == ret[i+1] )
-//			ret.RemoveAt( i+1 );
-//	}
-    ret = StringVector ( ret_set.begin(), ret_set.end() );
-	std::sort( ret.begin(), ret.end() );
-	return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
