@@ -71,7 +71,7 @@ bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
-		m_cache_path = LSL::Util::config().GetCachePath().string();
+		m_cache_path = LSL::Util::config().GetCachePath();
 		PopulateArchiveList();
 	}
 	return ret;
@@ -329,6 +329,7 @@ UnitsyncMap Unitsync::GetMap( int index )
 	return m;
 }
 
+
 void GetOptionEntry(const int i, GameOptions& ret)
 {
 	//all section values for options are converted to lower case
@@ -388,6 +389,7 @@ void GetOptionEntry(const int i, GameOptions& ret)
 
 GameOptions Unitsync::GetMapOptions( const std::string& name )
 {
+	assert(!name.empty());
 	GameOptions ret;
 	int count = susynclib().GetMapOptionCount(name);
 	for (int i = 0; i < count; ++i)
@@ -399,6 +401,7 @@ GameOptions Unitsync::GetMapOptions( const std::string& name )
 
 StringVector Unitsync::GetMapDeps( const std::string& mapname )
 {
+	assert(!mapname.empty());
 	StringVector ret;
 	try
 	{
@@ -410,6 +413,7 @@ StringVector Unitsync::GetMapDeps( const std::string& mapname )
 
 UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 {
+	assert(!mapname.empty());
 	const int i = GetMapIndex( mapname );
 	UnitsyncMap m;
 	if( i < 0 ) {
@@ -423,11 +427,13 @@ UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 
 int Unitsync::GetMapIndex( const std::string& name ) const
 {
+	assert(!name.empty());
 	return Util::IndexInSequence( m_map_array, name );
 }
 
 GameOptions Unitsync::GetModOptions( const std::string& name )
 {
+	assert(!name.empty());
 	GameOptions ret;
 	int count = susynclib().GetModOptionCount(name);
 	for (int i = 0; i < count; ++i)
@@ -439,6 +445,7 @@ GameOptions Unitsync::GetModOptions( const std::string& name )
 
 GameOptions Unitsync::GetModCustomizations( const std::string& modname )
 {
+	assert(!modname.empty());
 	GameOptions ret;
 	int count = susynclib().GetCustomOptionCount( modname, "LobbyOptions.lua" );
 	for (int i = 0; i < count; ++i) {
@@ -449,6 +456,7 @@ GameOptions Unitsync::GetModCustomizations( const std::string& modname )
 
 GameOptions Unitsync::GetSkirmishOptions( const std::string& modname, const std::string& skirmish_name )
 {
+	assert(!modname.empty());
 	GameOptions ret;
 	int count = susynclib().GetCustomOptionCount( modname, skirmish_name );
 	for (int i = 0; i < count; ++i) {
@@ -459,6 +467,7 @@ GameOptions Unitsync::GetSkirmishOptions( const std::string& modname, const std:
 
 StringVector Unitsync::GetModDeps( const std::string& modname ) const
 {
+	assert(!modname.empty());
 	StringVector ret;
 	try
 	{
@@ -470,6 +479,7 @@ StringVector Unitsync::GetModDeps( const std::string& modname ) const
 
 StringVector Unitsync::GetSides( const std::string& modname )
 {
+	assert(!modname.empty());
 	StringVector ret;
 	if (( ! m_sides_cache.TryGet( modname, ret) ) && (ModExists(modname))){
 		try {
@@ -483,6 +493,7 @@ StringVector Unitsync::GetSides( const std::string& modname )
 
 UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::string& SideName ) const
 {
+	assert(!modname.empty());
 	std::string ImgName("SidePics");
 	ImgName += "/";
 	ImgName += boost::to_lower_copy( SideName );
@@ -495,6 +506,7 @@ UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::s
 
 UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent  ) const
 {
+	assert(!modname.empty());
 	susynclib().SetCurrentMod( modname );
 	int ini = susynclib().OpenFileVFS ( image_path );
 	if( !ini )
@@ -511,6 +523,7 @@ UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string&
 
 StringVector Unitsync::GetAIList( const std::string& modname ) const
 {
+	assert(!modname.empty());
     StringVector ret;
 	if ( usync().VersionSupports( USYNC_GetSkirmishAI ) )
 	{
@@ -568,6 +581,7 @@ StringVector Unitsync::GetAIInfos( int index ) const
 
 GameOptions Unitsync::GetAIOptions( const std::string& modname, int index )
 {
+	assert(!modname.empty());
 	GameOptions ret;
 	int count = susynclib().GetAIOptionCount(modname, index);
 	for (int i = 0; i < count; ++i)
@@ -579,6 +593,7 @@ GameOptions Unitsync::GetAIOptions( const std::string& modname, int index )
 
 int Unitsync::GetNumUnits( const std::string& modname ) const
 {
+	assert(!modname.empty());
 	susynclib().AddAllArchives( susynclib().GetPrimaryModArchive( Util::IndexInSequence( m_unsorted_mod_array, modname ) ) );
 	susynclib().ProcessUnitsNoChecksum();
 	return susynclib().GetUnitCount();
@@ -586,6 +601,7 @@ int Unitsync::GetNumUnits( const std::string& modname ) const
 
 StringVector Unitsync::GetUnitsList( const std::string& modname )
 {
+	assert(!modname.empty());
 	StringVector cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
 	if (cache.empty()) {
 		susynclib().SetCurrentMod( modname );
@@ -602,13 +618,16 @@ StringVector Unitsync::GetUnitsList( const std::string& modname )
 
 UnitsyncImage Unitsync::GetMinimap( const std::string& mapname )
 {
+	assert(!mapname.empty());
 	return _GetMapImage( mapname, ".minimap.png", &UnitsyncLib::GetMinimap );
 }
 
 UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int height )
 {
-	const bool tiny = ( width <= 100 && height <= 100 );
 	UnitsyncImage img;
+	if (mapname.empty())
+		return img;
+	const bool tiny = ( width <= 100 && height <= 100 );
 	if ( tiny && m_tiny_minimap_cache.TryGet( mapname, img ) )
 	{
 		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit( lslSize(width, height) );
@@ -769,7 +788,7 @@ bool Unitsync::ReloadUnitSyncLib()
 {
 	//FIXME: use async call
 	//LoadUnitSyncLibAsync(LSL::Util::config().GetCurrentUsedUnitSync().string());
-	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync().string();
+	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync();
 	if (path.empty())
 		return false;
 	LoadUnitSyncLib(path);
@@ -1082,6 +1101,7 @@ void Unitsync::PrefetchMap( const std::string& mapname )
 
 	// Measured improvement: 60% more cache hits while populating replay tab.
 	// 50% hits without, 80% hits with this code.  (cache size 20 images)
+	assert(!mapname.empty());
 
 	const int length = std::max(0, int(mapname.length()) - 4);
 	const int hash = ( mapname[length * 1/4] << 16 )
@@ -1142,6 +1162,7 @@ void Unitsync::_GetMapImageAsync( const std::string& mapname, UnitsyncImage (Uni
 
 void Unitsync::GetMinimapAsync( const std::string& mapname )
 {
+	assert(!mapname.empty());
 	_GetMapImageAsync( mapname, &Unitsync::GetMinimap );
 }
 
@@ -1161,26 +1182,31 @@ void Unitsync::GetMinimapAsync( const std::string& mapname, int width, int heigh
 
 void Unitsync::GetMetalmapAsync( const std::string& mapname )
 {
+	assert(!mapname.empty());
 	_GetMapImageAsync( mapname, &Unitsync::GetMetalmap );
 }
 
 void Unitsync::GetMetalmapAsync( const std::string& mapname, int /*width*/, int /*height*/ )
 {
+	assert(!mapname.empty());
 	GetMetalmapAsync( mapname );
 }
 
 void Unitsync::GetHeightmapAsync( const std::string& mapname )
 {
+	assert(!mapname.empty());
 	_GetMapImageAsync( mapname, &Unitsync::GetHeightmap );
 }
 
 void Unitsync::GetHeightmapAsync( const std::string& mapname, int /*width*/, int /*height*/ )
 {
+	assert(!mapname.empty());
 	GetHeightmapAsync( mapname );
 }
 
 void Unitsync::GetMapExAsync( const std::string& mapname )
 {
+	assert(!mapname.empty());
 	if (mapname.empty())
 		return;
 
@@ -1196,6 +1222,7 @@ void Unitsync::GetMapExAsync( const std::string& mapname )
 
 std::string Unitsync::GetTextfileAsString( const std::string& modname, const std::string& file_path )
 {
+	assert(!modname.empty());
 	susynclib().SetCurrentMod( modname );
 
 	int ini = susynclib().OpenFileVFS ( file_path );

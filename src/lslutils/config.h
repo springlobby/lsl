@@ -28,19 +28,15 @@ class Config
 	Config();
 
 private:
-	boost::filesystem::path Cache;
-	boost::filesystem::path CurrentUsedUnitSync;
-	boost::filesystem::path CurrentUsedSpringBinary;
+	std::string Cache;
+	std::string CurrentUsedUnitSync;
+	std::string CurrentUsedSpringBinary;
 
 public:
-	boost::filesystem::path GetCachePath() const;
-	boost::filesystem::path GetCurrentUsedUnitSync() const;
-	boost::filesystem::path GetCurrentUsedSpringBinary() const;
-	void ConfigurePaths(
-		boost::filesystem::path Cache,
-		boost::filesystem::path CurrentUsedUnitSync,
-		boost::filesystem::path CurrentUsedSpringBinary
-	);
+	std::string GetCachePath() const;
+	std::string GetCurrentUsedUnitSync() const;
+	std::string GetCurrentUsedSpringBinary() const;
+	void ConfigurePaths(const std::string& Cache, const std::string& CurrentUsedUnitSync, const std::string& CurrentUsedSpringBinary);
 	STR_DUMMY( GetMyInternalUdpSourcePort )
 	INT_DUMMY( GetClientPort )
 

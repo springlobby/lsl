@@ -5,16 +5,14 @@
 #include "misc.h"
 #include "globalsmanager.h"
 
-namespace bf = boost::filesystem;
-
 namespace LSL {
 namespace Util {
 
 // FIXME chose better defaults
 Config::Config():
-	Cache(bf::path("cache")),
-	CurrentUsedUnitSync(bf::path("unitsync")),
-	CurrentUsedSpringBinary(bf::path("spring"))
+	Cache("cache"),
+	CurrentUsedUnitSync("unitsync"),
+	CurrentUsedSpringBinary("spring")
 {
 }
 
@@ -31,27 +29,23 @@ lslColor Config::GetBattleLastColor() const
 	return lslColor();
 }
 
-bf::path Config::GetCachePath() const
+std::string Config::GetCachePath() const
 {
 	return Cache;
 }
 
-bf::path Config::GetCurrentUsedUnitSync() const
+std::string Config::GetCurrentUsedUnitSync() const
 {
 	return CurrentUsedUnitSync;
 }
 
 
-bf::path Config::GetCurrentUsedSpringBinary() const
+std::string Config::GetCurrentUsedSpringBinary() const
 {
 	return CurrentUsedSpringBinary;
 }
 
-void Config::ConfigurePaths(
-	boost::filesystem::path Cache,
-	boost::filesystem::path CurrentUsedUnitSync,
-	boost::filesystem::path CurrentUsedSpringBinary
-)
+void Config::ConfigurePaths(const std::string& Cache, const std::string& CurrentUsedUnitSync, const std::string& CurrentUsedSpringBinary)
 {
 	this->Cache = Cache;
 	this->CurrentUsedUnitSync = CurrentUsedUnitSync;
