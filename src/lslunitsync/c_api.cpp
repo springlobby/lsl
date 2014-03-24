@@ -416,7 +416,7 @@ UnitsyncImage UnitsyncLib::GetHeightmap( const std::string& mapFileName )
 	int width = 0, height = 0, retval;
 	retval = m_get_infomap_size(mapFileName.c_str(), "height", &width, &height);
 	if ( !(retval != 0 && width * height != 0) )
-		LSL_THROW( unitsync, "Get heightmap size failed");
+		LSL_THROWF( unitsync, "Get heightmap size failed %s", mapFileName.c_str());
 	Util::uninitialized_array<unsigned short> grayscale(width * height);
 	retval = m_get_infomap(mapFileName.c_str(), "height", grayscale, 2 /*byte per pixel*/);
 	if ( retval == 0 )
