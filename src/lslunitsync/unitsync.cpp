@@ -220,12 +220,6 @@ std::string Unitsync::GetSpringVersion() const
 }
 
 
-bool Unitsync::VersionSupports( GameFeature feature ) const
-{
-	return susynclib().VersionSupports( feature );
-}
-
-
 int Unitsync::GetNumMods() const
 {
 
@@ -890,21 +884,6 @@ StringVector Unitsync::GetScreenshotFilenames() const
     ret = StringVector ( ret_set.begin(), ret_set.end() );
 	std::sort( ret.begin(), ret.end() );
 	return ret;
-}
-
-std::string Unitsync::GetDefaultNick()
-{
-	std::string name = susynclib().GetSpringConfigString( "name", "Player" );
-	if ( name.empty() ) {
-		susynclib().SetSpringConfigString( "name", "Player" );
-		return "Player";
-	}
-	return name;
-}
-
-void Unitsync::SetDefaultNick( const std::string& nick )
-{
-	susynclib().SetSpringConfigString( "name", nick );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

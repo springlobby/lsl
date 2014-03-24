@@ -64,10 +64,6 @@ public:
     GameOptions GetMapOptions( const std::string& name );
     StringVector GetMapDeps( const std::string& name );
 
-    //! function to fetch default singplayer/replay/savegame's default nick
-	std::string GetDefaultNick();
-	//! function to set default singplayer/replay/savegame's default nick
-	void SetDefaultNick( const std::string& nick );
 	//! this functions returns index CUSTOM ALPHBETICALLY SORTED, DO NOT USE TO ACCESS UNITSYNC DIRECTLY
 	//! use m_unsorted_map_array for real unitsync index
 	int GetMapIndex( const std::string& name ) const;
@@ -93,9 +89,6 @@ public:
 
 
 	std::string GetSpringVersion() const;
-    //! function wich checks if the version returned from unitsync matches a table of supported feature
-	bool VersionSupports( GameFeature feature ) const;
-
 	void UnSetCurrentMod();
 
     StringVector GetAIList( const std::string& modname ) const;
@@ -163,7 +156,7 @@ public:
 	void SetSpringConfigString(const std::string& name, const std::string& value);
 	void SetSpringConfigFloat(const std::string& name, float value);
 	std::string GetConfigFilePath();
-  private:
+private:
 	typedef std::map< std::pair<std::string,std::string>, std::string> ShortnameVersionToNameMap;
 	ShortnameVersionToNameMap m_shortname_to_name_map;
 
