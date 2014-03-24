@@ -523,40 +523,18 @@ UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string&
 
 StringVector Unitsync::GetAIList( const std::string& modname ) const
 {
-	assert(!modname.empty());
-    StringVector ret;
-	if ( usync().VersionSupports( USYNC_GetSkirmishAI ) )
-	{
-		int total = susynclib().GetSkirmishAICount( modname );
-		for ( int i = 0; i < total; i++ )
-		{
-            StringVector infos = susynclib().GetAIInfo( i );
-			const int namepos = Util::IndexInSequence( infos, "shortName");
-			const int versionpos = Util::IndexInSequence( infos, "version");
-			std::string ainame;
-			if ( namepos != lslNotFound ) ainame += infos[namepos +1];
-			if ( versionpos != lslNotFound ) ainame += " " + infos[versionpos +1];
-			ret.push_back( ainame );
-		}
+	StringVector ret;
+	if (modname.empty()) return ret;
+	int total = susynclib().GetSkirmishAICount( modname );
+	for ( int i = 0; i < total; i++ ) {
+		StringVector infos = susynclib().GetAIInfo( i );
+		const int namepos = Util::IndexInSequence( infos, "shortName");
+		const int versionpos = Util::IndexInSequence( infos, "version");
+		std::string ainame;
+		if ( namepos != lslNotFound ) ainame += infos[namepos +1];
+		if ( versionpos != lslNotFound ) ainame += " " + infos[versionpos +1];
+		ret.push_back( ainame );
 	}
-	else
-	{
-		// list dynamic link libraries
-        const StringVector dlllist = susynclib().FindFilesVFS( Util::Lib::CanonicalizeName("AI/Bot-libs/*", Util::Lib::Module ) );
-		for( int i = 0; i < long(dlllist.size()); i++ )
-		{
-			if ( Util::IndexInSequence( ret, Util::BeforeLast( dlllist[i], "/" ) ) == lslNotFound )
-				ret.push_back ( dlllist[i] ); // don't add duplicates //TODO(koshi) make ret a set instead :)
-		}
-		// list jar files (java AIs)
-        const StringVector jarlist = susynclib().FindFilesVFS("AI/Bot-libs/*.jar");
-		for( int i = 0; i < long(jarlist.size()); i++ )
-		{
-			if ( Util::IndexInSequence( ret, Util::BeforeLast( jarlist[i], "/" ) ) == lslNotFound )
-				ret.push_back ( jarlist[i] ); // don't add duplicates //TODO(koshi) make ret a set instead :)
-		}
-	}
-	//std::sort(ret.begin(), ret.end());
 	return ret;
 }
 
