@@ -220,13 +220,6 @@ std::string Unitsync::GetSpringVersion() const
 }
 
 
-int Unitsync::GetNumMods() const
-{
-
-	return m_mod_array.size();
-}
-
-
 StringVector Unitsync::GetModList() const
 {
 	return m_mod_array;
@@ -277,11 +270,6 @@ UnitsyncMod Unitsync::GetMod( int index )
 	m.name = m_mod_array[index];
 	m.hash = m_mods_list[m.name];
 	return m;
-}
-
-int Unitsync::GetNumMaps() const
-{
-	return m_map_array.size();
 }
 
 StringVector Unitsync::GetMapList() const
@@ -561,14 +549,6 @@ GameOptions Unitsync::GetAIOptions( const std::string& modname, int index )
 		GetOptionEntry(i, ret );
 	}
 	return ret;
-}
-
-int Unitsync::GetNumUnits( const std::string& modname ) const
-{
-	assert(!modname.empty());
-	susynclib().AddAllArchives( susynclib().GetPrimaryModArchive( Util::IndexInSequence( m_unsorted_mod_array, modname ) ) );
-	susynclib().ProcessUnitsNoChecksum();
-	return susynclib().GetUnitCount();
 }
 
 StringVector Unitsync::GetUnitsList( const std::string& modname )

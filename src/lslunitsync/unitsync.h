@@ -40,7 +40,6 @@ public:
 	Unitsync();
 	virtual ~Unitsync();
 
-	int GetNumMods() const;
     StringVector GetModList() const;
 	bool ModExists( const std::string& modname ) const;
 	bool ModExists( const std::string& modname, const std::string& hash ) const;
@@ -53,7 +52,6 @@ public:
     GameOptions GetModOptions( const std::string& name );
     StringVector GetModDeps( const std::string& name ) const;
 
-	int GetNumMaps() const;
     StringVector GetMapList() const;
     StringVector GetModValidMapList( const std::string& modname ) const;
 	bool MapExists( const std::string& mapname ) const;
@@ -96,7 +94,6 @@ public:
     GameOptions GetAIOptions( const std::string& modname, int index );
 
 
-	int GetNumUnits( const std::string& modname ) const;
     StringVector GetUnitsList( const std::string& modname );
 
     /// get minimap with native width x height
