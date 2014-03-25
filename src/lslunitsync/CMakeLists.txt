@@ -20,6 +20,5 @@ set_source_files_properties(  ${libUnitsyncHeader} PROPERTIES HEADER_FILE_ONLY 1
 #cimage deps
 FIND_PACKAGE(PNG REQUIRED)
 FIND_PACKAGE(X11 REQUIRED)
-ADD_DEFINITIONS( -Dcimg_use_png )
 ADD_LIBRARY(lsl-unitsync STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} )
 TARGET_LINK_LIBRARIES(lsl-unitsync lsl-utils ${Boost_LIBRARIES} ${PNG_LIBRARY} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
