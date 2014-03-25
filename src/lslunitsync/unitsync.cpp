@@ -464,11 +464,11 @@ UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string&
 	susynclib().SetCurrentMod( modname );
 	int ini = susynclib().OpenFileVFS ( image_path );
 	if( !ini )
-		LSL_THROWF( unitsync, "cannot find image %s\n", image_path.c_str());
+		LSL_THROWF( unitsync, "%s: cannot find image %s\n", modname.c_str(), image_path.c_str());
 	int FileSize = susynclib().FileSizeVFS(ini);
 	if (FileSize == 0) {
 		susynclib().CloseFileVFS(ini);
-		LSL_THROWF( unitsync, "image has size 0 %s\n", image_path.c_str() );
+		LSL_THROWF( unitsync, "%s: image has size 0 %s\n", modname.c_str(), image_path.c_str() );
 	}
 	Util::uninitialized_array<char> FileContent(FileSize);
 	susynclib().ReadFileVFS(ini, FileContent, FileSize);
