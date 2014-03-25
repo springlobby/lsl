@@ -10,8 +10,6 @@
 #include <lslutils/type_forwards.h>
 #include "enum.h"
 
-class wxFileConfig;
-
 namespace LSL {
 
 struct mmOptionSection;
@@ -62,8 +60,6 @@ public:
         EngineOption        = 2,
         MapOption           = 1,
         ModOption           = 0,
-        ModCustomizations   = 4,
-        SkirmishOptions     = 5,
         LastOption          = 6
     };// should reflect: optionCategoriesCount
 
@@ -83,10 +79,9 @@ public:
 	 * and adds them one by one  to the appropiate container
 	 * \param flag decides which type of option to load
 	 * \param name Mod/Mapname
-	 * \param extra_filename used for loading arbitrary lua tables from inside the given mod/map
 	 * \return true if load successful, false otherwise
 	 */
-    bool loadOptions(GameOption flag, const std::string& name, const std::string& extra_filename = "" );
+    bool loadOptions(GameOption flag, const std::string& name);
 	//! checks if given key can be found in specified container
 	/*!
 	 * \param key the key that should be checked for existance in containers

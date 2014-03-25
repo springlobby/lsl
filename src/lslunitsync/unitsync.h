@@ -38,7 +38,7 @@ public:
 		StringSignalSlotType;
 
 	Unitsync();
-	virtual ~Unitsync();
+	~Unitsync();
 
     StringVector GetModList() const;
 	bool ModExists( const std::string& modname, const std::string& hash = "" ) const;
@@ -109,9 +109,6 @@ public:
 	void PostEvent(const std::string& evt ); // helper for WorkItems
 
 	void LoadUnitSyncLibAsync(const std::string& filename);
-
-    virtual GameOptions GetModCustomizations( const std::string& modname );
-    virtual GameOptions GetSkirmishOptions( const std::string& modname, const std::string& skirmish_name );
 
 	int GetSpringConfigInt(const std::string& name, int defvalue);
 	float GetSpringConfigFloat(const std::string& name, float defvalue);

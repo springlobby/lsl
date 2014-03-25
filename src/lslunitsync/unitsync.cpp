@@ -395,28 +395,6 @@ GameOptions Unitsync::GetModOptions( const std::string& name )
 	return ret;
 }
 
-GameOptions Unitsync::GetModCustomizations( const std::string& modname )
-{
-	assert(!modname.empty());
-	GameOptions ret;
-	int count = susynclib().GetCustomOptionCount( modname, "LobbyOptions.lua" );
-	for (int i = 0; i < count; ++i) {
-		GetOptionEntry(i, ret );
-	}
-	return ret;
-}
-
-GameOptions Unitsync::GetSkirmishOptions( const std::string& modname, const std::string& skirmish_name )
-{
-	assert(!modname.empty());
-	GameOptions ret;
-	int count = susynclib().GetCustomOptionCount( modname, skirmish_name );
-	for (int i = 0; i < count; ++i) {
-		GetOptionEntry(i, ret );
-	}
-	return ret;
-}
-
 StringVector Unitsync::GetModDeps( const std::string& modname ) const
 {
 	assert(!modname.empty());

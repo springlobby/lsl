@@ -80,7 +80,7 @@ int OptionsWrapper::GetAIOptionIndex( const std::string& nick ) const
 	return pos;
 }
 
-bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name, const std::string& extra_filename )
+bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name)
 {
 	unLoadOptions(modmapFlag);
 	GameOptions opt;
@@ -129,28 +129,6 @@ bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name
             opt.string_map["restrictions"] = mmOptionString("List of restricted units", "restrictedunits", "Units in this list won't be available in game", "", 0 ); // tab separated list
             opt.string_map["mapname"] = mmOptionString("Map name", "mapname", "Map name", "", 0 );
             break;
-        }
-
-        case ModCustomizations: {
-            try {
-                opt = usync().GetModCustomizations( name );
-            }
-            catch(...) {
-                LslError("Could not load mod customizations");
-				return false;
-			}
-			break;
-        }
-
-        case SkirmishOptions: {
-            try {
-                opt = usync().GetSkirmishOptions( name, extra_filename );
-            }
-            catch(...) {
-                LslError("Could not load skirmish options");
-				return false;
-			}
-			break;
         }
 	}
 	m_opts[modmapFlag] = opt;
