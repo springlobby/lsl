@@ -57,7 +57,7 @@ public:
     GameOptions GetMapOptions( const std::string& name );
 
     StringVector GetSides( const std::string& modname  );
-	UnitsyncImage GetSidePicture( const std::string& modname, const std::string& SideName ) const;
+	UnitsyncImage GetSidePicture( const std::string& modname, const std::string& SideName );
 
     bool LoadUnitSyncLib( const std::string& unitsyncloc );
     void FreeUnitSyncLib();
@@ -174,7 +174,7 @@ private:
     /// this cache is a real cache, it stores minimaps with max size 100x100
     MostRecentlyUsedImageCache m_tiny_minimap_cache;
 
-    /// this caches MapInfo to facilitate GetMapExAsync
+	/// this caches MapInfo to facilitate GetMapExAsync
     MostRecentlyUsedMapInfoCache m_mapinfo_cache;
 
     MostRecentlyUsedArrayStringCache m_sides_cache;

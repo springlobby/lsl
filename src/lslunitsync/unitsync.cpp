@@ -31,10 +31,10 @@ namespace LSL {
 
 Unitsync::Unitsync():
 	m_cache_thread( new WorkerThread ),
-	m_map_image_cache( 3, "m_map_image_cache" ),         // may take about 3M per image ( 1024x1024 24 bpp minimap )
+	m_map_image_cache( 30, "m_map_image_cache" ),         // may take about 300k per image ( 512x512 24 bpp minimap )
 	m_tiny_minimap_cache( 200, "m_tiny_minimap_cache" ), // takes at most 30k per image (   100x100 24 bpp minimap )
 	m_mapinfo_cache( 1000000, "m_mapinfo_cache" ),       // this one is just misused as thread safe std::map ...
-	m_sides_cache( 200, "m_sides_cache" )                // another misuse
+	m_sides_cache( 200, "m_sides_cache" )               // another misuse
 {
 }
 
@@ -433,27 +433,50 @@ StringVector Unitsync::GetSides( const std::string& modname )
 {
 	assert(!modname.empty());
 	StringVector ret;
-	if (( ! m_sides_cache.TryGet( modname, ret) ) && (ModExists(modname))){
+	if (m_sides_cache.TryGet( modname, ret)) { //first return from mru cache
+		return ret;
+	}
+	const std::string cachefile = GetFileCachePath( modname, "", true ) + ".sides";
+
+	ret = GetCacheFile(cachefile);
+	if (ret.empty() && ModExists(modname)) { // cache file failed, try from lsl
 		try {
 			ret = susynclib().GetSides( modname );
-			m_sides_cache.Add( modname, ret );
+			m_sides_cache.Add( modname, ret); //store into mru
+			SetCacheFile(cachefile, ret); //store into cachefile
 		} catch( Exceptions::unitsync& u ) {}
 	}
 	return ret;
 }
 
 
-UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::string& SideName ) const
+UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::string& SideName )
 {
 	assert(!modname.empty());
-	std::string ImgName("SidePics");
-	ImgName += "/";
-	ImgName += boost::to_lower_copy( SideName );
-	try {
-		return GetImage( modname, ImgName + ".png", false );
+
+	const std::string cachepath = GetFileCachePath( modname, "", true ) +"-side-" +SideName + ".png";
+	UnitsyncImage img;
+
+	if (FileExists(cachepath)) {
+		img = UnitsyncImage( cachepath );
 	}
-	catch ( Exceptions::unitsync& u ){}
-	return GetImage( modname, ImgName + ".bmp", true );
+
+	if (!img.isValid()) { //image seems invalid, recreate
+		std::string ImgName("SidePics");
+		ImgName += "/";
+		ImgName += boost::to_lower_copy( SideName );
+		try {
+			img = GetImage( modname, ImgName + ".png", false );
+		}
+		catch ( Exceptions::unitsync& u ){
+			img = GetImage( modname, ImgName + ".bmp", true);
+		}
+
+		if (img.isValid()) {
+			img.Save( cachepath );
+		}
+	}
+	return img;
 }
 
 UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent  ) const
