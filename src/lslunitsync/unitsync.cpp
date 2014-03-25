@@ -646,7 +646,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 	info.height = 1;
 	if ( m_mapinfo_cache.TryGet( mapname, info ) )
 		return info;
-	const std::string cachefile = GetFileCachePath( mapname, false ) + ".infoex";
+	const std::string cachefile = GetFileCachePath( mapname, false, false) + ".infoex";
 	StringVector cache;
 	if (GetCacheFile(cachefile, cache) && cache.size()>=11) { //cache file failed
 			info.author = cache[0];
@@ -768,7 +768,7 @@ void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 	file.close();
 }
 
-StringVector  Unitsync::GetPlaybackList( bool ReplayType ) const
+StringVector Unitsync::GetPlaybackList( bool ReplayType ) const
 {
 	StringVector ret;
 	if ( !IsLoaded() ) return ret;
