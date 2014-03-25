@@ -178,7 +178,7 @@ private:
 
     //! this function returns only the cache path without the file extension,
     //! the extension itself would be added in the function as needed
-    std::string GetFileCachePath( const std::string& archivename, bool IsMod );
+    std::string GetFileCachePath( const std::string& archivename, bool IsMod, bool usehash = true);
 
     bool _LoadUnitSyncLib( const std::string& unitsyncloc );
     void _FreeUnitSyncLib();

@@ -433,7 +433,7 @@ UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::s
 {
 	assert(!modname.empty());
 
-	const std::string cachepath = GetFileCachePath( modname, true ) +"-side-" +SideName + ".png";
+	const std::string cachepath = GetFileCachePath( modname, true, false) +"-side-" +SideName + ".png";
 	UnitsyncImage img;
 
 	if (FileExists(cachepath)) {
@@ -609,7 +609,7 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 	if ( m_map_image_cache.TryGet( mapname + imagename, img ) )
 		return img;
 
-	const std::string cachefile = GetFileCachePath( mapname, false ) + imagename;
+	const std::string cachefile = GetFileCachePath( mapname, false, false) + imagename;
 	if (FileExists(cachefile)) {
 		img = UnitsyncImage( cachefile );
 	}
@@ -727,10 +727,13 @@ bool Unitsync::GetSpringDataPath(std::string& path)
 	return !path.empty();
 }
 
-std::string Unitsync::GetFileCachePath( const std::string& name, bool IsMod )
+std::string Unitsync::GetFileCachePath( const std::string& name, bool IsMod, bool usehash)
 {
 	assert(!name.empty());
 	std::string ret = m_cache_path + name;
+	if (!usehash)
+		return ret;
+
 	if (IsMod) {
 		ret += "-" + m_mods_list[name];
 	} else {
