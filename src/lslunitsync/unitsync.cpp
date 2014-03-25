@@ -411,19 +411,20 @@ StringVector Unitsync::GetSides( const std::string& modname )
 {
 	assert(!modname.empty());
 	StringVector ret;
-	if (m_sides_cache.TryGet( modname, ret)) { //first return from mru cache
+	const std::string cachefile = GetFileCachePath(modname, true ) + ".sides";
+	if (m_sides_cache.TryGet( cachefile, ret)) { //first return from mru cache
 		return ret;
 	}
-	const std::string cachefile = GetFileCachePath( modname, "", true ) + ".sides";
 
-	ret = GetCacheFile(cachefile);
-	if (ret.empty() && ModExists(modname)) { // cache file failed, try from lsl
+	if (!GetCacheFile(cachefile, ret) && (ModExists(modname))) { // cache file failed, try from lsl
 		try {
 			ret = susynclib().GetSides( modname );
-			m_sides_cache.Add( modname, ret); //store into mru
 			SetCacheFile(cachefile, ret); //store into cachefile
-		} catch( Exceptions::unitsync& u ) {}
+		} catch( Exceptions::unitsync& u ) {
+			LSL_THROWF(unitsync, "Error in GetSides: %s", modname.c_str());
+		}
 	}
+	m_sides_cache.Add(cachefile, ret); //store into mru
 	return ret;
 }
 
@@ -432,7 +433,7 @@ UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::s
 {
 	assert(!modname.empty());
 
-	const std::string cachepath = GetFileCachePath( modname, "", true ) +"-side-" +SideName + ".png";
+	const std::string cachepath = GetFileCachePath( modname, true ) +"-side-" +SideName + ".png";
 	UnitsyncImage img;
 
 	if (FileExists(cachepath)) {
@@ -525,8 +526,10 @@ GameOptions Unitsync::GetAIOptions( const std::string& modname, int index )
 StringVector Unitsync::GetUnitsList( const std::string& modname )
 {
 	assert(!modname.empty());
-	StringVector cache = GetCacheFile( GetFileCachePath( modname, "", true ) + ".units" );
-	if (cache.empty()) {
+	const std::string cachefile = GetFileCachePath( modname, true ) + ".units";
+	StringVector cache;
+
+	if (!GetCacheFile(cachefile, cache)) { //cache read failed
 		susynclib().SetCurrentMod( modname );
 		while ( susynclib().ProcessUnitsNoChecksum() > 0 ) {}
 		const int unitcount = susynclib().GetUnitCount();
@@ -534,7 +537,7 @@ StringVector Unitsync::GetUnitsList( const std::string& modname )
 		{
 			cache.push_back( susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")" );
 		}
-		SetCacheFile( GetFileCachePath( modname, "", true ) + ".units", cache );
+		SetCacheFile(cachefile, cache);
 	}
 	return cache;
 }
@@ -606,16 +609,16 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 	if ( m_map_image_cache.TryGet( mapname + imagename, img ) )
 		return img;
 
-	std::string originalsizepath = GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + imagename;
-	if (FileExists(originalsizepath)) {
-		img = UnitsyncImage( originalsizepath );
+	const std::string cachefile = GetFileCachePath( mapname, false ) + imagename;
+	if (FileExists(cachefile)) {
+		img = UnitsyncImage( cachefile );
 	}
 
 	if (!img.isValid()) { //image seems invalid, recreate
 		try {
 		//convert and save
 		img = (susynclib().*loadMethod)( mapname );
-		img.Save( originalsizepath );
+		img.Save( cachefile );
 		} catch (...) { //we failed horrible, use dummy image
 			//dummy image
 			img = UnitsyncImage( 1, 1 );
@@ -643,10 +646,9 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 	info.height = 1;
 	if ( m_mapinfo_cache.TryGet( mapname, info ) )
 		return info;
-
+	const std::string cachefile = GetFileCachePath( mapname, false ) + ".infoex";
 	StringVector cache;
-	cache = GetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex" );
-	if (cache.size()>=11) {
+	if (GetCacheFile(cachefile, cache) && cache.size()>=11) { //cache file failed
 			info.author = cache[0];
 			info.tidalStrength =  Util::FromString<long>( cache[1] );
 			info.gravity = Util::FromString<long>( cache[2] );
@@ -694,7 +696,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 			for( const std::string descrtoken: descrtokens ) {
 				cache.push_back( descrtoken );
 			}
-			SetCacheFile( GetFileCachePath( mapname, m_maps_unchained_hash[mapname], false ) + ".infoex", cache );
+			SetCacheFile( cachefile, cache );
 	}
 
 	m_mapinfo_cache.Add( mapname, info );
@@ -725,39 +727,30 @@ bool Unitsync::GetSpringDataPath(std::string& path)
 	return !path.empty();
 }
 
-std::string Unitsync::GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod )
+std::string Unitsync::GetFileCachePath( const std::string& name, bool IsMod )
 {
-	std::string ret = m_cache_path;
-	if ( !name.empty() )
-		ret += name;
-	else
-		return std::string();
-	if ( !hash.empty() )
-		ret += "-" + hash;
-	else
-	{
-		if ( IsMod )
-			ret += "-" + m_mods_list[name];
-		else
-		{
-			ret += "-" + m_maps_list[name];
-		}
+	assert(!name.empty());
+	std::string ret = m_cache_path + name;
+	if (IsMod) {
+		ret += "-" + m_mods_list[name];
+	} else {
+		ret += "-" + m_maps_list[name];
 	}
 	return ret;
 }
 
-StringVector Unitsync::GetCacheFile( const std::string& path ) const
+bool Unitsync::GetCacheFile( const std::string& path, StringVector& ret) const
 {
-	StringVector ret;
 	std::ifstream file( path.c_str() );
 	if (!file.good())
-		return ret;
+		return false;
 	std::string line;
+	ret.clear();
 	while(std::getline(file,line))
 	{
 		ret.push_back( line );
 	}
-	return ret;
+	return true;
 }
 
 void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )

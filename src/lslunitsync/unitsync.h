@@ -178,7 +178,7 @@ private:
 
     //! this function returns only the cache path without the file extension,
     //! the extension itself would be added in the function as needed
-    std::string GetFileCachePath( const std::string& name, const std::string& hash, bool IsMod );
+    std::string GetFileCachePath( const std::string& archivename, bool IsMod );
 
     bool _LoadUnitSyncLib( const std::string& unitsyncloc );
     void _FreeUnitSyncLib();
@@ -197,7 +197,7 @@ public:
 	std::string GetNameForShortname( const std::string& shortname, const std::string& version ) const;
 private:
 	//! returns an array where each element is a line of the file
-	StringVector GetCacheFile( const std::string& path ) const;
+	bool GetCacheFile( const std::string& path, StringVector& ret) const;
 	//! write a file where each element of the array is a line
 	void SetCacheFile( const std::string& path, const StringVector& data );
 
