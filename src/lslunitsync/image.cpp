@@ -7,8 +7,12 @@
   #include <wx/image.h>
   #include <wx/bitmap.h>
 #endif
-
+#define cimg_display 0
 #define cimg_verbosity 1
+//#define cimg_use_openmp 1
+#define cimg_use_png 1 //libpng
+//#define cimg_use_jpeg 1 //jpeg
+//#define cimg_use_tiff 1
 #include <cimg/CImg.h>
 #include <lslutils/misc.h>
 #include <lslutils/logging.h>
