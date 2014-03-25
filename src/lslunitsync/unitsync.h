@@ -85,16 +85,10 @@ public:
 
     StringVector GetUnitsList( const std::string& modname );
 
-    /// get minimap with native width x height
-    UnitsyncImage GetMinimap( const std::string& mapname );
     /// get minimap rescaled to given width x height
     UnitsyncImage GetMinimap( const std::string& mapname, int width, int height );
-    /// get metalmap with native width x height
-    UnitsyncImage GetMetalmap( const std::string& mapname );
     /// get metalmap rescaled to given width x height
     UnitsyncImage GetMetalmap( const std::string& mapname, int width, int height );
-    /// get heightmap with native width x height
-    UnitsyncImage GetHeightmap( const std::string& mapname );
     /// get heightmap rescaled to given width x height
     UnitsyncImage GetHeightmap( const std::string& mapname, int width, int height );
 
@@ -137,6 +131,13 @@ public:
 	void GetHeightmapAsync( const std::string& mapname, int width, int height );
 
 private:
+    /// get minimap with native width x height
+    UnitsyncImage GetMinimap( const std::string& mapname );
+    /// get metalmap with native width x height
+    UnitsyncImage GetMetalmap( const std::string& mapname );
+    /// get heightmap with native width x height
+    UnitsyncImage GetHeightmap( const std::string& mapname );
+
 	bool FileExists( const std::string& name ) const;
 	std::string GetTextfileAsString( const std::string& modname, const std::string& file_path );
 
