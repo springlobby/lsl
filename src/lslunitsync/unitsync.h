@@ -123,14 +123,15 @@ public:
 	std::string GetConfigFilePath();
 
 	void GetMapExAsync( const std::string& mapname );
-	void GetMinimapAsync( const std::string& mapname );
 	void GetMinimapAsync( const std::string& mapname, int width, int height );
-	void GetMetalmapAsync( const std::string& mapname );
 	void GetMetalmapAsync( const std::string& mapname, int width, int height );
-	void GetHeightmapAsync( const std::string& mapname );
 	void GetHeightmapAsync( const std::string& mapname, int width, int height );
 
 private:
+	void GetMinimapAsync( const std::string& mapname );
+	void GetMetalmapAsync( const std::string& mapname );
+	void GetHeightmapAsync( const std::string& mapname );
+
     /// get minimap with native width x height
     UnitsyncImage GetMinimap( const std::string& mapname );
     /// get metalmap with native width x height
@@ -230,11 +231,8 @@ public:
         usync().UnregisterEvtHandler(m_evtHandler_connection);
 	}
 
-	void GetMinimap( const std::string& mapname )                 { usync().GetMinimapAsync( mapname ); }
 	void GetMinimap( const std::string& mapname, int w, int h )   { usync().GetMinimapAsync( mapname, w, h ); }
-	void GetMetalmap( const std::string& mapname )                { usync().GetMetalmapAsync( mapname ); }
 	void GetMetalmap( const std::string& mapname, int w, int h )  { usync().GetMetalmapAsync( mapname, w, h ); }
-	void GetHeightmap( const std::string& mapname )               { usync().GetHeightmapAsync( mapname ); }
 	void GetHeightmap( const std::string& mapname, int w, int h ) { usync().GetHeightmapAsync( mapname, w, h ); }
 	void GetMap( const std::string& mapname )                   { usync().GetMapExAsync( mapname ); }
 

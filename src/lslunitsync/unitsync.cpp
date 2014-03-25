@@ -54,6 +54,8 @@ Unitsync::~Unitsync()
 
 bool CompareStringNoCase(const std::string& first, const std::string& second)
 {
+//this doesn't compile on osx
+/*
 	static std::locale l("C");
 	static boost::is_iless il(l);
 	try {
@@ -61,8 +63,9 @@ bool CompareStringNoCase(const std::string& first, const std::string& second)
 		return il(first,second);
 	}
 	catch(...) {
-		return first < second;
-	}
+*/
+	return first < second;
+//	}
 }
 
 bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
