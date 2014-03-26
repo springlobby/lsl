@@ -3,7 +3,6 @@
 #include "sharedlib.h"
 #include "signatures.h"
 #include <string>
-#include <boost/filesystem.hpp>
 
 #include <lslutils/misc.h>
 
@@ -83,15 +82,15 @@ bool SpringBundle::AutoFindUnitsync(const std::string& unitsyncpath)
 {
 	if (!unitsync.empty() && (Util::FileExists(unitsync)))
 		return true;
-	boost::filesystem::path tmp(unitsyncpath + SEP + "unitsync" + GetLibExtension());
-	if (Util::FileExists(tmp.string())) {
-		unitsync = tmp.string();
+	std::string tmp = unitsyncpath + SEP + "unitsync" + GetLibExtension();
+	if (Util::FileExists(tmp)) {
+		unitsync = tmp;
 		return true;
 	}
 
 	tmp = unitsyncpath + SEP + "libunitsync" + GetLibExtension();
-	if (Util::FileExists(tmp.string())) {
-		unitsync = tmp.string();
+	if (Util::FileExists(tmp)) {
+		unitsync = tmp;
 		return true;
 	}
 	return false;
@@ -107,26 +106,24 @@ bool SpringBundle::AutoComplete(std::string searchpath)
 	}
 	//try to find path from unitsync
 	if (path.empty() && !unitsync.empty()) {
-		const boost::filesystem::path tmp(unitsync);
-		if (Util::FileExists(tmp.parent_path().string()))
-			path = tmp.parent_path().string();
+		const std::string tmp = Util::BeforeLast(unitsync, SEP);
+		if (Util::FileExists(tmp))
+			path = tmp;
 	}
 	//try to find path from spring
 	if (path.empty() && !spring.empty()) {
-		const boost::filesystem::path tmp(spring);
-		if (Util::FileExists(tmp.parent_path().string()))
-			path = tmp.parent_path().string();
+		const std::string tmp = Util::BeforeLast(spring, SEP);
+		if (Util::FileExists(tmp))
+			path = tmp;
 	}
 	if (spring.empty()) {
-		boost::filesystem::path tmp(path);
-		tmp /= "spring" EXEEXT;
-		if (Util::FileExists(tmp.string())) {
-			spring = tmp.string();
+		std::string tmp = path + SEP + "spring" + EXEEXT;
+		if (Util::FileExists(tmp)) {
+			spring = tmp;
 		} else {
-			tmp = searchpath;
-			tmp /= "spring" EXEEXT;
-			if (Util::FileExists(tmp.string())) {
-				spring = tmp.string();
+			tmp = searchpath + SEP + "spring" + EXEEXT;
+			if (Util::FileExists(tmp)) {
+				spring = tmp;
 			}
 		}
 	}
