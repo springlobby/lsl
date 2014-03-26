@@ -566,7 +566,7 @@ UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int h
 	img = GetMinimap( mapname );
 	// special resizing code because minimap is always square,
 	// and we need to resize it to the correct aspect ratio.
-	if (img.GetWidth() > 1 && img.GetHeight() > 1)
+	if (img.isValid())
 	{
 		try {
 			MapInfo mapinfo = _GetMapInfoEx( mapname );
@@ -631,7 +631,7 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 UnitsyncImage Unitsync::_GetScaledMapImage( const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int width, int height )
 {
 	UnitsyncImage img = (this->*loadMethod) ( mapname );
-	if (img.GetWidth() > 1 && img.GetHeight() > 1)
+	if (img.isValid())
 	{
 		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit( lslSize(width, height) );
 		img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
