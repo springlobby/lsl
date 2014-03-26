@@ -149,9 +149,8 @@ UnitsyncImage UnitsyncImage::FromVfsFileData( Util::uninitialized_array<char>& d
 	PrivateImageType* img_p = new PrivateImageType( 100, 100, 1, 4 );
 	try {
 		cimg_library::load_mem( data, size, fn, *img_p );
-	}
-	catch ( std::exception& e ) {
-		LslError( "couldn't load VFS file %s: %s", fn.c_str(), e.what() );
+	} catch ( std::exception& e ) {
+		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, fn.c_str(), e.what());
 	}
 	PrivateImagePtrType ptr( img_p );
 	UnitsyncImage img( ptr );
@@ -168,7 +167,10 @@ UnitsyncImage::UnitsyncImage()
 
 void UnitsyncImage::Save(const std::string& path) const
 {
-	if (!isValid()) return;
+	if (!isValid()) {
+		LslError("%s:%d (%s) %s failed, invalid image", __FILE__, __LINE__, __FUNCTION__, path.c_str());
+		return;
+	}
 	m_data_ptr->save( path.c_str() );
 }
 
@@ -177,7 +179,7 @@ void UnitsyncImage::Load(const std::string &path) const
     try {
         m_data_ptr->load( path.c_str() );
     } catch ( cimg_library::CImgException& c ) {
-        LslError("cimg load of %s failed: %s", path.c_str(), c.what());
+		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, path.c_str(), c.what());
     }
 }
 
@@ -256,12 +258,19 @@ int UnitsyncImage::GetHeight() const
 
 void UnitsyncImage::Rescale(const int new_width, const int new_height)
 {
-	if (!isValid()) return;
+	if (!isValid()){
+		LslError("%s:%d (%s) %s failed, invalid image", __FILE__, __LINE__, __FUNCTION__);
+		return;
+	}
     m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 5 /*interpolation type*/);
 }
 
 void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned short b)
 {
+	if (!isValid()){
+		LslError("%s:%d (%s) %s failed, invalid image", __FILE__, __LINE__, __FUNCTION__);
+		return;
+	}
 //FIXME: if pixel is white, make transparent
 /*
 	PrivateImageType& img = *m_data_ptr;

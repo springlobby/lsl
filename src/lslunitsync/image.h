@@ -64,7 +64,7 @@ public:
 	//rescale image to a max resolution 512x512 with keeping aspect ratio
 	void RescaleIfBigger(const int maxwidth= 512, const int maxheight=512);
 
-	bool isValid() { return ((GetWidth()>0) && (GetHeight()>0));}
+	bool isValid() const { return ((GetWidth()>0) && (GetHeight()>0));}
 	// makes given color transparent
 	void MakeTransparent(unsigned short r = 255, unsigned short g = 255, unsigned short b = 255);
 private:
