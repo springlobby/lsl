@@ -105,6 +105,11 @@ std::string AfterFirst( const std::string& phrase, const std::string& searchterm
 	return phrase.substr( pos+1 );
 }
 
+std::string ParentPath( const std::string& path)
+{
+	return BeforeFirst(path, SEP);
+}
+
 bool AreColorsSimilar( const lslColor& col1, const lslColor& col2, int mindiff )
 {
 	int r,g,b;

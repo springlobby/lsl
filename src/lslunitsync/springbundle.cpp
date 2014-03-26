@@ -9,22 +9,6 @@
 namespace LSL {
 
 
-#ifdef __APPLE__
-#define LIBEXT ".dylib"
-#elif __WIN32__
-#define LIBEXT ".dll"
-#else
-#define LIBEXT ".so"
-#endif
-
-#ifdef __WIN32__
-#define EXEEXT ".exe"
-#define SEP "\\"
-#else
-#define SEP "/"
-#define EXEEXT ""
-#endif
-
 std::string SpringBundle::GetLibExtension()
 {
 #ifdef __APPLE__
@@ -106,13 +90,13 @@ bool SpringBundle::AutoComplete(std::string searchpath)
 	}
 	//try to find path from unitsync
 	if (path.empty() && !unitsync.empty()) {
-		const std::string tmp = Util::BeforeLast(unitsync, SEP);
+		const std::string tmp = Util::ParentPath(unitsync);
 		if (Util::FileExists(tmp))
 			path = tmp;
 	}
 	//try to find path from spring
 	if (path.empty() && !spring.empty()) {
-		const std::string tmp = Util::BeforeLast(spring, SEP);
+		const std::string tmp = Util::ParentPath(spring);
 		if (Util::FileExists(tmp))
 			path = tmp;
 	}

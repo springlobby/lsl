@@ -18,6 +18,22 @@ inline void lslUnusedVar(const T& LSLUNUSED(t)) { }
 
 namespace LSL {
 
+#ifdef __APPLE__
+#define LIBEXT ".dylib"
+#elif __WIN32__
+#define LIBEXT ".dll"
+#else
+#define LIBEXT ".so"
+#endif
+
+#ifdef __WIN32__
+#define EXEEXT ".exe"
+#define SEP "\\"
+#else
+#define SEP "/"
+#define EXEEXT ""
+#endif
+
 class lslSize;
 template < class T > class lslColorBase;
 typedef lslColorBase<unsigned char> lslColor;
@@ -158,6 +174,8 @@ std::string AfterLast( const std::string& phrase, const std::string& searchterm 
 std::string BeforeFirst( const std::string& phrase, const std::string& searchterm );
 //! returns everything in phrase after the first occurrence of searchterm
 std::string AfterFirst( const std::string& phrase, const std::string& searchterm );
+//! returns the parent path
+std::string ParentPath( const std::string& path);
 //! get a list of minimum numteam colors have maximum total difference in a certain metric
 std::vector<lslColor>& GetBigFixColorsPalette( int numteams );
 //! checks wheter two colors' difference is below mindiff
