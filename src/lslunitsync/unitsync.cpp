@@ -723,7 +723,9 @@ void Unitsync::SetSpringDataPath( const std::string& path )
 
 bool Unitsync::GetSpringDataPath(std::string& path)
 {
-	path = susynclib().GetSpringDataDir();
+	if (IsLoaded()) {
+		path = susynclib().GetSpringDataDir();
+	}
 	return !path.empty();
 }
 
@@ -1143,17 +1145,23 @@ void Unitsync::LoadUnitSyncLibAsync(const std::string& filename) {
 
 int Unitsync::GetSpringConfigInt(const std::string& name, int defvalue)
 {
-	return susynclib().GetSpringConfigInt(name, defvalue);
+	if (IsLoaded())
+		return susynclib().GetSpringConfigInt(name, defvalue);
+	return defvalue;
 }
 
 std::string Unitsync::GetSpringConfigString(const std::string& name, const std::string& defvalue)
 {
-	return susynclib().GetSpringConfigString(name, defvalue);
+	if (IsLoaded())
+		return susynclib().GetSpringConfigString(name, defvalue);
+	return defvalue;
 }
 
 float Unitsync::GetSpringConfigFloat(const std::string& name, float defvalue)
 {
-	return susynclib().GetSpringConfigInt(name, defvalue);
+	if (IsLoaded())
+		return susynclib().GetSpringConfigInt(name, defvalue);
+	return defvalue;
 }
 
 void Unitsync::SetSpringConfigInt(const std::string& name, int value)
