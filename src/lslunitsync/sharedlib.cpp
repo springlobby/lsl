@@ -3,8 +3,8 @@
 
 #include <string>
 #include <lslutils/debug.h>
-#include <boost/filesystem/path.hpp>
 #ifdef WIN32
+	#include <lslutils/misc.h>
 	#include <windows.h>
 #else
 	#include <dlfcn.h>
@@ -26,10 +26,9 @@ void _FreeLibrary(void* handle)
 void* _LoadLibrary(const std::string& libpath)
 {
 	void * res =NULL;
-	boost::filesystem::path dir = libpath;
 #ifdef WIN32
 	SetDllDirectory(NULL);
-	SetDllDirectory(dir.parent_path().string().c_str());
+	SetDllDirectory(LSL::Util::ParentPath(libpath).c_str());
 	res = LoadLibrary(libpath.c_str());
 	if (res == NULL) {
 		const int err = GetLastError();
