@@ -1,9 +1,11 @@
 #include "misc.h"
 #include "conversion.h"
 
-#include <boost/filesystem.hpp>
+#include <boost/algorithm/string/constants.hpp>
+#include <boost/shared_ptr.hpp>
 #include <fstream>
 #include <cmath>
+#include <sys/stat.h>
 
 namespace LSL {
 namespace Util {
@@ -19,7 +21,8 @@ std::string GetLibLobbyVersion()
 
 bool FileExists( const std::string& path )
 {
-    return boost::filesystem::exists( boost::filesystem::path( path ) );
+	struct stat buffer;
+	return (stat (path.c_str(), &buffer) == 0);
 }
 
 bool FileCanOpen( const std::string& path )
