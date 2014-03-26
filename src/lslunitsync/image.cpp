@@ -168,6 +168,7 @@ UnitsyncImage::UnitsyncImage()
 
 void UnitsyncImage::Save(const std::string& path) const
 {
+	if (!isValid()) return;
 	m_data_ptr->save( path.c_str() );
 }
 
@@ -255,6 +256,7 @@ int UnitsyncImage::GetHeight() const
 
 void UnitsyncImage::Rescale(const int new_width, const int new_height)
 {
+	if (!isValid()) return;
     m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 5 /*interpolation type*/);
 }
 
