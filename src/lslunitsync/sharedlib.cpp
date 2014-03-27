@@ -27,7 +27,7 @@ void* _LoadLibrary(const std::string& libpath)
 	void * res =NULL;
 #ifdef WIN32
 	SetDllDirectory(NULL);
-	SetDllDirectory(ParentPath(libpath).c_str());
+	SetDllDirectory(LSL::Util::ParentPath(libpath).c_str());
 	res = LoadLibrary(libpath.c_str());
 	if (res == NULL) {
 		const int err = GetLastError();
