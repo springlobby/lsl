@@ -5,6 +5,7 @@
 #include <lslutils/debug.h>
 #ifdef WIN32
 	#include <windows.h>
+	#include <lslutils/misc.h>
 #else
 	#include <dlfcn.h>
 #endif
