@@ -1,3 +1,5 @@
+/* This file is part of the Springlobby (GPL v2 or later), see COPYING */
+
 #ifndef LSL_CONVERSION_H
 #define LSL_CONVERSION_H
 
@@ -32,7 +34,12 @@ static inline std::string MakeHashSigned( const std::string& hash )
 {
 	return ToString( FromString<int>( hash ) );
 }
+// convert std::string to std::wstring
 
+#ifdef WIN32
+std::wstring s2ws(const std::string& s);
+std::string geterrormsg();
+#endif
 
 } // namespace Util
 } // namespace LSL

@@ -1,7 +1,6 @@
 #ifndef LSL_FUNCTION_PTR_H
 #define LSL_FUNCTION_PTR_H
 
-#include <boost/extension/shared_library.hpp>
 #include <string>
 #include <lslutils/debug.h>
 

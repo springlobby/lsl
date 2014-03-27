@@ -5,6 +5,7 @@
 #include <lslutils/debug.h>
 #ifdef WIN32
 	#include <windows.h>
+	#include <lslutils/conversion.h>
 	#include <lslutils/misc.h>
 #else
 	#include <dlfcn.h>
@@ -27,20 +28,20 @@ void* _LoadLibrary(const std::string& libpath)
 {
 	void * res =NULL;
 #ifdef WIN32
+	const std::wstring wparentpath = Util::s2ws(LSL::Util::ParentPath(libpath));
+	const std::wstring wlibpath = Util::s2ws(libpath);
 	SetDllDirectory(NULL);
-	SetDllDirectory(LSL::Util::ParentPath(libpath).c_str());
-	res = LoadLibrary(libpath.c_str());
+	SetDllDirectory(wparentpath.c_str());
+	res = LoadLibrary(wlibpath.c_str());
 	if (res == NULL) {
-		const int err = GetLastError();
-		LslDebug( "UNITSYNC, loading failed %s, nulling handle: %d\n", libpath.c_str(), err );
-		LSL_THROW( unitsync, "Couldn't load the unitsync library" );
+		const std::string errmsg = Util::geterrormsg().c_str();
+		LSL_THROWF( unitsync, "Couldn't load the unitsync library: %s", errmsg.c_str());
 	}
 #else
 	res = dlopen(libpath.c_str(), RTLD_LAZY);
 	if (res == NULL) {
-		const char* err = dlerror();
-		LslDebug( "UNITSYNC, loading failed, nulling handle: %s\n", err );
-		LSL_THROW( unitsync, "Couldn't load the unitsync library" );
+		const char* errmsg = dlerror();
+		LSL_THROWF( unitsync, "Couldn't load the unitsync library: %s", errmsg.c_str());
 	}
 #endif
 	return res;

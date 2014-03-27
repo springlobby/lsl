@@ -22,3 +22,4 @@ FIND_PACKAGE(PNG REQUIRED)
 FIND_PACKAGE(X11 REQUIRED)
 ADD_LIBRARY(lsl-unitsync STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} )
 TARGET_LINK_LIBRARIES(lsl-unitsync lsl-utils ${Boost_LIBRARIES} ${PNG_LIBRARY} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
+
