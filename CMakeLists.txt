@@ -69,6 +69,7 @@ SET( LIBSPRINGLOBBY_REV
 IF(WIN32)
 	CreateResourceCompileCommand(libspringlobby_RC_FILE ${libSpringLobby_SOURCE_DIR}/src/ libSpringLobby.rc lsl_icon.o )
 	SET(libSpringLobbySrc ${libSpringLobbySrc} ${libspringlobby_RC_FILE})
+	add_definitions(-DUNICODE -D_UNICODE)
 ENDIF(WIN32)
 
 
