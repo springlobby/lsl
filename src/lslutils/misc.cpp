@@ -5,7 +5,12 @@
 #include <boost/shared_ptr.hpp>
 #include <fstream>
 #include <cmath>
+
+#ifdef WIN32
+#include <windows.h>
+#else
 #include <sys/stat.h>
+#endif
 
 namespace LSL {
 namespace Util {
@@ -21,8 +26,15 @@ std::string GetLibLobbyVersion()
 
 bool FileExists( const std::string& path )
 {
+	if (path.empty()) return false;
+#ifdef WIN32
+	const std::wstring wpath = s2ws(path);
+	DWORD dwAttrib = GetFileAttributesW(wpath.c_str());
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else
 	struct stat buffer;
 	return (stat (path.c_str(), &buffer) == 0);
+#endif
 }
 
 bool FileCanOpen( const std::string& path )
