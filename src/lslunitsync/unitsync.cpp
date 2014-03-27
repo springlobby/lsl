@@ -165,16 +165,15 @@ std::map<std::string, SpringBundle> Unitsync::GetSpringVersionList(const std::li
 	std::map<std::string, SpringBundle> ret;
 	std::map<std::string, std::string> uniq;
 
-	for (const auto bundle: unitsync_paths) {
+	for (SpringBundle bundle: unitsync_paths) {
 		try {
-			SpringBundle tmp(bundle);
-			tmp.AutoComplete();
-			if (uniq.find(tmp.unitsync) != uniq.end()) //don't check/add the same unitsync twice
+			bundle.AutoComplete();
+			if (uniq.find(bundle.unitsync) != uniq.end()) //don't check/add the same unitsync twice
 				continue;
-			if (tmp.IsValid() && (ret.find(tmp.version) == ret.end())) {
-				LslDebug( "Found spring version: %s %s %s", tmp.version.c_str(), tmp.spring.c_str(), tmp.unitsync.c_str());
-				ret[tmp.version] = tmp;
-				uniq[tmp.unitsync] = tmp.version;
+			if (bundle.IsValid() && (ret.find(bundle.version) == ret.end())) {
+				LslDebug( "Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
+				ret[bundle.version] = bundle;
+				uniq[bundle.unitsync] = bundle.version;
 			}
 		}
 		catch(...){}
