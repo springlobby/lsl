@@ -3,10 +3,14 @@
 
 #include <cstdio>
 
-#define LslError(...)   do {printf(__VA_ARGS__);printf("\n");} while(0)
-#define LslDebug(...)   do {printf(__VA_ARGS__);printf("\n");} while(0)
-#define LslWarning(...) do {printf(__VA_ARGS__);printf("\n");} while(0)
-#define LslDebug(...)   do {printf(__VA_ARGS__);printf("\n");} while(0)
+
+extern void lsllogerror(const char* format, ...);
+
+#define LslError(...)   do {lsllogerror(__VA_ARGS__);} while(0)
+#define LslDebug(...)   do {lsllogerror(__VA_ARGS__);} while(0)
+#define LslWarning(...) do {lsllogerror(__VA_ARGS__);} while(0)
+#define LslDebug(...)   do {lsllogerror(__VA_ARGS__);} while(0)
+
 
 
 #endif // LSL_LOGGING_H
