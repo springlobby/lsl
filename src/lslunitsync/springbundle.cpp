@@ -8,18 +8,6 @@
 
 namespace LSL {
 
-
-std::string SpringBundle::GetLibExtension()
-{
-#ifdef __APPLE__
-	return std::string(".dylib");
-#elif __WIN32__
-	return std::string(".dll");
-#else
-	return std::string(".so");
-#endif
-}
-
 bool SpringBundle::GetBundleVersion(bool force)
 {
 	if (!force && !version.empty()) //get version only once
@@ -66,13 +54,13 @@ bool SpringBundle::AutoFindUnitsync(const std::string& unitsyncpath)
 {
 	if (!unitsync.empty() && (Util::FileExists(unitsync)))
 		return true;
-	std::string tmp = unitsyncpath + SEP + "unitsync" + GetLibExtension();
+	std::string tmp = unitsyncpath + SEP + "unitsync" + LIBEXT;
 	if (Util::FileExists(tmp)) {
 		unitsync = tmp;
 		return true;
 	}
 
-	tmp = unitsyncpath + SEP + "libunitsync" + GetLibExtension();
+	tmp = unitsyncpath + SEP + "libunitsync" + LIBEXT;
 	if (Util::FileExists(tmp)) {
 		unitsync = tmp;
 		return true;

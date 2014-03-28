@@ -19,7 +19,6 @@ public:
 	std::string path;
 private:
 	bool AutoFindUnitsync(const std::string& unitsyncpath);
-	std::string GetLibExtension();
 	std::string Serialize();
 	bool valid;
 };

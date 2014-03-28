@@ -18,6 +18,15 @@ inline void lslUnusedVar(const T& LSLUNUSED(t)) { }
 
 namespace LSL {
 
+class lslSize;
+template < class T > class lslColorBase;
+typedef lslColorBase<unsigned char> lslColor;
+
+//! the pseudo index returned for items not in given sequences
+static const int lslNotFound = -1;
+
+namespace Util {
+
 #ifdef __APPLE__
 #define LIBEXT ".dylib"
 #elif __WIN32__
@@ -34,14 +43,6 @@ namespace LSL {
 #define EXEEXT ""
 #endif
 
-class lslSize;
-template < class T > class lslColorBase;
-typedef lslColorBase<unsigned char> lslColor;
-
-//! the pseudo index returned for items not in given sequences
-static const int lslNotFound = -1;
-
-namespace Util {
 
 //! a collection of functors for use in std::find_if or LSL::Util::IndexInSequenceIf
 namespace Predicates {
