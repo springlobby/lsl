@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <clocale>
 #include <set>
-#include <fstream>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
@@ -743,28 +743,38 @@ std::string Unitsync::GetFileCachePath( const std::string& name, bool IsMod, boo
 
 bool Unitsync::GetCacheFile( const std::string& path, StringVector& ret) const
 {
-	std::ifstream file( path.c_str() );
-	if (!file.good())
+#ifdef WIN32
+	FILE* file = _wfsopen(Util::s2ws(path).c_str(), L"r", 0);
+#else
+	FILE* file = fsopen(path.c_str(), "r", 0);
+#endif
+	if (file == NULL)
 		return false;
-	std::string line;
 	ret.clear();
-	while(std::getline(file,line))
-	{
-		ret.push_back( line );
+	char line[1024];
+	while(fgets(line, 1024, file) != NULL) {
+		const int len = strlen(line);
+		ret.push_back(line);
 	}
+	fclose(file);
 	return true;
 }
 
 void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 {
-	std::ofstream file( path.c_str(), std::ios::trunc );
-	ASSERT_EXCEPTION( file.good() , (boost::format( "cache file( %s ) not found" ) % path).str() );
-	for( const std::string line: data )
+#ifdef WIN32
+	FILE* file = _wfsopen(Util::s2ws(path).c_str(), L"w", 0);
+#else
+	FILE* file = fsopen(path.c_str(), "w", 0);
+#endif
+	ASSERT_EXCEPTION( file!=NULL, (boost::format( "cache file( %s ) not found" ) % path).str().c_str() );
+
+	for(std::string line: data )
 	{
-		file << line << std::endl;
+		line += "\n";
+		fwrite(line.c_str(), line.size(), 1, file);
 	}
-	file.flush();
-	file.close();
+	fclose(file);
 }
 
 StringVector Unitsync::GetPlaybackList( bool ReplayType ) const
