@@ -80,6 +80,9 @@ bool FileExists( const std::string& path );
 //! create temporary filestream, return is_open()
 bool FileCanOpen( const std::string& path );
 
+//! win32 unicode aware wrapper for fopen
+FILE* lslopen(const std::string filename, const std::string mode);
+
 //! return value in [min,max]
 template <typename T>
 inline T Clamp(const T var,const T min,const T max)

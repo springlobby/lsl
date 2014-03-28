@@ -449,7 +449,7 @@ UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::s
 		}
 
 		if (img.isValid()) {
-			img.Save( cachepath );
+			img.Save(cachepath);
 		}
 	}
 	return img;
@@ -743,18 +743,14 @@ std::string Unitsync::GetFileCachePath( const std::string& name, bool IsMod, boo
 
 bool Unitsync::GetCacheFile( const std::string& path, StringVector& ret) const
 {
-#ifdef WIN32
-	FILE* file = _wfsopen(Util::s2ws(path).c_str(), L"r", 0);
-#else
-	FILE* file = fsopen(path.c_str(), "r", 0);
-#endif
+	FILE* file = Util::lslopen(path, "r");
 	if (file == NULL)
 		return false;
 	ret.clear();
 	char line[1024];
 	while(fgets(line, 1024, file) != NULL) {
 		const int len = strlen(line);
-		ret.push_back(line);
+		ret.push_back(std::string(line, len-1));
 	}
 	fclose(file);
 	return true;
@@ -762,11 +758,8 @@ bool Unitsync::GetCacheFile( const std::string& path, StringVector& ret) const
 
 void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 {
-#ifdef WIN32
-	FILE* file = _wfsopen(Util::s2ws(path).c_str(), L"w", 0);
-#else
-	FILE* file = fsopen(path.c_str(), "w", 0);
-#endif
+	FILE* file = Util::lslopen(path, "w");
+
 	ASSERT_EXCEPTION( file!=NULL, (boost::format( "cache file( %s ) not found" ) % path).str().c_str() );
 
 	for(std::string line: data )

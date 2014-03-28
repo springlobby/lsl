@@ -171,13 +171,17 @@ void UnitsyncImage::Save(const std::string& path) const
 		LslError("%s:%d (%s) %s failed, invalid image", __FILE__, __LINE__, __FUNCTION__, path.c_str());
 		return;
 	}
-	m_data_ptr->save( path.c_str() );
+	FILE* f = Util::lslopen(path, "wb+");
+	m_data_ptr->save_png(f);
+	fclose(f);
 }
 
 void UnitsyncImage::Load(const std::string &path) const
 {
     try {
-        m_data_ptr->load( path.c_str() );
+		FILE* f = Util::lslopen(path, "rb");
+		m_data_ptr->load_png(f);
+		fclose(f);
     } catch ( cimg_library::CImgException& c ) {
 		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, path.c_str(), c.what());
     }
