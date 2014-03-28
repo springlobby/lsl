@@ -30,7 +30,7 @@ bool FileExists( const std::string& path )
 #ifdef WIN32
 	const std::wstring wpath = s2ws(path);
 	DWORD dwAttrib = GetFileAttributesW(wpath.c_str());
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES);
 #else
 	struct stat buffer;
 	return (stat (path.c_str(), &buffer) == 0);
