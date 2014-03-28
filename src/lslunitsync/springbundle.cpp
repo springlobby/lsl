@@ -118,6 +118,14 @@ bool SpringBundle::AutoComplete(std::string searchpath)
 	return IsValid();
 }
 
+std::string SpringBundle::Serialize(){
+	std::string ret = "version " + version +"\n";
+	ret += "version " + spring +"\n";
+	ret += "unitsync " + unitsync +"\n";
+	ret += "path " + path +"\n";
+	return ret;
+}
+
 
 };
 
