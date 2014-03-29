@@ -257,7 +257,9 @@ int UnitsyncLib::GetSpringDataDirCount()
 std::string UnitsyncLib::GetSpringDataDirByIndex( const int index )
 {
 	InitLib( m_get_data_dir_by_index );
-	return m_get_data_dir_by_index( index );
+	const char* dir = m_get_data_dir_by_index( index );
+	if (dir == NULL) return "";
+	return std::string(dir);
 }
 
 std::string UnitsyncLib::GetConfigFilePath()
