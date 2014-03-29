@@ -29,6 +29,12 @@
 	UNITSYNC_EXCEPTION( m_loaded, "Unitsync function not loaded:" #arg ); \
 	CHECK_FUNCTION( arg );
 
+inline std::string SafeString(const char* str)
+{
+	if (str == NULL) return "";
+	return std::string(str);
+}
+
 
 namespace LSL {
 
@@ -234,7 +240,7 @@ int UnitsyncLib::GetModIndex( const std::string& name )
 std::string UnitsyncLib::GetSpringVersion()
 {
 	InitLib( m_get_spring_version );
-	std::string version = m_get_spring_version();
+	std::string version = SafeString(m_get_spring_version());
 	if (m_is_spring_release_version && m_get_spring_version_patchset && m_is_spring_release_version()) {
 		version += ".";
 		version += m_get_spring_version_patchset();
@@ -245,7 +251,7 @@ std::string UnitsyncLib::GetSpringVersion()
 std::string UnitsyncLib::GetSpringDataDir()
 {
 	InitLib( m_get_writeable_data_dir );
-	return m_get_writeable_data_dir();
+	return SafeString(m_get_writeable_data_dir());
 }
 
 int UnitsyncLib::GetSpringDataDirCount()
@@ -257,15 +263,13 @@ int UnitsyncLib::GetSpringDataDirCount()
 std::string UnitsyncLib::GetSpringDataDirByIndex( const int index )
 {
 	InitLib( m_get_data_dir_by_index );
-	const char* dir = m_get_data_dir_by_index( index );
-	if (dir == NULL) return "";
-	return std::string(dir);
+	return SafeString(m_get_data_dir_by_index( index ));
 }
 
 std::string UnitsyncLib::GetConfigFilePath()
 {
 	InitLib( m_get_spring_config_file_path );
-	return m_get_spring_config_file_path();
+	return SafeString(m_get_spring_config_file_path());
 }
 
 int UnitsyncLib::GetMapCount()
@@ -283,7 +287,7 @@ std::string UnitsyncLib::GetMapChecksum( int index )
 std::string UnitsyncLib::GetMapName( int index )
 {
 	InitLib( m_get_map_name );
-	return m_get_map_name( index );
+	return SafeString(m_get_map_name( index ));
 }
 
 int UnitsyncLib::GetMapArchiveCount( int index )
@@ -295,7 +299,7 @@ int UnitsyncLib::GetMapArchiveCount( int index )
 std::string UnitsyncLib::GetMapArchiveName( int arnr )
 {
 	InitLib( m_get_map_archive_name );
-	return m_get_map_archive_name( arnr );
+	return SafeString(m_get_map_archive_name( arnr ));
 }
 
 UnitsyncLib::StringVector UnitsyncLib::GetMapDeps( int index )
@@ -315,7 +319,7 @@ MapInfo UnitsyncLib::GetMapInfoEx( int index, int version )
 		// old fetch method
 		InitLib( m_get_map_info_ex );
 
-		const std::string& mapName =  m_get_map_name( index );
+		const std::string mapName =  SafeString(m_get_map_name( index ));
 
 		char tmpdesc[256];
 		char tmpauth[256];
@@ -335,11 +339,7 @@ MapInfo UnitsyncLib::GetMapInfoEx( int index, int version )
 		InitLib( m_get_map_description )
 
 		MapInfo info;
-		const char* desc = m_get_map_description( index);
-		if (desc == NULL)
-			info.description="";
-		else
-			info.description = desc;
+		info.description = SafeString(m_get_map_description( index));
 		info.tidalStrength = m_get_map_tidalStrength(index);
 		info.gravity = m_get_map_gravity(index);
 
@@ -436,7 +436,7 @@ int UnitsyncLib::GetPrimaryModIndex( const std::string& modName )
 std::string UnitsyncLib::GetPrimaryModName( int index )
 {
 	InitLib( m_get_mod_name );
-	return m_get_mod_name( index );
+	return SafeString(m_get_mod_name( index ));
 }
 
 int UnitsyncLib::GetPrimaryModCount()
@@ -452,31 +452,31 @@ std::string UnitsyncLib::GetPrimaryModArchive( int index )
 	int count = m_get_mod_count();
 	if (index >= count)
 		LSL_THROW( unitsync, "index out of bounds");
-	return m_get_mod_archive( index );
+	return SafeString(m_get_mod_archive( index ));
 }
 
 std::string UnitsyncLib::GetPrimaryModShortName( int index )
 {
 	InitLib( m_get_primary_mod_short_name );
-	return m_get_primary_mod_short_name( index );
+	return SafeString(m_get_primary_mod_short_name( index ));
 }
 
 std::string UnitsyncLib::GetPrimaryModVersion( int index )
 {
 	InitLib( m_get_primary_mod_version );
-	return m_get_primary_mod_version( index );
+	return SafeString(m_get_primary_mod_version( index ));
 }
 
 std::string UnitsyncLib::GetPrimaryModMutator( int index )
 {
 	InitLib( m_get_primary_mod_mutator );
-	return m_get_primary_mod_mutator( index );
+	return SafeString(m_get_primary_mod_mutator( index ));
 }
 
 std::string UnitsyncLib::GetPrimaryModGame( int index )
 {
 	InitLib( m_get_primary_mod_game );
-	return m_get_primary_mod_game( index );
+	return SafeString(m_get_primary_mod_game( index ));
 }
 
 std::string UnitsyncLib::GetPrimaryModShortGame( int index )
@@ -488,7 +488,7 @@ std::string UnitsyncLib::GetPrimaryModShortGame( int index )
 std::string UnitsyncLib::GetPrimaryModDescription( int index )
 {
 	InitLib( m_get_primary_mod_description );
-	return m_get_primary_mod_description( index );
+	return SafeString(m_get_primary_mod_description( index ));
 }
 
 int UnitsyncLib::GetPrimaryModArchiveCount( int index )
@@ -500,7 +500,7 @@ int UnitsyncLib::GetPrimaryModArchiveCount( int index )
 std::string UnitsyncLib::GetPrimaryModArchiveList( int arnr )
 {
 	InitLib( m_get_primary_mod_archive_list );
-	return m_get_primary_mod_archive_list( arnr );
+	return SafeString(m_get_primary_mod_archive_list( arnr ));
 }
 
 std::string UnitsyncLib::GetPrimaryModChecksumFromName( const std::string& name )
@@ -546,13 +546,13 @@ void UnitsyncLib::AddArchive(const std::string &name)
 std::string UnitsyncLib::GetFullUnitName( int index )
 {
 	InitLib( m_get_unit_full_name );
-	return m_get_unit_full_name( index );
+	return SafeString(m_get_unit_full_name( index ));
 }
 
 std::string UnitsyncLib::GetUnitName( int index )
 {
 	InitLib( m_get_unit_name );
-	return m_get_unit_name( index );
+	return SafeString(m_get_unit_name( index ));
 }
 
 int UnitsyncLib::GetUnitCount()
@@ -620,7 +620,7 @@ unsigned int UnitsyncLib::GetValidMapCount( const std::string& modname )
 std::string UnitsyncLib::GetValidMapName( unsigned int MapIndex )
 {
 	InitLib( m_get_valid_map );
-	return m_get_valid_map( MapIndex );
+	return SafeString(m_get_valid_map( MapIndex ));
 }
 
 int UnitsyncLib::GetMapOptionCount( const std::string& name )
@@ -663,31 +663,31 @@ int UnitsyncLib::GetAIOptionCount( const std::string& modname, int aiIndex )
 std::string UnitsyncLib::GetOptionKey( int optIndex )
 {
 	InitLib( m_get_option_key );
-	return m_get_option_key( optIndex );
+	return SafeString(m_get_option_key( optIndex ));
 }
 
 std::string UnitsyncLib::GetOptionName( int optIndex )
 {
 	InitLib( m_get_option_name );
-	return m_get_option_name( optIndex );
+	return SafeString(m_get_option_name( optIndex ));
 }
 
 std::string UnitsyncLib::GetOptionDesc( int optIndex )
 {
 	InitLib( m_get_option_desc );
-	return m_get_option_desc( optIndex );
+	return SafeString(m_get_option_desc( optIndex ));
 }
 
 std::string UnitsyncLib::GetOptionSection( int optIndex )
 {
 	InitLib( m_get_option_section );
-	return m_get_option_section( optIndex );
+	return SafeString(m_get_option_section( optIndex ));
 }
 
 std::string UnitsyncLib::GetOptionStyle( int optIndex )
 {
 	InitLib( m_get_option_style );
-	return m_get_option_style( optIndex );
+	return SafeString(m_get_option_style( optIndex ));
 }
 
 int UnitsyncLib::GetOptionType( int optIndex )
@@ -729,7 +729,7 @@ float UnitsyncLib::GetOptionNumberStep( int optIndex )
 std::string UnitsyncLib::GetOptionStringDef( int optIndex )
 {
 	InitLib( m_get_option_string_def );
-	return m_get_option_string_def( optIndex );
+	return SafeString(m_get_option_string_def( optIndex ));
 }
 
 int UnitsyncLib::GetOptionStringMaxLen( int optIndex )
@@ -747,25 +747,25 @@ int UnitsyncLib::GetOptionListCount( int optIndex )
 std::string UnitsyncLib::GetOptionListDef( int optIndex )
 {
 	InitLib( m_get_option_list_def );
-	return m_get_option_list_def( optIndex );
+	return SafeString(m_get_option_list_def( optIndex ));
 }
 
 std::string UnitsyncLib::GetOptionListItemKey( int optIndex, int itemIndex )
 {
 	InitLib( m_get_option_list_item_key );
-	return m_get_option_list_item_key( optIndex, itemIndex  );
+	return SafeString(m_get_option_list_item_key( optIndex, itemIndex  ));
 }
 
 std::string UnitsyncLib::GetOptionListItemName( int optIndex, int itemIndex )
 {
 	InitLib( m_get_option_list_item_name );
-	return m_get_option_list_item_name( optIndex, itemIndex  );
+	return SafeString(m_get_option_list_item_name( optIndex, itemIndex  ));
 }
 
 std::string UnitsyncLib::GetOptionListItemDesc( int optIndex, int itemIndex )
 {
 	InitLib( m_get_option_list_item_desc );
-	return m_get_option_list_item_desc( optIndex, itemIndex  );
+	return SafeString(m_get_option_list_item_desc( optIndex, itemIndex  ));
 }
 
 int UnitsyncLib::OpenArchive( const std::string& name )
@@ -818,7 +818,7 @@ int UnitsyncLib::SizeArchiveFile( int archive, int handle )
 std::string UnitsyncLib::GetArchivePath( const std::string& name )
 {
 	InitLib( m_get_archive_path );
-	return m_get_archive_path( name.c_str() );
+	return SafeString(m_get_archive_path( name.c_str() ));
 }
 
 int UnitsyncLib::GetSpringConfigInt( const std::string& key, int defValue )
@@ -830,7 +830,7 @@ int UnitsyncLib::GetSpringConfigInt( const std::string& key, int defValue )
 std::string UnitsyncLib::GetSpringConfigString( const std::string& key, const std::string& defValue )
 {
 	InitLib( m_get_spring_config_string );
-	return m_get_spring_config_string( key.c_str(), defValue.c_str() );
+	return SafeString(m_get_spring_config_string( key.c_str(), defValue.c_str() ));
 }
 
 float UnitsyncLib::GetSpringConfigFloat( const std::string& key, const float defValue )
@@ -923,7 +923,7 @@ bool UnitsyncLib::ParserExecute()
 std::string UnitsyncLib::ParserErrorLog()
 {
 	InitLib( m_parser_error_log );
-	return m_parser_error_log();
+	return SafeString(m_parser_error_log());
 }
 
 void UnitsyncLib::ParserAddTable( int key, bool override )
@@ -1091,7 +1091,7 @@ bool UnitsyncLib::GetKeyValue( int key, bool defval )
 std::string UnitsyncLib::GetKeyValue( int key, const std::string& defval )
 {
 	InitLib( m_parser_int_key_get_string_value );
-	return m_parser_int_key_get_string_value( key, defval.c_str() );
+	return SafeString(m_parser_int_key_get_string_value( key, defval.c_str() ));
 }
 
 float UnitsyncLib::GetKeyValue( int key, float defval )
@@ -1115,7 +1115,7 @@ bool UnitsyncLib::GetKeyValue( const std::string& key, bool defval )
 std::string UnitsyncLib::GetKeyValue( const std::string& key, const std::string& defval )
 {
 	InitLib( m_parser_string_key_get_string_value );
-	return m_parser_string_key_get_string_value( key.c_str(), defval.c_str() );
+	return SafeString(m_parser_string_key_get_string_value( key.c_str(), defval.c_str() ));
 }
 
 float UnitsyncLib::GetKeyValue( const std::string& key, float defval )
