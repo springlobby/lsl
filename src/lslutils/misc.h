@@ -82,7 +82,7 @@ bool FileExists( const std::string& path );
 bool FileCanOpen( const std::string& path );
 
 //! win32 unicode aware wrapper for fopen
-FILE* lslopen(const std::string filename, const std::string mode);
+FILE* lslopen(const std::string& filename, const std::string& mode);
 
 //! return value in [min,max]
 template <typename T>

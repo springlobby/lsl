@@ -15,7 +15,7 @@
 namespace LSL {
 namespace Util {
 
-FILE* lslopen(const std::string filename, const std::string mode)
+FILE* lslopen(const std::string& filename, const std::string& mode)
 {
 #ifdef WIN32
 	return _wfopen(Util::s2ws(filename).c_str(), Util::s2ws(mode).c_str());

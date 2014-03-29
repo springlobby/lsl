@@ -111,13 +111,6 @@ public:
 	bool IsLoaded() const;
 
 	/**
-	 * Gets last error from unitsync library
-	 * @note throws unitsync_assert in case of error
-	 * @note this method should only be used after using directly an unitsync call to catch it's errors
-	 */
-	void AssertUnitsyncOk() const;
-
-	/**
 	 * Get list of errors from unitsync library in an array
 	 */
 	std::vector<std::string> GetUnitsyncErrors() const;

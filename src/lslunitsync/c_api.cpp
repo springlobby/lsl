@@ -144,13 +144,6 @@ bool UnitsyncLib::_IsLoaded() const
 	return m_loaded;
 }
 
-void UnitsyncLib::AssertUnitsyncOk() const
-{
-	UNITSYNC_EXCEPTION( m_loaded, "Unitsync not loaded.");
-	UNITSYNC_EXCEPTION( m_get_next_error, "Function was not in unitsync library.");
-	UNITSYNC_EXCEPTION( false, m_get_next_error() );
-}
-
 std::vector<std::string> UnitsyncLib::GetUnitsyncErrors() const
 {
 	std::vector<std::string> ret;
