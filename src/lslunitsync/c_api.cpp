@@ -29,6 +29,7 @@
 	UNITSYNC_EXCEPTION( m_loaded, "Unitsync function not loaded:" #arg ); \
 	CHECK_FUNCTION( arg );
 
+// convert const char* to std::string, as std::string(NULL) crashes
 inline std::string SafeString(const char* str)
 {
 	if (str == NULL) return "";
