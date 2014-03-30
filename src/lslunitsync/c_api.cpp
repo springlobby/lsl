@@ -21,7 +21,49 @@
 #define CHECK_FUNCTION( arg ) \
 	do { if ( !(arg) ) LSL_THROW( function_missing, "arg" ); } while (0)
 
-#define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
+// on linux / debug builds, check the time a unitsync
+#if defined(__linux__) && !defined(NDEBUG)
+#include <sys/time.h>
+
+/**
+	ScopedTime, takes time of a function call / one scope
+	usage: just add at the beginning of a function
+	ScopedTime tmp(__FUNCTION__, __LINE__);
+*/
+class ScopedTime {
+public:
+	int diff_ms(timespec t1, timespec t2) {
+		return (((t1.tv_sec - t2.tv_sec) * 1000000000) +  (t1.tv_nsec - t2.tv_nsec)) / 1000000;
+	}
+	ScopedTime(const std::string& func, const int line): func(func),  line(line){
+		clock_gettime(CLOCK_REALTIME, &start);
+	}
+	~ScopedTime()
+	{
+		timespec stop;
+		clock_gettime(CLOCK_REALTIME, &stop);
+		const int diff = diff_ms(stop, start);
+		if ( diff > 10) {
+			printf("Slow Unitsync call (%s():%d) took: %dms\n",func.c_str(), line, diff);
+		}
+	}
+private:
+	timespec start;
+	std::string func;
+	int line;
+};
+
+#define LOCK_UNITSYNC \
+	ScopedTime scopedtime(__FUNCTION__, __LINE__); \
+	boost::mutex::scoped_lock lock_criticalsection(m_lock); \
+
+#else
+#define LOCK_UNITSYNC \
+	boost::mutex::scoped_lock lock_criticalsection(m_lock);
+#endif // __linux__
+
+
+
 
 //! Macro that checks if a function is present/loaded, unitsync is loaded, and locks it on call.
 #define InitLib( arg ) \
