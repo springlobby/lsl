@@ -433,7 +433,7 @@ UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::s
 	const std::string cachepath = GetFileCachePath( modname, true, false) +"-side-" +SideName + ".png";
 	UnitsyncImage img;
 
-	if (FileExists(cachepath)) {
+	if (Util::FileExists(cachepath)) {
 		img = UnitsyncImage( cachepath );
 	}
 
@@ -607,7 +607,7 @@ UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::str
 		return img;
 
 	const std::string cachefile = GetFileCachePath( mapname, false, false) + imagename;
-	if (FileExists(cachefile)) {
+	if (Util::FileExists(cachefile)) {
 		img = UnitsyncImage( cachefile );
 	}
 
@@ -808,6 +808,8 @@ StringVector Unitsync::GetPlaybackList( bool ReplayType ) const
 
 bool Unitsync::FileExists( const std::string& name ) const
 {
+	assert(!name.empty());
+	assert(name[0] != '/'); // don't check for real files here, as this is a VERY slow call
 	int handle = susynclib().OpenFileVFS(name);
 	if ( handle == 0 ) return false;
 	susynclib().CloseFileVFS(handle);

@@ -589,6 +589,7 @@ UnitsyncLib::StringVector UnitsyncLib::FindFilesVFS( const std::string& name )
 
 int UnitsyncLib::OpenFileVFS( const std::string& name )
 {
+	assert(name[0] != '/');
 	InitLib( m_open_file_vfs );
 	return m_open_file_vfs( name.c_str() );
 }
