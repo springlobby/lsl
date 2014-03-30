@@ -180,6 +180,10 @@ std::string BeforeFirst( const std::string& phrase, const std::string& searchter
 std::string AfterFirst( const std::string& phrase, const std::string& searchterm );
 //! returns the parent path
 std::string ParentPath( const std::string& path);
+//! ensures path ends with (back)slash
+std::string EnsureDelimiter(const std::string& path);
+
+
 //! get a list of minimum numteam colors have maximum total difference in a certain metric
 std::vector<lslColor>& GetBigFixColorsPalette( int numteams );
 //! checks wheter two colors' difference is below mindiff

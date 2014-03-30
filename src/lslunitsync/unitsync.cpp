@@ -785,9 +785,14 @@ StringVector Unitsync::GetPlaybackList( bool ReplayType ) const
 	}
 	const int count = susynclib().GetSpringDataDirCount();
 	for(int i=0; i<count; i++) {
-		const std::string dir = susynclib().GetSpringDataDirByIndex(i) + subpath;
-		if (!boost::filesystem::is_directory(dir))
+		const std::string datadir = susynclib().GetSpringDataDirByIndex(i);
+		if (datadir.empty()) {
 			continue;
+		}
+		const std::string dir = Util::EnsureDelimiter(datadir) + subpath;
+		if (!boost::filesystem::is_directory(dir)) {
+			continue;
+		}
 		boost::filesystem::directory_iterator enditer;
 		for( boost::filesystem::directory_iterator dir_iter(dir) ; dir_iter != enditer; ++dir_iter) {
 			if (!boost::filesystem::is_regular_file(dir_iter->status()))

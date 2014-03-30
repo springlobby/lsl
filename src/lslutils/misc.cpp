@@ -133,6 +133,15 @@ std::string ParentPath( const std::string& path)
 	return BeforeLast(path, SEP);
 }
 
+std::string EnsureDelimiter(const std::string& path)
+{
+	std::string dir = path;
+	if ( !path.empty() && (path[path.length()-1] != SEP[0] )) {
+		dir += SEP;
+	}
+	return dir;
+}
+
 bool AreColorsSimilar( const lslColor& col1, const lslColor& col2, int mindiff )
 {
 	int r,g,b;
