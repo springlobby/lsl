@@ -182,6 +182,8 @@ void UnitsyncImage::Load(const std::string &path) const
 		FILE* f = Util::lslopen(path, "rb");
 		m_data_ptr->load_png(f);
 		fclose(f);
+	} catch ( cimg_library::CImgIOException & c ) {
+		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, path.c_str(), c.what());
     } catch ( cimg_library::CImgException& c ) {
 		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, path.c_str(), c.what());
     }
@@ -275,18 +277,12 @@ void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned
 		LslError("%s:%d (%s) %s failed, invalid image", __FILE__, __LINE__, __FUNCTION__);
 		return;
 	}
-//FIXME: if pixel is white, make transparent
-/*
 	PrivateImageType& img = *m_data_ptr;
-	PrivateImageType tmp(img.width(), img.height(), 1, 1);
-	tmp = img;
-	cimg_forXY(tmp,x,y) {
-		if ((tmp(x,y,0,0) == r) && (tmp(x,y,0,1) == g) && (tmp(x,y,0,2) == b)) { //pixel is white, make transparent
-			tmp(x,y,0,3) = 255;
+	cimg_forXY(img,x,y) {
+		if ((img(x,y,0,0) == r) && (img(x,y,0,1) == g) && (img(x,y,0,2) == b)) { //pixel is white, make transparent
+			img(x,y,0,3) = 255;
 		}
 	}
-	m_data_ptr(tmp);
-*/
 }
 
 int UnitsyncImage::GetWidth() const
