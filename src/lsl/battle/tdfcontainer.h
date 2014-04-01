@@ -14,9 +14,9 @@
 namespace LSL { namespace TDF {
 
 /** \brief std::stringstream based output class for TDF
- * this is only ever used internally (script generation) 
- * and needn't be exposed to library users 
- * \todo add link to format specification 
+ * this is only ever used internally (script generation)
+ * and needn't be exposed to library users
+ * \todo add link to format specification
  **/
 class TDFWriter
 {
@@ -82,7 +82,7 @@ class Node: public RefcountedContainer , public boost::noncopyable
 };
 
 
-/** \brief TDF Parsing 
+/** \brief TDF Parsing
  * Usage
  * Parsing:
 
@@ -92,7 +92,7 @@ class Node: public RefcountedContainer , public boost::noncopyable
  * Getting values:
 
  * PDataList game(root->Find(\1
- * if(!game.ok()){wxLogMessage(\1;return false;}
+ * if(!game.ok()){slLogMessage(\1;return false;}
  * std::string gamename=game->GetString(\1;
 
  * (see optional parameters for setting default and knowing if it failed)
@@ -198,7 +198,7 @@ struct Token {
  * \todo clean up, move to CPP file
  **/
 class Tokenizer {
-		
+
 		/// simple reference counted pointer to stream.
 		struct IncludeCacheEntry {
 			std::string name; ///< used for error reporting

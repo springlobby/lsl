@@ -66,7 +66,7 @@ void Tokenizer::ReportError( const Token &t, const std::string &err ) {
 }
 
 //#define ReportError(a) {std::cerr<<"error "<<(a);}
-//#define ReportError(a) {wxLogMessage(\1;}
+//#define ReportError(a) {slLogMessage(\1;}
 
 void Tokenizer::EnterStream( std::istream &stream_, const std::string &name ) {
 	skip_eol = false;
