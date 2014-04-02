@@ -784,11 +784,16 @@ StringVector Unitsync::GetPlaybackList( bool ReplayType ) const
 		subpath = "Saves";
 	}
 	const int count = susynclib().GetSpringDataDirCount();
+	StringVector paths;
 	for(int i=0; i<count; i++) {
 		const std::string datadir = susynclib().GetSpringDataDirByIndex(i);
 		if (datadir.empty()) {
 			continue;
 		}
+		paths.push_back(datadir);
+	}
+
+	for(const std::string datadir: paths) {
 		const std::string dir = Util::EnsureDelimiter(datadir) + subpath;
 		if (!boost::filesystem::is_directory(dir)) {
 			continue;
