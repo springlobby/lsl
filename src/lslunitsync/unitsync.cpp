@@ -715,6 +715,10 @@ bool Unitsync::ReloadUnitSyncLib()
 
 void Unitsync::SetSpringDataPath( const std::string& path )
 {
+	if (!IsLoaded()) {
+		return;
+	}
+
 	susynclib().SetSpringConfigString( "SpringData", path );
 }
 
