@@ -796,22 +796,25 @@ StringVector Unitsync::GetPlaybackList( bool ReplayType ) const
 		}
 		paths.push_back(datadir);
 	}
-
-	for(const std::string datadir: paths) {
-		const std::string dir = Util::EnsureDelimiter(datadir) + subpath;
-		if (!boost::filesystem::is_directory(dir)) {
-			continue;
+	try {
+		for(const std::string datadir: paths) {
+			const std::string dir = Util::EnsureDelimiter(datadir) + subpath;
+			try {
+				if (!boost::filesystem::is_directory(dir)) {
+					continue;
+				}
+			} catch (...) {}
+			boost::filesystem::directory_iterator enditer;
+			for( boost::filesystem::directory_iterator dir_iter(dir) ; dir_iter != enditer; ++dir_iter) {
+				if (!boost::filesystem::is_regular_file(dir_iter->status()))
+					continue;
+				const std::string filename(dir_iter->path().string());
+				if (filename.substr(filename.length()-4) != type) // compare file ending
+					continue;
+				ret.push_back(filename);
+			}
 		}
-		boost::filesystem::directory_iterator enditer;
-		for( boost::filesystem::directory_iterator dir_iter(dir) ; dir_iter != enditer; ++dir_iter) {
-			if (!boost::filesystem::is_regular_file(dir_iter->status()))
-				continue;
-			const std::string filename(dir_iter->path().string());
-			if (filename.substr(filename.length()-4) != type) // compare file ending
-				continue;
-			ret.push_back(filename);
-		}
-	}
+	} catch (...) {}
 	return ret;
 }
 
