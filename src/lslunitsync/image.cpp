@@ -184,6 +184,10 @@ void UnitsyncImage::Load(const std::string &path) const
 {
     try {
 		FILE* f = Util::lslopen(path, "rb");
+		if (f == NULL) {
+			LslError("%s:%d (%s) could not open file %s", __FILE__, __LINE__, __FUNCTION__, path.c_str());
+			return;
+		}
 		m_data_ptr->load_png(f);
 		fclose(f);
 	} catch ( cimg_library::CImgIOException & c ) {
