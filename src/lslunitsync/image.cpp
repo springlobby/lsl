@@ -285,12 +285,24 @@ void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned
 		LslError("%s:%d (%s) %s failed, invalid image", __FILE__, __LINE__, __FUNCTION__);
 		return;
 	}
+	if (m_data_ptr->spectrum() == 4) { //image has already alpha channel
+		return;
+	}
+
+	//no alpha channel, create new image with alpha channel
 	PrivateImageType& img = *m_data_ptr;
-	cimg_forXY(img,x,y) {
-		if ((img(x,y,0,0) == r) && (img(x,y,0,1) == g) && (img(x,y,0,2) == b)) { //pixel is white, make transparent
-			img(x,y,0,3) = 255;
+	PrivateImageType* tmp = new PrivateImageType(img.width(), img.height(), 1, 4 );
+	PrivateImageType& img2 = *tmp;
+
+	img2 = img.channels(0, 3);
+	cimg_forXY(img2,x,y) {
+		if ((img2(x,y,0,0) == r) && (img2(x,y,0,1) == g) && (img2(x,y,0,2) == b)) { //pixel is white, make transparent
+			img2(x,y,0,3) = 0;
+		} else {
+			img2(x,y,0,3) = 255;
 		}
 	}
+	*m_data_ptr = img2;
 }
 
 int UnitsyncImage::GetWidth() const
@@ -335,7 +347,12 @@ wxImage UnitsyncImage::wximage () const
     cimg_forXY(ptr,x,y) {
         img.SetRGB(x, y, ptr(x,y,0,0), ptr(x,y,0,1), ptr(x,y,0,2));
     }
-
+	if (m_data_ptr->spectrum() == 4) {
+		img.InitAlpha();
+		cimg_forXY(ptr,x,y) {
+			img.SetAlpha(x,y, ptr(x,y,0,3));
+		}
+	}
     return img;
 }
 #endif
