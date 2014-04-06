@@ -172,6 +172,10 @@ void UnitsyncImage::Save(const std::string& path) const
 		return;
 	}
 	FILE* f = Util::lslopen(path, "wb+");
+	if (f == NULL) {
+		LslError("%s:%d (%s) error creating file %s", __FILE__, __LINE__, __FUNCTION__, path.c_str());
+		return;
+	}
 	m_data_ptr->save_png(f);
 	fclose(f);
 }
