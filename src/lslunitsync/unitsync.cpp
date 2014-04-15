@@ -229,7 +229,7 @@ bool Unitsync::ModExists( const std::string& modname, const std::string& hash ) 
 {
 	LocalArchivesVector::const_iterator itor = m_mods_list.find(modname);
 	if ( itor == m_mods_list.end() ) return false;
-	if (hash.empty()) return true;
+	if (hash.empty() || hash == "0") return true;
 	return itor->second == hash;
 }
 
@@ -270,7 +270,7 @@ bool Unitsync::MapExists( const std::string& mapname, const std::string& hash ) 
 {
 	LocalArchivesVector::const_iterator itor = m_maps_list.find(mapname);
 	if ( itor == m_maps_list.end() ) return false;
-	if (hash.empty()) return true;
+	if (hash.empty() || hash == "0") return true;
 	return itor->second == hash;
 }
 
