@@ -9,7 +9,7 @@ class SpringBundle
 {
 public:
 	SpringBundle(): valid(false){};
-	bool GetBundleVersion(bool force = false);
+	bool GetBundleVersion();
 	// try to fill missing information by guessing
 	bool AutoComplete(std::string searchpath="");
 	bool IsValid();

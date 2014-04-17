@@ -8,9 +8,9 @@
 
 namespace LSL {
 
-bool SpringBundle::GetBundleVersion(bool force)
+bool SpringBundle::GetBundleVersion()
 {
-	if (!force && !version.empty()) //get version only once
+	if (!version.empty()) //get version only once
 		return true;
 	if (!Util::FileExists(unitsync)) {
 		return false;
