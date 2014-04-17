@@ -313,7 +313,7 @@ void GetOptionEntry(const int i, GameOptions& ret)
 		}
 		case Enum::opt_list: {
 			ret.list_map[key] = mmOptionList(name,key, optiondesc,susynclib().GetOptionListDef(i), section_str,susynclib().GetOptionStyle(i));
-			int listItemCount = susynclib().GetOptionListCount(i);
+			const int listItemCount = susynclib().GetOptionListCount(i);
 			for (int j = 0; j < listItemCount; ++j) {
 				std::string descr = susynclib().GetOptionListItemDesc(i,j);
 				ret.list_map[key].addItem(susynclib().GetOptionListItemKey(i,j),susynclib().GetOptionListItemName(i,j), descr);
