@@ -64,17 +64,6 @@ public:
 
 	bool IsLoaded() const;
 
-	/**
-	 * Loads unitsync from any number of paths in succession,
-	 * queries the Spring versions supported by these unitsyncs,
-	 * and returns those.
-	 *
-	 * This is done by a single function because this "transaction"
-	 * needs to hold the unitsync lock the entire time.
-	 */
-	std::map<std::string, SpringBundle> GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths);
-
-
 	std::string GetSpringVersion() const;
 	void UnSetCurrentMod();
 

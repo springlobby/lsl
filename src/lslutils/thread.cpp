@@ -72,7 +72,7 @@ WorkerThread::WorkerThread()
 
 void WorkerThread::DoWork( WorkItem* item, int priority, bool toBeDeleted )
 {
-    LslDebug( "scheduling WorkItem %p, prio = %d", item, priority );
+//    LslDebug( "scheduling WorkItem %p, prio = %d", item, priority );
 	item->m_priority = priority;
 	item->m_toBeDeleted = toBeDeleted;
 	m_workeritemqueue.Push( item );
@@ -110,7 +110,7 @@ void WorkItemQueue::Process()
         boost::unique_lock<boost::mutex> lock(m_mutex);
         while ( (!m_dying) && (item = Pop()) ) {
             try {
-                LslDebug( "running WorkItem %p, prio = %d", item, item->m_priority );
+//                LslDebug( "running WorkItem %p, prio = %d", item, item->m_priority );
                 item->Run();
             }
             catch ( std::exception& e ) {

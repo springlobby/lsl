@@ -25,7 +25,6 @@
 	#include "utils/conversion.h"
 #else
 #include <lslutils/config.h>
-#include <lslutils/mock_settings.h>
 #endif
 
 #define ASSERT_LOGIC(...)   do {} while(0)
@@ -79,8 +78,8 @@ void Battle::OnRequestBattleStatus()
     bs.team = GetFreeTeam( true );
     bs.ally = GetFreeAlly( true );
     bs.spectator = false;
-    bs.color = sett().GetBattleLastColor();
-    bs.side = sett().GetBattleLastSideSel( GetHostModName() );
+    bs.color = Util::config().GetBattleLastColor();
+    bs.side = Util::config().GetBattleLastSideSel( GetHostModName() );
     // theres some highly annoying bug with color changes on player join/leave.
 	if ( !bs.color.IsOk() )
 		bs.color = Util::GetFreeColor( GetMe() );
@@ -140,7 +139,7 @@ void Battle::SaveMapDefaults()
     // save map preset
     std::string mapname = LoadMap().name;
 	std::string startpostype = CustomBattleOptions()->getSingleValue( "startpostype", LSL::OptionsWrapper::EngineOption );
-    sett().SetMapLastStartPosType( mapname, startpostype);
+    Util::config().SetMapLastStartPosType( mapname, startpostype);
     std::vector<LSL::Util::SettStartBox> rects;
     for( unsigned int i = 0; i <= GetLastRectIdx(); ++i )
     {
@@ -156,12 +155,12 @@ void Battle::SaveMapDefaults()
             rects.push_back( box );
         }
     }
-    sett().SetMapLastRectPreset( mapname, rects );
+    Util::config().SetMapLastRectPreset( mapname, rects );
 }
 
 void Battle::LoadMapDefaults( const std::string& mapname )
 {
-	CustomBattleOptions()->setSingleOption( "startpostype", sett().GetMapLastStartPosType( mapname ), LSL::OptionsWrapper::EngineOption );
+	CustomBattleOptions()->setSingleOption( "startpostype", Util::config().GetMapLastStartPosType( mapname ), LSL::OptionsWrapper::EngineOption );
 	SendHostInfo( (boost::format( "%d_startpostype" ) % LSL::OptionsWrapper::EngineOption).str() );
 
 	for( unsigned int i = 0; i <= GetLastRectIdx(); ++i ) {
@@ -170,11 +169,12 @@ void Battle::LoadMapDefaults( const std::string& mapname )
 	}
 	SendHostInfo( Enum::HI_StartRects );
 
-    const std::vector<LSL::Util::SettStartBox> savedrects = sett().GetMapLastRectPreset( mapname );
+/*    const std::vector<LSL::Util::SettStartBox> savedrects = Util::config().GetMapLastRectPreset( mapname );
     for ( std::vector<LSL::Util::SettStartBox>::const_iterator itor = savedrects.begin(); itor != savedrects.end(); ++itor )
     {
         AddStartRect( itor->ally, itor->topx, itor->topy, itor->bottomx, itor->bottomy );
     }
+*/
 	SendHostInfo( Enum::HI_StartRects );
 }
 
@@ -212,7 +212,7 @@ void Battle::OnUserAdded( const CommonUserPtr user )
 
 //        m_ah.OnUserAdded( user );
 		if ( !user->BattleStatus().IsBot()
-				&& sett().GetBattleLastAutoAnnounceDescription() )
+				&& Util::config().GetBattleLastAutoAnnounceDescription() )
 			DoAction( m_opts.description );
     }
     // any code here may be skipped if the user was autokicked
@@ -641,7 +641,7 @@ void Battle::OnTimer( const boost::system::error_code& error  )
         return;
     if ( !IsFounderMe() ) return;
     if ( InGame() ) return;
-    int autospect_trigger_time = sett().GetBattleLastAutoSpectTime();
+    int autospect_trigger_time = Util::config().GetBattleLastAutoSpectTime();
     if ( autospect_trigger_time == 0 ) return;
     time_t now = time(0);
     for ( unsigned int i = 0; i < m_userlist.size(); ++i )

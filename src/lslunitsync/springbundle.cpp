@@ -114,6 +114,81 @@ std::string SpringBundle::Serialize(){
 	return ret;
 }
 
+// adds path to pathlist if it exists
+static void AddPath(const std::string& path, LSL::StringVector& pathlist)
+{
+	if (LSL::Util::FileExists(path)) {
+		pathlist.push_back(path);
+	}
+}
+
+//reads envvar, splits it by : and ; and add it to pathlist, when exists
+static void GetEnv(const std::string& name, LSL::StringVector& pathlist)
+{
+	const char* envvar= getenv(name.c_str());
+	if (envvar == NULL) return;
+	LSL::StringVector res = LSL::Util::StringTokenize(envvar, ";:");
+	for (const std::string path:res) {
+		AddPath(path, pathlist);
+	}
+}
+
+// searches in OS standard paths for a system installed spring
+bool SpringBundle::LocateSystemInstalledSpring(LSL::SpringBundle& bundle)
+{
+	LSL::StringVector paths;
+
+	GetEnv("SPRING_BUNDLE_DIR", paths);
+	GetEnv("PATH", paths);
+	GetEnv("%ProgramFiles%", paths);
+	GetEnv("%ProgramFiles(x86)%", paths);
+	GetEnv("%ProgramFiles(x86)%", paths);
+	GetEnv("LD_LIBRARY_PATH", paths);
+	GetEnv("LDPATH", paths);
+
+	AddPath("/usr/local/lib/spring", paths);
+	AddPath("/usr/local/lib64", paths);
+	AddPath("/usr/local/games", paths);
+	AddPath("/usr/local/games/lib", paths);
+	AddPath("/usr/local/lib", paths);
+	AddPath("/usr/lib64", paths);
+	AddPath("/usr/lib", paths);
+	AddPath("/usr/lib/spring", paths);
+	AddPath("/usr/games", paths);
+	AddPath("/usr/games/lib64", paths);
+	AddPath("/usr/games/lib", paths);
+	AddPath("/lib", paths);
+	AddPath("/bin", paths);
+
+	for (const std::string path: paths) {
+		if (bundle.AutoComplete(path)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
+std::map<std::string, SpringBundle> SpringBundle::GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths)
+{
+	std::map<std::string, SpringBundle> ret;
+	std::map<std::string, std::string> uniq;
+
+	for (SpringBundle bundle: unitsync_paths) {
+		try {
+			bundle.AutoComplete();
+			if (uniq.find(bundle.unitsync) != uniq.end()) //don't check/add the same unitsync twice
+				continue;
+			if (bundle.IsValid() && (ret.find(bundle.version) == ret.end())) {
+				LslDebug( "Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
+				ret[bundle.version] = bundle;
+				uniq[bundle.unitsync] = bundle.version;
+			}
+		}
+		catch(...){}
+	}
+	return ret;
+}
 
 };
-

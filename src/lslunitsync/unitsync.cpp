@@ -158,30 +158,6 @@ void Unitsync::PopulateArchiveList()
 	std::sort( m_mod_array.begin(), m_mod_array.end() , &CompareStringNoCase  );
 }
 
-
-std::map<std::string, SpringBundle> Unitsync::GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths)
-{
-	LOCK_UNITSYNC;
-	std::map<std::string, SpringBundle> ret;
-	std::map<std::string, std::string> uniq;
-
-	for (SpringBundle bundle: unitsync_paths) {
-		try {
-			bundle.AutoComplete();
-			if (uniq.find(bundle.unitsync) != uniq.end()) //don't check/add the same unitsync twice
-				continue;
-			if (bundle.IsValid() && (ret.find(bundle.version) == ret.end())) {
-				LslDebug( "Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
-				ret[bundle.version] = bundle;
-				uniq[bundle.unitsync] = bundle.version;
-			}
-		}
-		catch(...){}
-	}
-	return ret;
-}
-
-
 bool Unitsync::_LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	try {

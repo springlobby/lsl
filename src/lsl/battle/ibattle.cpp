@@ -12,7 +12,7 @@
 #if HAVE_SPRINGLOBBY
     #include "settings.h"
 #else
-#include <lslutils/mock_settings.h>
+#include <lslutils/config.h>
 #endif
 
 #include "signals.h"
@@ -740,7 +740,7 @@ const UnitsyncMap& IBattle::LoadMap()
 	if ( !m_map_loaded ) {
 		try {
 			ASSERT_EXCEPTION( m_map_exists, "Map does not exist." );
-			m_local_map = usync().GetMapEx( m_host_map.name );
+//			m_local_map = usync().GetMapEx( m_host_map.name );
 			bool options_loaded = CustomBattleOptions()->loadOptions( LSL::OptionsWrapper::MapOption, m_host_map.name );
 			ASSERT_EXCEPTION( options_loaded, "couldn't load the map options" );
 			m_map_loaded = true;
@@ -881,7 +881,7 @@ void IBattle::OnUnitsyncReloaded()
 static std::string FixPresetName( const std::string& name )
 {
 	// look name up case-insensitively
-	const StringVector& presetList = sett().GetPresetList();
+	const StringVector& presetList = Util::config().GetPresetList();
 	const int index = Util::IndexInSequenceIf( presetList, Util::Predicates::CaseInsensitive( name ) );
 	if ( index == lslNotFound )
 		return "";
@@ -897,7 +897,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 
 	for ( unsigned int i = 0; i < LSL::OptionsWrapper::LastOption; i++)
 	{
-		std::map<std::string,std::string> options = sett().GetHostingPreset( m_preset, i );
+		std::map<std::string,std::string> options = Util::config().GetHostingPreset( m_preset, i );
 		if ( (LSL::OptionsWrapper::GameOption)i != LSL::OptionsWrapper::PrivateOptions )
 		{
 			for ( std::map<std::string,std::string>::const_iterator itor = options.begin(); itor != options.end(); ++itor )
@@ -910,9 +910,10 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			if ( !options["mapname"].empty() )
 			{
 				if ( usync().MapExists( options["mapname"] ) ) {
-					UnitsyncMap map = usync().GetMapEx( options["mapname"] );
+/*					UnitsyncMap map = usync().GetMapEx( options["mapname"] );
 					SetLocalMap( map );
 					SendHostInfo( Enum::HI_Map );
+*/
 				}
 //				else if ( !ui().OnPresetRequiringMap( options["mapname"] ) ) {
 //					//user didn't want to download the missing map, so set to empty to not have it tried to be loaded again
@@ -966,7 +967,7 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 	{
 		if ( (LSL::OptionsWrapper::GameOption)i != LSL::OptionsWrapper::PrivateOptions )
 		{
-			sett().SetHostingPreset( m_preset, (LSL::OptionsWrapper::GameOption)i, CustomBattleOptions()->getOptionsMap( (LSL::OptionsWrapper::GameOption)i ) );
+			Util::config().SetHostingPreset( m_preset, (LSL::OptionsWrapper::GameOption)i, CustomBattleOptions()->getOptionsMap( (LSL::OptionsWrapper::GameOption)i ) );
 		}
 		else
 		{
@@ -1000,10 +1001,10 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 			}
 			opts["restrictions"] = restrictionsstring.str();
 
-			sett().SetHostingPreset( m_preset, (LSL::OptionsWrapper::GameOption)i, opts );
+			Util::config().SetHostingPreset( m_preset, (LSL::OptionsWrapper::GameOption)i, opts );
 		}
 	}
-	sett().SaveSettings();
+	Util::config().SaveSettings();
     Signals::sig_ReloadPresetList();
 }
 
@@ -1016,13 +1017,13 @@ void IBattle::DeletePreset( const std::string& name )
 {
 	std::string preset = FixPresetName(name);
 	if ( m_preset == preset ) m_preset = "";
-	sett().DeletePreset( preset );
+	Util::config().DeletePreset( preset );
 	Signals::sig_ReloadPresetList();
 }
 
 StringVector IBattle::GetPresetList()
 {
-	return sett().GetPresetList();
+	return Util::config().GetPresetList();
 }
 
 void IBattle::UserPositionChanged( const CommonUserPtr /*unused*/ )

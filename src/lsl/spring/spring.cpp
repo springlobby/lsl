@@ -21,7 +21,6 @@
 #include <lslutils/debug.h>
 #include <lslutils/conversion.h>
 #include <lslutils/config.h>
-#include <lslutils/mock_settings.h>
 #include <lsl/container/userlist.h>
 #include <lsl/battle/battle.h>
 #include <lsl/battle/singleplayer.h>
@@ -72,7 +71,7 @@ bool Spring::RunReplay ( const std::string& filename )
 
 bool Spring::Run(const IBattlePtr battle )
 {
-    BF::path path = sett().GetCurrentUsedDataDir();
+    BF::path path; // = sett().GetCurrentUsedDataDir();
     path /= "script.txt";
     try {
         BF::ofstream f( path );
@@ -159,7 +158,7 @@ bool Spring::Run(const IBattlePtr battle )
 
 bool Spring::Run(const std::string& script)
 {
-    BF::path path = sett().GetCurrentUsedDataDir();
+    BF::path path;// = sett().GetCurrentUsedDataDir();
     path /= "script.txt";
     std::string cmd = std::string(" \"" + path.string() +  "\"");
     try {
@@ -194,18 +193,18 @@ bool Spring::LaunchSpring( const std::string& params  )
         LslError( "Spring already running!" );
         return false;
     }
-    if ( !Util::FileExists( sett().GetCurrentUsedSpringBinary() ) ) {
-        LslError( "spring binary not found at set location: %s", sett().GetCurrentUsedSpringBinary().c_str() );
+//    if ( !Util::FileExists( sett().GetCurrentUsedSpringBinary() ) ) {
+//        LslError( "spring binary not found at set location: %s", sett().GetCurrentUsedSpringBinary().c_str() );
         return false;
-    }
+//    }
 
-    std::string configfileflags = sett().GetCurrentUsedSpringConfigFilePath();
+    std::string configfileflags;// = sett().GetCurrentUsedSpringConfigFilePath();
     if ( !configfileflags.empty() )
     {
         configfileflags = "--config=\"" + configfileflags + "\" ";
     }
 
-    std::string cmd =  "\"" + sett().GetCurrentUsedSpringBinary();
+    std::string cmd;// =  "\"" + sett().GetCurrentUsedSpringBinary();
 #ifdef __WXMAC__
     wxChar sep = wxFileName::GetPathSeparator();
     if ( sett().GetCurrentUsedSpringBinary().AfterLast('.') == "app" )
@@ -258,10 +257,10 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
         {
             tdf.Append( "SourcePort", battle->GetMyInternalUdpSourcePort() );
         }
-        else if ( sett().GetClientPort() != 0)
+/*        else if ( sett().GetClientPort() != 0)
         {
             tdf.Append( "SourcePort", sett().GetClientPort() ); /// this allows to play with broken router by setting SourcePort to some forwarded port.
-        }
+        } */
     }
     tdf.Append( "IsHost", battle->IsFounderMe() );
 
@@ -453,14 +452,12 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
         i++;
     }
 
-    if ( usync().VersionSupports( LSL::USYNC_GetSkirmishAI ) )
-    {
-        unsigned int i = 0;
+        unsigned int k = 0;
         for( const ConstCommonUserPtr user: battle->Users() )
         {
             const UserBattleStatus& status = user->BattleStatus();
             if ( !status.IsBot() ) continue;
-            tdf.EnterSection( "AI" + Util::ToString( i ) );
+            tdf.EnterSection( "AI" + Util::ToString( k ) );
             tdf.Append( "Name", user->Nick() ); // AI's nick;
             tdf.Append( "ShortName", status.aishortname ); // AI libtype
             tdf.Append( "Version", status.aiversion ); // AI libtype version
@@ -479,10 +476,9 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
             }
             tdf.LeaveSection();
             tdf.LeaveSection();
-            player_to_number[user] = i;
-            i++;
+            player_to_number[user] = k;
+            k++;
         }
-    }
 
     tdf.AppendLineBreak();
 
@@ -496,12 +492,12 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
         parsedteams.insert( status.team );
 
         tdf.EnterSection( "TEAM" + Util::ToString( teams_to_sorted_teams[status.team] ) );
-        if ( !usync().VersionSupports( LSL::USYNC_GetSkirmishAI ) && status.IsBot() )
+/*        if ( !usync().VersionSupports( LSL::USYNC_GetSkirmishAI ) && status.IsBot() )
         {
             tdf.Append( "AIDLL", status.aishortname );
             tdf.Append( "TeamLeader", player_to_number[battle->GetUser( status.owner )] ); // bot owner is the team leader
         }
-        else
+        else*/
         {
             if ( status.IsBot() )
             {
