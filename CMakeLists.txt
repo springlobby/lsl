@@ -61,9 +61,7 @@ OPTION(BUILD_SHARED_LIBS "Chooses whether to link dynamic or static libraries. R
 
 OPTION(BUILD_TESTS "build example and test binaries" OFF)
 	
-SET( LIBSPRINGLOBBY_REV
-	"${LIBSPRINGLOBBY_REV}" CACHE STRING
-	"The revision string used in packages etc." )
+SET( LIBSPRINGLOBBY_REV	"${LIBSPRINGLOBBY_REV}")
 
 # If we build for windows Systems, we also include the Resource-File containing the Manifest, Icon and other Resources.
 IF(WIN32)
