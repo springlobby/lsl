@@ -110,7 +110,7 @@ void load_mem( LSL::Util::uninitialized_array<char>& data, size_t size, const st
 namespace LSL {
 
 UnitsyncImage::UnitsyncImage( int width, int height )
-	: m_data_ptr( UnitsyncImage::NewImagePtr(width, height) )
+	: m_data_ptr( NewImagePtr(width, height) )
 {
 }
 
@@ -127,12 +127,17 @@ UnitsyncImage::UnitsyncImage(PrivateImagePtrType ptr)
 
 UnitsyncImage::PrivateImageType* UnitsyncImage::NewImagePtr(int width, int height)
 {
-	return new PrivateImageType( width, height, 1, 3 );
+	try {
+		return new PrivateImageType( width, height, 1, 3 );
+	} catch ( std::exception& e ) {
+		LslError("%s:%d (%s) alloc mem for %dx%d image failed: %s", __FILE__, __LINE__, __FUNCTION__, width, height, e.what());
+	}
+	return NULL;
 }
 
 UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<unsigned char>& data, int width, int height)
 {
-	PrivateImageType* img_p = UnitsyncImage::NewImagePtr(width, height);
+	PrivateImageType* img_p = NewImagePtr(width, height);
 	PrivateImageType& img = *img_p;
 	cimg_forXY(img,x,y) {
 		img(x,y,0,0) = 0;
@@ -199,7 +204,7 @@ void UnitsyncImage::Load(const std::string &path) const
 
 UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *colors, int width, int height)
 {
-	PrivateImageType* img_p = UnitsyncImage::NewImagePtr(width, height);
+	PrivateImageType* img_p = NewImagePtr(width, height);
 	PrivateImageType& img = *img_p;
 	cimg_forXY(img,x,y) {
 		int at = x+(y*width);
@@ -213,7 +218,7 @@ UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *c
 
 UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<unsigned short>& grayscale, int width, int height)
 {
-	PrivateImageType* img_p = UnitsyncImage::NewImagePtr(width, height);
+	PrivateImageType* img_p = NewImagePtr(width, height);
 	PrivateImageType& img = *img_p;
 
 	// the height is mapped to this "palette" of colors
