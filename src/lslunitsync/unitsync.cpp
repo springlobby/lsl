@@ -864,7 +864,6 @@ public:
 protected:
 	Unitsync* m_usync;
 	std::string m_mapname;
-	int m_evtId;
 
 	void PostEvent()
 	{
@@ -875,8 +874,7 @@ protected:
 
 	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId ):
 		m_usync(usync),
-		m_mapname(mapname.c_str()),
-		m_evtId(evtId)
+		m_mapname(mapname.c_str())
 	{}
 };
 
@@ -947,12 +945,10 @@ public:
 private:
 	Unitsync* m_usync;
 	std::string m_unitsyncloc;
-	int m_evtId;
 public:
 	LoadUnitSyncLibAsyncWorkItem( Unitsync* usync, const std::string& unitsyncLoc):
 		m_usync(usync),
-		m_unitsyncloc(unitsyncLoc.c_str()),
-		m_evtId(ASYNC_UNITSYNC_LOADED_EVT)
+		m_unitsyncloc(unitsyncLoc.c_str())
 	{}
 };
 
