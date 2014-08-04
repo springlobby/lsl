@@ -5,16 +5,6 @@
 
 namespace LSL {
 
-//! base class to avoid common boilerplate code
-template <class Derived>
-class CRTPbase {
-	public:
-		virtual ~CRTPbase(){}
-	protected:
-		Derived& asImp () { return static_cast<Derived&>(*this); }
-		const Derived& asImp () const { return static_cast<const Derived&>(*this); }
-};
-
 //! minimal interface for classes usable as Items for ContainerBase
 template < class KeyImp >
 struct HasKey {
