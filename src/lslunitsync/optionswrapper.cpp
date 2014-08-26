@@ -462,7 +462,7 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 			}
 			else
 			{
-                LslDebug("received list option is not valid");
+                LslDebug("received list option \"%s\" is not valid", key.c_str());
 				return false;
 			}
 			break;
