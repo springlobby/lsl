@@ -281,6 +281,7 @@ void UnitsyncImage::Rescale(const int new_width, const int new_height)
 		LslError("%s:%d (%s) %s failed, invalid image", __FILE__, __LINE__, __FUNCTION__);
 		return;
 	}
+	if ((GetWidth() == new_width) && (GetHeight() == new_height)) return; //no size change
     m_data_ptr->resize( new_width, new_height, 1 /*z*/, 3 /*c*/, 5 /*interpolation type*/);
 }
 
@@ -335,6 +336,15 @@ void UnitsyncImage::RescaleIfBigger(const int maxwidth, const int maxheight) {
 		Rescale(width, height);
 	}
 }
+
+UnitsyncImage& UnitsyncImage::operator= (const UnitsyncImage& other)
+{
+	const PrivateImageType& src = *other.m_data_ptr;
+	PrivateImageType& dest = *m_data_ptr;
+	dest = src;
+	return *this;
+}
+
 
 #ifdef HAVE_WX
 wxBitmap UnitsyncImage::wxbitmap() const
