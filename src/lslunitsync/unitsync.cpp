@@ -509,15 +509,17 @@ UnitsyncImage Unitsync::GetMinimap( const std::string& mapname )
 UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int height )
 {
 	UnitsyncImage img;
-	if (mapname.empty())
+	if (mapname.empty()) {
 		return img;
-	const bool tiny = ( width <= 100 && height <= 100 );
-	if ( tiny && m_tiny_minimap_cache.TryGet( mapname, img ) )
-	{
-		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit( lslSize(width, height) );
-		if ( image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight() )
-			img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
+	}
 
+	const bool tiny = ( width <= 100 && height <= 100 );
+	if ( tiny && m_tiny_minimap_cache.TryGet( mapname, img ) ) {
+
+		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit( lslSize(width, height) );
+		if ( image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight() ) {
+			img.Rescale( image_size.GetWidth(), image_size.GetHeight() );
+		}
 		return img;
 	}
 
@@ -564,8 +566,9 @@ UnitsyncImage Unitsync::GetHeightmap( const std::string& mapname, int width, int
 UnitsyncImage Unitsync::_GetMapImage( const std::string& mapname, const std::string& imagename, UnitsyncImage (UnitsyncLib::*loadMethod)(const std::string&) )
 {
 	UnitsyncImage img;
-	if ( m_map_image_cache.TryGet( mapname + imagename, img ) )
+	if ( m_map_image_cache.TryGet( mapname + imagename, img ) ) {
 		return img;
+	}
 
 	const std::string cachefile = GetFileCachePath( mapname, false, false) + imagename;
 	if (Util::FileExists(cachefile)) {
@@ -818,29 +821,6 @@ public:
 		: m_usync(usync), m_mapname(mapname.c_str()), m_loadMethod(loadMethod) {}
 };
 
-class CacheMinimapWorkItem : public WorkItem
-{
-public:
-	std::string m_mapname;
-
-	void Run()
-	{
-		// Fetch rescaled minimap using this specialized class instead of
-		// CacheMapWorkItem with a pointer to Unitsync::GetMinimap,
-		// to ensure Unitsync::_GetMapInfoEx will be called too, and
-		// hence it's data cached.
-
-		// This reduces main thread blocking while waiting for WorkerThread
-		// to release it's lock while e.g. scrolling through battle list.
-
-		// 98x98 because battle list map preview is 98x98
-		usync().GetMinimap( m_mapname, 98, 98 );
-	}
-
-	CacheMinimapWorkItem( const std::string& mapname )
-		: m_mapname(mapname.c_str()) {}
-};
-
 class GetMapImageAsyncResult : public WorkItem // TODO: rename
 {
 public:
@@ -974,12 +954,6 @@ void Unitsync::PrefetchMap( const std::string& mapname )
 	{
 		LslDebug( "cache thread not initialized %s", "PrefetchMap" );
 		return;
-	}
-	{
-		CacheMinimapWorkItem* work;
-
-		work = new CacheMinimapWorkItem( mapname );
-		m_cache_thread->DoWork( work, priority );
 	}
 	{
 		CacheMapWorkItem* work;
