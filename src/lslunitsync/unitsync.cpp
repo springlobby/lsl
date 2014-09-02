@@ -72,6 +72,7 @@ bool CompareStringNoCase(const std::string& first, const std::string& second)
 bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 {
 	LOCK_UNITSYNC;
+	ClearCache();
 	bool ret = _LoadUnitSyncLib( unitsyncloc );
 	if (ret)
 	{
@@ -101,7 +102,6 @@ void Unitsync::ClearCache()
 
 void Unitsync::PopulateArchiveList()
 {
-	ClearCache();
 
 	int numMaps = susynclib().GetMapCount();
 	for ( int i = 0; i < numMaps; i++ )
@@ -688,7 +688,7 @@ bool Unitsync::ReloadUnitSyncLib()
 	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync();
 	if (path.empty())
 		return false;
-	LoadUnitSyncLibAsync(path);
+	LoadUnitSyncLibAsync(path); //FIXME: protect calls to cache vars (they are accessed from thread and outside)
 	return true;
 }
 
