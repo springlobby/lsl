@@ -688,7 +688,7 @@ bool Unitsync::ReloadUnitSyncLib()
 	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync();
 	if (path.empty())
 		return false;
-	LoadUnitSyncLibAsync(LSL::Util::config().GetCurrentUsedUnitSync());
+	LoadUnitSyncLibAsync(path);
 	return true;
 }
 
