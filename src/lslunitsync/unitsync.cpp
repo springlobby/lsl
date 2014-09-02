@@ -685,12 +685,10 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 
 bool Unitsync::ReloadUnitSyncLib()
 {
-	//FIXME: use async call
-	//LoadUnitSyncLibAsync(LSL::Util::config().GetCurrentUsedUnitSync().string());
 	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync();
 	if (path.empty())
 		return false;
-	LoadUnitSyncLib(path);
+	LoadUnitSyncLibAsync(LSL::Util::config().GetCurrentUsedUnitSync());
 	return true;
 }
 
