@@ -48,6 +48,7 @@ enum ASYNC_EVENTS {
 
 Unitsync::~Unitsync()
 {
+	ClearCache();
 	delete m_cache_thread;
 	m_cache_thread = NULL;
 }
@@ -80,7 +81,7 @@ bool Unitsync::LoadUnitSyncLib( const std::string& unitsyncloc )
 	return ret;
 }
 
-void Unitsync::PopulateArchiveList()
+void Unitsync::ClearCache()
 {
 	m_maps_list.clear();
 	m_mods_list.clear();
@@ -96,6 +97,11 @@ void Unitsync::PopulateArchiveList()
 	m_sides_cache.Clear();
 	m_map_gameoptions.clear();
 	m_game_gameoptions.clear();
+}
+
+void Unitsync::PopulateArchiveList()
+{
+	ClearCache();
 
 	int numMaps = susynclib().GetMapCount();
 	for ( int i = 0; i < numMaps; i++ )

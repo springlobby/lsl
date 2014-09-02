@@ -114,6 +114,7 @@ public:
 	void GetHeightmapAsync( const std::string& mapname, int width, int height );
 
 private:
+	void ClearCache();
 	void GetMinimapAsync( const std::string& mapname );
 	void GetMetalmapAsync( const std::string& mapname );
 	void GetHeightmapAsync( const std::string& mapname );
