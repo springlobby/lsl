@@ -25,6 +25,12 @@
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
+#define TRY_LOCK(ret) \
+	boost::mutex::scoped_try_lock lock_criticalsection(m_lock); \
+	if (!lock_criticalsection.owns_lock()) { \
+		return ret; \
+	}
+
 #define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( unitsync, msg ); } } while (0)
 
 namespace LSL {
@@ -206,11 +212,13 @@ std::string Unitsync::GetSpringVersion() const
 
 StringVector Unitsync::GetModList() const
 {
+	TRY_LOCK(StringVector())
 	return m_mod_array;
 }
 
 bool Unitsync::ModExists( const std::string& modname, const std::string& hash ) const
 {
+	TRY_LOCK(false)
 	LocalArchivesVector::const_iterator itor = m_mods_list.find(modname);
 	if ( itor == m_mods_list.end() ) return false;
 	if (hash.empty() || hash == "0") return true;
@@ -220,6 +228,7 @@ bool Unitsync::ModExists( const std::string& modname, const std::string& hash ) 
 UnitsyncMod Unitsync::GetMod( const std::string& modname )
 {
 	UnitsyncMod m;
+	TRY_LOCK(m);
 	m.name = modname;
 	m.hash = m_mods_list[modname];
 	return m;
@@ -229,6 +238,7 @@ UnitsyncMod Unitsync::GetMod( const std::string& modname )
 UnitsyncMod Unitsync::GetMod( int index )
 {
 	UnitsyncMod m;
+	TRY_LOCK(m);
 	m.name = m_mod_array[index];
 	m.hash = m_mods_list[m.name];
 	return m;
@@ -236,12 +246,14 @@ UnitsyncMod Unitsync::GetMod( int index )
 
 StringVector Unitsync::GetMapList() const
 {
+	TRY_LOCK(StringVector())
 	return m_map_array;
 }
 
 StringVector Unitsync::GetModValidMapList( const std::string& modname ) const
 {
     StringVector ret;
+	TRY_LOCK(ret)
 	try {
 		unsigned int mapcount = susynclib().GetValidMapCount( modname );
 		for ( unsigned int i = 0; i < mapcount; i++ )
@@ -252,6 +264,7 @@ StringVector Unitsync::GetModValidMapList( const std::string& modname ) const
 
 bool Unitsync::MapExists( const std::string& mapname, const std::string& hash ) const
 {
+	TRY_LOCK(false)
 	LocalArchivesVector::const_iterator itor = m_maps_list.find(mapname);
 	if ( itor == m_maps_list.end() ) return false;
 	if (hash.empty() || hash == "0") return true;
@@ -261,6 +274,7 @@ bool Unitsync::MapExists( const std::string& mapname, const std::string& hash ) 
 UnitsyncMap Unitsync::GetMap( int index )
 {
 	UnitsyncMap m;
+	TRY_LOCK(m)
 	if ( index < 0 )
 		return m;
 	m.name = m_map_array[index];
@@ -313,12 +327,14 @@ void GetOptionEntry(const int i, GameOptions& ret)
 
 GameOptions Unitsync::GetMapOptions( const std::string& name )
 {
+	GameOptions ret;
+	TRY_LOCK(ret)
+
 	assert(!name.empty());
 	if (m_map_gameoptions.find(name) != m_map_gameoptions.end()) {
 		return m_map_gameoptions[name];
 	}
 
-	GameOptions ret;
 	int count = susynclib().GetMapOptionCount(name);
 	for (int i = 0; i < count; ++i)
 	{
@@ -357,10 +373,11 @@ UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 GameOptions Unitsync::GetModOptions( const std::string& name )
 {
 	assert(!name.empty());
+	GameOptions ret;
+	TRY_LOCK(ret)
 	if (m_game_gameoptions.find(name) != m_game_gameoptions.end()) {
 		return m_game_gameoptions[name];
 	}
-	GameOptions ret;
 	if(!IsLoaded()) return ret;
 	int count = susynclib().GetModOptionCount(name);
 	for (int i = 0; i < count; ++i)
@@ -375,6 +392,7 @@ StringVector Unitsync::GetModDeps( const std::string& modname ) const
 {
 	assert(!modname.empty());
 	StringVector ret;
+	TRY_LOCK(ret)
 	try
 	{
 		ret = susynclib().GetModDeps( Util::IndexInSequence( m_unsorted_mod_array, modname ) );
@@ -387,6 +405,7 @@ StringVector Unitsync::GetSides( const std::string& modname )
 {
 	assert(!modname.empty());
 	StringVector ret;
+	TRY_LOCK(ret);
 	const std::string cachefile = GetFileCachePath(modname, true ) + ".sides";
 	if (m_sides_cache.TryGet( cachefile, ret)) { //first return from mru cache
 		return ret;
@@ -411,6 +430,7 @@ UnitsyncImage Unitsync::GetSidePicture( const std::string& modname, const std::s
 
 	const std::string cachepath = GetFileCachePath( modname, true, false) +"-side-" +SideName + ".png";
 	UnitsyncImage img;
+	TRY_LOCK(img);
 
 	if (Util::FileExists(cachepath)) {
 		img = UnitsyncImage( cachepath );
@@ -454,6 +474,7 @@ UnitsyncImage Unitsync::GetImage( const std::string& modname, const std::string&
 StringVector Unitsync::GetAIList( const std::string& modname ) const
 {
 	StringVector ret;
+	TRY_LOCK(ret);
 	if (modname.empty()) return ret;
 	int total = susynclib().GetSkirmishAICount( modname );
 	for ( int i = 0; i < total; i++ ) {
@@ -470,6 +491,7 @@ StringVector Unitsync::GetAIList( const std::string& modname ) const
 
 void Unitsync::UnSetCurrentMod()
 {
+	LOCK_UNITSYNC;
 	try
 	{
 		susynclib().UnSetCurrentMod();
@@ -479,6 +501,7 @@ void Unitsync::UnSetCurrentMod()
 StringVector Unitsync::GetAIInfos( int index ) const
 {
     StringVector ret;
+	TRY_LOCK(ret);
 	try
 	{
 		ret = susynclib().GetAIInfo( index );
@@ -491,6 +514,7 @@ GameOptions Unitsync::GetAIOptions( const std::string& modname, int index )
 {
 	assert(!modname.empty());
 	GameOptions ret;
+	TRY_LOCK(ret);
 	int count = susynclib().GetAIOptionCount(modname, index);
 	for (int i = 0; i < count; ++i)
 	{
@@ -504,6 +528,7 @@ StringVector Unitsync::GetUnitsList( const std::string& modname )
 	assert(!modname.empty());
 	const std::string cachefile = GetFileCachePath( modname, true ) + ".units";
 	StringVector cache;
+	TRY_LOCK(cache)
 
 	if (!GetCacheFile(cachefile, cache)) { //cache read failed
 		susynclib().SetCurrentMod( modname );
@@ -527,6 +552,7 @@ UnitsyncImage Unitsync::GetMinimap( const std::string& mapname )
 UnitsyncImage Unitsync::GetMinimap( const std::string& mapname, int width, int height )
 {
 	UnitsyncImage img;
+	TRY_LOCK(img)
 	if (mapname.empty()) {
 		return img;
 	}
@@ -568,6 +594,7 @@ UnitsyncImage Unitsync::GetMetalmap( const std::string& mapname )
 
 UnitsyncImage Unitsync::GetMetalmap( const std::string& mapname, int width, int height )
 {
+	TRY_LOCK(UnitsyncImage())
 	return _GetScaledMapImage( mapname, &Unitsync::GetMetalmap, width, height );
 }
 
@@ -578,6 +605,7 @@ UnitsyncImage Unitsync::GetHeightmap( const std::string& mapname )
 
 UnitsyncImage Unitsync::GetHeightmap( const std::string& mapname, int width, int height )
 {
+	TRY_LOCK(UnitsyncImage())
 	return _GetScaledMapImage( mapname, &Unitsync::GetHeightmap, width, height );
 }
 
@@ -685,6 +713,7 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 
 bool Unitsync::ReloadUnitSyncLib()
 {
+	LOCK_UNITSYNC;
 	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync();
 	if (path.empty())
 		return false;
@@ -698,12 +727,14 @@ void Unitsync::SetSpringDataPath( const std::string& path )
 	if (!IsLoaded()) {
 		return;
 	}
+	LOCK_UNITSYNC;
 
 	susynclib().SetSpringConfigString( "SpringData", path );
 }
 
 bool Unitsync::GetSpringDataPath(std::string& path)
 {
+	TRY_LOCK(false)
 	if (IsLoaded()) {
 		path = susynclib().GetSpringDataDir();
 	}
@@ -757,6 +788,7 @@ void Unitsync::SetCacheFile( const std::string& path, const StringVector& data )
 StringVector Unitsync::GetPlaybackList( bool ReplayType ) const
 {
 	StringVector ret;
+	TRY_LOCK(ret)
 	if ( !IsLoaded() ) return ret;
 	std::string type;
 	std::string subpath;
@@ -810,6 +842,7 @@ bool Unitsync::FileExists( const std::string& name ) const
 
 std::string Unitsync::GetArchivePath( const std::string& name ) const
 {
+	LOCK_UNITSYNC;
 	return susynclib().GetArchivePath( name );
 }
 
