@@ -94,6 +94,8 @@ void Unitsync::PopulateArchiveList()
 	m_mods_unchained_hash.clear();
 	m_shortname_to_name_map.clear();
 	m_sides_cache.Clear();
+	m_map_gameoptions.clear();
+	m_game_gameoptions.clear();
 
 	int numMaps = susynclib().GetMapCount();
 	for ( int i = 0; i < numMaps; i++ )
@@ -306,12 +308,17 @@ void GetOptionEntry(const int i, GameOptions& ret)
 GameOptions Unitsync::GetMapOptions( const std::string& name )
 {
 	assert(!name.empty());
+	if (m_map_gameoptions.find(name) != m_map_gameoptions.end()) {
+		return m_map_gameoptions[name];
+	}
+
 	GameOptions ret;
 	int count = susynclib().GetMapOptionCount(name);
 	for (int i = 0; i < count; ++i)
 	{
 		GetOptionEntry( i, ret );
 	}
+	m_map_gameoptions[name] = ret;
 	return ret;
 }
 
@@ -344,12 +351,17 @@ UnitsyncMap Unitsync::GetMap( const std::string& mapname )
 GameOptions Unitsync::GetModOptions( const std::string& name )
 {
 	assert(!name.empty());
+	if (m_game_gameoptions.find(name) != m_game_gameoptions.end()) {
+		return m_game_gameoptions[name];
+	}
 	GameOptions ret;
+	if(!IsLoaded()) return ret;
 	int count = susynclib().GetModOptionCount(name);
 	for (int i = 0; i < count; ++i)
 	{
 		GetOptionEntry(i, ret );
 	}
+	m_game_gameoptions[name] = ret;
 	return ret;
 }
 

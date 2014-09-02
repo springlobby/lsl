@@ -149,6 +149,8 @@ private:
     /// susynclib(), there's a good chance main thread blocks on some
     /// WorkerThread operation... cache is invalidated on reload.
     std::string m_cache_path;
+	std::map<std::string, GameOptions> m_map_gameoptions;
+	std::map<std::string, GameOptions> m_game_gameoptions;
 
 	mutable boost::mutex m_lock;
 	WorkerThread* m_cache_thread;
