@@ -25,11 +25,16 @@
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
+#define ASYNC_LOAD 0
+#if ASYNC_LOAD
 #define TRY_LOCK(ret) \
 	boost::mutex::scoped_try_lock lock_criticalsection(m_lock); \
 	if (!lock_criticalsection.owns_lock()) { \
 		return ret; \
 	}
+#else
+#define TRY_LOCK(ret)
+#endif
 
 #define ASSERT_EXCEPTION(cond,msg) do { if (!(cond)) { LSL_THROW( unitsync, msg ); } } while (0)
 
@@ -491,7 +496,9 @@ StringVector Unitsync::GetAIList( const std::string& modname ) const
 
 void Unitsync::UnSetCurrentMod()
 {
+#if ASYNC_LOAD
 	LOCK_UNITSYNC;
+#endif
 	try
 	{
 		susynclib().UnSetCurrentMod();
@@ -713,11 +720,14 @@ MapInfo Unitsync::_GetMapInfoEx( const std::string& mapname )
 
 bool Unitsync::ReloadUnitSyncLib()
 {
+#if ASYNC_LOAD
 	LOCK_UNITSYNC;
+#endif
 	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync();
 	if (path.empty())
 		return false;
-	LoadUnitSyncLibAsync(path); //FIXME: protect calls to cache vars (they are accessed from thread and outside)
+	//LoadUnitSyncLibAsync(path); //FIXME: repair/use this!
+	LoadUnitSyncLib(path);
 	return true;
 }
 
@@ -727,7 +737,9 @@ void Unitsync::SetSpringDataPath( const std::string& path )
 	if (!IsLoaded()) {
 		return;
 	}
+#if ASYNC_LOAD
 	LOCK_UNITSYNC;
+#endif
 
 	susynclib().SetSpringConfigString( "SpringData", path );
 }
@@ -842,7 +854,9 @@ bool Unitsync::FileExists( const std::string& name ) const
 
 std::string Unitsync::GetArchivePath( const std::string& name ) const
 {
+#if ASYNC_LOAD
 	LOCK_UNITSYNC;
+#endif
 	return susynclib().GetArchivePath( name );
 }
 
