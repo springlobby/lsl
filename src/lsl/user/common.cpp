@@ -20,7 +20,7 @@ void CommonUser::UpdateBattleStatus( const UserBattleStatus& status )
 	if( !status.aishortname.empty() ) m_bstatus.aishortname = status.aishortname;
 	if( !status.airawname.empty() ) m_bstatus.airawname = status.airawname;
 	if( !status.aiversion.empty() ) m_bstatus.aiversion = status.aiversion;
-	if( !status.aitype > 0 ) m_bstatus.aitype = status.aitype;
+	if( !(status.aitype > 0) ) m_bstatus.aitype = status.aitype;
 	if( !status.owner.empty() ) m_bstatus.owner = status.owner;
 	if( status.pos.x > 0 ) m_bstatus.pos.x = status.pos.x;
 	if( status.pos.y > 0 ) m_bstatus.pos.y = status.pos.y;
@@ -36,7 +36,10 @@ void CommonUser::SetStatus( const UserStatus& status )
 }
 
 CommonUser::CommonUser(const std::string id, const std::string nick, const std::string country, const int cpu)
-    : m_id(id), m_nick(nick), m_country(country), m_cpu(cpu)
+	: m_nick(nick)
+	, m_country(country)
+	, m_id(id)
+	, m_cpu(cpu)
 {}
 
 std::string CommonUser::GetNewUserId()

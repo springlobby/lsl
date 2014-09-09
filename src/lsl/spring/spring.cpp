@@ -320,7 +320,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     }
 
     long startpostype = Util::FromString<long>(
-            battle->CustomBattleOptions()->getSingleValue( "startpostype", LSL::OptionsWrapper::EngineOption ) );
+            battle->CustomBattleOptions()->getSingleValue( "startpostype", LSL::Enum::EngineOption ) );
 
     std::vector<StartPos> remap_positions;
     if ( battle->IsProxy() && ( startpostype != Enum::ST_Pick ) && ( startpostype != Enum::ST_Choose ) )
@@ -360,7 +360,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     else tdf.Append( "startpostype", startpostype );
 
     tdf.EnterSection( "mapoptions" );
-    LSL::OptionsWrapper::stringTripleVec optlistMap = battle->CustomBattleOptions()->getOptions( LSL::OptionsWrapper::MapOption );
+    LSL::OptionsWrapper::stringTripleVec optlistMap = battle->CustomBattleOptions()->getOptions( LSL::Enum::MapOption );
     for (LSL::OptionsWrapper::stringTripleVec::const_iterator it = optlistMap.begin(); it != optlistMap.end(); ++it)
     {
         tdf.Append(it->first,it->second.second);
@@ -370,7 +370,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
 
     tdf.EnterSection("modoptions");
     tdf.Append( "relayhoststartpostype", startpostype ); // also save the original wanted setting
-    LSL::OptionsWrapper::stringTripleVec optlistMod = battle->CustomBattleOptions()->getOptions( LSL::OptionsWrapper::ModOption );
+    LSL::OptionsWrapper::stringTripleVec optlistMod = battle->CustomBattleOptions()->getOptions( LSL::Enum::ModOption );
     for (LSL::OptionsWrapper::stringTripleVec::const_iterator it = optlistMod.begin(); it != optlistMod.end(); ++it)
     {
         tdf.Append(it->first,it->second.second);
@@ -468,7 +468,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
             int optionmapindex = battle->CustomBattleOptions()->GetAIOptionIndex( user->Nick() );
             if ( optionmapindex > 0 )
             {
-                LSL::OptionsWrapper::stringTripleVec optlistMod_ = battle->CustomBattleOptions()->getOptions( (LSL::OptionsWrapper::GameOption)optionmapindex );
+                LSL::OptionsWrapper::stringTripleVec optlistMod_ = battle->CustomBattleOptions()->getOptions( (LSL::Enum::GameOption)optionmapindex );
                 for (LSL::OptionsWrapper::stringTripleVec::const_iterator it = optlistMod_.begin(); it != optlistMod_.end(); ++it)
                 {
                     tdf.Append(it->first,it->second.second);

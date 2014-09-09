@@ -24,14 +24,14 @@ ServerImpl::ServerImpl(Server *serv)
     , m_ping_timeout(40)
     , m_ping_interval(10)
     , m_server_rate_limit(800)
-    , m_message_size_limit(1024)
+    , m_udp_private_port(0)
     , m_id_transmission( true )
+    , m_message_size_limit(1024)
     , m_redirecting( false )
     , m_connected(false)
     , m_online(false)
-    , m_udp_private_port(0)
-    , m_udp_reply_timeout(0)
     , m_buffer("")
+    , m_udp_reply_timeout(0)
     , m_iface( serv )
 {
     m_sock->sig_dataReceived.connect( boost::bind( &ServerImpl::ExecuteCommand, this, _1, _2 ) );
@@ -424,7 +424,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 	if ( ( update & Enum::HI_Send_All_opts ) > 0 )
 	{
 		std::string cmd;
-		OptionsWrapper::stringTripleVec optlistMap = m_current_battle->CustomBattleOptions()->getOptions( LSL::OptionsWrapper::MapOption );
+		OptionsWrapper::stringTripleVec optlistMap = m_current_battle->CustomBattleOptions()->getOptions( LSL::Enum::MapOption );
 		for (LSL::OptionsWrapper::stringTripleVec::const_iterator it = optlistMap.begin(); it != optlistMap.end(); ++it)
 		{
 			std::string newcmd = "game/mapoptions/" + it->first + "=" + it->second.second + "\t";
@@ -435,7 +435,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 			}
 			cmd += newcmd;
 		}
-		OptionsWrapper::stringTripleVec optlistMod = m_current_battle->CustomBattleOptions()->getOptions( LSL::OptionsWrapper::ModOption );
+		OptionsWrapper::stringTripleVec optlistMod = m_current_battle->CustomBattleOptions()->getOptions( LSL::Enum::ModOption );
 		for (LSL::OptionsWrapper::stringTripleVec::const_iterator it = optlistMod.begin(); it != optlistMod.end(); ++it)
 		{
 			std::string newcmd = "game/modoptions/" + it->first + "=" + it->second.second + "\t";
@@ -446,7 +446,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 			}
 			cmd += newcmd;
 		}
-		OptionsWrapper::stringTripleVec optlistEng = m_current_battle->CustomBattleOptions()->getOptions( LSL::OptionsWrapper::EngineOption );
+		OptionsWrapper::stringTripleVec optlistEng = m_current_battle->CustomBattleOptions()->getOptions( LSL::Enum::EngineOption );
 		for (LSL::OptionsWrapper::stringTripleVec::const_iterator it = optlistEng.begin(); it != optlistEng.end(); ++it)
 		{
 			std::string newcmd = "game/" + it->first + "=" + it->second.second + "\t";
@@ -511,17 +511,17 @@ void ServerImpl::SendHostInfo( int type, const std::string& key )
 
 	std::string cmd;
 
-	if ( type == LSL::OptionsWrapper::MapOption )
+	if ( type == LSL::Enum::MapOption )
 	{
-		cmd = "game/mapoptions/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, LSL::OptionsWrapper::MapOption );
+		cmd = "game/mapoptions/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, LSL::Enum::MapOption );
 	}
-	else if ( type == LSL::OptionsWrapper::ModOption )
+	else if ( type == LSL::Enum::ModOption )
 	{
-		cmd = "game/modoptions/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, LSL::OptionsWrapper::ModOption );
+		cmd = "game/modoptions/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, LSL::Enum::ModOption );
 	}
-	else if ( type == LSL::OptionsWrapper::EngineOption )
+	else if ( type == LSL::Enum::EngineOption )
 	{
-		cmd = "game/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, LSL::OptionsWrapper::EngineOption );
+		cmd = "game/" + key + "=" + m_current_battle->CustomBattleOptions()->getSingleValue( key, LSL::Enum::EngineOption );
 	}
     if ( !m_current_battle->IsProxy() )
         SendCmd( "SETSCRIPTTAGS", cmd );
