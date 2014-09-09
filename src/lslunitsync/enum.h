@@ -20,6 +20,16 @@ enum OptionControlType{
 	oct_someothers
 };
 
+//! enum to differentiate option category easily at runtime
+enum GameOption{
+	PrivateOptions      = 3,
+	EngineOption        = 2,
+	MapOption           = 1,
+	ModOption           = 0,
+	LastOption          = 6
+};// should reflect: optionCategoriesCount
+
+
 
 } //namespace Enum {
 } //namespace LSL {

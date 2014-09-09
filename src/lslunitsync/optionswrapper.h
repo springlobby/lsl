@@ -55,15 +55,6 @@ public:
     typedef std::map<int, GameOptions> GameOptionsMap;
     typedef std::map<int, mmSectionTree> mmSectionTreeMap;
 
-    //! enum to differentiate option category easily at runtime
-    enum GameOption{
-        PrivateOptions      = 3,
-        EngineOption        = 2,
-        MapOption           = 1,
-        ModOption           = 0,
-        LastOption          = 6
-    };// should reflect: optionCategoriesCount
-
 	//does nothing
 	OptionsWrapper();
 	virtual ~OptionsWrapper();
@@ -82,7 +73,7 @@ public:
 	 * \param name Mod/Mapname
 	 * \return true if load successful, false otherwise
 	 */
-    bool loadOptions(GameOption flag, const std::string& name);
+    bool loadOptions(Enum::GameOption flag, const std::string& name);
 	//! checks if given key can be found in specified container
 	/*!
 	 * \param key the key that should be checked for existance in containers
@@ -91,7 +82,7 @@ public:
 	 * \param optType will contain the corresponding OptionType if key is found, opt_undefined otherwise
 	 * \return true if key is found, false otherwise
 	 */
-    bool keyExists(const std::string& key, const GameOption flag, const bool showError, Enum::OptionType& optType) const;
+    bool keyExists(const std::string& key, const LSL::Enum::GameOption flag, const bool showError, Enum::OptionType& optType) const;
 	//! checks if given key can be found in all containers
 	/*!
 	 * \param key the key that should be checked for existance in containers
@@ -103,7 +94,7 @@ public:
 	 * \param key the key that should be checked for existance in containers
 	 * \return they container section
 	 */
-	GameOption GetSection( const std::string& key ) const;
+	LSL::Enum::GameOption GetSection( const std::string& key ) const;
 	//! given a vector of key/value pairs sets the appropiate options to new values
 	/*!	Every new value is tested for meeting boundary conditions, type, etc.
 	 * If test fails error is logged and false is returned.
@@ -111,20 +102,20 @@ public:
 	 * \param flag which OptionType is to be processed
 	 * \return false if ANY error occured, true otherwise
 	 */
-    bool setOptions(stringPairVec* values,GameOption flag);
+    bool setOptions(stringPairVec* values,Enum::GameOption flag);
 	//! get all options of one GameOption
 	/*! the output has the following format: < std::string , Pair < std::string , std::string > >
 	 * meaning < key , < name , value > >
 	 * \param triples this will contain the options after the function
 	 * \param flag which OptionType is to be processed
 	 */
-    stringTripleVec getOptions( GameOption flag ) const;
+    stringTripleVec getOptions( Enum::GameOption flag ) const;
 	//! similar to getOptions, instead of vector a map is used and the name is not stored
-	std::map<std::string,std::string> getOptionsMap(GameOption) const;
+	std::map<std::string,std::string> getOptionsMap(Enum::GameOption) const;
 	//! recreates ALL containers
 	void unLoadOptions();
 	//! recreates the containers of corresponding flag
-	void unLoadOptions(GameOption flag);
+	void unLoadOptions(Enum::GameOption flag);
 
 	//! returns value of specified key
 	/*! searches all containers for key
@@ -136,13 +127,13 @@ public:
 	 * \return value of key if key found, "" otherwise
 	 */
 
-	std::string getSingleValue(const std::string& key, GameOption flag) const;
+	std::string getSingleValue(const std::string& key, Enum::GameOption flag) const;
 
-	std::string getDefaultValue(const std::string& key, GameOption flag) const;
+	std::string getDefaultValue(const std::string& key, Enum::GameOption flag) const;
 
 	//! sets a single option in specified container
 	/*! \return true if success, false otherwise */
-	bool setSingleOption(const std::string& key, const std::string& value, GameOption modmapFlag);
+	bool setSingleOption(const std::string& key, const std::string& value, Enum::GameOption modmapFlag);
 	//! same as before, but tries all containers
 	bool setSingleOption(const std::string& key, const std::string& value);
 
@@ -150,10 +141,10 @@ public:
     Enum::OptionType GetSingleOptionType (const std::string& key) const;
 
 	//!returns the cbx_choice associated w current listoption
-	std::string GetNameListOptValue(const std::string& key, GameOption flag) const;
+	std::string GetNameListOptValue(const std::string& key, Enum::GameOption flag) const;
 
 	//! returns the listitem key associated with listitem name
-	std::string GetNameListOptItemKey(const std::string& optkey, const std::string& itemname, GameOption flag) const;
+	std::string GetNameListOptItemKey(const std::string& optkey, const std::string& itemname, Enum::GameOption flag) const;
 
 	GameOptionsMap m_opts;
 
@@ -161,10 +152,10 @@ public:
     void ParseSectionMap( mmSectionTree& section_tree, const OptionMapSection& section_map );
 
 	//! Merge this another wrapper's options into this one, with the other'soptions taking precendence
-	bool MergeOptions( const OptionsWrapper& other, GameOption merge_into );
+	bool MergeOptions( const OptionsWrapper& other, Enum::GameOption merge_into );
 protected:
 	//! used for code clarity in setOptions()
-    bool setSingleOptionTypeSwitch(const std::string& key, const std::string& value, GameOption modmapFlag, Enum::OptionType optType);
+    bool setSingleOptionTypeSwitch(const std::string& key, const std::string& value, Enum::GameOption modmapFlag, Enum::OptionType optType);
 
 	mmSectionTreeMap m_sections;
 

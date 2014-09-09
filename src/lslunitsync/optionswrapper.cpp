@@ -13,19 +13,19 @@ namespace LSL {
 OptionsWrapper::OptionsWrapper()
 {
 	unLoadOptions();
-    loadOptions( EngineOption, "" );
-    loadOptions( PrivateOptions,"" );
+    loadOptions( Enum::EngineOption, "" );
+    loadOptions( Enum::PrivateOptions,"" );
 }
 
 void OptionsWrapper::unLoadOptions()
 {
-	for (int i = 0; i < LastOption; ++i)
+	for (int i = 0; i < Enum::LastOption; ++i)
 	{
-		unLoadOptions( (GameOption)i );
+		unLoadOptions( (Enum::GameOption)i );
 	}
 }
 
-void OptionsWrapper::unLoadOptions(GameOption i)
+void OptionsWrapper::unLoadOptions(Enum::GameOption i)
 {
   GameOptions empty;
   m_opts[i] = empty;
@@ -40,15 +40,15 @@ OptionsWrapper::~OptionsWrapper()
 
 bool OptionsWrapper::loadMapOptions( const std::string& mapname)
 {
-	return loadOptions(MapOption,mapname);
+	return loadOptions(Enum::MapOption,mapname);
 }
 
 Enum::OptionType OptionsWrapper::GetSingleOptionType ( const std::string& key) const
 {
     Enum::OptionType type = Enum::opt_undefined;
-	for ( int g = 0; g < LastOption; g++ )
+	for ( int g = 0; g < Enum::LastOption; g++ )
 	{
-		if (keyExists(key,(GameOption)g,false,type))
+		if (keyExists(key,(Enum::GameOption)g,false,type))
 			return type;
 	}
     return Enum::opt_undefined;
@@ -57,9 +57,9 @@ Enum::OptionType OptionsWrapper::GetSingleOptionType ( const std::string& key) c
 bool OptionsWrapper::loadAIOptions( const std::string& modname, int aiindex,const std::string& ainame )
 {
 	int mapindex = m_ais_indexes[ainame];
-	if ( mapindex == 0 ) mapindex = m_ais_indexes.size() + LastOption;
+	if ( mapindex == 0 ) mapindex = m_ais_indexes.size() + Enum::LastOption;
 	m_ais_indexes[ainame] = mapindex;
-	unLoadOptions((GameOption)mapindex);
+	unLoadOptions((Enum::GameOption)mapindex);
 	try
 	{
 		GameOptions opt = usync().GetAIOptions( modname, aiindex );
@@ -80,7 +80,7 @@ int OptionsWrapper::GetAIOptionIndex( const std::string& nick ) const
 	return pos;
 }
 
-bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name)
+bool OptionsWrapper::loadOptions( Enum::GameOption modmapFlag, const std::string& name)
 {
 	unLoadOptions(modmapFlag);
 	GameOptions opt;
@@ -88,7 +88,7 @@ bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name
 	{
 	    default:
             break;
-		case MapOption:
+		case Enum::MapOption:
 			try
 			{
                 opt = usync().GetMapOptions(name);
@@ -101,7 +101,7 @@ bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name
 			}
 			break;
 
-		case ModOption:
+		case Enum::ModOption:
 			try
 			{
                 opt = usync().GetModOptions(name);
@@ -114,7 +114,7 @@ bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name
 			}
 			break;
 
-        case EngineOption: {
+        case Enum::EngineOption: {
             //TODO Fixed,random and so forth are intls
             mmOptionList startpos( "Start Position Type", "startpostype", "How players will select where to be spawned in the map\n0: fixed map positions\n1: random map positions\n2: choose in game\n3: choose in the lobby before starting", "0" );
             startpos.addItem( "0", "Fixed", "Use the start positions defined in the map, the positions will be assigned incrementally from the team with lowest number to highest");
@@ -125,7 +125,7 @@ bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name
             break;
         }
 
-        case PrivateOptions: {
+        case Enum::PrivateOptions: {
             opt.string_map["restrictions"] = mmOptionString("List of restricted units", "restrictedunits", "Units in this list won't be available in game", "", 0 ); // tab separated list
             opt.string_map["mapname"] = mmOptionString("Map name", "mapname", "Map name", "", 0 );
             break;
@@ -135,17 +135,17 @@ bool OptionsWrapper::loadOptions( GameOption modmapFlag, const std::string& name
 	return true;
 }
 
-OptionsWrapper::GameOption OptionsWrapper::GetSection( const std::string& key ) const
+Enum::GameOption OptionsWrapper::GetSection( const std::string& key ) const
 {
-	GameOption ret = LastOption;
+	Enum::GameOption ret = Enum::LastOption;
 	bool found = false;
-	for ( int flag = 0; flag < PrivateOptions; flag++ )
+	for ( int flag = 0; flag < Enum::PrivateOptions; flag++ )
 	{
         Enum::OptionType optType = Enum::opt_undefined;
-		found = keyExists( key, (GameOption)flag, false, optType );
+		found = keyExists( key, (Enum::GameOption)flag, false, optType );
 		if ( found )
 		{
-			 ret = (GameOption)flag;
+			 ret = (Enum::GameOption)flag;
 			 break;
 		}
 	}
@@ -155,16 +155,16 @@ OptionsWrapper::GameOption OptionsWrapper::GetSection( const std::string& key ) 
 bool OptionsWrapper::keyExists( const std::string& key ) const
 {
 	bool found = false;
-	for ( int flag = 0; flag < PrivateOptions; flag++ )
+	for ( int flag = 0; flag < Enum::PrivateOptions; flag++ )
 	{
         Enum::OptionType optType = Enum::opt_undefined;
-		found = keyExists( key, (GameOption)flag, false, optType );
+		found = keyExists( key, (Enum::GameOption)flag, false, optType );
 		if ( found ) break;
 	}
 	return found;
 }
 
-bool OptionsWrapper::keyExists( const std::string& key, const GameOption modmapFlag, bool showError, Enum::OptionType& optType ) const
+bool OptionsWrapper::keyExists( const std::string& key, const Enum::GameOption modmapFlag, bool showError, Enum::OptionType& optType ) const
 {
     //std::string duplicateKeyError = "Please contact the game's author and tell him\nto use unique keys in his ModOptions.lua";
 	bool exists = false;
@@ -213,7 +213,7 @@ bool OptionsWrapper::keyExists( const std::string& key, const GameOption modmapF
 		return false;
 }
 
-bool OptionsWrapper::setOptions(stringPairVec* options, GameOption modmapFlag)
+bool OptionsWrapper::setOptions(stringPairVec* options, Enum::GameOption modmapFlag)
 {
     for (stringPairVec::const_iterator it = options->begin(); it != options->end(); ++it)
 	{
@@ -233,7 +233,7 @@ bool OptionsWrapper::setOptions(stringPairVec* options, GameOption modmapFlag)
 	return true;
 }
 
-OptionsWrapper::stringTripleVec OptionsWrapper::getOptions( GameOption modmapFlag) const
+OptionsWrapper::stringTripleVec OptionsWrapper::getOptions( Enum::GameOption modmapFlag) const
 {
     stringTripleVec list;
     GameOptionsMapCIter optIt = m_opts.find((int)modmapFlag);
@@ -258,7 +258,7 @@ OptionsWrapper::stringTripleVec OptionsWrapper::getOptions( GameOption modmapFla
 	return list;
 }
 
-std::map<std::string,std::string> LSL::OptionsWrapper::getOptionsMap( GameOption modmapFlag ) const
+std::map<std::string,std::string> LSL::OptionsWrapper::getOptionsMap( Enum::GameOption modmapFlag ) const
 {
     std::map<std::string,std::string> map;
     GameOptionsMapCIter optIt = m_opts.find((int)modmapFlag);
@@ -283,7 +283,7 @@ std::map<std::string,std::string> LSL::OptionsWrapper::getOptionsMap( GameOption
 	return map;
 }
 
-bool OptionsWrapper::setSingleOption( const std::string& key, const std::string& value,GameOption modmapFlag)
+bool OptionsWrapper::setSingleOption( const std::string& key, const std::string& value,Enum::GameOption modmapFlag)
 {
     Enum::OptionType optType = Enum::opt_undefined;
 	keyExists( key, modmapFlag, false, optType );
@@ -293,19 +293,19 @@ bool OptionsWrapper::setSingleOption( const std::string& key, const std::string&
 bool OptionsWrapper::setSingleOption( const std::string& key, const std::string& value )
 {
     Enum::OptionType optType = Enum::opt_undefined;
-	if (keyExists(key,ModOption,false,optType))
-		return setSingleOptionTypeSwitch(key,value,ModOption,optType);
-	else if (keyExists(key,MapOption,false,optType))
-		return setSingleOptionTypeSwitch(key,value,MapOption,optType);
+	if (keyExists(key,Enum::ModOption,false,optType))
+		return setSingleOptionTypeSwitch(key,value,Enum::ModOption,optType);
+	else if (keyExists(key,Enum::MapOption,false,optType))
+		return setSingleOptionTypeSwitch(key,value,Enum::MapOption,optType);
 	else
 		return false;
 }
 
 std::string OptionsWrapper::getSingleValue( const std::string& key) const
 {
-	for ( int g = 0; g < LastOption; g++ )
+	for ( int g = 0; g < Enum::LastOption; g++ )
 	{
-		const std::string tmp = getSingleValue(key, (GameOption)g);
+		const std::string tmp = getSingleValue(key, (Enum::GameOption)g);
         if (tmp != "")
 			return tmp;
 	}
@@ -321,7 +321,7 @@ static inline typename MapType::mapped_type GetItem( const MapType& map, const t
         return typename MapType::mapped_type();
 }
 
-std::string OptionsWrapper::getSingleValue( const std::string& key, GameOption modmapFlag) const
+std::string OptionsWrapper::getSingleValue( const std::string& key, Enum::GameOption modmapFlag) const
 {
     Enum::OptionType optType = Enum::opt_undefined;
 
@@ -350,7 +350,7 @@ std::string OptionsWrapper::getSingleValue( const std::string& key, GameOption m
     return "";
 }
 
-std::string OptionsWrapper::getDefaultValue( const std::string& key, GameOption modmapFlag) const
+std::string OptionsWrapper::getDefaultValue( const std::string& key, Enum::GameOption modmapFlag) const
 {
     Enum::OptionType optType = Enum::opt_undefined;
 	std::string ret;
@@ -393,7 +393,7 @@ std::string OptionsWrapper::getDefaultValue( const std::string& key, GameOption 
 	return ret;
 }
 
-bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, const std::string& value, GameOption modmapFlag, Enum::OptionType optType)
+bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, const std::string& value, Enum::GameOption modmapFlag, Enum::OptionType optType)
 {
 	GameOptions& gameoptions = m_opts[modmapFlag];
 	switch (optType)
@@ -474,7 +474,7 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 	return true;
 }
 
-std::string OptionsWrapper::GetNameListOptValue( const std::string& key, GameOption flag) const
+std::string OptionsWrapper::GetNameListOptValue( const std::string& key, Enum::GameOption flag) const
 {
     Enum::OptionType optType;
 	if ( keyExists(key,flag,false, optType) )
@@ -493,7 +493,7 @@ std::string OptionsWrapper::GetNameListOptValue( const std::string& key, GameOpt
     return "";
 }
 
-std::string OptionsWrapper::GetNameListOptItemKey( const std::string& optkey, const std::string& itemname, GameOption flag) const
+std::string OptionsWrapper::GetNameListOptItemKey( const std::string& optkey, const std::string& itemname, Enum::GameOption flag) const
 {
     Enum::OptionType optType;
 	if ( keyExists(optkey,flag,false, optType) )
@@ -517,7 +517,7 @@ std::string OptionsWrapper::GetNameListOptItemKey( const std::string& optkey, co
     return "";
 }
 
-bool OptionsWrapper::MergeOptions( const OptionsWrapper& other, GameOption merge_into )
+bool OptionsWrapper::MergeOptions( const OptionsWrapper& other, Enum::GameOption merge_into )
 {
     GameOptionsMapCIter other_it = other.m_opts.begin();
     for ( ; other_it != other.m_opts.end(); ++other_it ) {
