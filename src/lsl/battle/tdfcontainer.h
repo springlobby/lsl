@@ -36,8 +36,7 @@ class TDFWriter
 
 		void AppendLineBreak();
 		void Close();
-	protected:
-	private:
+private:
 		std::stringstream& m_stream;
 		int m_depth;
 };
@@ -58,7 +57,7 @@ typedef RefcountedPointer<DataLeaf> PDataLeaf;
 class Node: public RefcountedContainer , public boost::noncopyable
 {
 		friend class DataList;
-	protected:
+private:
 		DataList *parent;
 		Node *list_prev;
 		Node *list_next;
@@ -100,58 +99,58 @@ class Node: public RefcountedContainer , public boost::noncopyable
  * Saving tdf:
 **/
 class DataList: public Node {
-	protected:
-		std::map<std::string, PNode> nodes;
-		Node list_loop;// next is first, prev is last in the list
-		typedef std::map<std::string, PNode>::iterator nodes_iterator;
-	public:
-		DataList();
-		~DataList();
+private:
+	std::map<std::string, PNode> nodes;
+	Node list_loop;// next is first, prev is last in the list
+	typedef std::map<std::string, PNode>::iterator nodes_iterator;
+public:
+	DataList();
+	~DataList();
 
-		bool Insert( PNode node );// return false if such entry already exists.
-		bool InsertAt( PNode node, PNode where );// return false if such entry already exists. Inserts right before given
+	bool Insert( PNode node );// return false if such entry already exists.
+	bool InsertAt( PNode node, PNode where );// return false if such entry already exists. Inserts right before given
 
-		// rename if such entry already exists. Names is like name!1 or name!2 etc
-		void InsertRename( PNode node );
-		void InsertRenameAt( PNode node, PNode where );
-		bool Remove( const std::string& str );
-		bool Remove( PNode node );
-		bool Rename( const std::string& old_name, const std::string& new_name );
-		PNode Find( const std::string& str );// find by name
+	// rename if such entry already exists. Names is like name!1 or name!2 etc
+	void InsertRename( PNode node );
+	void InsertRenameAt( PNode node, PNode where );
+	bool Remove( const std::string& str );
+	bool Remove( PNode node );
+	bool Rename( const std::string& old_name, const std::string& new_name );
+	PNode Find( const std::string& str );// find by name
 
-		std::string Path();
+	std::string Path();
 
-		PNode FindByPath( const std::string& str );
+	PNode FindByPath( const std::string& str );
 
-		PNode Next( PNode what );
-		PNode Prev( PNode what );
-		PNode End();
-		PNode First();
-		PNode Last();
+	PNode Next( PNode what );
+	PNode Prev( PNode what );
+	PNode End();
+	PNode First();
+	PNode Last();
 
-		virtual void Save( TDFWriter &f );
-		virtual void Load( Tokenizer &f );
+	virtual void Save( TDFWriter &f );
+	virtual void Load( Tokenizer &f );
 
-		int GetInt( const std::string& name, int default_value = 0, bool *it_worked = NULL );
-		double GetDouble( const std::string& name, double default_value = 0, bool *it_worked = NULL );
-		std::string GetString( const std::string& name, const std::string& default_value = std::string(), bool *it_worked = NULL );
-		/// returns number of values that were successfully read
-		int GetDoubleArray( const std::string& name, int n_values, double *values );
+	int GetInt( const std::string& name, int default_value = 0, bool *it_worked = NULL );
+	double GetDouble( const std::string& name, double default_value = 0, bool *it_worked = NULL );
+	std::string GetString( const std::string& name, const std::string& default_value = std::string(), bool *it_worked = NULL );
+	/// returns number of values that were successfully read
+	int GetDoubleArray( const std::string& name, int n_values, double *values );
 
-		lslColor GetColour( const std::string& name, const lslColor &default_value = lslColor( 0, 0, 0 ), bool *it_worked = NULL );
+	lslColor GetColour( const std::string& name, const lslColor &default_value = lslColor( 0, 0, 0 ), bool *it_worked = NULL );
 };
 
 //! docme
 class DataLeaf: public Node {
 		friend class DataList;
-	protected:
-		std::string value;
-	public:
-		std::string GetValue();
-		void SetValue( const std::string& value );
+private:
+	std::string value;
+public:
+	std::string GetValue();
+	void SetValue( const std::string& value );
 
-		virtual void Save( TDFWriter &f );
-		virtual void Load( Tokenizer &f );
+	virtual void Save( TDFWriter &f );
+	virtual void Load( Tokenizer &f );
 };
 
 inline bool IsLetter( char c ) {

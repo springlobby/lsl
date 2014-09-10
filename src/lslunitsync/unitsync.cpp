@@ -903,10 +903,15 @@ public:
 		}
 		PostEvent();
 	}
-
 protected:
-	Unitsync* m_usync;
 	std::string m_mapname;
+	Unitsync* m_usync;
+
+	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId ):
+		m_usync(usync),
+		m_mapname(mapname.c_str())
+	{}
+private:
 
 	void PostEvent()
 	{
@@ -915,10 +920,6 @@ protected:
 
 	virtual void RunCore() = 0;
 
-	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId ):
-		m_usync(usync),
-		m_mapname(mapname.c_str())
-	{}
 };
 
 class GetMapImageAsyncWorkItem : public GetMapImageAsyncResult

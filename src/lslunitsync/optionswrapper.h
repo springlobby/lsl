@@ -31,7 +31,7 @@ class mmSectionTree
 //        SectionVector GetSectionVector();
         void Clear();
 
-    protected:
+private:
         //map key -> option
         typedef std::map< std::string, mmOptionSection > SectionMap;
         SectionMap m_section_map;
@@ -153,7 +153,8 @@ public:
 
 	//! Merge this another wrapper's options into this one, with the other'soptions taking precendence
 	bool MergeOptions( const OptionsWrapper& other, Enum::GameOption merge_into );
-protected:
+
+private:
 	//! used for code clarity in setOptions()
     bool setSingleOptionTypeSwitch(const std::string& key, const std::string& value, Enum::GameOption modmapFlag, Enum::OptionType optType);
 

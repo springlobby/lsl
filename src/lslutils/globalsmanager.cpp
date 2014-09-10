@@ -10,19 +10,14 @@ namespace Util {
 
 class GlobalsManager
 {
-	std::vector<IGlobalObjectHolder *> globals;
-	bool de_initialized;
-
 public:
 	GlobalsManager();
 	bool RegisterGlobal(IGlobalObjectHolder *obj);
 	void DestroyAll();
 	virtual ~GlobalsManager();
-
-protected:
-
 private:
-
+	std::vector<IGlobalObjectHolder *> globals;
+	bool de_initialized;
 };
 
 GlobalsManager *mgr=NULL;
