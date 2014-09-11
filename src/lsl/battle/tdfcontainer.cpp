@@ -650,7 +650,8 @@ int DataList::GetDoubleArray( const std::string &f_name, int n_values, double *v
 	int values_read = 0;
 	for ( i = 0;i < n_values && tokens.size(); ++i ) {
 		std::string s = tokens[i];
-		//double d = Util::FromString<double>( s );
+		double d = Util::FromString<double>( s );
+		values[i] = d;
 		values_read++;
 	}
 	return values_read;
