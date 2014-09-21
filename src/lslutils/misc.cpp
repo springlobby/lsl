@@ -25,11 +25,6 @@ FILE* lslopen(const std::string& filename, const std::string& mode)
 
 }
 
-std::string GetHostCPUSpeed()
-{
-	return "667";
-}
-
 std::string GetLibLobbyVersion()
 {
 	return "0";

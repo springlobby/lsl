@@ -134,10 +134,6 @@ public:
 	int GetInt( const std::string& name, int default_value = 0, bool *it_worked = NULL );
 	double GetDouble( const std::string& name, double default_value = 0, bool *it_worked = NULL );
 	std::string GetString( const std::string& name, const std::string& default_value = std::string(), bool *it_worked = NULL );
-	/// returns number of values that were successfully read
-	int GetDoubleArray( const std::string& name, int n_values, double *values );
-
-	lslColor GetColour( const std::string& name, const lslColor &default_value = lslColor( 0, 0, 0 ), bool *it_worked = NULL );
 };
 
 //! docme

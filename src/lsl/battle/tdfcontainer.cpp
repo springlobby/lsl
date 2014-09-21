@@ -639,38 +639,6 @@ std::string DataList::GetString( const std::string &f_name, const std::string &d
 	}
 	return leaf->GetValue();
 }
-int DataList::GetDoubleArray( const std::string &f_name, int n_values, double *values ) {
-	PDataLeaf leaf( Find( f_name ) );
-	if ( !leaf.ok() ) {
-		return 0;
-	}
-    //! TODO seperator?
-    StringVector tokens = Util::StringTokenize( leaf->GetValue(), "\n" );
-	int i = 0;
-	int values_read = 0;
-	for ( i = 0;i < n_values && tokens.size(); ++i ) {
-		std::string s = tokens[i];
-		double d = Util::FromString<double>( s );
-		values[i] = d;
-		values_read++;
-	}
-	return values_read;
-}
-
-lslColor DataList::GetColour( const std::string &f_name, const lslColor &default_value, bool *it_worked ) {
-	double values[3];
-	if ( GetDoubleArray( f_name, 3, values ) != 3 ) {
-		if ( it_worked ) {
-			*it_worked = false;
-		}
-		return default_value;
-	}
-	if ( it_worked ) {
-		*it_worked = true;
-	}
-	return lslColor( values[0]*255.99, values[1]*255.99, values[2]*255.99 );
-}
-
 
 std::string DataLeaf::GetValue() {
 	return value;

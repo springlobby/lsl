@@ -21,7 +21,6 @@ struct GameOptions;
 struct CachedMapInfo;
 struct SpringMapInfo;
 class UnitsyncLib;
-class SpringBundle;
 
 #ifdef HAVE_WX
 extern const wxEventType UnitSyncAsyncOperationCompletedEvt;

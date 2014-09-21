@@ -191,8 +191,6 @@ bool AreColorsSimilar( const lslColor& col1, const lslColor& col2, int mindiff )
 //! tokenize input string and convert into rgb color
 lslColor ColorFromFloatString( const std::string& rgb_string );
 
-//! return some potentially quite inaccurate measure of cpu clock speed
-std::string GetHostCPUSpeed();
 //! for release/tarball verions, this is the tag, otherwise it's a compound of last tag, current git hash and commit distance
 std::string GetLibLobbyVersion();
 
