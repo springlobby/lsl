@@ -79,10 +79,8 @@ void Battle::OnRequestBattleStatus()
     bs.ally = GetFreeAlly( true );
     bs.spectator = false;
     bs.color = Util::config().GetBattleLastColor();
+	// FIXME? bs.color = Util::GetFreeColor( GetMe() );
     bs.side = Util::config().GetBattleLastSideSel( GetHostModName() );
-    // theres some highly annoying bug with color changes on player join/leave.
-	if ( !bs.color.IsOk() )
-		bs.color = Util::GetFreeColor( GetMe() );
     SendMyBattleStatus();
 }
 

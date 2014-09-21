@@ -223,7 +223,8 @@ std::vector<lslColor>& GetBigFixColorsPalette( int numteams )
 
 lslColor ColorFromFloatString(const std::string &rgb_string)
 {
-    const StringVector values = Util::StringTokenize( rgb_string, " " );
+    const StringVector values = Util::StringTokenize( rgb_string, " ");
+	assert(values.size() == 3);
     unsigned char decimal_colors[3];
     for ( size_t i = 0; i < 3; ++i) {
         const double value = values.size() > i ? Util::FromString<double>( values[i] ) : 0.0;
