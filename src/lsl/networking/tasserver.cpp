@@ -207,8 +207,8 @@ void ServerImpl::Login(const std::string& user, const std::string& password)
         localaddr = "*";
 //    SendCmd ( "LOGIN", user + " " + pass + " " + Util::GetHostCPUSpeed() + " "
 //			  + localaddr + " liblobby " + Util::GetLibLobbyVersion() + protocol  + "\ta sp");
-    boost::format login_cmd( "%s %s %s %s %s\t%s\ta m sp" );
-    SendCmd ( "LOGIN", (login_cmd % user % pass % Util::GetHostCPUSpeed() % localaddr % "lsl" % protocol).str() );
+    boost::format login_cmd( "%s %s %s %d %s\t%s\ta m sp" );
+    SendCmd ( "LOGIN", (login_cmd % user % pass % 0 % localaddr % "lsl" % protocol).str() );
 
     m_id_transmission = true;
 }
