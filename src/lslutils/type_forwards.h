@@ -29,9 +29,6 @@ namespace Battle {
 template <class T, bool TDestroy>
 class RefcountedPointer;
 
-template < class T > class lslColorBase;
-typedef lslColorBase<unsigned char> lslColor;
-
 namespace TDF {
     class Tokenizer;
     class Node;
@@ -42,6 +39,7 @@ namespace TDF {
     typedef RefcountedPointer<DataLeaf,true> PDataLeaf;
 }
 
+class lslColor;
 class CommonUser;
 class User;
 class Channel;

@@ -177,12 +177,12 @@ void hue(huevec& out, int amount)
 	hue(out, amount, level);
 }
 
-std::vector<lslColor>& GetBigFixColorsPalette( int numteams )
+std::vector<lslColor> GetBigFixColorsPalette( int numteams )
 {
-	static std::vector<lslColor> result;
+	std::vector<lslColor> result;
 	huevec huevector;
-	static int satvalbifurcatepos;
-	static std::vector<double> satvalsplittings;
+	int satvalbifurcatepos;
+	std::vector<double> satvalsplittings;
 	if ( satvalsplittings.empty() ) // insert ranges to bifurcate
 	{
 		satvalsplittings.push_back( 1 );
@@ -258,15 +258,14 @@ lslSize lslSize::MakeFit(const lslSize& bounds)
     }
 }
 
-template <class T>
-lslColorBase<T> lslColorBase<T>::fromHSV(T H, T S, T V)
+lslColor lslColor::fromHSV(unsigned char H, unsigned char S, unsigned char V)
 {
-  T R = 0, G = 0, B = 0;
+  unsigned char R = 0, G = 0, B = 0;
   if (H==0 && S==0) R = G = B = V;
   else {
     H/=60;
     const int i = (int)std::floor(H);
-    const T
+    const unsigned char
       f = (i&1)?(H - i):(1 - H + i),
       m = V*(1 - S),
       n = V*(1 - S*f);
@@ -281,7 +280,7 @@ lslColorBase<T> lslColorBase<T>::fromHSV(T H, T S, T V)
     }
   }
   R*=255; G*=255; B*=255;
-  return lslColorBase<T>((T)(R<0?0:(R>255?255:R)), (T)(G<0?0:(G>255?255:G)), (T)(B<0?0:(B>255?255:B)));
+  return lslColor((unsigned char)(R<0?0:(R>255?255:R)), (unsigned char)(G<0?0:(G>255?255:G)), (unsigned char)(B<0?0:(B>255?255:B)));
 }
 
 } //namespace LSL

@@ -84,7 +84,7 @@ bool IBattle::IsSynced()
 	return synced;
 }
 
-std::vector<lslColor>& IBattle::GetFixColorsPalette( int numteams ) const
+std::vector<lslColor> IBattle::GetFixColorsPalette( int numteams ) const
 {
     return Util::GetBigFixColorsPalette( numteams );
 }

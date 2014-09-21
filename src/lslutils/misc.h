@@ -19,8 +19,6 @@ inline void lslUnusedVar(const T& LSLUNUSED(t)) { }
 namespace LSL {
 
 class lslSize;
-template < class T > class lslColorBase;
-typedef lslColorBase<unsigned char> lslColor;
 
 //! the pseudo index returned for items not in given sequences
 static const int lslNotFound = -1;
@@ -185,7 +183,7 @@ std::string EnsureDelimiter(const std::string& path);
 
 
 //! get a list of minimum numteam colors have maximum total difference in a certain metric
-std::vector<lslColor>& GetBigFixColorsPalette( int numteams );
+std::vector<lslColor> GetBigFixColorsPalette( int numteams );
 //! checks wheter two colors' difference is below mindiff
 bool AreColorsSimilar( const lslColor& col1, const lslColor& col2, int mindiff );
 //! tokenize input string and convert into rgb color
@@ -215,14 +213,19 @@ public:
 };
 
 //! a color tuple class with arbitrarily typed fields
-template < typename T = unsigned char >
-class lslColorBase {
+class lslColor {
 private:
-	T r,g,b,a;
+	unsigned char r,g,b,a;
 public:
-	lslColorBase():r(0),g(0),b(0),a(0){}
-	explicit lslColorBase(T _r, T _g, T _b, T _a = 0)
-		:r(_r),g(_g),b(_b),a(_a){}
+	lslColor()
+		:r(0),g(0),b(0),a(255)
+	{
+	}
+
+	lslColor(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a = 255)
+		:r(_r),g(_g),b(_b),a(_a)
+	{
+	}
 
 	bool operator == (const lslColor& o) const {
 		return r == o.r && 	g == o.g && b == o.b && a == o.a;
@@ -230,11 +233,12 @@ public:
 	bool operator != (const lslColor& o) const {
 		return !(this->operator ==(o));
 	}
-	T Red()   const { return r; }
-	T Green() const { return g; }
-	T Blue()  const { return b; }
+	unsigned char Red()   const { return r; }
+	unsigned char Green() const { return g; }
+	unsigned char Blue()  const { return b; }
+	unsigned char Alpha() const { return a; }
 
-	static lslColorBase<T> fromHSV(T h, T s, T v);
+	static lslColor fromHSV(unsigned char h, unsigned char s, unsigned char v);
 };
 
 } //namespace LSL {

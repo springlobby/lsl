@@ -214,7 +214,7 @@ public:
 	virtual void DeletePreset( const std::string& name );
 	virtual StringVector GetPresetList();
 
-    std::vector<lslColor> &GetFixColorsPalette( int numteams ) const;
+    std::vector<lslColor> GetFixColorsPalette( int numteams ) const;
     virtual int GetClosestFixColor(const lslColor &col, const std::vector<int> &excludes, int difference) const;
     lslColor GetFixColor(int i) const;
     virtual lslColor GetFreeColor( const ConstCommonUserPtr for_whom = UserPtr() ) const;
