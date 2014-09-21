@@ -280,7 +280,7 @@ lslColor lslColor::fromHSV(unsigned char H, unsigned char S, unsigned char V)
     }
   }
   R*=255; G*=255; B*=255;
-  return lslColor((unsigned char)(R<0?0:(R>255?255:R)), (unsigned char)(G<0?0:(G>255?255:G)), (unsigned char)(B<0?0:(B>255?255:B)));
+  return lslColor(R,G,B);
 }
 
 } //namespace LSL
