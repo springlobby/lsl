@@ -18,12 +18,3 @@ endfunction( target_exists )
 
 GET_TARGET_PROPERTY(target_location target_name LOCATION)
 
-if( EXISTS ${XSLTPROC} )
-	add_custom_target( protocol 
-		${XSLTPROC} ${CMAKE_CURRENT_SOURCE_DIR}/protocol/ProtocolDescription_xml2html.xsl 
-		${CMAKE_CURRENT_SOURCE_DIR}/protocol/ProtocolDescription.xml  > ${CMAKE_CURRENT_BINARY_DIR}/ProtocolDescription.html &&
-		${XSLTPROC} ${CMAKE_CURRENT_SOURCE_DIR}/protocol/index.xsl 
-		${CMAKE_CURRENT_SOURCE_DIR}/protocol/ProtocolDescription.xml  > ${CMAKE_CURRENT_BINARY_DIR}/index.html 
-		)
-	add_dependencies( doc protocol )
-endif( EXISTS ${XSLTPROC} )
