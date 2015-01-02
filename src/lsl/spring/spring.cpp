@@ -35,7 +35,9 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <wx/filename.h>
+#ifdef __WXMAC__
+    #include <wx/filename.h>
+#endif
 
 namespace LSL {
 
