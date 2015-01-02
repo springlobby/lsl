@@ -35,6 +35,10 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
 
+#ifdef __WXMAC__
+    #include <wx/filename.h>
+#endif
+
 namespace LSL {
 
 namespace BF = boost::filesystem;
@@ -207,7 +211,8 @@ bool Spring::LaunchSpring( const std::string& params  )
     std::string cmd;// =  "\"" + sett().GetCurrentUsedSpringBinary();
 #ifdef __WXMAC__
     wxChar sep = wxFileName::GetPathSeparator();
-    if ( sett().GetCurrentUsedSpringBinary().AfterLast('.') == "app" )
+    std::string binary = Util::config().GetCurrentUsedSpringBinary();
+    if ( binary.substr(binary.rfind('.') + 1) == "app" )
         cmd += sep + std::string("Contents") + sep + std::string("MacOS") + sep + std::string("spring"); // append app bundle inner path
 #endif
     cmd += "\" " + configfileflags + params;
