@@ -140,9 +140,9 @@ bool SpringBundle::LocateSystemInstalledSpring(LSL::SpringBundle& bundle)
 
 	GetEnv("SPRING_BUNDLE_DIR", paths);
 	GetEnv("PATH", paths);
-	GetEnv("%ProgramFiles%", paths);
-	GetEnv("%ProgramFiles(x86)%", paths);
-	GetEnv("%ProgramFiles(x86)%", paths);
+	GetEnv("ProgramFiles", paths);
+	GetEnv("ProgramFiles(x86)", paths);
+	//GetEnv("ProgramFiles(x64)", paths); //32 bit springlobby can't use 64 bit
 	GetEnv("LD_LIBRARY_PATH", paths);
 	GetEnv("LDPATH", paths);
 
