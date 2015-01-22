@@ -8,12 +8,12 @@
 #include <boost/shared_ptr.hpp>
 
 #include <lslutils/type_forwards.h>
-#include <lslunitsync/unitsync.h> // struct GameOptions
 #include "enum.h"
 
 namespace LSL {
 
 struct mmOptionSection;
+struct GameOptions;
 
 struct dummyConfig {};
 
