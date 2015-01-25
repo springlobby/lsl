@@ -16,12 +16,6 @@ ELSE(NOT MSVC)
 	ADD_DEFINITIONS(-D_RC_MSVC)
 ENDIF(NOT MSVC)
 
-macro( install_if_standalone )
-	if( NOT DEFINED springlobby_SOURCE_DIR ) #we're not included as submodule	
-		install( ${ARGN} )
-	endif()
-endmacro()
-
 #----------------------------------------------------------------------------------------------------
 # General Settings
 #----------------------------------------------------------------------------------------------------
@@ -109,12 +103,14 @@ INCLUDE(cmake/compat_flags.cmake)
 
 OPTION(LSLSERVER
 	"Compile and install lsl-server" ON)
-IF (WIN32)
-	install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS  DESTINATION .)
-	install_if_standalone(DIRECTORY ${CMAKE_INSTALL_PREFIX}/locale DESTINATION .)
-ELSE (WIN32)
-	install_if_standalone(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/lsl-server )
-ENDIF (WIN32)
+
+if(LSLSERVER)
+	IF (WIN32)
+		install(FILES AUTHORS COPYING NEWS README THANKS DESTINATION .)
+	ELSE (WIN32)
+		install(FILES AUTHORS COPYING NEWS README THANKS DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/lsl-server )
+	ENDIF (WIN32)
+endif()
 
 add_subdirectory( src )
 add_subdirectory( doc )

@@ -34,10 +34,14 @@ IF(MINGW)
 	TARGET_LINK_LIBRARIES( lsl-server iphlpapi )
 ENDIF(MINGW)
 
-IF (WIN32)
-    install_if_standalone(TARGETS lsl-server DESTINATION . )
-ELSE (WIN32)
-    install_if_standalone(TARGETS lsl-server 
-		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib 
-		ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
-ENDIF (WIN32)
+if(LSLSERVER)
+	IF (WIN32)
+	    install(TARGETS lsl-server DESTINATION . )
+	ELSE (WIN32)
+	    install(TARGETS lsl-server
+			LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+			ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+	ENDIF (WIN32)
+endif()
+
+
