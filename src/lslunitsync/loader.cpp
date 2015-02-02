@@ -1,6 +1,5 @@
 #include "loader.h"
 
-#include <boost/extension/shared_library.hpp>
 #include <string>
 
 #include "c_api.h"
