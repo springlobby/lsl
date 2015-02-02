@@ -10,12 +10,6 @@
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 
-namespace boost {
-namespace extensions {
-    class shared_library;
-}
-}
-
 namespace LSL {
 
 class UnitsyncImage;
