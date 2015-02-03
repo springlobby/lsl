@@ -67,7 +67,7 @@ void WorkItemQueue::Cancel()
 
 
 WorkerThread::WorkerThread()
-    :m_thread(new boost::thread(&WorkItemQueue::Process, &m_workeritemqueue))
+    :m_thread(new std::thread(&WorkItemQueue::Process, &m_workeritemqueue))
 {}
 
 void WorkerThread::DoWork( WorkItem* item, int priority, bool toBeDeleted )

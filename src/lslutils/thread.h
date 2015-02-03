@@ -1,7 +1,7 @@
 #ifndef LIBUNITSYNCPP_THREAD_H
 #define LIBUNITSYNCPP_THREAD_H
 
-#include <boost/thread/thread.hpp>
+#include <thread>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/noncopyable.hpp>
@@ -67,7 +67,7 @@ class WorkItemQueue : public boost::noncopyable
     WorkItem* Pop();
 
   private:
-    friend class boost::thread;
+    friend class std::thread;
     void CleanupWorkItem(WorkItem* item);
 
     boost::mutex m_mutex;
@@ -90,9 +90,9 @@ class WorkerThread : public boost::noncopyable
 	//! joins underlying thread
 	void Wait();
   private:
-    friend class boost::thread;
+    friend class std::thread;
     WorkItemQueue m_workeritemqueue;
-	boost::thread* m_thread;
+	std::thread* m_thread;
     boost::mutex m_mutex;
 };
 
