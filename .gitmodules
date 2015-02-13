@@ -1,6 +1,0 @@
-[submodule "doc/protocol"]
-	path = doc/protocol
-	url = https://github.com/spring/LobbyProtocol
-[submodule "lib/mingw-std-threads"]
-	path = lib/mingw-std-threads
-	url = https://github.com/meganz/mingw-std-threads
