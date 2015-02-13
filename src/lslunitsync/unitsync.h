@@ -1,7 +1,6 @@
 #ifndef LIBSPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_H
 #define LIBSPRINGLOBBY_HEADERGUARD_SPRINGUNITSYNC_H
 
-#include <lslutils/thread.h>
 #include "mmoptionmodel.h"
 #include "data.h"
 #include "mru_cache.h"
@@ -21,6 +20,7 @@ struct GameOptions;
 struct CachedMapInfo;
 struct SpringMapInfo;
 class UnitsyncLib;
+class WorkerThread;
 
 #ifdef HAVE_WX
 extern const wxEventType UnitSyncAsyncOperationCompletedEvt;
