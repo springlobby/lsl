@@ -2,6 +2,9 @@
 #define LIBUNITSYNCPP_THREAD_H
 
 #include <thread>
+#ifdef WIN32
+#include "../../lib/mingw-std-threads/mingw.mutex.h"
+#endif
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/noncopyable.hpp>
