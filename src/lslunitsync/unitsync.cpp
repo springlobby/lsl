@@ -22,6 +22,7 @@
 #include <lslutils/conversion.h>
 #include <lslutils/misc.h>
 #include <lslutils/globalsmanager.h>
+#include <lslutils/thread.h>
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
