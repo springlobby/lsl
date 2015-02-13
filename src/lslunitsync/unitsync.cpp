@@ -909,8 +909,8 @@ protected:
 	Unitsync* m_usync;
 
 	GetMapImageAsyncResult( Unitsync* usync, const std::string& mapname, int evtId ):
-		m_mapname(mapname.c_str()),
-		m_usync(usync)
+		m_usync(usync),
+		m_mapname(mapname.c_str())
 	{}
 private:
 

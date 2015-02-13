@@ -1,10 +1,7 @@
 #ifndef LIBUNITSYNCPP_THREAD_H
 #define LIBUNITSYNCPP_THREAD_H
 
-#include <thread>
-#ifdef WIN32
-#include "../../lib/mingw-std-threads/mingw.mutex.h"
-#endif
+#include <boost/thread/thread.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/noncopyable.hpp>
@@ -70,7 +67,7 @@ class WorkItemQueue : public boost::noncopyable
     WorkItem* Pop();
 
   private:
-    friend class std::thread;
+    friend class boost::thread;
     void CleanupWorkItem(WorkItem* item);
 
     boost::mutex m_mutex;
@@ -93,9 +90,9 @@ class WorkerThread : public boost::noncopyable
 	//! joins underlying thread
 	void Wait();
   private:
-    friend class std::thread;
+    friend class boost::thread;
     WorkItemQueue m_workeritemqueue;
-	std::thread* m_thread;
+	boost::thread* m_thread;
     boost::mutex m_mutex;
 };
 
