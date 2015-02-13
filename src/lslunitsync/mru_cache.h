@@ -5,6 +5,11 @@
 
 #include <string>
 #include <boost/thread/mutex.hpp>
+#ifdef WIN32 //undefine windows header pollution
+#ifdef GetUserName
+#undef GetUserName
+#endif
+#endif
 #include <list>
 #include <map>
 
