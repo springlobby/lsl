@@ -180,6 +180,8 @@ std::string AfterFirst( const std::string& phrase, const std::string& searchterm
 std::string ParentPath( const std::string& path);
 //! ensures path ends with (back)slash
 std::string EnsureDelimiter(const std::string& path);
+//! search string for from and replace with to
+void Replace(std::string & str, const std::string& from, const std::string& to);
 
 
 //! get a list of minimum numteam colors have maximum total difference in a certain metric
