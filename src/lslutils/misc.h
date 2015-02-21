@@ -229,12 +229,29 @@ public:
 	{
 	}
 
+	// from lobbyprotocol
+	//color is a 32-bit signed integer in decimal form (e.g. 255 and not FF) where each color channel should occupy 1 byte
+	//(e.g. in hexdecimal: $00BBGGRR, B = blue, G = green, R = red). Example: 255 stands for $000000FF.
+	lslColor(int color)
+	{
+		r = (color      ) & 0xff;
+		g = (color >> 8 ) & 0xff;
+		b = (color >> 16) & 0xff;
+		a = 0; // alpha isn't supported by lobby protocol
+	}
+
+	int GetLobbyColor() const{
+        return (a << 24) + (b << 16) + (g << 8) + r;
+	}
+
 	bool operator == (const lslColor& o) const {
 		return r == o.r && 	g == o.g && b == o.b && a == o.a;
 	}
+
 	bool operator != (const lslColor& o) const {
 		return !(this->operator ==(o));
 	}
+
 	unsigned char Red()   const { return r; }
 	unsigned char Green() const { return g; }
 	unsigned char Blue()  const { return b; }
