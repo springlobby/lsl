@@ -237,11 +237,11 @@ public:
 		r = (color      ) & 0xff;
 		g = (color >> 8 ) & 0xff;
 		b = (color >> 16) & 0xff;
-		a = 0; // alpha isn't supported by lobby protocol
+		a = 0xff; // alpha isn't supported by lobby protocol
 	}
 
 	int GetLobbyColor() const{
-        return (a << 24) + (b << 16) + (g << 8) + r;
+        return /*(a << 24) +*/ (b << 16) + (g << 8) + r;
 	}
 
 	bool operator == (const lslColor& o) const {
