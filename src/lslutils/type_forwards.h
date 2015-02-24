@@ -4,6 +4,7 @@
 //there's no good way to forward these
 #include <string>
 #include <map>
+#include <set>
 #include <vector>
 
 #ifdef HAVE_WX
@@ -57,6 +58,7 @@ typedef std::map<int, long long> PingList;
 
 typedef std::map< std::string, std::string> StringMap;
 typedef std::vector< std::string > StringVector;
+typedef std::set< std::string > StringSet;
 
 typedef boost::shared_ptr< User > UserPtr;
 typedef boost::shared_ptr< const User > ConstUserPtr;
