@@ -405,9 +405,9 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 			//test if min < val < max
 			const double d_val = Util::FromString<double>( value );
 			std::setlocale(LC_NUMERIC, old_locale);
-			if( d_val < (gameoptions.float_map)[key].min || d_val > (gameoptions.float_map)[key].max )
+			if( d_val <= (gameoptions.float_map)[key].min || d_val >= (gameoptions.float_map)[key].max )
 			{
-                LslDebug("received number option exceeds boundaries");
+                LslWarning("received number option exceeds boundaries");
 				return false;
 			}
 			else
@@ -419,7 +419,7 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 			const long l_val = Util::FromString<long>( value );
 			if( l_val != 1 && l_val != 0 )
 			{
-                LslDebug("recieved bool option that is neither 0 or 1");
+                LslWarning("recieved bool option that is neither 0 or 1");
 				return false;
 			}
 			else
@@ -432,7 +432,7 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 			unsigned int max_length = (gameoptions.string_map)[key].max_len;
             if ( ( max_length != 0 ) && ( value.length() > max_length )  )
 			{
-                LslDebug("recieved string option exceeds max_len");
+                LslWarning("recieved string option exceeds max_len");
 				return false;
 			}
 			else
@@ -462,7 +462,7 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 			}
 			else
 			{
-                LslDebug("received list option \"%s\" is not valid", key.c_str());
+                LslWarning("received list option \"%s\" is not valid", key.c_str());
 				return false;
 			}
 			break;
