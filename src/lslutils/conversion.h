@@ -13,7 +13,7 @@ ReturnType FromString(const T s)
 {
     std::stringstream ss;
     ss << s;
-    ReturnType r;
+    ReturnType r = 0;
     ss >> r;
     return r;
 }
