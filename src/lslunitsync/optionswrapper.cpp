@@ -405,9 +405,8 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 			//test if min < val < max
 			const double d_val = Util::FromString<double>( value );
 			std::setlocale(LC_NUMERIC, old_locale);
-			if( d_val <= (gameoptions.float_map)[key].min || d_val >= (gameoptions.float_map)[key].max )
-			{
-                LslWarning("received number %d option %s exceeds boundaries %d %d", d_val, key.c_str(), (gameoptions.float_map)[key].min, (gameoptions.float_map)[key].max);
+			if( d_val < (gameoptions.float_map)[key].min || d_val > (gameoptions.float_map)[key].max ) {
+				LslWarning("received number %f option %s exceeds boundaries %f %f", d_val, key.c_str(), (gameoptions.float_map)[key].min, (gameoptions.float_map)[key].max);
 				return false;
 			}
 			else
