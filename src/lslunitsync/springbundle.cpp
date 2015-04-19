@@ -34,6 +34,7 @@ bool SpringBundle::GetBundleVersion()
 		version += ".";
 		version += getspringversionpatcheset();
 	}
+	_FreeLibrary(temphandle);
 	return !version.empty();
 }
 
