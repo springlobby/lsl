@@ -38,7 +38,7 @@ void* _LoadLibrary(const std::string& libpath)
 		LSL_THROWF( unitsync, "Couldn't load the unitsync library: %s", errmsg.c_str());
 	}
 #else
-	res = dlopen(libpath.c_str(), RTLD_LAZY);
+	res = dlopen(libpath.c_str(), RTLD_GLOBAL|RTLD_LAZY);
 	if (res == NULL) {
 		const char* errmsg = dlerror();
 		LSL_THROWF( unitsync, "Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
