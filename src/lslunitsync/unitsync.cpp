@@ -104,8 +104,6 @@ void Unitsync::ClearCache()
 	m_unsorted_map_array.clear();
 	m_map_image_cache.Clear();
 	m_mapinfo_cache.Clear();
-	m_maps_unchained_hash.clear();
-	m_mods_unchained_hash.clear();
 	m_shortname_to_name_map.clear();
 	m_sides_cache.Clear();
 	m_map_gameoptions.clear();
@@ -118,7 +116,7 @@ void Unitsync::PopulateArchiveList()
 	int numMaps = susynclib().GetMapCount();
 	for ( int i = 0; i < numMaps; i++ )
 	{
-		std::string name, hash, archivename, unchainedhash;
+		std::string name, hash, archivename;
 		try
 		{
 			name = susynclib().GetMapName( i );
@@ -127,14 +125,12 @@ void Unitsync::PopulateArchiveList()
 			if ( count > 0 )
 			{
 				archivename =  susynclib().GetMapArchiveName( 0 );
-				unchainedhash = susynclib().GetArchiveChecksum( archivename );
 			}
 			//PrefetchMap( name ); // DEBUG
 		} catch (...) { continue; }
 		try
 		{
 			m_maps_list[name] = hash;
-			if ( !unchainedhash.empty() ) m_maps_unchained_hash[name] = unchainedhash;
 			if ( !archivename.empty() ) m_maps_archive_name[name] = archivename;
 			assert(!name.empty());
 			m_map_array.push_back( name );
@@ -146,7 +142,7 @@ void Unitsync::PopulateArchiveList()
 	int numMods = susynclib().GetPrimaryModCount();
 	for ( int i = 0; i < numMods; i++ )
 	{
-		std::string name, hash, archivename, unchainedhash;
+		std::string name, hash, archivename;
 		try
 		{
 			name = susynclib().GetPrimaryModName( i );
@@ -155,13 +151,11 @@ void Unitsync::PopulateArchiveList()
 			if ( count > 0 )
 			{
 				archivename = susynclib().GetPrimaryModArchive( i );
-				unchainedhash = susynclib().GetArchiveChecksum( archivename );
 			}
 		} catch (...) { continue; }
 		try
 		{
 			m_mods_list[name] = hash;
-			if ( !unchainedhash.empty() )  m_mods_unchained_hash[name] = unchainedhash;
 			if ( !archivename.empty() ) m_mods_archive_name[name] = archivename;
 			m_mod_array.push_back( name );
 			m_shortname_to_name_map[
