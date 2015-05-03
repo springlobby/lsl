@@ -122,7 +122,7 @@ public:
 	std::string GetConfigFilePath();
 
 	int GetMapCount();
-	std::string GetMapChecksum( int index );
+	unsigned int GetMapChecksum( int index );
 	std::string GetMapName( int index );
 	int GetMapArchiveCount( int index );
 	std::string GetMapArchiveName( int arnr );
@@ -156,7 +156,7 @@ public:
 	 */
 	UnitsyncImage GetHeightmap( const std::string& mapFileName );
 
-	std::string GetPrimaryModChecksum( int index );
+	unsigned int GetPrimaryModChecksum( int index );
 	int GetPrimaryModIndex( const std::string& modName );
 	std::string GetPrimaryModName( int index );
 	int GetPrimaryModCount();
@@ -169,7 +169,7 @@ public:
 	std::string GetPrimaryModDescription( int index );
 	int GetPrimaryModArchiveCount( int index );
 	std::string GetPrimaryModArchiveList( int arnr );
-	std::string GetPrimaryModChecksumFromName( const std::string& name );
+	unsigned int GetPrimaryModChecksumFromName( const std::string& name );
 	StringVector GetModDeps( int index );
 
 	StringVector GetSides( const std::string& modName );
@@ -251,7 +251,7 @@ public:
 	 */
 	StringVector GetAIInfo( int index );
 
-	std::string GetArchiveChecksum( const std::string& VFSPath );
+	unsigned int GetArchiveChecksum( const std::string& VFSPath );
 
 	/// lua parser
 

@@ -137,8 +137,6 @@ private:
 
 	LocalArchivesVector m_maps_list;	   /// mapname -> hash
 	LocalArchivesVector m_mods_list;	   /// modname -> hash
-	LocalArchivesVector m_mods_unchained_hash; /// modname -> unchained hash
-	LocalArchivesVector m_maps_unchained_hash; /// mapname -> unchained hash
 	LocalArchivesVector m_mods_archive_name;   /// modname -> archive name
 	LocalArchivesVector m_maps_archive_name;   /// mapname -> archive name
 	StringVector m_map_array;		   // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY

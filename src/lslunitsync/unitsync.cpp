@@ -121,52 +121,54 @@ void Unitsync::ClearCache()
 void Unitsync::PopulateArchiveList()
 {
 
-	int numMaps = susynclib().GetMapCount();
+	const int numMaps = susynclib().GetMapCount();
 	for (int i = 0; i < numMaps; i++) {
-		std::string name, hash, archivename;
+		std::string name, archivename;
+		unsigned int hash;
 		try {
-			name = susynclib().GetMapName(i);
-			hash = susynclib().GetMapChecksum(i);
-			int count = susynclib().GetMapArchiveCount(i);
+			const int count = susynclib().GetMapArchiveCount(i);
 			if (count > 0) {
 				archivename = susynclib().GetMapArchiveName(0);
 			}
+			name = susynclib().GetMapName(i);
+			hash = susynclib().GetMapChecksum(i);
 			//PrefetchMap( name ); // DEBUG
 		} catch (...) {
 			continue;
 		}
 		try {
-			m_maps_list[name] = hash;
+			m_maps_list[name] = LSL::Util::ToString(hash);
 			if (!archivename.empty())
 				m_maps_archive_name[name] = archivename;
 			assert(!name.empty());
 			m_map_array.push_back(name);
 		} catch (...) {
-			LslError("Found map with hash collision: %s hash: %s", name.c_str(), hash.c_str());
+			LslError("Found map with hash collision: %s hash: %d", name.c_str(), hash);
 		}
 	}
-	int numMods = susynclib().GetPrimaryModCount();
+	const int numMods = susynclib().GetPrimaryModCount();
 	for (int i = 0; i < numMods; i++) {
-		std::string name, hash, archivename;
+		std::string name, archivename;
+		unsigned int hash;
 		try {
-			name = susynclib().GetPrimaryModName(i);
-			hash = susynclib().GetPrimaryModChecksum(i);
-			int count = susynclib().GetPrimaryModArchiveCount(i);
+			const int count = susynclib().GetPrimaryModArchiveCount(i);
 			if (count > 0) {
 				archivename = susynclib().GetPrimaryModArchive(i);
 			}
+			name = susynclib().GetPrimaryModName(i);
+			hash = susynclib().GetPrimaryModChecksum(i);
 		} catch (...) {
 			continue;
 		}
 		try {
-			m_mods_list[name] = hash;
+			m_mods_list[name] = LSL::Util::ToString(hash);
 			if (!archivename.empty())
 				m_mods_archive_name[name] = archivename;
 			m_mod_array.push_back(name);
 			m_shortname_to_name_map[std::make_pair(susynclib().GetPrimaryModShortName(i),
 							       susynclib().GetPrimaryModVersion(i))] = name;
 		} catch (...) {
-			LslError("Found game with hash collision: %s hash: %s", name.c_str(), hash.c_str());
+			LslError("Found game with hash collision: %s hash: %s", name.c_str(), hash);
 		}
 	}
 	m_unsorted_mod_array = m_mod_array;

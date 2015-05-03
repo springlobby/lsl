@@ -321,10 +321,10 @@ int UnitsyncLib::GetMapCount()
 	return m_get_map_count();
 }
 
-std::string UnitsyncLib::GetMapChecksum( int index )
+unsigned int UnitsyncLib::GetMapChecksum( int index )
 {
 	InitLib( m_get_map_checksum );
-	return Util::ToString( (unsigned int)m_get_map_checksum( index ) );
+	return m_get_map_checksum( index );
 }
 
 std::string UnitsyncLib::GetMapName( int index )
@@ -464,10 +464,10 @@ UnitsyncImage UnitsyncLib::GetHeightmap( const std::string& mapFileName )
 	return img;
 }
 
-std::string UnitsyncLib::GetPrimaryModChecksum( int index )
+unsigned int UnitsyncLib::GetPrimaryModChecksum( int index )
 {
 	InitLib( m_get_mod_checksum );
-	return Util::ToString( (unsigned int)m_get_mod_checksum( index ) );
+	return m_get_mod_checksum( index );
 }
 
 int UnitsyncLib::GetPrimaryModIndex( const std::string& modName )
@@ -546,10 +546,10 @@ std::string UnitsyncLib::GetPrimaryModArchiveList( int arnr )
 	return SafeString(m_get_primary_mod_archive_list( arnr ));
 }
 
-std::string UnitsyncLib::GetPrimaryModChecksumFromName( const std::string& name )
+unsigned int UnitsyncLib::GetPrimaryModChecksumFromName( const std::string& name )
 {
 	InitLib( m_get_primary_mod_checksum_from_name );
-	return Util::ToString( (unsigned int)m_get_primary_mod_checksum_from_name( name.c_str() ) );
+	return m_get_primary_mod_checksum_from_name( name.c_str() );
 }
 
 UnitsyncLib::StringVector UnitsyncLib::GetModDeps( int index )
@@ -932,10 +932,10 @@ UnitsyncLib::StringVector UnitsyncLib::GetAIInfo( int aiIndex )
 	return ret;
 }
 
-std::string UnitsyncLib::GetArchiveChecksum( const std::string& VFSPath )
+unsigned int UnitsyncLib::GetArchiveChecksum( const std::string& VFSPath )
 {
 	InitLib( m_get_archive_checksum );
-	return Util::ToString( m_get_archive_checksum( VFSPath.c_str() ) );
+	return m_get_archive_checksum( VFSPath.c_str() );
 }
 
 /// lua parser
