@@ -34,6 +34,14 @@ static inline std::string MakeHashSigned( const std::string& hash )
 {
 	return ToString( FromString<int>( hash ) );
 }
+
+// convert const char* to std::string, as std::string(NULL) crashes
+static inline std::string SafeString(const char* str)
+{
+	if (str == NULL) return "";
+	return std::string(str);
+}
+
 // convert std::string to std::wstring
 
 #ifdef WIN32
