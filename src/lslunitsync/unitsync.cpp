@@ -160,10 +160,10 @@ void Unitsync::PopulateArchiveList()
 			continue;
 		}
 		try {
+			assert(!name.empty());
 			m_maps_list[name] = LSL::Util::ToString(hash);
 			if (!archivename.empty())
 				m_maps_archive_name[name] = archivename;
-			assert(!name.empty());
 			m_map_array.push_back(name);
 		} catch (...) {
 			LslError("Found map with hash collision: %s hash: %d", name.c_str(), hash);
@@ -180,12 +180,12 @@ void Unitsync::PopulateArchiveList()
 				archivename = susynclib().GetPrimaryModArchive(i);
 			}
 			name = GetGameInfo(i, "name");
-			assert(!name.empty());
 			hash = susynclib().GetPrimaryModChecksumFromName(name);
 		} catch (...) {
 			continue;
 		}
 		try {
+			assert(!name.empty());
 			m_mods_list[name] = LSL::Util::ToString(hash);
 			if (!archivename.empty())
 				m_mods_archive_name[name] = archivename;
