@@ -168,7 +168,7 @@ void Unitsync::PopulateArchiveList()
 				archivename = susynclib().GetPrimaryModArchive(i);
 			}
 			name = susynclib().GetPrimaryModName(i);
-			hash = susynclib().GetPrimaryModChecksum(i);
+			hash = susynclib().GetPrimaryModChecksumFromName(name);
 		} catch (...) {
 			continue;
 		}
