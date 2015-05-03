@@ -129,6 +129,18 @@ void Unitsync::FetchUnitsyncErrors(const std::string& prefix)
 	}
 }
 
+static std::string GetGameInfo(int index, const std::string keyname)
+{
+	const int count = susynclib().GetPrimaryModInfoCount(index);
+	for (int i=0; i < count; i++) {
+		const std::string key = Util::SafeString(susynclib().GetInfoKey(i));
+		if (key == keyname) {
+			return Util::SafeString(susynclib().GetInfoValueString(i));
+		}
+	}
+	return "";
+}
+
 void Unitsync::PopulateArchiveList()
 {
 
@@ -167,7 +179,8 @@ void Unitsync::PopulateArchiveList()
 			if (count > 0) {
 				archivename = susynclib().GetPrimaryModArchive(i);
 			}
-			name = susynclib().GetPrimaryModName(i);
+			name = GetGameInfo(i, "name");
+			assert(!name.empty());
 			hash = susynclib().GetPrimaryModChecksumFromName(name);
 		} catch (...) {
 			continue;
