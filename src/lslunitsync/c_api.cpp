@@ -907,9 +907,9 @@ UnitsyncLib::StringVector UnitsyncLib::GetAIInfo( int aiIndex )
 {
 	InitLib( m_get_skirmish_ai_count );
 	CHECK_FUNCTION( m_get_skirmish_ai_info_count );
-	CHECK_FUNCTION( m_get_skirmish_ai_info_description );
-	CHECK_FUNCTION( m_get_skirmish_ai_info_key );
-	CHECK_FUNCTION( m_get_skirmish_ai_info_value );
+	CHECK_FUNCTION( m_get_description );
+	CHECK_FUNCTION( m_get_info_key );
+	CHECK_FUNCTION( m_get_info_value );
 
 	StringVector ret;
 	if ( !(( aiIndex >= 0 ) && ( aiIndex < m_get_skirmish_ai_count() )) )
@@ -918,9 +918,9 @@ UnitsyncLib::StringVector UnitsyncLib::GetAIInfo( int aiIndex )
 	int infoCount = m_get_skirmish_ai_info_count( aiIndex );
 	for( int i = 0; i < infoCount; i++ )
 	{
-		ret.push_back( m_get_skirmish_ai_info_key( i ) );
-		ret.push_back( m_get_skirmish_ai_info_value( i ) );
-		ret.push_back( m_get_skirmish_ai_info_description( i ) );
+		ret.push_back( m_get_info_key( i ) );
+		ret.push_back( m_get_info_value( i ) );
+		ret.push_back( m_get_description( i ) );
 	}
 	return ret;
 }
@@ -1160,6 +1160,49 @@ float UnitsyncLib::GetKeyValue( const std::string& key, float defval )
 	InitLib( m_parser_string_key_get_float_value );
 	return m_parser_string_key_get_float_value( key.c_str(), defval );
 }
+
+int UnitsyncLib::GetPrimaryModInfoCount(int index)
+{
+	InitLib( m_get_primary_mod_info_count );
+	return m_get_primary_mod_info_count(index);
+}
+
+const char* UnitsyncLib::GetInfoKey(int index)
+{
+	InitLib( m_get_info_key );
+	return m_get_info_key(index);
+}
+
+const char* UnitsyncLib::GetInfoType(int index)
+{
+	InitLib( m_get_info_type );
+	return m_get_info_type(index);
+}
+
+const char* UnitsyncLib::GetInfoValueString(int index)
+{
+	InitLib( m_get_info_value_string );
+	return m_get_info_value_string(index);
+}
+
+int UnitsyncLib::GetInfoValueInteger(int index)
+{
+	InitLib( m_get_info_value_integer );
+	return m_get_info_value_integer(index);
+}
+
+float UnitsyncLib::GetInfoValueFloat(int index)
+{
+	InitLib( m_get_info_value_float );
+	return m_get_info_value_float(index);
+}
+
+bool UnitsyncLib::GetInfoValueBool(int index)
+{
+	InitLib( m_get_info_value_bool );
+	return m_get_info_value_bool(index);
+}
+
 
 UnitsyncLib& susynclib()
 {

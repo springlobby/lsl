@@ -162,9 +162,16 @@ void UnitsyncFunctionLoader::Basic(UnitsyncLib *s)
 
     BIND(GetSkirmishAICountPtr, "GetSkirmishAICount", m_get_skirmish_ai_count );
     BIND(GetSkirmishAIInfoCountPtr, "GetSkirmishAIInfoCount", m_get_skirmish_ai_info_count );
-    BIND(GetInfoKeyPtr, "GetInfoKey", m_get_skirmish_ai_info_key );
-    BIND(GetInfoValuePtr, "GetInfoValue", m_get_skirmish_ai_info_value );
-    BIND(GetInfoDescriptionPtr, "GetInfoDescription", m_get_skirmish_ai_info_description );
+
+    BIND(GetInfoKeyPtr, "GetInfoKey", m_get_info_key );
+    BIND(GetInfoValuePtr, "GetInfoValue", m_get_info_value );
+    BIND(GetInfoDescriptionPtr, "GetInfoDescription", m_get_description );
+
+    BIND(GetInfoTypePtr, "GetInfoType", m_get_info_type );
+    BIND(GetInfoValueStringPtr, "GetInfoValueString", m_get_info_value_string );
+    BIND(GetInfoValueFloatPtr, "GetInfoValueFloat", m_get_info_value_float );
+    BIND(GetInfoValueBoolPtr, "GetInfoValueBool", m_get_info_value_bool );
+    BIND(GetInfoValueIntegerPtr, "GetInfoValueInteger", m_get_info_value_integer );
 }
 
 void UnitsyncFunctionLoader::Config(UnitsyncLib *s)
@@ -187,6 +194,7 @@ void UnitsyncFunctionLoader::Mod(UnitsyncLib *s)
     BIND(GetPrimaryModNamePtr, "GetPrimaryModName", m_get_mod_name );
     BIND(GetPrimaryModCountPtr, "GetPrimaryModCount", m_get_mod_count );
     BIND(GetPrimaryModArchivePtr, "GetPrimaryModArchive", m_get_mod_archive );
+    BIND(GetPrimaryModInfoCountPtr, "GetPrimaryModInfoCount", m_get_primary_mod_info_count );
 
     BIND(GetSideCountPtr, "GetSideCount", m_get_side_count );
     BIND(GetSideNamePtr, "GetSideName", m_get_side_name );

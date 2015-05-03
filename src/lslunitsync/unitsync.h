@@ -119,6 +119,9 @@ private:
 	void GetMetalmapAsync(const std::string& mapname);
 	void GetHeightmapAsync(const std::string& mapname);
 
+	/// fetch all errors from unitsync and push to our error handling
+	void FetchUnitsyncErrors(const std::string& prefix);
+
 	/// get minimap with native width x height
 	UnitsyncImage GetMinimap(const std::string& mapname);
 	/// get metalmap with native width x height
@@ -132,8 +135,6 @@ private:
 	StringVector GetMapDeps(const std::string& name);
 
 	UnitsyncImage GetImage(const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent = true) const;
-	typedef std::map<std::pair<std::string, std::string>, std::string> ShortnameVersionToNameMap;
-	ShortnameVersionToNameMap m_shortname_to_name_map;
 
 	LocalArchivesVector m_maps_list;	   /// mapname -> hash
 	LocalArchivesVector m_mods_list;	   /// modname -> hash
@@ -183,9 +184,6 @@ private:
 	void _GetMapImageAsync(const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&));
 
 	friend Unitsync& usync();
-
-public:
-	std::string GetNameForShortname(const std::string& shortname, const std::string& version) const;
 
 private:
 	//! returns an array where each element is a line of the file

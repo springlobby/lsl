@@ -112,10 +112,21 @@ void Unitsync::ClearCache()
 	m_unsorted_map_array.clear();
 	m_map_image_cache.Clear();
 	m_mapinfo_cache.Clear();
-	m_shortname_to_name_map.clear();
 	m_sides_cache.Clear();
 	m_map_gameoptions.clear();
 	m_game_gameoptions.clear();
+}
+
+void Unitsync::FetchUnitsyncErrors(const std::string& prefix)
+{
+	auto errors = susynclib().GetUnitsyncErrors();
+	std::string pre = prefix;
+	if (!prefix.empty()) {
+		pre += " ";
+	}
+	for(const std::string error: errors ) {
+		LslWarning("Unitsync: %s%s",pre.c_str(), error.c_str() );
+	}
 }
 
 void Unitsync::PopulateArchiveList()
@@ -145,6 +156,7 @@ void Unitsync::PopulateArchiveList()
 		} catch (...) {
 			LslError("Found map with hash collision: %s hash: %d", name.c_str(), hash);
 		}
+		FetchUnitsyncErrors(name);
 	}
 	const int numMods = susynclib().GetPrimaryModCount();
 	for (int i = 0; i < numMods; i++) {
@@ -165,11 +177,10 @@ void Unitsync::PopulateArchiveList()
 			if (!archivename.empty())
 				m_mods_archive_name[name] = archivename;
 			m_mod_array.push_back(name);
-			m_shortname_to_name_map[std::make_pair(susynclib().GetPrimaryModShortName(i),
-							       susynclib().GetPrimaryModVersion(i))] = name;
 		} catch (...) {
 			LslError("Found game with hash collision: %s hash: %s", name.c_str(), hash);
 		}
+		FetchUnitsyncErrors(name);
 	}
 	m_unsorted_mod_array = m_mod_array;
 	m_unsorted_map_array = m_map_array;
@@ -1138,14 +1149,6 @@ std::string Unitsync::GetTextfileAsString(const std::string& modname, const std:
 	Util::uninitialized_array<char> FileContent(FileSize);
 	susynclib().ReadFileVFS(ini, FileContent, FileSize);
 	return std::string(FileContent, size_t(FileSize));
-}
-
-std::string Unitsync::GetNameForShortname(const std::string& shortname, const std::string& version) const
-{
-	ShortnameVersionToNameMap::const_iterator it = m_shortname_to_name_map.find(std::make_pair(shortname, version));
-	if (it != m_shortname_to_name_map.end())
-		return it->second;
-	return std::string();
 }
 
 Unitsync& usync()

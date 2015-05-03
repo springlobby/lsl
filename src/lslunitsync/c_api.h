@@ -300,6 +300,15 @@ public:
 	std::string GetKeyValue( const std::string& key, const std::string& defval );
 	float GetKeyValue( const std::string& key, float defval );
 
+	int GetPrimaryModInfoCount(int index);
+
+	const char* GetInfoKey(int index);
+	const char* GetInfoType(int index);
+
+	const char* GetInfoValueString(int index);
+	int GetInfoValueInteger(int index);
+	float GetInfoValueFloat(int index);
+	bool GetInfoValueBool(int index);
 
 private:
 	UnitsyncLib( const UnitsyncLib& );
@@ -478,9 +487,15 @@ private:
 
 	GetSkirmishAICountPtr m_get_skirmish_ai_count;
 	GetSkirmishAIInfoCountPtr m_get_skirmish_ai_info_count;
-	GetInfoKeyPtr m_get_skirmish_ai_info_key;
-	GetInfoValuePtr m_get_skirmish_ai_info_value;
-	GetInfoDescriptionPtr m_get_skirmish_ai_info_description;
+	GetInfoKeyPtr m_get_info_key;
+	GetInfoValuePtr m_get_info_value;
+	GetInfoTypePtr m_get_info_type;
+	GetInfoDescriptionPtr m_get_description;
+	GetInfoValueStringPtr m_get_info_value_string;
+	GetInfoValueIntegerPtr m_get_info_value_integer;
+	GetInfoValueFloatPtr m_get_info_value_float;
+	GetInfoValueBoolPtr m_get_info_value_bool;
+	GetPrimaryModInfoCountPtr m_get_primary_mod_info_count;
 
 	// lua parser section
 

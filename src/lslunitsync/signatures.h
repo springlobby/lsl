@@ -153,6 +153,7 @@ FUNC(int, GetSkirmishAIInfoCountPtr, int);
 FUNC(const char*, GetInfoKeyPtr, int);
 FUNC(const char*, GetInfoValuePtr, int);
 FUNC(const char*, GetInfoDescriptionPtr, int);
+FUNC(const char*, GetInfoType, int);
 
 /// Unitsync functions wrapping lua parser
 /** @} */
@@ -201,6 +202,12 @@ FUNC(float, lpGetStrKeyFloatValPtr, const char*, float);
 FUNC(const char*, lpGetIntKeyStrValPtr, int, const char*);
 FUNC(const char*, lpGetStrKeyStrValPtr, const char*, const char*);
 
+FUNC(int, GetPrimaryModInfoCountPtr, int);
+FUNC(const char*, GetInfoTypePtr, int);
+FUNC(const char*, GetInfoValueStringPtr, int);
+FUNC(int, GetInfoValueIntegerPtr, int);
+FUNC(float, GetInfoValueFloatPtr, int);
+FUNC(bool, GetInfoValueBoolPtr, int);
 
 } //namespace LSL
 
