@@ -5368,7 +5368,6 @@ namespace cimg_library_suffixed {
         if (usage) {
           std::fprintf(cimg::output(),"\n %s%s%s",cimg::t_red,cimg::basename(argv[0]),cimg::t_normal);
           std::fprintf(cimg::output(),": %s",usage);
-          std::fprintf(cimg::output()," (%s, %s)\n\n",__DATE__,__TIME__);
         }
         if (defaut) std::fprintf(cimg::output(),"%s\n",defaut);
       }
@@ -5459,9 +5458,9 @@ namespace cimg_library_suffixed {
     **/
     inline void info() {
       char tmp[1024] = { 0 };
-      std::fprintf(cimg::output(),"\n %s%sCImg Library %u.%u.%u%s, compiled %s ( %s ) with the following flags:\n\n",
+      std::fprintf(cimg::output(),"\n %s%sCImg Library %u.%u.%u%s, compiled with the following flags:\n\n",
                    cimg::t_red,cimg::t_bold,cimg_version/100,(cimg_version/10)%10,cimg_version%10,
-                   cimg::t_normal,__DATE__,__TIME__);
+                   cimg::t_normal);
 
       std::fprintf(cimg::output(),"  > Operating System:       %s%-13s%s %s('cimg_OS'=%d)%s\n",
                    cimg::t_bold,
