@@ -1,7 +1,7 @@
 #ifndef LSL_IMAGE_H
 #define LSL_IMAGE_H
 
-#include <boost/shared_ptr.hpp>
+#include <string>
 
 //we really, really don't want to include the cimg
 // header here, it's 2.1MB of template magic :)
@@ -28,12 +28,9 @@ class uninitialized_array;
 class UnitsyncImage
 {
 private:
-    typedef unsigned short
-        RawDataType;
-    typedef cimg_library::CImg<RawDataType>
-        PrivateImageType;
-	typedef boost::shared_ptr<PrivateImageType>
-		PrivateImagePtrType;
+	typedef unsigned short RawDataType;
+	typedef cimg_library::CImg<RawDataType> PrivateImageType;
+	typedef PrivateImageType* PrivateImagePtrType;
 public:
 	UnitsyncImage();
 	UnitsyncImage& operator= (const UnitsyncImage& other);
