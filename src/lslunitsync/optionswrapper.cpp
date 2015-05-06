@@ -285,20 +285,20 @@ std::map<std::string,std::string> LSL::OptionsWrapper::getOptionsMap( Enum::Game
 
 bool OptionsWrapper::setSingleOption( const std::string& key, const std::string& value,Enum::GameOption modmapFlag)
 {
-    Enum::OptionType optType = Enum::opt_undefined;
-	keyExists( key, modmapFlag, false, optType );
-	return setSingleOptionTypeSwitch(key,value,modmapFlag,optType);
+	Enum::OptionType optType = Enum::opt_undefined;
+	if (keyExists( key, modmapFlag, false, optType )) {
+		return setSingleOptionTypeSwitch(key,value,modmapFlag,optType);
+	}
+	return false;
 }
 
 bool OptionsWrapper::setSingleOption( const std::string& key, const std::string& value )
 {
-    Enum::OptionType optType = Enum::opt_undefined;
-	if (keyExists(key,Enum::ModOption,false,optType))
+	Enum::OptionType optType = Enum::opt_undefined;
+	if (keyExists(key,Enum::ModOption,false,optType)) {
 		return setSingleOptionTypeSwitch(key,value,Enum::ModOption,optType);
-	else if (keyExists(key,Enum::MapOption,false,optType))
-		return setSingleOptionTypeSwitch(key,value,Enum::MapOption,optType);
-	else
-		return false;
+	}
+	return false;
 }
 
 std::string OptionsWrapper::getSingleValue( const std::string& key) const

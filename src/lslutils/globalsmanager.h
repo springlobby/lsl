@@ -72,6 +72,11 @@ public:
         }
         constructing = false;
     }
+	~GlobalObjectHolder()
+	{
+		Destroy();
+	}
+
     virtual void Nullify()
     {
         public_ptr = NULL;

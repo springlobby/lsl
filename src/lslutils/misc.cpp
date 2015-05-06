@@ -181,14 +181,14 @@ std::vector<lslColor> GetBigFixColorsPalette( int numteams )
 {
 	std::vector<lslColor> result;
 	huevec huevector;
-	int satvalbifurcatepos;
+	int satvalbifurcatepos = 0;
 	std::vector<double> satvalsplittings;
-	if ( satvalsplittings.empty() ) // insert ranges to bifurcate
-	{
-		satvalsplittings.push_back( 1 );
-		satvalsplittings.push_back( 0 );
-		satvalbifurcatepos = 0;
-	}
+
+	// insert ranges to bifurcate
+	satvalsplittings.push_back( 1 );
+	satvalsplittings.push_back( 0 );
+	satvalbifurcatepos = 0;
+
 	hue( huevector, numteams );
 	int bisectionlimit = 20;
 	for ( int i = result.size(); i < numteams; i++ )

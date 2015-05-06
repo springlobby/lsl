@@ -308,6 +308,7 @@ void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned
 			img2(x,y,0,3) = 255;
 		}
 	}
+	if (m_data_ptr != NULL) delete &m_data_ptr;
 	*m_data_ptr = img2;
 }
 
