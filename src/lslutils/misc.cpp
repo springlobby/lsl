@@ -239,15 +239,17 @@ lslColor GetFreeColor( const ConstCommonUserPtr /*user*/ )
     return lslColor();
 }
 
-void Replace(std::string & str, const std::string& from, const std::string& to)
+std::string Replace(const std::string & str, const std::string& from, const std::string& to)
 {
+	std::string res = str;
 	if(from.empty())
-		return;
+		return res;
 	size_t start_pos = 0;
-	while((start_pos = str.find(from, start_pos)) != std::string::npos) {
-		str.replace(start_pos, from.length(), to);
+	while((start_pos = res.find(from, start_pos)) != std::string::npos) {
+		res.replace(start_pos, from.length(), to);
 		start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
 	}
+	return res;
 }
 
 
