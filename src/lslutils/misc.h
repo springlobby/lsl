@@ -188,8 +188,6 @@ std::string Replace(const std::string& str, const std::string& from, const std::
 std::vector<lslColor> GetBigFixColorsPalette( int numteams );
 //! checks wheter two colors' difference is below mindiff
 bool AreColorsSimilar( const lslColor& col1, const lslColor& col2, int mindiff );
-//! tokenize input string and convert into rgb color
-lslColor ColorFromFloatString( const std::string& rgb_string );
 
 //! for release/tarball verions, this is the tag, otherwise it's a compound of last tag, current git hash and commit distance
 std::string GetLibLobbyVersion();
@@ -256,7 +254,9 @@ public:
 	unsigned char Green() const { return g; }
 	unsigned char Blue()  const { return b; }
 	unsigned char Alpha() const { return a; }
-
+	//! tokenize input string and convert into rgb color
+	static lslColor FromFloatString(const std::string& str);
+	static std::string ToFloatString(const lslColor& col);
 	static lslColor fromHSV(unsigned char h, unsigned char s, unsigned char v);
 };
 

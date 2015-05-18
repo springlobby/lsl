@@ -221,18 +221,6 @@ std::vector<lslColor> GetBigFixColorsPalette( int numteams )
 	return result;
 }
 
-lslColor ColorFromFloatString(const std::string &rgb_string)
-{
-    const StringVector values = Util::StringTokenize( rgb_string, " ");
-	assert(values.size() == 3);
-    unsigned char decimal_colors[3];
-    for ( size_t i = 0; i < 3; ++i) {
-        const double value = values.size() > i ? Util::FromString<double>( values[i] ) : 0.0;
-        decimal_colors[i] = Clamp( static_cast<unsigned char>(value*256), static_cast<unsigned char>(0), static_cast<unsigned char>(255) );
-    }
-    return lslColor( decimal_colors[0], decimal_colors[1], decimal_colors[2] );
-}
-
 lslColor GetFreeColor( const ConstCommonUserPtr /*user*/ )
 {
     assert(false);
@@ -271,6 +259,27 @@ lslSize lslSize::MakeFit(const lslSize& bounds)
 	  return lslSize( bounds.GetWidth(), sizey );
     }
 }
+
+lslColor lslColor::FromFloatString(const std::string &rgb_string)
+{
+    const StringVector values = Util::StringTokenize( rgb_string, " ");
+	assert(values.size() == 3);
+    unsigned char decimal_colors[3] = {0, 0, 0};
+
+    for ( size_t i = 0; i < 3; ++i) {
+        const float value = Util::FromString<float>( values[i] );
+        decimal_colors[i] = round(value * 255);
+    }
+    return lslColor( decimal_colors[0], decimal_colors[1], decimal_colors[2] );
+}
+
+std::string lslColor::ToFloatString(const lslColor& col)
+{
+	return Util::ToString((float)col.Red() / 255) + std::string(" ")
+		+ Util::ToString((float)col.Green() / 255) + std::string(" ")
+		+ Util::ToString((float)col.Blue() / 255);
+}
+
 
 lslColor lslColor::fromHSV(unsigned char H, unsigned char S, unsigned char V)
 {
