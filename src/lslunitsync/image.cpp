@@ -120,7 +120,7 @@ UnitsyncImage::UnitsyncImage(const std::string &filename)
 	Load(filename);
 }
 
-UnitsyncImage::UnitsyncImage(PrivateImagePtrType ptr)
+UnitsyncImage::UnitsyncImage(PrivateImageType* ptr)
 	: m_data_ptr( ptr )
 {
 }
@@ -144,7 +144,7 @@ UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<un
 		img(x,y,0,1) = data[x+(y*width)];
 		img(x,y,0,2) = 0;
 	}
-	PrivateImagePtrType ptr( img_p );
+	PrivateImageType* ptr( img_p );
 	return UnitsyncImage( ptr );
 }
 
@@ -211,7 +211,7 @@ UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType *c
 		img(x,y,0,1) = (unsigned char)( (( (colors[at] >> 5) & 63 )/63.0)*255.0 );
 		img(x,y,0,2) = (unsigned char)( (( colors[at] & 31 )/31.0)*255.0 );
 	}
-	PrivateImagePtrType ptr( img_p );
+	PrivateImageType* ptr( img_p );
 	return UnitsyncImage( ptr );
 }
 
@@ -265,7 +265,7 @@ UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<u
 		}
 	}
 
-	PrivateImagePtrType ptr( img_p );
+	PrivateImageType* ptr( img_p );
 	return UnitsyncImage( ptr );
 }
 

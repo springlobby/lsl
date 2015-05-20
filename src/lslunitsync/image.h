@@ -30,7 +30,6 @@ class UnitsyncImage
 private:
 	typedef unsigned short RawDataType;
 	typedef cimg_library::CImg<RawDataType> PrivateImageType;
-	typedef PrivateImageType* PrivateImagePtrType;
 public:
 	UnitsyncImage();
 	UnitsyncImage& operator= (const UnitsyncImage& other);
@@ -66,9 +65,9 @@ public:
 	// makes given color transparent
 	void MakeTransparent(unsigned short r = 255, unsigned short g = 255, unsigned short b = 255);
 private:
-	UnitsyncImage( PrivateImagePtrType ptr );
+	UnitsyncImage( PrivateImageType* ptr );
 	static PrivateImageType* NewImagePtr( int width = 0, int height = 0 );
-	PrivateImagePtrType m_data_ptr;
+	PrivateImageType* m_data_ptr;
 };
 
 } //namespace LSL
