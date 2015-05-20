@@ -295,20 +295,19 @@ void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned
 	}
 
 	//no alpha channel, create new image with alpha channel
-	PrivateImageType& img = *m_data_ptr;
-	PrivateImageType* tmp = new PrivateImageType(img.width(), img.height(), 1, 4 );
-	PrivateImageType& img2 = *tmp;
-
-	img2 = img.channels(0, 3);
-	cimg_forXY(img2,x,y) {
-		if ((img2(x,y,0,0) == r) && (img2(x,y,0,1) == g) && (img2(x,y,0,2) == b)) { //pixel is white, make transparent
-			img2(x,y,0,3) = 0;
+	PrivateImageType* tmp = new PrivateImageType(m_data_ptr->width(), m_data_ptr->height(), 1, 4 );
+	cimg_forXY(*m_data_ptr, x,y) { // loop over existing image
+		*tmp->data(x,y,0,0) = *m_data_ptr->data(x,y,0,0); // copy rgb to image with alpha channel
+		*tmp->data(x,y,0,1) = *m_data_ptr->data(x,y,0,1);
+		*tmp->data(x,y,0,2) = *m_data_ptr->data(x,y,0,2);
+		if ((*m_data_ptr->data(x,y,0,0) == r) && (*m_data_ptr->data(x,y,0,1) == g) && (*m_data_ptr->data(x,y,0,2) == b)) { //pixel is white, make transparent
+			*tmp->data(x,y,0,3) = 0;
 		} else {
-			img2(x,y,0,3) = 255;
+			*tmp->data(x,y,0,3) = 255;
 		}
 	}
 	if (m_data_ptr != NULL) delete m_data_ptr;
-	*m_data_ptr = img2;
+	m_data_ptr = tmp;
 }
 
 int UnitsyncImage::GetWidth() const
