@@ -32,7 +32,7 @@ static inline std::string MakeHashUnsigned( const std::string& hash )
 
 static inline std::string MakeHashSigned( const std::string& hash )
 {
-	return ToString( FromString<int>( hash ) );
+	return ToString((int)FromString<long>( hash ) );
 }
 
 // convert const char* to std::string, as std::string(NULL) crashes
