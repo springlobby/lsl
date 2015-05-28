@@ -682,7 +682,7 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 	info.height = 1;
 	if (m_mapinfo_cache.TryGet(mapname, info))
 		return info;
-	const std::string cachefile = GetFileCachePath(mapname, false, false) + ".infoex";
+	const std::string cachefile = GetFileCachePath(mapname, false, false) + ".mapinfo";
 	StringVector cache;
 	if (GetCacheFile(cachefile, cache) && cache.size() >= 11) { //cache file failed
 		info.author = cache[0];
@@ -722,7 +722,10 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 
 		std::string postring;
 		for (unsigned int i = 0; i < info.positions.size(); i++) {
-			postring += Util::ToString(info.positions[i].x) + "-" + Util::ToString(info.positions[i].y) + " ";
+			if (!postring.empty()) {
+				postring += " ";
+			}
+			postring += Util::ToString(info.positions[i].x) + "-" + Util::ToString(info.positions[i].y);
 		}
 		cache.push_back(postring);
 
