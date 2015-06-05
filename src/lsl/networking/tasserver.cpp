@@ -200,7 +200,7 @@ std::string ServerImpl::GetPasswordHash( const std::string& pass ) const
 void ServerImpl::Login(const std::string& user, const std::string& password)
 {
     const std::string pass = GetPasswordHash( password );
-    const std::string protocol = "\t" + Util::ToString(m_crc.GetCRC());
+    const std::string protocol = "\t" + Util::ToIntString(m_crc.GetCRC());
     std::string localaddr = m_sock->GetLocalAddress();
 //    m_id_transmission = false;
     if ( localaddr.length() < 1 )
@@ -230,7 +230,7 @@ void ServerImpl::ExecuteCommand( const std::string& cmd, std::string& params )
 	{
 		std::string id = Util::AfterFirst( Util::BeforeFirst( params, " " ),  "#" );
 		params = Util::AfterFirst( params, " " );
-		replyid = Util::FromString<int>( id );
+		replyid = Util::FromIntString( id );
 	}
 	ExecuteCommand( cmd, params, replyid );
 }
@@ -241,7 +241,7 @@ void ServerImpl::SendCmd( const std::string& cmd, const std::string& param )
     if ( m_id_transmission )
     {
         GetLastID()++;
-        msg = msg + "#" + Util::ToString( GetLastID() ) + " ";
+        msg = msg + "#" + Util::ToIntString( GetLastID() ) + " ";
     }
     if ( param.empty() )
         msg = msg + cmd + "\n";
@@ -394,7 +394,7 @@ void ServerImpl::HostBattle( Battle::BattleOptions bo )
 
 void ServerImpl::JoinBattle( const IBattlePtr battle, const std::string& password, const std::string& scriptpassword )
 {
-    SendCmd( "JOINBATTLE", Util::ToString(battle->Id()) + " " + password + " " + scriptpassword );
+    SendCmd( "JOINBATTLE", Util::ToIntString(battle->Id()) + " " + password + " " + scriptpassword );
 }
 
 void ServerImpl::LeaveBattle( const int& /*unused*/ )
@@ -469,7 +469,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 			if ( !sr.exist ) continue;
 			if ( sr.todelete )
 			{
-				RelayCmd( "REMOVESTARTRECT", Util::ToString(i) );
+				RelayCmd( "REMOVESTARTRECT", Util::ToIntString(i) );
 				m_current_battle->StartRectRemoved( i );
 			}
 			else if ( sr.toadd )
@@ -479,7 +479,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 			}
 			else if ( sr.toresize )
 			{
-				RelayCmd( "REMOVESTARTRECT", Util::ToString(i) );
+				RelayCmd( "REMOVESTARTRECT", Util::ToIntString(i) );
 				RelayCmd( "ADDSTARTRECT", boost::format( "%d %d %d %d %d") % sr.ally % sr.left % sr.top % sr.right % sr.bottom );
 				m_current_battle->StartRectResized( i );
 			}
@@ -496,7 +496,7 @@ void ServerImpl::SendHostInfo( Enum::HostInfo update )
 			for ( std::map<std::string, int>::const_iterator itor = units.begin(); itor != units.end(); ++itor )
 			{
 				 msg << itor->first + " ";
-				 scriptmsg << "game/restrict/" + itor->first + "=" + Util::ToString(itor->second) + '\t'; // this is a serious protocol abuse, but on the other hand, the protocol fucking suck and it's unmaintained so it will do for now
+				 scriptmsg << "game/restrict/" + itor->first + "=" + Util::ToIntString(itor->second) + '\t'; // this is a serious protocol abuse, but on the other hand, the protocol fucking suck and it's unmaintained so it will do for now
 			}
 			RelayCmd( "DISABLEUNITS", msg.str() );
 			RelayCmd( "SETSCRIPTTAGS", scriptmsg.str() );
@@ -533,13 +533,13 @@ void ServerImpl::SendHostInfo(const std::string& tag)
 {
     std::string type = Util::BeforeFirst( tag, "_" );
     std::string key = Util::AfterFirst( tag, "_" );
-    SendHostInfo( Util::FromString<long>(type), key);
+    SendHostInfo( Util::FromIntString(type), key);
 }
 
 ChannelPtr ServerImpl::GetCreatePrivateChannel( const UserPtr user )
 {
     if (!user) return ChannelPtr();
-    std::string channame = "U" + Util::ToString(user->Id());
+    std::string channame = "U" + user->Id();
     ChannelPtr channel = m_channels.Get( channame );
     if (!channel)
     {
@@ -592,7 +592,7 @@ void ServerImpl::OnNewUser( const std::string& nick, const std::string& country,
 {
     std::string str_id;
     if ( !id )
-        str_id = Util::ToString(id);
+        str_id = Util::ToIntString(id);
     else
         str_id = User::GetNewUserId();
     UserPtr user = m_users.Get( str_id );
@@ -609,7 +609,7 @@ std::string ServerImpl::GetBattleChannelName( const BattlePtr battle )
 {
 	if (!battle)
 		return "";
-    return "B" + Util::ToString(battle->Id());
+    return "B" + Util::ToIntString(battle->Id());
 }
 
 void ServerImpl::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType nat, const std::string& nick,
@@ -784,11 +784,11 @@ void ServerImpl::OnSetBattleOption( std::string key, const std::string& value )
         //TODO the original had modoptions here???
         if ( key.substr( 0,8 ) == "restrict" )
 		{
-            m_iface->OnBattleDisableUnit( battle, Util::AfterFirst(key,"/"), Util::FromString<int>(value) );
+            m_iface->OnBattleDisableUnit( battle, Util::AfterFirst(key,"/"), Util::FromIntString(value) );
 		}
         else if ( ( key.substr( 0,4 ) ==  "team" ) && key.find( "startpos" ) != std::string::npos )
 		{
-            int team = Util::FromString<int>( Util::BeforeFirst(key,"/").substr( 4, std::string::npos ) );
+            int team = Util::FromIntString( Util::BeforeFirst(key,"/").substr( 4, std::string::npos ) );
             if ( key.find( "startposx" ) != std::string::npos )
 			{
 			for ( const CommonUserPtr player: battle->Users() )
@@ -796,7 +796,7 @@ void ServerImpl::OnSetBattleOption( std::string key, const std::string& value )
                     UserBattleStatus& status = player->BattleStatus();
 					if ( status.team == team )
 					{
-                        status.pos.x = Util::FromString<int>( value );
+                        status.pos.x = Util::FromIntString( value );
                         m_iface->OnUserStartPositionUpdated( battle, player, status.pos );
 					}
 				}
@@ -808,7 +808,7 @@ void ServerImpl::OnSetBattleOption( std::string key, const std::string& value )
                     UserBattleStatus& status = player->BattleStatus();
 					if ( status.team == team )
 					{
-                        status.pos.y = Util::FromString<int>( value );
+                        status.pos.y = Util::FromIntString( value );
                         m_iface->OnUserStartPositionUpdated( battle, player, status.pos );
 					}
 				}
@@ -914,7 +914,7 @@ void ServerImpl::OnJoinedBattle(const int battleid, const std::string& msg)
 
 void ServerImpl::OnGetHandle()
 {
-    SendCmd( "USERID", Util::ToString( m_crc.GetCRC() ) );
+    SendCmd( "USERID", Util::ToIntString( m_crc.GetCRC() ) );
 }
 
 void ServerImpl::OnLogin(const std::string &msg)

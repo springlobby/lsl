@@ -928,15 +928,15 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			}
 			SendHostInfo( Enum::HI_StartRects );
 
-			unsigned int rectcount = Util::FromString<long>( options["numrects"] );
+			unsigned int rectcount = Util::FromIntString( options["numrects"] );
 			for ( unsigned int loadrect = 0; loadrect < rectcount; loadrect++)
 			{
-				int ally = Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_ally"]);
+				int ally = Util::FromIntString(options["rect_" + Util::ToIntString(loadrect) + "_ally"]);
 				if ( ally == 0 ) continue;
-				AddStartRect( ally - 1, Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_left"]),
-							  Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_top"]),
-							  Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_right"]),
-							  Util::FromString<long>(options["rect_" + Util::ToString(loadrect) + "_bottom"]) );
+				AddStartRect( ally - 1, Util::FromIntString(options["rect_" + Util::ToIntString(loadrect) + "_left"]),
+							  Util::FromIntString(options["rect_" + Util::ToIntString(loadrect) + "_top"]),
+							  Util::FromIntString(options["rect_" + Util::ToIntString(loadrect) + "_right"]),
+							  Util::FromIntString(options["rect_" + Util::ToIntString(loadrect) + "_bottom"]) );
 			}
 			SendHostInfo( Enum::HI_StartRects );
 
@@ -945,7 +945,7 @@ bool IBattle::LoadOptionsPreset( const std::string& name )
 			for( const std::string unitinfo: infos )
 			{
 				RestrictUnit( Util::BeforeLast(unitinfo,"="),
-						Util::FromString<long>( Util::AfterLast(unitinfo,"=") ) );
+						Util::FromIntString( Util::AfterLast(unitinfo,"=") ) );
 			}
 			SendHostInfo( Enum::HI_Restrictions );
 			Update( (boost::format( "%d_restrictions" ) % LSL::Enum::PrivateOptions).str() );
@@ -974,7 +974,7 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 			std::map<std::string,std::string> opts;
 			opts["mapname"] = GetHostMapName();
 			unsigned int validrectcount = 0;
-			if ( Util::FromString<long> (CustomBattleOptions()->getSingleValue( "startpostype", LSL::Enum::EngineOption ) )
+			if ( Util::FromIntString (CustomBattleOptions()->getSingleValue( "startpostype", LSL::Enum::EngineOption ) )
 				 == Enum::ST_Choose )
 			{
 				unsigned int boxcount = GetLastRectIdx();
@@ -983,21 +983,21 @@ void IBattle::SaveOptionsPreset( const std::string& name )
 					BattleStartRect rect = GetStartRect( boxnum );
 					if ( rect.IsOk() )
 					{
-						opts["rect_" + Util::ToString(validrectcount) + "_ally"] = Util::ToString( rect.ally + 1 );
-						opts["rect_" + Util::ToString(validrectcount) + "_left"] = Util::ToString( rect.left );
-						opts["rect_" + Util::ToString(validrectcount) + "_top"] = Util::ToString( rect.top );
-						opts["rect_" + Util::ToString(validrectcount) + "_bottom"] = Util::ToString( rect.bottom );
-						opts["rect_" + Util::ToString(validrectcount) + "_right"] = Util::ToString( rect.right );
+						opts["rect_" + Util::ToIntString(validrectcount) + "_ally"] = Util::ToIntString( rect.ally + 1 );
+						opts["rect_" + Util::ToIntString(validrectcount) + "_left"] = Util::ToIntString( rect.left );
+						opts["rect_" + Util::ToIntString(validrectcount) + "_top"] = Util::ToIntString( rect.top );
+						opts["rect_" + Util::ToIntString(validrectcount) + "_bottom"] = Util::ToIntString( rect.bottom );
+						opts["rect_" + Util::ToIntString(validrectcount) + "_right"] = Util::ToIntString( rect.right );
 						validrectcount++;
 					}
 				}
 			}
-			opts["numrects"] = Util::ToString( validrectcount );
+			opts["numrects"] = Util::ToIntString( validrectcount );
 
 			std::stringstream restrictionsstring;
 			for ( std::map<std::string, int>::const_iterator itor = m_restricted_units.begin(); itor != m_restricted_units.end(); ++itor )
 			{
-				restrictionsstring << itor->first << '=' << Util::ToString(itor->second) << '\t';
+				restrictionsstring << itor->first << '=' << Util::ToIntString(itor->second) << '\t';
 			}
 			opts["restrictions"] = restrictionsstring.str();
 
@@ -1147,8 +1147,8 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 		//[PLAYERX] sections
 		for ( int i = 0; i < playernum ; ++i )
 		{
-            TDF::PDataList player ( replayNode->Find( "PLAYER" + Util::ToString(i) ) );
-            TDF::PDataList bot ( replayNode->Find( "AI" + Util::ToString(i) ) );
+            TDF::PDataList player ( replayNode->Find( "PLAYER" + Util::ToIntString(i) ) );
+            TDF::PDataList bot ( replayNode->Find( "AI" + Util::ToIntString(i) ) );
 			if ( player.ok() || bot.ok() )
 			{
 				if ( bot.ok() ) player = bot;
@@ -1184,7 +1184,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					status.aishortname = bot->GetString( "ShortName" );
 					status.aiversion = bot->GetString( "Version" );
 					int ownerindex = bot->GetInt( "Host" );
-                    TDF::PDataList aiowner ( replayNode->Find( "PLAYER" + Util::ToString(ownerindex) ) );
+                    TDF::PDataList aiowner ( replayNode->Find( "PLAYER" + Util::ToIntString(ownerindex) ) );
 					if ( aiowner.ok() )
 					{
 						status.owner = aiowner->GetString( "Name" );
@@ -1194,7 +1194,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 				IBattle::TeamInfoContainer teaminfos = parsed_teams[user->BattleStatus().team];
 				if ( !teaminfos.exist )
 				{
-                    TDF::PDataList team( replayNode->Find( "TEAM" + Util::ToString( user->BattleStatus().team ) ) );
+                    TDF::PDataList team( replayNode->Find( "TEAM" + Util::ToIntString( user->BattleStatus().team ) ) );
 					if ( team.ok() )
 					{
 						teaminfos.exist = true;
@@ -1225,7 +1225,7 @@ void IBattle::GetBattleFromScript( bool loadmapmod )
 					IBattle::AllyInfoContainer allyinfos = parsed_allies[user->BattleStatus().ally];
 					if ( !allyinfos.exist )
 					{
-                        TDF::PDataList ally( replayNode->Find( "ALLYTEAM" + Util::ToString( user->BattleStatus().ally ) ) );
+                        TDF::PDataList ally( replayNode->Find( "ALLYTEAM" + Util::ToIntString( user->BattleStatus().ally ) ) );
 						if ( ally.ok() )
 						{
 							allyinfos.exist = true;

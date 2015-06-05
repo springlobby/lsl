@@ -236,7 +236,7 @@ void Server::AddBot(const IBattlePtr battle, const std::string& nick, UserBattle
     //ADDBOT name battlestatus teamcolor {AIDLL}
     std::string ailib;
     ailib += status.aishortname; // + "|" + status.aiversion;
-    m_impl->SendCmd( "ADDBOT", nick + Util::ToString(tasbs.data) + " " + Util::ToString( tascl.data ) + " " + ailib );
+    m_impl->SendCmd( "ADDBOT", nick + Util::ToIntString(tasbs.data) + " " + Util::ToIntString( tascl.data ) + " " + ailib );
 }
 
 void Server::RemoveBot( const IBattlePtr battle, const CommonUserPtr user )
@@ -659,7 +659,7 @@ void Server::OnKickedFromChannel( const ChannelPtr channel, const std::string& f
 void Server::OnChannelSaid( const ChannelPtr channel, const CommonUserPtr user, const std::string& message )
 {
     if ( m_impl->m_relay_host_bot != 0 &&
-         channel == m_impl->m_channels.Get( "U" + Util::ToString(m_impl->m_relay_host_bot->Id()) ) )
+         channel == m_impl->m_channels.Get( "U" + m_impl->m_relay_host_bot->Id() ) )
 	{
         if ( user == m_impl->m_me && message.length() > 0 && message[0] == '!')
 			return;
@@ -679,7 +679,7 @@ void Server::OnChannelSaid( const ChannelPtr channel, const CommonUserPtr user, 
 		}
 	}
     if ( m_impl->m_relay_host_manager != 0 &&
-         channel == m_impl->m_channels.Get( "U" + Util::ToString(m_impl->m_relay_host_manager->Id()) ) )
+         channel == m_impl->m_channels.Get( "U" + m_impl->m_relay_host_manager->Id() ) )
 	{
         if ( user == m_impl->m_me &&  message.length() > 0 && message[0] == '!' )
 			return;
@@ -868,7 +868,7 @@ void Server::SendMyUserStatus()
     taus.tasdata.rank = us.rank;
     taus.tasdata.moderator = us.moderator;
     taus.tasdata.bot = us.bot;
-    m_impl->SendCmd( "MYSTATUS", Util::ToString( taus.byte ) );
+    m_impl->SendCmd( "MYSTATUS", Util::ToIntString( taus.byte ) );
 }
 
 void Server::ForceSide( const IBattlePtr battle, const CommonUserPtr user, int side )
@@ -911,7 +911,7 @@ void Server::ForceTeam( const IBattlePtr battle, const CommonUserPtr user, int t
     if (!m_impl->m_current_battle->IsFounderMe()) return;
 
     //FORCETEAMNO username teamno
-    SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCETEAMNO", user->Nick() + " " + Util::ToString(team) );
+    SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCETEAMNO", user->Nick() + " " + Util::ToIntString(team) );
 }
 
 void Server::ForceAlly( const IBattlePtr battle, const CommonUserPtr user, int ally )
@@ -936,7 +936,7 @@ void Server::ForceAlly( const IBattlePtr battle, const CommonUserPtr user, int a
     if (!m_impl->m_current_battle->IsFounderMe())
         return;
     //FORCEALLYNO username teamno
-    SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCEALLYNO", user->Nick() + " " + Util::ToString(ally) );
+    SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCEALLYNO", user->Nick() + " " + Util::ToIntString(ally) );
 }
 
 void Server::ForceColor(const IBattlePtr battle, const CommonUserPtr user, const lslColor& rgb)
@@ -965,7 +965,7 @@ void Server::ForceColor(const IBattlePtr battle, const CommonUserPtr user, const
     tascl.color.blue = rgb.Blue();
     tascl.color.zero = 0;
     //FORCETEAMCOLOR username color
-    SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCETEAMCOLOR", user->Nick() + " " + Util::ToString( tascl.data ) );
+    SendOrRelayCmd( m_impl->m_current_battle->IsProxy(), "FORCETEAMCOLOR", user->Nick() + " " + Util::ToIntString( tascl.data ) );
 }
 
 void Server::ForceSpectator( const IBattlePtr battle, const CommonUserPtr user, bool spectator )
@@ -1036,7 +1036,7 @@ void Server::SetHandicap( const IBattlePtr battle, const CommonUserPtr user, int
     if (!m_impl->m_current_battle->IsFounderMe()) return;
 
     //HANDICAP username value
-    SendOrRelayCmd( m_impl->m_current_battle->IsProxy(),"HANDICAP", user->Nick() + " " + Util::ToString(handicap) );
+    SendOrRelayCmd( m_impl->m_current_battle->IsProxy(),"HANDICAP", user->Nick() + " " + Util::ToIntString(handicap) );
 }
 
 void Server::SendUserPosition( const CommonUserPtr user )
@@ -1046,8 +1046,8 @@ void Server::SendUserPosition( const CommonUserPtr user )
     if (!user) return;
 
     UserBattleStatus status = user->BattleStatus();
-    std::string msgx = "game/Team" + Util::ToString( status.team ) + "/StartPosX=" + Util::ToString( status.pos.x );
-    std::string msgy = "game/Team" + Util::ToString( status.team ) + "/StartPosY=" + Util::ToString( status.pos.y );
+    std::string msgx = "game/Team" + Util::ToIntString( status.team ) + "/StartPosX=" + Util::ToIntString( status.pos.x );
+    std::string msgy = "game/Team" + Util::ToIntString( status.team ) + "/StartPosY=" + Util::ToIntString( status.pos.y );
     std::string netmessage = msgx + "\t" + msgy;
     m_impl->RelayCmd( "SETSCRIPTTAGS", netmessage );
 }

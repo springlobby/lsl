@@ -53,7 +53,7 @@ inline std::string GetSentenceParam( std::string& params )
 inline long GetIntParam( std::string& params )
 {
 	const std::string d = GetParamByChar( params, ' ');
-	return Util::FromString<long>( d );
+	return Util::FromIntString( d );
 }
 
 //! convenience wrapper around GetParamByChar for whitespace delimited booleans

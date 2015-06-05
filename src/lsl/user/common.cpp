@@ -47,7 +47,7 @@ std::string CommonUser::GetNewUserId()
     // if server didn't send any account id to us, fill with an always increasing number
     //TODO: needs to be a pool of sorts?
     static unsigned int m_account_id_count = 0;
-    return Util::ToString(m_account_id_count++);
+    return Util::ToIntString(m_account_id_count++);
 }
 
 const IBattlePtr CommonUser::GetBattle() const

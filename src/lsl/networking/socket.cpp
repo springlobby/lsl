@@ -154,7 +154,7 @@ std::string Socket::GetHandle() const
 
     for (int i=0; i<6; i++)
     {
-        handle += Util::ToString(((unsigned int)dev.ifr_hwaddr.sa_data[i])&255);
+        handle += Util::ToIntString(((unsigned int)dev.ifr_hwaddr.sa_data[i])&255);
         if (i != 5) handle += ':';
     }
     close(sock);
