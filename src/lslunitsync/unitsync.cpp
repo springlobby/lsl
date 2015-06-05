@@ -161,7 +161,7 @@ void Unitsync::PopulateArchiveList()
 		}
 		try {
 			assert(!name.empty());
-			m_maps_list[name] = LSL::Util::ToString(hash);
+			m_maps_list[name] = LSL::Util::ToIntString(hash);
 			if (!archivename.empty())
 				m_maps_archive_name[name] = archivename;
 			m_map_array.push_back(name);
@@ -186,7 +186,7 @@ void Unitsync::PopulateArchiveList()
 		}
 		try {
 			assert(!name.empty());
-			m_mods_list[name] = LSL::Util::ToString(hash);
+			m_mods_list[name] = LSL::Util::ToIntString(hash);
 			if (!archivename.empty())
 				m_mods_archive_name[name] = archivename;
 			m_mod_array.push_back(name);
@@ -686,19 +686,19 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 	StringVector cache;
 	if (GetCacheFile(cachefile, cache) && cache.size() >= 11) { //cache file failed
 		info.author = cache[0];
-		info.tidalStrength = Util::FromString<long>(cache[1]);
-		info.gravity = Util::FromString<long>(cache[2]);
-		info.maxMetal = Util::FromString<double>(cache[3]);
-		info.extractorRadius = Util::FromString<double>(cache[4]);
-		info.minWind = Util::FromString<long>(cache[5]);
-		info.maxWind = Util::FromString<long>(cache[6]);
-		info.width = Util::FromString<long>(cache[7]);
-		info.height = Util::FromString<long>(cache[8]);
+		info.tidalStrength = Util::FromFloatString(cache[1]);
+		info.gravity = Util::FromIntString(cache[2]);
+		info.maxMetal = Util::FromFloatString(cache[3]);
+		info.extractorRadius = Util::FromFloatString(cache[4]);
+		info.minWind = Util::FromIntString(cache[5]);
+		info.maxWind = Util::FromIntString(cache[6]);
+		info.width = Util::FromIntString(cache[7]);
+		info.height = Util::FromIntString(cache[8]);
 		const StringVector posinfo = Util::StringTokenize(cache[9], " ");
 		for (const std::string pos : posinfo) {
 			StartPos position;
-			position.x = Util::FromString<long>(Util::BeforeFirst(pos, "-"));
-			position.y = Util::FromString<long>(Util::AfterFirst(pos, "-"));
+			position.x = Util::FromIntString(Util::BeforeFirst(pos, "-"));
+			position.y = Util::FromIntString(Util::AfterFirst(pos, "-"));
 			info.positions.push_back(position);
 		}
 		const unsigned int LineCount = cache.size();
@@ -711,21 +711,21 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 		info = susynclib().GetMapInfoEx(index, 1);
 
 		cache.push_back(info.author);
-		cache.push_back(Util::ToString(info.tidalStrength));
-		cache.push_back(Util::ToString(info.gravity));
-		cache.push_back(Util::ToString(info.maxMetal));
-		cache.push_back(Util::ToString(info.extractorRadius));
-		cache.push_back(Util::ToString(info.minWind));
-		cache.push_back(Util::ToString(info.maxWind));
-		cache.push_back(Util::ToString(info.width));
-		cache.push_back(Util::ToString(info.height));
+		cache.push_back(Util::ToFloatString(info.tidalStrength));
+		cache.push_back(Util::ToIntString(info.gravity));
+		cache.push_back(Util::ToFloatString(info.maxMetal));
+		cache.push_back(Util::ToFloatString(info.extractorRadius));
+		cache.push_back(Util::ToFloatString(info.minWind));
+		cache.push_back(Util::ToFloatString(info.maxWind));
+		cache.push_back(Util::ToIntString(info.width));
+		cache.push_back(Util::ToIntString(info.height));
 
 		std::string postring;
 		for (unsigned int i = 0; i < info.positions.size(); i++) {
 			if (!postring.empty()) {
 				postring += " ";
 			}
-			postring += Util::ToString(info.positions[i].x) + "-" + Util::ToString(info.positions[i].y);
+			postring += Util::ToIntString(info.positions[i].x) + "-" + Util::ToIntString(info.positions[i].y);
 		}
 		cache.push_back(postring);
 

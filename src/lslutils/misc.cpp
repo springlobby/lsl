@@ -267,7 +267,7 @@ lslColor lslColor::FromFloatString(const std::string &rgb_string)
     unsigned char decimal_colors[3] = {0, 0, 0};
 
     for ( size_t i = 0; i < 3; ++i) {
-        const float value = Util::FromString<float>( values[i] );
+        const float value = Util::FromFloatString( values[i] );
         decimal_colors[i] = round(value * 255);
     }
     return lslColor( decimal_colors[0], decimal_colors[1], decimal_colors[2] );
@@ -275,9 +275,9 @@ lslColor lslColor::FromFloatString(const std::string &rgb_string)
 
 std::string lslColor::ToFloatString(const lslColor& col)
 {
-	return Util::ToString((float)col.Red() / 255) + std::string(" ")
-		+ Util::ToString((float)col.Green() / 255) + std::string(" ")
-		+ Util::ToString((float)col.Blue() / 255);
+	return Util::ToFloatString((float)col.Red() / 255) + std::string(" ")
+		+ Util::ToFloatString((float)col.Green() / 255) + std::string(" ")
+		+ Util::ToFloatString((float)col.Blue() / 255);
 }
 
 

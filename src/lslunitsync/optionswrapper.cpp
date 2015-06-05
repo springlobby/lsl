@@ -240,7 +240,7 @@ OptionsWrapper::stringTripleVec OptionsWrapper::getOptions( Enum::GameOption mod
     if ( optIt != m_opts.end() ) {
         const GameOptions& gameoptions = optIt->second;
         for (OptionMapBoolConstIter it = gameoptions.bool_map.begin(); it != gameoptions.bool_map.end(); ++it) {
-            list.push_back( stringTriple( (*it).first, stringPair ( it->second.name , Util::ToString(it->second.value) ) ) );
+            list.push_back( stringTriple( (*it).first, stringPair ( it->second.name , Util::ToIntString(it->second.value) ) ) );
         }
 
         for (OptionMapStringConstIter it = gameoptions.string_map.begin(); it != gameoptions.string_map.end(); ++it) {
@@ -248,7 +248,7 @@ OptionsWrapper::stringTripleVec OptionsWrapper::getOptions( Enum::GameOption mod
         }
 
         for (OptionMapFloatConstIter it = gameoptions.float_map.begin(); it != gameoptions.float_map.end(); ++it) {
-            list.push_back( stringTriple( (*it).first, stringPair ( it->second.name, Util::ToString(it->second.value) ) ) );
+            list.push_back( stringTriple( (*it).first, stringPair ( it->second.name, Util::ToFloatString(it->second.value) ) ) );
         }
 
         for (OptionMapListConstIter it = gameoptions.list_map.begin(); it != gameoptions.list_map.end(); ++it) {
@@ -265,7 +265,7 @@ std::map<std::string,std::string> LSL::OptionsWrapper::getOptionsMap( Enum::Game
     if ( optIt != m_opts.end() ) {
         const GameOptions& gameoptions = optIt->second;
         for (OptionMapBoolConstIter it = gameoptions.bool_map.begin(); it != gameoptions.bool_map.end(); ++it) {
-            map[it->first] =  Util::ToString(it->second.value);
+            map[it->first] =  Util::ToIntString(it->second.value);
         }
 
         for (OptionMapStringConstIter it = gameoptions.string_map.begin(); it != gameoptions.string_map.end(); ++it) {
@@ -273,7 +273,7 @@ std::map<std::string,std::string> LSL::OptionsWrapper::getOptionsMap( Enum::Game
         }
 
         for (OptionMapFloatConstIter it = gameoptions.float_map.begin(); it != gameoptions.float_map.end(); ++it) {
-            map[it->first] = Util::ToString(it->second.value);
+            map[it->first] = Util::ToFloatString(it->second.value);
         }
 
         for (OptionMapListConstIter it = gameoptions.list_map.begin(); it != gameoptions.list_map.end(); ++it) {
@@ -335,9 +335,9 @@ std::string OptionsWrapper::getSingleValue( const std::string& key, Enum::GameOp
 		switch (optType)
 		{
         case Enum::opt_float:
-            return Util::ToString( GetItem( tempOpt.float_map, key ).value );
+            return Util::ToFloatString( GetItem( tempOpt.float_map, key ).value );
         case Enum::opt_bool:
-            return Util::ToString( GetItem( tempOpt.bool_map, key ).value );
+            return Util::ToIntString( GetItem( tempOpt.bool_map, key ).value );
         case Enum::opt_string:
 			return  GetItem( tempOpt.string_map, key ).value ;
         case Enum::opt_list:
@@ -366,12 +366,12 @@ std::string OptionsWrapper::getDefaultValue( const std::string& key, Enum::GameO
 		{
 			{
             case Enum::opt_bool:
-                ret = Util::ToString( GetItem( tempOpt.bool_map, key ).def );
+                ret = Util::ToIntString( GetItem( tempOpt.bool_map, key ).def );
 				break;
 			}
             case Enum::opt_float:
 			{
-                ret = Util::ToString( GetItem( tempOpt.float_map, key ).def );
+                ret = Util::ToFloatString( GetItem( tempOpt.float_map, key ).def );
 				break;
 			}
             case Enum::opt_string:
@@ -400,11 +400,7 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 	{
         case Enum::opt_float :
 		{
-			//temp set to C locale cause we get '.' as decimal seperator over the net
-			const char* old_locale = std::setlocale(LC_NUMERIC, "C");
-			//test if min < val < max
-			const double d_val = Util::FromString<double>( value );
-			std::setlocale(LC_NUMERIC, old_locale);
+			const double d_val = Util::FromFloatString(value );
 			if( d_val < (gameoptions.float_map)[key].min || d_val > (gameoptions.float_map)[key].max ) {
 				LslWarning("received number %f option %s exceeds boundaries %f %f", d_val, key.c_str(), (gameoptions.float_map)[key].min, (gameoptions.float_map)[key].max);
 				return false;
@@ -415,7 +411,7 @@ bool  LSL::OptionsWrapper::setSingleOptionTypeSwitch( const std::string& key, co
 		}
         case Enum::opt_bool :
 		{
-			const long l_val = Util::FromString<long>( value );
+			const long l_val = Util::FromIntString(value);
 			if( l_val != 1 && l_val != 0 )
 			{
                 LslWarning("recieved bool option that is neither 0 or 1");

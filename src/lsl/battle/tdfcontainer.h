@@ -27,13 +27,13 @@ class TDFWriter
 		void LeaveSection();
 		void Indent();
 		std::string GetCurrentPath();
-		void Append( const std::string& name, std::string value );
-		template<class T>
-		void Append( const std::string& name, T value );
-
+		void AppendStr( const std::string& name, std::string value );
+		void AppendInt( const std::string& name, int value );
+		void AppendFloat( const std::string& name, float value );
+/*
 		/// works like algorithms such as std::sort
 		template<class T> void Append( const std::string& name, T begin, T end );
-
+*/
 		void AppendLineBreak();
 		void Close();
 private:
@@ -282,22 +282,6 @@ inline Tokenizer &operator >>( Tokenizer& tokenizer, Token& token ) {
 
 PDataList ParseTDF( std::istream &s, int *error_count = NULL );
 
-//Defintions to not clutter up the class declaration
-template<class T> void TDFWriter:: Append( const std::string& name, T value )
-{
-	Append( name, Util::ToString( value ) );
-}
-
-template<class T>
-void TDFWriter::Append( const std::string& name, T begin, T end ) {
-	Indent();
-	m_stream << name << "=";
-	for ( T it = begin;it != end;++it ) {
-		if ( it != begin )m_stream << " ";
-		m_stream << ( *it );
-	}
-	m_stream << ";\n";
-}
 
 } } // namespace LSL { namespace TDF {
 

@@ -42,11 +42,22 @@ void TDFWriter::LeaveSection() {
 void TDFWriter::Indent() {
     for ( int i = 0;i < m_depth;++i )m_stream << "\t";
 }
-//std::string GetCurrentPath();
-void TDFWriter::Append( const std::string &name, std::string value ) {
+
+void TDFWriter::AppendStr( const std::string &name, std::string value ) {
 	Indent();
     m_stream << name << "=" << value << ";\n";
 }
+
+void TDFWriter:: AppendInt( const std::string& name, int value )
+{
+	AppendStr( name, Util::ToIntString( value ) );
+}
+
+void TDFWriter:: AppendFloat( const std::string& name, float value )
+{
+	AppendStr( name, Util::ToFloatString( value ) );
+}
+
 
 void TDFWriter::Close() {
 	while ( m_depth > 0 )
@@ -605,7 +616,7 @@ int DataList::GetInt( const std::string &f_name, int default_value, bool *it_wor
 		return default_value;
 	}
 	std::string s = leaf->GetValue();
-    long result =Util::FromString<long>( s );
+    long result =Util::FromIntString( s );
 	if ( it_worked ) {
 		*it_worked = true;
 	}
@@ -620,7 +631,7 @@ double DataList::GetDouble( const std::string &f_name, double default_value, boo
 		return default_value;
 	}
 	std::string s = leaf->GetValue();
-    double result =Util::FromString<double>( s );
+    double result =Util::FromIntString( s );
 	if ( it_worked ) {
 		*it_worked = true;
 	}
@@ -648,7 +659,7 @@ void DataLeaf::SetValue( const std::string &value_ ) {
 }
 
 void DataLeaf::Save( TDFWriter &f ) {
-	f.Append( Name(), GetValue() );
+	f.AppendStr( Name(), GetValue() );
 }
 void DataLeaf::Load( Tokenizer &f ) {
 	Token t = f.TakeToken();

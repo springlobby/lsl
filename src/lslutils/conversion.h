@@ -3,48 +3,24 @@
 #ifndef LSL_CONVERSION_H
 #define LSL_CONVERSION_H
 
-#include <sstream>
+#include <string>
 
 namespace LSL {
 namespace Util {
 
-template < class ReturnType, class T >
-ReturnType FromString(const T s)
-{
-    std::stringstream ss;
-    ss << s;
-    ReturnType r = 0;
-    ss >> r;
-    return r;
-}
+int FromIntString(const std::string& s);
+float FromFloatString(const std::string& s);
+std::string ToIntString(int i);
+std::string ToFloatString(float f);
 
-template<class T>
-static inline std::string ToString(const T arg){
-	std::stringstream s;
-	s << arg;
-	return s.str();
-}
-
-static inline std::string MakeHashUnsigned( const std::string& hash )
-{
-	return ToString( FromString<unsigned int>( hash ) );
-}
-
-static inline std::string MakeHashSigned( const std::string& hash )
-{
-	return ToString((int)FromString<long>( hash ) );
-}
+std::string MakeHashUnsigned( const std::string& hash );
+std::string MakeHashSigned( const std::string& hash );
 
 // convert const char* to std::string, as std::string(NULL) crashes
-static inline std::string SafeString(const char* str)
-{
-	if (str == NULL) return "";
-	return std::string(str);
-}
-
-// convert std::string to std::wstring
+std::string SafeString(const char* str);
 
 #ifdef WIN32
+// convert std::string to std::wstring
 std::wstring s2ws(const std::string& s);
 std::string ws2s(const std::wstring& s);
 std::string geterrormsg();
