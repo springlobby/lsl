@@ -4,6 +4,7 @@
 #define LSL_CONVERSION_H
 
 #include <string>
+#include <cstring>
 
 namespace LSL {
 namespace Util {
