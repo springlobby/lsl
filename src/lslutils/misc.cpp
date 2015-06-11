@@ -48,14 +48,17 @@ bool FileCanOpen( const std::string& path )
   return std::ifstream(path.c_str()).is_open();
 }
 
-StringVector StringTokenize( const std::string& msg,
-                             const std::string& seperators,
-                             const boost::algorithm::token_compress_mode_type mode )
+StringVector StringTokenize(const std::string& msg, const std::string& seperators)
 {
-    StringVector strings;
-    boost::algorithm::split( strings, msg, boost::algorithm::is_any_of(seperators),
-                             mode );
-    return strings;
+	std::string _msg = msg;
+	boost::algorithm::trim_if(_msg, boost::algorithm::is_any_of(seperators));
+
+	StringVector strings;
+	boost::algorithm::split( strings, _msg, boost::algorithm::is_any_of(seperators), boost::algorithm::token_compress_on);
+	if ((strings.size() == 1) && (strings[0].empty())) {
+		strings.clear();
+	}
+	return strings;
 }
 
 
