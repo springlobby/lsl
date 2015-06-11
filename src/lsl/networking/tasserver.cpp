@@ -824,7 +824,7 @@ void ServerImpl::OnSetBattleInfo( std::string infos )
     IBattlePtr battle = m_current_battle;
 	if (!battle) return;
 	for( const std::string command:
-                   Util::StringTokenize( infos, "\t", boost::algorithm::token_compress_on ) )
+                   Util::StringTokenize( infos, "\t") )
 	{
         const std::string key = boost::algorithm::to_lower_copy( Util::BeforeFirst( command,"=" ) );
         const std::string value = Util::AfterFirst( command,"=" );
