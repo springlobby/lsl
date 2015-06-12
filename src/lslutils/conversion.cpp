@@ -9,10 +9,7 @@ namespace Util {
 
 int FromIntString(const std::string& s)
 {
-	int ret = 0;
-	const int num = sscanf(s.c_str(), "%d", &ret);
-	assert(num == 1);
-	return ret;
+	return atoi(s.c_str());
 }
 
 float FromFloatString(const std::string& s)
