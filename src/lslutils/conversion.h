@@ -12,6 +12,7 @@ namespace Util {
 int FromIntString(const std::string& s);
 float FromFloatString(const std::string& s);
 std::string ToIntString(int i);
+std::string ToUIntString(int i);
 std::string ToFloatString(float f);
 
 std::string MakeHashUnsigned( const std::string& hash );

@@ -30,7 +30,7 @@ std::string ToIntString(int i)
 	return std::string(output, num);
 }
 
-static std::string ToUIntString(int i)
+std::string ToUIntString(int i)
 {
 	char output[32];
 	const int num = snprintf(output, 32, "%u", i);

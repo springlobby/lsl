@@ -161,7 +161,7 @@ void Unitsync::PopulateArchiveList()
 		}
 		try {
 			assert(!name.empty());
-			m_maps_list[name] = LSL::Util::ToIntString(hash);
+			m_maps_list[name] = LSL::Util::ToUIntString(hash);
 			if (!archivename.empty())
 				m_maps_archive_name[name] = archivename;
 			m_map_array.push_back(name);
@@ -186,7 +186,7 @@ void Unitsync::PopulateArchiveList()
 		}
 		try {
 			assert(!name.empty());
-			m_mods_list[name] = LSL::Util::ToIntString(hash);
+			m_mods_list[name] = LSL::Util::ToUIntString(hash);
 			if (!archivename.empty())
 				m_mods_archive_name[name] = archivename;
 			m_mod_array.push_back(name);
