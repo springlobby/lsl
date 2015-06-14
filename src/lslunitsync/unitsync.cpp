@@ -26,7 +26,7 @@
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
-#define ASYNC_LOAD 0
+#define ASYNC_LOAD 0  //FIXME: repair/set to 1!
 #if ASYNC_LOAD
 #define TRY_LOCK(ret)                                               \
 	boost::mutex::scoped_try_lock lock_criticalsection(m_lock); \
@@ -749,8 +749,11 @@ bool Unitsync::ReloadUnitSyncLib()
 	const std::string path = LSL::Util::config().GetCurrentUsedUnitSync();
 	if (path.empty())
 		return false;
-	//LoadUnitSyncLibAsync(path); //FIXME: repair/use this!
+#if ASYNC_LOAD
+	LoadUnitSyncLibAsync(path);
+#else
 	LoadUnitSyncLib(path);
+#endif
 	return true;
 }
 
