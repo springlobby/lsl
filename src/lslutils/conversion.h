@@ -9,7 +9,7 @@
 namespace LSL {
 namespace Util {
 
-int FromIntString(const std::string& s);
+int32_t FromIntString(const std::string& s);
 float FromFloatString(const std::string& s);
 std::string ToIntString(int i);
 std::string ToUIntString(int i);

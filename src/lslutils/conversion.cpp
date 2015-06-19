@@ -4,12 +4,37 @@
 #include <cassert>
 #include <sstream>
 
+#ifndef INT_MAX
+#define INT_MAX    2147483647
+#endif
+
+#ifndef INT_MIN
+#define INT_MIN	   (-2147483647 - 1)
+#endif
+
 namespace LSL {
 namespace Util {
 
-int FromIntString(const std::string& s)
+int32_t FromIntString(const std::string& s)
 {
-	return atoi(s.c_str());
+	int n = 0;
+	int sign = 1;
+	const char* str = s.c_str();
+
+	if (*str == '-') {
+		sign = -1;
+		++str;
+	} else if (*str == '+') {
+		sign = 1;
+		++str;
+	}
+	while (isdigit(*str)) {
+		n *= 10;
+		int ch = *str - '0';
+		n += ch;
+		++str;
+	}
+	return sign * n;
 }
 
 float FromFloatString(const std::string& s)
