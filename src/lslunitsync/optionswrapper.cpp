@@ -11,33 +11,6 @@
 
 namespace LSL {
 
-//! \todo needs deep copy
-class mmSectionTree
-{
-    public:
-        mmSectionTree();
-        ~mmSectionTree();
-
-        void AddSection( const mmOptionSection& section );
-        mmOptionSection GetSection( const std::string& key );
-
-        typedef std::vector< mmOptionSection > SectionVector;
-//        SectionVector GetSectionVector();
-        void Clear();
-
-private:
-        //map key -> option
-        typedef std::map< std::string, mmOptionSection > SectionMap;
-        SectionMap m_section_map;
-		typedef dummyConfig ConfigType;
-		boost::shared_ptr<ConfigType> m_tree;
-
-        void AddSection ( const std::string& path, const mmOptionSection& section );
-        std::string FindParentpath ( const std::string& parent_key );
-        bool FindRecursive( const std::string& parent_key, std::string& path );
-};
-
-
 OptionsWrapper::OptionsWrapper()
 {
 	unLoadOptions();
@@ -55,11 +28,8 @@ void OptionsWrapper::unLoadOptions()
 
 void OptionsWrapper::unLoadOptions(Enum::GameOption i)
 {
-  GameOptions empty;
-  m_opts[i] = empty;
-
-	mmSectionTreeMap::iterator itor = m_sections.find( i );
-	if ( itor != m_sections.end() ) m_sections.erase( itor );
+	GameOptions empty;
+	m_opts[i] = empty;
 }
 
 OptionsWrapper::~OptionsWrapper()
@@ -86,7 +56,6 @@ bool OptionsWrapper::loadAIOptions( const std::string& modname, int aiindex,cons
 	try
 	{
 		GameOptions opt = usync().GetAIOptions( modname, aiindex );
-		ParseSectionMap( m_sections[mapindex], opt.section_map );
 		m_opts[mapindex] = opt;
 	} catch (...)
 	{
@@ -115,7 +84,6 @@ bool OptionsWrapper::loadOptions( Enum::GameOption modmapFlag, const std::string
 			try
 			{
                 opt = usync().GetMapOptions(name);
-                ParseSectionMap( m_sections[modmapFlag], opt.section_map );
 			}
 			catch(...)
 			{
@@ -128,7 +96,6 @@ bool OptionsWrapper::loadOptions( Enum::GameOption modmapFlag, const std::string
 			try
 			{
                 opt = usync().GetModOptions(name);
-                ParseSectionMap( m_sections[modmapFlag], opt.section_map );
 			}
 			catch(...)
 			{
@@ -559,135 +526,6 @@ bool OptionsWrapper::MergeOptions( const OptionsWrapper& other, Enum::GameOption
         }
     }
     return true;
-}
-
-void OptionsWrapper::ParseSectionMap( mmSectionTree& section_tree, const OptionMapSection& section_map )
-{
-
-    // map child-key <-> parent-key
-    typedef std::map<std::string,std::string> RelationMap;
-	typedef std::map<std::string,std::string>::iterator RelationMapIter;
-    RelationMap relation_map;
-
-    //setup relation map
-    for ( OptionMapSectionConstIter it = section_map.begin(); it != section_map.end(); ++it )
-    {
-        relation_map[it->second.key] = it->second.section;
-    }
-
-    RelationMapIter rit = relation_map.begin();
-    // no more items in the map means we've added them all
-    while ( !relation_map.empty() )
-    {
-        RelationMapIter rit_next = rit; // in case we need to delete
-        ++rit_next;
-
-        if ( relation_map.find(rit->second) == relation_map.end() )
-        {
-            //either we already added this sections parent or it's a root section
-            OptionMapSectionConstIter section = section_map.find(rit->first);
-            assert ( section != section_map.end() );
-                section_tree.AddSection( section->second );
-
-
-              //we're done with this section, so remove it
-            relation_map.erase(rit);
-        }
-
-        rit = rit_next;
-
-        //we've reached the end of the map, restart at beginning
-        if ( rit == relation_map.end() )
-            rit = relation_map.begin();
-    }
-
-}
-
-const std::string tree_sep = "/";
-
-mmSectionTree::mmSectionTree()
-	: m_tree ( new ConfigType() )
-{
-	//this class is basically nonfunctional atm
-	//FIXME: assert( false );
-}
-
-mmSectionTree::~mmSectionTree()
-{
-    #ifndef NDEBUG
-//		m_tree->Flush();
-	#else //no need to clutter tempfile directory if we're not debugging
-//		m_tree->DeleteAll();
-    #endif
-}
-
-void mmSectionTree::AddSection ( const std::string& parentpath, const mmOptionSection& section )
-{
-//FIXME
-//	std::string fullpath = parentpath + tree_sep + section.key + tree_sep;
-//	m_tree->Write( fullpath + "key", section.key );
-	#ifndef NDEBUG
-//		m_tree->Flush();
-	#endif
-}
-void mmSectionTree::AddSection( const mmOptionSection& section)
-{
-	//m_section_map[section.key] = section;
-	std::string name = section.section;
-	if ( section.section == Constants::nosection_name )
-	{
-		AddSection( tree_sep, section );
-	}
-	else
-	{
-		std::string parent = FindParentpath( section.section );
-		AddSection( parent, section );
-	}
-}
-
-bool mmSectionTree::FindRecursive( const std::string& /*parent_key*/, std::string& /*path */)
-{
-//    std::string current;
-//    long cur_index;
-
-//    //search current level first before recursing
-//    bool cont = m_tree->GetFirstGroup( current, cur_index );
-//    while ( cont )
-//    {
-//        if ( current.EndsWith( parent_key ) ) {
-//            path = current;
-//            return true;
-//        }
-//        cont = m_tree->GetNextGroup( current, cur_index );
-//    }
-
-//    //we need to recurse into sub-paths
-//    cont = m_tree->GetFirstGroup( current, cur_index );
-//    while ( cont )
-//    {
-//        std::string old_path = m_tree->GetPath();
-//        m_tree->SetPath( old_path + "/" + current );
-//        if ( FindRecursive( parent_key,  path ) )
-//            return true;
-//        m_tree->SetPath( old_path );
-//        cont = m_tree->GetNextGroup( current, cur_index );
-//    }
-    return false;
-}
-
-std::string mmSectionTree::FindParentpath ( const std::string& parent_key )
-{
-	std::string path = tree_sep;
-    if ( FindRecursive( parent_key, path ) )
-        return path;
-    else
-        return "";
-}
-
-void mmSectionTree::Clear()
-{
-    m_section_map.clear();
-//    m_tree->DeleteAll();
 }
 
 } // namespace LSL {

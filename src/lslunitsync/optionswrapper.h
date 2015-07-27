@@ -15,7 +15,6 @@ struct mmOptionSection;
 struct GameOptions;
 
 struct dummyConfig {};
-class mmSectionTree;
 
 
 class OptionsWrapper
@@ -28,7 +27,6 @@ public:
     typedef std::vector<stringTriple> stringTripleVec;
     typedef std::map<std::string,std::string> stringMap;
     typedef std::map<int, GameOptions> GameOptionsMap;
-    typedef std::map<int, mmSectionTree> mmSectionTreeMap;
 
 	//does nothing
 	OptionsWrapper();
@@ -123,16 +121,11 @@ private:
 	//! recreates the containers of corresponding flag
 	void unLoadOptions(Enum::GameOption flag);
 
-	//! after loading sections into map, parse them into tree
-	void ParseSectionMap( mmSectionTree& section_tree, const OptionMapSection& section_map );
-
 	//! Merge this another wrapper's options into this one, with the other'soptions taking precendence
 	bool MergeOptions( const OptionsWrapper& other, Enum::GameOption merge_into );
 
 	//! used for code clarity in setOptions()
 	bool setSingleOptionTypeSwitch(const std::string& key, const std::string& value, Enum::GameOption modmapFlag, Enum::OptionType optType);
-
-	mmSectionTreeMap m_sections;
 
 	//! a map that connects the ai nick with it's set of options
 	std::map<std::string, int> m_ais_indexes;
