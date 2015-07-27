@@ -5,7 +5,6 @@
 #include <utility>
 #include <map>
 #include <string>
-#include <boost/shared_ptr.hpp>
 
 #include <lslutils/type_forwards.h>
 #include "enum.h"
@@ -16,32 +15,8 @@ struct mmOptionSection;
 struct GameOptions;
 
 struct dummyConfig {};
+class mmSectionTree;
 
-//! \todo needs deep copy
-class mmSectionTree
-{
-    public:
-        mmSectionTree();
-        ~mmSectionTree();
-
-        void AddSection( const mmOptionSection& section );
-        mmOptionSection GetSection( const std::string& key );
-
-        typedef std::vector< mmOptionSection > SectionVector;
-//        SectionVector GetSectionVector();
-        void Clear();
-
-private:
-        //map key -> option
-        typedef std::map< std::string, mmOptionSection > SectionMap;
-        SectionMap m_section_map;
-		typedef dummyConfig ConfigType;
-		boost::shared_ptr<ConfigType> m_tree;
-
-        void AddSection ( const std::string& path, const mmOptionSection& section );
-        std::string FindParentpath ( const std::string& parent_key );
-        bool FindRecursive( const std::string& parent_key, std::string& path );
-};
 
 class OptionsWrapper
 {
@@ -58,8 +33,6 @@ public:
 	//does nothing
 	OptionsWrapper();
 	virtual ~OptionsWrapper();
-	//! just calls loadOptions(MapOption,mapname)
-	bool loadMapOptions(const std::string& mapname);
 
 	bool loadAIOptions( const std::string& modname, int aiindex, const std::string& ainick );
 
@@ -112,10 +85,6 @@ public:
     stringTripleVec getOptions( Enum::GameOption flag ) const;
 	//! similar to getOptions, instead of vector a map is used and the name is not stored
 	std::map<std::string,std::string> getOptionsMap(Enum::GameOption) const;
-	//! recreates ALL containers
-	void unLoadOptions();
-	//! recreates the containers of corresponding flag
-	void unLoadOptions(Enum::GameOption flag);
 
 	//! returns value of specified key
 	/*! searches all containers for key
@@ -148,15 +117,20 @@ public:
 
 	GameOptionsMap m_opts;
 
+private:
+	//! recreates ALL containers
+	void unLoadOptions();
+	//! recreates the containers of corresponding flag
+	void unLoadOptions(Enum::GameOption flag);
+
 	//! after loading sections into map, parse them into tree
-    void ParseSectionMap( mmSectionTree& section_tree, const OptionMapSection& section_map );
+	void ParseSectionMap( mmSectionTree& section_tree, const OptionMapSection& section_map );
 
 	//! Merge this another wrapper's options into this one, with the other'soptions taking precendence
 	bool MergeOptions( const OptionsWrapper& other, Enum::GameOption merge_into );
 
-private:
 	//! used for code clarity in setOptions()
-    bool setSingleOptionTypeSwitch(const std::string& key, const std::string& value, Enum::GameOption modmapFlag, Enum::OptionType optType);
+	bool setSingleOptionTypeSwitch(const std::string& key, const std::string& value, Enum::GameOption modmapFlag, Enum::OptionType optType);
 
 	mmSectionTreeMap m_sections;
 

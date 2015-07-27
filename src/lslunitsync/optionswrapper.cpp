@@ -4,11 +4,39 @@
 #include <lslutils/conversion.h>
 #include <lslutils/debug.h>
 #include <lslutils/logging.h>
+#include <boost/shared_ptr.hpp>
 
 #include <stdexcept>
 #include <clocale>
 
 namespace LSL {
+
+//! \todo needs deep copy
+class mmSectionTree
+{
+    public:
+        mmSectionTree();
+        ~mmSectionTree();
+
+        void AddSection( const mmOptionSection& section );
+        mmOptionSection GetSection( const std::string& key );
+
+        typedef std::vector< mmOptionSection > SectionVector;
+//        SectionVector GetSectionVector();
+        void Clear();
+
+private:
+        //map key -> option
+        typedef std::map< std::string, mmOptionSection > SectionMap;
+        SectionMap m_section_map;
+		typedef dummyConfig ConfigType;
+		boost::shared_ptr<ConfigType> m_tree;
+
+        void AddSection ( const std::string& path, const mmOptionSection& section );
+        std::string FindParentpath ( const std::string& parent_key );
+        bool FindRecursive( const std::string& parent_key, std::string& path );
+};
+
 
 OptionsWrapper::OptionsWrapper()
 {
@@ -36,11 +64,6 @@ void OptionsWrapper::unLoadOptions(Enum::GameOption i)
 
 OptionsWrapper::~OptionsWrapper()
 {
-}
-
-bool OptionsWrapper::loadMapOptions( const std::string& mapname)
-{
-	return loadOptions(Enum::MapOption,mapname);
 }
 
 Enum::OptionType OptionsWrapper::GetSingleOptionType ( const std::string& key) const
