@@ -502,30 +502,4 @@ std::string OptionsWrapper::GetNameListOptItemKey( const std::string& optkey, co
     return "";
 }
 
-bool OptionsWrapper::MergeOptions( const OptionsWrapper& other, Enum::GameOption merge_into )
-{
-    GameOptionsMapCIter other_it = other.m_opts.begin();
-    for ( ; other_it != other.m_opts.end(); ++other_it ) {
-        const GameOptions& other_opts = other_it->second;
-        //const GameOption other_id = (const GameOption)other_it->first; //TODO (koshi) what was this supposed to be used for?
-
-        for (OptionMapBoolConstIter it = other_opts.bool_map.begin(); it != other_opts.bool_map.end();++it ) {
-            m_opts[merge_into].bool_map[it->first] = it->second;
-        }
-
-        for ( OptionMapFloatConstIter it = other_opts.float_map.begin(); it != other_opts.float_map.end(); ++it ) {
-            m_opts[merge_into].float_map[it->first] = it->second;
-        }
-
-        for ( OptionMapListConstIter it = other_opts.list_map.begin(); it != other_opts.list_map.end(); ++it ){
-            m_opts[merge_into].list_map[it->first] = it->second;
-        }
-
-        for ( OptionMapStringConstIter it = other_opts.string_map.begin(); it != other_opts.string_map.end(); ++it ) {
-            m_opts[merge_into].string_map[it->first] = it->second;
-        }
-    }
-    return true;
-}
-
 } // namespace LSL {

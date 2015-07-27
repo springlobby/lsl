@@ -121,9 +121,6 @@ private:
 	//! recreates the containers of corresponding flag
 	void unLoadOptions(Enum::GameOption flag);
 
-	//! Merge this another wrapper's options into this one, with the other'soptions taking precendence
-	bool MergeOptions( const OptionsWrapper& other, Enum::GameOption merge_into );
-
 	//! used for code clarity in setOptions()
 	bool setSingleOptionTypeSwitch(const std::string& key, const std::string& value, Enum::GameOption modmapFlag, Enum::OptionType optType);
 
