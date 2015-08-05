@@ -47,7 +47,7 @@ Enum::OptionType OptionsWrapper::GetSingleOptionType ( const std::string& key) c
     return Enum::opt_undefined;
 }
 
-bool OptionsWrapper::loadAIOptions( const std::string& modname, int aiindex,const std::string& ainame )
+bool OptionsWrapper::loadAIOptions( const std::string& gamename, int aiindex,const std::string& ainame )
 {
 	int mapindex = m_ais_indexes[ainame];
 	if ( mapindex == 0 ) mapindex = m_ais_indexes.size() + Enum::LastOption;
@@ -55,7 +55,7 @@ bool OptionsWrapper::loadAIOptions( const std::string& modname, int aiindex,cons
 	unLoadOptions((Enum::GameOption)mapindex);
 	try
 	{
-		GameOptions opt = usync().GetAIOptions( modname, aiindex );
+		GameOptions opt = usync().GetAIOptions( gamename, aiindex );
 		m_opts[mapindex] = opt;
 	} catch (...)
 	{
@@ -83,11 +83,11 @@ bool OptionsWrapper::loadOptions( Enum::GameOption modmapFlag, const std::string
 		case Enum::MapOption:
 			try
 			{
-                opt = usync().GetMapOptions(name);
+                		opt = usync().GetMapOptions(name);
 			}
 			catch(...)
 			{
-                LslError("Could not load map options");
+				LslError("Could not load map options");
 				return false;
 			}
 			break;

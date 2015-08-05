@@ -244,10 +244,10 @@ StringVector Unitsync::GetModList() const
 	return m_mod_array;
 }
 
-bool Unitsync::ModExists(const std::string& modname, const std::string& hash) const
+bool Unitsync::GameExists(const std::string& gamename, const std::string& hash) const
 {
 	TRY_LOCK(false)
-	LocalArchivesVector::const_iterator itor = m_mods_list.find(modname);
+	LocalArchivesVector::const_iterator itor = m_mods_list.find(gamename);
 	if (itor == m_mods_list.end())
 		return false;
 	if (hash.empty() || hash == "0")
@@ -255,19 +255,19 @@ bool Unitsync::ModExists(const std::string& modname, const std::string& hash) co
 	return itor->second == hash;
 }
 
-UnitsyncMod Unitsync::GetMod(const std::string& modname)
+UnitsyncGame Unitsync::GetMod(const std::string& gamename)
 {
-	UnitsyncMod m;
+	UnitsyncGame m;
 	TRY_LOCK(m);
-	m.name = modname;
-	m.hash = m_mods_list[modname];
+	m.name = gamename;
+	m.hash = m_mods_list[gamename];
 	return m;
 }
 
 
-UnitsyncMod Unitsync::GetMod(int index)
+UnitsyncGame Unitsync::GetMod(int index)
 {
-	UnitsyncMod m;
+	UnitsyncGame m;
 	TRY_LOCK(m);
 	m.name = m_mod_array[index];
 	m.hash = m_mods_list[m.name];
@@ -280,12 +280,12 @@ StringVector Unitsync::GetMapList() const
 	return m_map_array;
 }
 
-StringVector Unitsync::GetModValidMapList(const std::string& modname) const
+StringVector Unitsync::GetModValidMapList(const std::string& gamename) const
 {
 	StringVector ret;
 	TRY_LOCK(ret)
 	try {
-		unsigned int mapcount = susynclib().GetValidMapCount(modname);
+		unsigned int mapcount = susynclib().GetValidMapCount(gamename);
 		for (unsigned int i = 0; i < mapcount; i++)
 			ret.push_back(susynclib().GetValidMapName(i));
 	} catch (Exceptions::unitsync& e) {
@@ -419,34 +419,34 @@ GameOptions Unitsync::GetModOptions(const std::string& name)
 	return ret;
 }
 
-StringVector Unitsync::GetModDeps(const std::string& modname) const
+StringVector Unitsync::GetModDeps(const std::string& gamename) const
 {
-	assert(!modname.empty());
+	assert(!gamename.empty());
 	StringVector ret;
 	TRY_LOCK(ret)
 	try {
-		ret = susynclib().GetModDeps(Util::IndexInSequence(m_unsorted_mod_array, modname));
+		ret = susynclib().GetModDeps(Util::IndexInSequence(m_unsorted_mod_array, gamename));
 	} catch (Exceptions::unitsync& u) {
 	}
 	return ret;
 }
 
-StringVector Unitsync::GetSides(const std::string& modname)
+StringVector Unitsync::GetSides(const std::string& gamename)
 {
-	assert(!modname.empty());
+	assert(!gamename.empty());
 	StringVector ret;
 	TRY_LOCK(ret);
-	const std::string cachefile = GetFileCachePath(modname, true) + ".sides";
+	const std::string cachefile = GetFileCachePath(gamename, true) + ".sides";
 	if (m_sides_cache.TryGet(cachefile, ret)) { //first return from mru cache
 		return ret;
 	}
 
-	if (!GetCacheFile(cachefile, ret) && (ModExists(modname))) { // cache file failed, try from lsl
+	if (!GetCacheFile(cachefile, ret) && (GameExists(gamename))) { // cache file failed, try from lsl
 		try {
-			ret = susynclib().GetSides(modname);
+			ret = susynclib().GetSides(gamename);
 			SetCacheFile(cachefile, ret); //store into cachefile
 		} catch (Exceptions::unitsync& u) {
-			LSL_THROWF(unitsync, "Error in GetSides: %s", modname.c_str());
+			LSL_THROWF(unitsync, "Error in GetSides: %s", gamename.c_str());
 		}
 	}
 	m_sides_cache.Add(cachefile, ret); //store into mru
@@ -454,11 +454,11 @@ StringVector Unitsync::GetSides(const std::string& modname)
 }
 
 
-UnitsyncImage Unitsync::GetSidePicture(const std::string& modname, const std::string& SideName)
+UnitsyncImage Unitsync::GetSidePicture(const std::string& gamename, const std::string& SideName)
 {
-	assert(!modname.empty());
+	assert(!gamename.empty());
 
-	const std::string cachepath = GetFileCachePath(modname, true, false) + "-side-" + SideName + ".png";
+	const std::string cachepath = GetFileCachePath(gamename, true, false) + "-side-" + SideName + ".png";
 	UnitsyncImage img;
 	TRY_LOCK(img);
 
@@ -471,9 +471,9 @@ UnitsyncImage Unitsync::GetSidePicture(const std::string& modname, const std::st
 		ImgName += "/";
 		ImgName += boost::to_lower_copy(SideName);
 		try {
-			img = GetImage(modname, ImgName + ".png", false);
+			img = GetImage(gamename, ImgName + ".png", false);
 		} catch (Exceptions::unitsync& u) {
-			img = GetImage(modname, ImgName + ".bmp", true);
+			img = GetImage(gamename, ImgName + ".bmp", true);
 		}
 
 		if (img.isValid()) {
@@ -483,30 +483,30 @@ UnitsyncImage Unitsync::GetSidePicture(const std::string& modname, const std::st
 	return img;
 }
 
-UnitsyncImage Unitsync::GetImage(const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent) const
+UnitsyncImage Unitsync::GetImage(const std::string& gamename, const std::string& image_path, bool useWhiteAsTransparent) const
 {
-	assert(!modname.empty());
-	susynclib().SetCurrentMod(modname);
+	assert(!gamename.empty());
+	susynclib().SetCurrentMod(gamename);
 	int ini = susynclib().OpenFileVFS(image_path);
 	if (!ini)
-		LSL_THROWF(unitsync, "%s: cannot find image %s\n", modname.c_str(), image_path.c_str());
+		LSL_THROWF(unitsync, "%s: cannot find image %s\n", gamename.c_str(), image_path.c_str());
 	int FileSize = susynclib().FileSizeVFS(ini);
 	if (FileSize == 0) {
 		susynclib().CloseFileVFS(ini);
-		LSL_THROWF(unitsync, "%s: image has size 0 %s\n", modname.c_str(), image_path.c_str());
+		LSL_THROWF(unitsync, "%s: image has size 0 %s\n", gamename.c_str(), image_path.c_str());
 	}
 	Util::uninitialized_array<char> FileContent(FileSize);
 	susynclib().ReadFileVFS(ini, FileContent, FileSize);
 	return UnitsyncImage::FromVfsFileData(FileContent, FileSize, image_path, useWhiteAsTransparent);
 }
 
-StringVector Unitsync::GetAIList(const std::string& modname) const
+StringVector Unitsync::GetAIList(const std::string& gamename) const
 {
 	StringVector ret;
 	TRY_LOCK(ret);
-	if (modname.empty())
+	if (gamename.empty())
 		return ret;
-	int total = susynclib().GetSkirmishAICount(modname);
+	int total = susynclib().GetSkirmishAICount(gamename);
 	for (int i = 0; i < total; i++) {
 		StringVector infos = susynclib().GetAIInfo(i);
 		const int namepos = Util::IndexInSequence(infos, "shortName");
@@ -543,27 +543,27 @@ StringVector Unitsync::GetAIInfos(int index) const
 	return ret;
 }
 
-GameOptions Unitsync::GetAIOptions(const std::string& modname, int index)
+GameOptions Unitsync::GetAIOptions(const std::string& gamename, int index)
 {
-	assert(!modname.empty());
+	assert(!gamename.empty());
 	GameOptions ret;
 	TRY_LOCK(ret);
-	int count = susynclib().GetAIOptionCount(modname, index);
+	int count = susynclib().GetAIOptionCount(gamename, index);
 	for (int i = 0; i < count; ++i) {
 		GetOptionEntry(i, ret);
 	}
 	return ret;
 }
 
-StringVector Unitsync::GetUnitsList(const std::string& modname)
+StringVector Unitsync::GetUnitsList(const std::string& gamename)
 {
-	assert(!modname.empty());
-	const std::string cachefile = GetFileCachePath(modname, true) + ".units";
+	assert(!gamename.empty());
+	const std::string cachefile = GetFileCachePath(gamename, true) + ".units";
 	StringVector cache;
 	TRY_LOCK(cache)
 
 	if (!GetCacheFile(cachefile, cache)) { //cache read failed
-		susynclib().SetCurrentMod(modname);
+		susynclib().SetCurrentMod(gamename);
 		while (susynclib().ProcessUnitsNoChecksum() > 0) {
 		}
 		const int unitcount = susynclib().GetUnitCount();
@@ -1152,10 +1152,10 @@ void Unitsync::GetMapExAsync(const std::string& mapname)
 	m_cache_thread->DoWork(work, 200 /* higher prio then GetMinimapAsync */);
 }
 
-std::string Unitsync::GetTextfileAsString(const std::string& modname, const std::string& file_path)
+std::string Unitsync::GetTextfileAsString(const std::string& gamename, const std::string& file_path)
 {
-	assert(!modname.empty());
-	susynclib().SetCurrentMod(modname);
+	assert(!gamename.empty());
+	susynclib().SetCurrentMod(gamename);
 
 	int ini = susynclib().OpenFileVFS(file_path);
 	if (!ini)

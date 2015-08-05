@@ -44,11 +44,11 @@ public:
 	StringMap GetHostingPreset( const std::string&, size_t ) {StringMap tmp; return tmp;}
 	void SetHostingPreset( const std::string&, size_t, const StringMap& ){}
 	lslColor GetBattleLastColor() const;
-	int GetBattleLastSideSel( const std::string& /*modname*/ ) const {
+	int GetBattleLastSideSel( const std::string& /*gamename*/ ) const {
 		return 0;
 	}
 	void SaveSettings() {}
-	void DeletePreset( const std::string& /*modname*/ ) {}
+	void DeletePreset( const std::string& /*gamename*/ ) {}
 
 	void SetMapLastStartPosType( const std::string& , const std::string&  ) {};
 	std::string GetMapLastStartPosType( const std::string&) const {

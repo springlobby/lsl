@@ -41,23 +41,23 @@ public:
 	~Unitsync();
 
 	StringVector GetModList() const;
-	bool ModExists(const std::string& modname, const std::string& hash = "") const;
-	UnitsyncMod GetMod(const std::string& modname);
-	UnitsyncMod GetMod(int index);
+	bool GameExists(const std::string& gamename, const std::string& hash = "") const;
+	UnitsyncGame GetMod(const std::string& gamename);
+	UnitsyncGame GetMod(int index);
 
 	GameOptions GetModOptions(const std::string& name);
 	StringVector GetModDeps(const std::string& name) const;
 
 	StringVector GetMapList() const;
-	StringVector GetModValidMapList(const std::string& modname) const;
+	StringVector GetModValidMapList(const std::string& gamename) const;
 	bool MapExists(const std::string& mapname, const std::string& hash = "") const;
 
 	UnitsyncMap GetMap(const std::string& mapname);
 	UnitsyncMap GetMap(int index);
 	GameOptions GetMapOptions(const std::string& name);
 
-	StringVector GetSides(const std::string& modname);
-	UnitsyncImage GetSidePicture(const std::string& modname, const std::string& SideName);
+	StringVector GetSides(const std::string& gamename);
+	UnitsyncImage GetSidePicture(const std::string& gamename, const std::string& SideName);
 
 	bool LoadUnitSyncLib(const std::string& unitsyncloc);
 	void FreeUnitSyncLib();
@@ -67,12 +67,12 @@ public:
 	std::string GetSpringVersion() const;
 	void UnSetCurrentMod();
 
-	StringVector GetAIList(const std::string& modname) const;
+	StringVector GetAIList(const std::string& gamename) const;
 	StringVector GetAIInfos(int index) const;
-	GameOptions GetAIOptions(const std::string& modname, int index);
+	GameOptions GetAIOptions(const std::string& gamename, int index);
 
 
-	StringVector GetUnitsList(const std::string& modname);
+	StringVector GetUnitsList(const std::string& gamename);
 
 	/// get minimap rescaled to given width x height
 	UnitsyncImage GetMinimap(const std::string& mapname, int width, int height);
@@ -130,15 +130,15 @@ private:
 	UnitsyncImage GetHeightmap(const std::string& mapname);
 
 	bool FileExists(const std::string& name) const;
-	std::string GetTextfileAsString(const std::string& modname, const std::string& file_path);
+	std::string GetTextfileAsString(const std::string& gamename, const std::string& file_path);
 
 	StringVector GetMapDeps(const std::string& name);
 
-	UnitsyncImage GetImage(const std::string& modname, const std::string& image_path, bool useWhiteAsTransparent = true) const;
+	UnitsyncImage GetImage(const std::string& gamename, const std::string& image_path, bool useWhiteAsTransparent = true) const;
 
 	LocalArchivesVector m_maps_list;	   /// mapname -> hash
-	LocalArchivesVector m_mods_list;	   /// modname -> hash
-	LocalArchivesVector m_mods_archive_name;   /// modname -> archive name
+	LocalArchivesVector m_mods_list;	   /// gamename -> hash
+	LocalArchivesVector m_mods_archive_name;   /// gamename -> archive name
 	LocalArchivesVector m_maps_archive_name;   /// mapname -> archive name
 	StringVector m_map_array;		   // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
 	StringVector m_mod_array;		   // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY

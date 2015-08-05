@@ -181,7 +181,7 @@ public:
 	void AddAllArchives( const std::string& root );
     void AddArchive(const std::string& name);
 
-	void SetCurrentMod( const std::string& modname );
+	void SetCurrentMod( const std::string& gamename );
 	void UnSetCurrentMod( );
 
 	std::string GetFullUnitName( int index );
@@ -200,13 +200,13 @@ public:
 	int ReadFileVFS( int handle, void* buffer, int bufferLength );
 	void CloseFileVFS( int handle );
 
-	unsigned int GetValidMapCount( const std::string& modname );
+	unsigned int GetValidMapCount( const std::string& gamename );
 	std::string GetValidMapName( unsigned int MapIndex );
 
 	int GetMapOptionCount( const std::string& name );
-	int GetCustomOptionCount( const std::string& modname, const std::string& filename );
+	int GetCustomOptionCount( const std::string& gamename, const std::string& filename );
 	int GetModOptionCount( const std::string& name );
-	int GetAIOptionCount( const std::string& modname, int index );
+	int GetAIOptionCount( const std::string& gamename, int index );
 	std::string GetOptionKey( int optIndex );
 	std::string GetOptionName( int optIndex );
 	std::string GetOptionDesc( int optIndex );
@@ -243,7 +243,7 @@ public:
 	void SetSpringConfigFloat( const std::string& key, const float value );
 
 	/// AI info
-	int GetSkirmishAICount( const std::string& modname );
+	int GetSkirmishAICount( const std::string& gamename );
 	/**
 	 * Get next search result.
 	 * @param the AI index within range of GetSkirmishAIInfoCount
@@ -358,7 +358,7 @@ private:
 
 	void _ConvertSpringMapInfo( const SpringMapInfo& in, MapInfo& out );
 
-	void _SetCurrentMod( const std::string& modname );
+	void _SetCurrentMod( const std::string& gamename );
 
 	/**
      * \name function objects

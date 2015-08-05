@@ -237,21 +237,21 @@ void UnitsyncLib::_ConvertSpringMapInfo( const SpringMapInfo& in, MapInfo& out )
 	out.positions = std::vector<StartPos>( in.positions, in.positions + in.posCount );
 }
 
-void UnitsyncLib::SetCurrentMod( const std::string& modname )
+void UnitsyncLib::SetCurrentMod( const std::string& gamename )
 {
 	InitLib( m_init ); // assumes the others are fine
 	// (m_add_all_archives, m_get_mod_archive, m_get_mod_index)
 
-	_SetCurrentMod( modname );
+	_SetCurrentMod( gamename );
 }
 
-void UnitsyncLib::_SetCurrentMod( const std::string& modname )
+void UnitsyncLib::_SetCurrentMod( const std::string& gamename )
 {
-	if ( m_current_mod != modname )
+	if ( m_current_mod != gamename )
 	{
 		if ( !m_current_mod.empty() ) _RemoveAllArchives();
-		m_add_all_archives( m_get_mod_archive( m_get_mod_index( modname.c_str() ) ) );
-		m_current_mod = modname;
+		m_add_all_archives( m_get_mod_archive( m_get_mod_index( gamename.c_str() ) ) );
+		m_current_mod = gamename;
 	}
 }
 
@@ -647,10 +647,10 @@ void UnitsyncLib::CloseFileVFS( int handle )
 	m_close_file_vfs( handle );
 }
 
-unsigned int UnitsyncLib::GetValidMapCount( const std::string& modname )
+unsigned int UnitsyncLib::GetValidMapCount( const std::string& gamename )
 {
 	InitLib( m_get_mod_valid_map_count );
-	_SetCurrentMod( modname );
+	_SetCurrentMod( gamename );
 	return m_get_mod_valid_map_count();
 }
 
@@ -682,15 +682,15 @@ int UnitsyncLib::GetModOptionCount( const std::string& name )
 {
 	InitLib( m_get_mod_option_count );
 	if (name.empty())
-		LSL_THROW( unitsync, "tried to pass empty modname to unitsync");
+		LSL_THROW( unitsync, "tried to pass empty gamename to unitsync");
 	_SetCurrentMod( name );
 	return m_get_mod_option_count();
 }
 
-int UnitsyncLib::GetAIOptionCount( const std::string& modname, int aiIndex )
+int UnitsyncLib::GetAIOptionCount( const std::string& gamename, int aiIndex )
 {
 	InitLib( m_get_skirmish_ai_option_count );
-	_SetCurrentMod( modname );
+	_SetCurrentMod( gamename );
 	CHECK_FUNCTION( m_get_skirmish_ai_count );
 	if ( !(( aiIndex >= 0 ) && ( aiIndex < m_get_skirmish_ai_count() )) )
 		LSL_THROW( unitsync, "aiIndex out of bounds");
@@ -896,10 +896,10 @@ void UnitsyncLib::SetSpringConfigFloat( const std::string& key, const float valu
 	m_set_spring_config_float( key.c_str(), value );
 }
 
-int UnitsyncLib::GetSkirmishAICount( const std::string& modname )
+int UnitsyncLib::GetSkirmishAICount( const std::string& gamename )
 {
 	InitLib( m_get_skirmish_ai_count );
-	_SetCurrentMod( modname );
+	_SetCurrentMod( gamename );
 	return m_get_skirmish_ai_count();
 }
 

@@ -32,7 +32,7 @@ public:
 	OptionsWrapper();
 	virtual ~OptionsWrapper();
 
-	bool loadAIOptions( const std::string& modname, int aiindex, const std::string& ainick );
+	bool loadAIOptions( const std::string& gamename, int aiindex, const std::string& ainick );
 
 	int GetAIOptionIndex( const std::string& nick ) const;
 

@@ -7,12 +7,12 @@
 
 namespace LSL {
 
-struct UnitsyncMod
+struct UnitsyncGame
 {
-    UnitsyncMod()
+    UnitsyncGame()
         : name(std::string()),hash(std::string())
     {}
-    UnitsyncMod(const std::string& name, const std::string& hash)
+    UnitsyncGame(const std::string& name, const std::string& hash)
         : name(name),hash(hash)
     {}
 	std::string name;
@@ -81,7 +81,7 @@ enum GameFeature
 enum MediaType
 {
 	map,
-	mod
+	game
 };
 
 
