@@ -446,7 +446,8 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 			ret = susynclib().GetSides(gamename);
 			SetCacheFile(cachefile, ret); //store into cachefile
 		} catch (Exceptions::unitsync& u) {
-			LSL_THROWF(unitsync, "Error in GetSides: %s", gamename.c_str());
+			LslWarning("Error in GetSides: %s %s", gamename.c_str(), u.what());
+			return ret;
 		}
 	}
 	m_sides_cache.Add(cachefile, ret); //store into mru
