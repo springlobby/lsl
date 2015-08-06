@@ -33,7 +33,7 @@ class Socket;
 struct PingThread;
 class ServerImpl;
 struct UnitsyncMap;
-struct UnitsyncMod;
+struct UnitsyncGame;
 struct UserStatus;
 class Server;
 
@@ -171,7 +171,7 @@ public:
     void OnBattleStopped(const IBattlePtr battle);
     void OnBattleOpened( const IBattlePtr battle );
 	void OnBattleMapChanged(const IBattlePtr battle,UnitsyncMap map);
-	void OnBattleModChanged( const IBattlePtr battle, UnitsyncMod mod );
+	void OnBattleModChanged( const IBattlePtr battle, UnitsyncGame mod );
 	void OnBattleMaxPlayersChanged( const IBattlePtr battle, int maxplayers );
 	void OnBattleHostChanged( const IBattlePtr battle, UserPtr host, const std::string& ip, int port );
 	void OnBattleSpectatorCountUpdated(const IBattlePtr battle,int spectators);

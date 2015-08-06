@@ -52,7 +52,7 @@ IBattle::IBattle():
 	m_map_loaded(false)
 	, m_mod_loaded(false)
 	, m_map_exists(false)
-	, m_mod_exists(false)
+	, m_game_exists(false)
 	, m_previous_local_mod_name( std::string() )
     , m_opt_wrap( new OptionsWrapper() )
 	, m_ingame(false)
@@ -79,8 +79,8 @@ bool IBattle::IsSynced()
 	bool synced = true;
 	if ( !m_host_map.hash.empty() || m_host_map.hash != "0" ) synced = synced && (m_local_map.hash == m_host_map.hash);
 	if ( !m_host_map.name.empty() ) synced = synced && (m_local_map.name == m_host_map.name);
-	if ( !m_host_mod.hash.empty() || m_host_mod.hash != "0" ) synced = synced && (m_local_mod.hash == m_host_mod.hash);
-	if ( !m_host_mod.name.empty() ) synced = synced && (m_local_mod.name == m_host_mod.name);
+	if ( !m_host_game.hash.empty() || m_host_game.hash != "0" ) synced = synced && (m_local_game.hash == m_host_game.hash);
+	if ( !m_host_game.name.empty() ) synced = synced && (m_local_game.name == m_host_game.name);
 	return synced;
 }
 
@@ -762,52 +762,52 @@ std::string IBattle::GetHostMapHash() const
 
 void IBattle::SetHostMod( const std::string& modname, const std::string& hash )
 {
-	if ( m_host_mod.name != modname || m_host_mod.hash != hash )
+	if ( m_host_game.name != modname || m_host_game.hash != hash )
 	{
 		m_mod_loaded = false;
-		m_host_mod.name = modname;
-		m_host_mod.hash = hash;
-		if ( !m_host_mod.hash.empty() ) m_mod_exists = usync().ModExists( m_host_mod.name, m_host_mod.hash );
-		else m_mod_exists = usync().ModExists( m_host_mod.name );
+		m_host_game.name = modname;
+		m_host_game.hash = hash;
+		if ( !m_host_game.hash.empty() ) m_game_exists = usync().GameExists( m_host_game.name, m_host_game.hash );
+		else m_game_exists = usync().GameExists( m_host_game.name );
 	}
 }
 
-void IBattle::SetLocalMod( const UnitsyncMod& mod )
+void IBattle::SetLocalMod( const UnitsyncGame& mod )
 {
-	if ( mod.name != m_local_mod.name || mod.hash != m_local_mod.hash )
+	if ( mod.name != m_local_game.name || mod.hash != m_local_game.hash )
 	{
-		m_previous_local_mod_name = m_local_mod.name;
-		m_local_mod = mod;
+		m_previous_local_mod_name = m_local_game.name;
+		m_local_game = mod;
 		m_mod_loaded = true;
-		if ( !m_host_mod.hash.empty() ) m_mod_exists = usync().ModExists( m_host_mod.name, m_host_mod.hash );
-		else m_mod_exists = usync().ModExists( m_host_mod.name );
+		if ( !m_host_game.hash.empty() ) m_game_exists = usync().GameExists( m_host_game.name, m_host_game.hash );
+		else m_game_exists = usync().GameExists( m_host_game.name );
 	}
 }
 
-const UnitsyncMod& IBattle::LoadMod()
+const UnitsyncGame& IBattle::LoadMod()
 {
 	if ( !m_mod_loaded )
 	{
 		try {
-			ASSERT_EXCEPTION( m_mod_exists, "Mod does not exist." );
-			m_local_mod = usync().GetMod( m_host_mod.name );
-			bool options_loaded = CustomBattleOptions()->loadOptions( LSL::Enum::ModOption, m_host_mod.name );
+			ASSERT_EXCEPTION( m_game_exists, "Mod does not exist." );
+			m_local_game = usync().GetMod( m_host_game.name );
+			bool options_loaded = CustomBattleOptions()->loadOptions( LSL::Enum::ModOption, m_host_game.name );
 			ASSERT_EXCEPTION( options_loaded, "couldn't load the mod options" );
 			m_mod_loaded = true;
 		} catch (...) {}
 	}
-	return m_local_mod;
+	return m_local_game;
 }
 
-std::string IBattle::GetHostModName() const
+std::string IBattle::GetHostGameName() const
 {
-	return m_host_mod.name;
+	return m_host_game.name;
 }
 
 
-std::string IBattle::GetHostModHash() const
+std::string IBattle::GetHostGameHash() const
 {
-	return m_host_mod.hash;
+	return m_host_game.hash;
 }
 
 
@@ -817,10 +817,10 @@ bool IBattle::MapExists() const
 	//return usync().MapExists( m_map_name, m_map.hash );
 }
 
-bool IBattle::ModExists() const
+bool IBattle::GameExists() const
 {
-	return m_mod_exists;
-	//return usync().ModExists( m_mod_name );
+	return m_game_exists;
+	//return usync().GameExists( m_mod_name );
 }
 
 void IBattle::RestrictUnit( const std::string& unitname, int count )
@@ -872,8 +872,8 @@ void IBattle::OnSelfLeftBattle()
 
 void IBattle::OnUnitsyncReloaded()
 {
-	if ( !m_host_mod.hash.empty() ) m_mod_exists = usync().ModExists( m_host_mod.name, m_host_mod.hash);
-	else m_mod_exists = usync().ModExists( m_host_mod.name );
+	if ( !m_host_game.hash.empty() ) m_game_exists = usync().GameExists( m_host_game.name, m_host_game.hash);
+	else m_game_exists = usync().GameExists( m_host_game.name );
 	if ( !m_host_map.hash.empty() )  m_map_exists = usync().MapExists( m_host_map.name, m_host_map.hash );
 	else  m_map_exists = usync().MapExists( m_host_map.name );
 }

@@ -80,7 +80,7 @@ void Battle::OnRequestBattleStatus()
     bs.spectator = false;
     bs.color = Util::config().GetBattleLastColor();
 	// FIXME? bs.color = Util::GetFreeColor( GetMe() );
-    bs.side = Util::config().GetBattleLastSideSel( GetHostModName() );
+    bs.side = Util::config().GetBattleLastSideSel( GetHostGameName() );
     SendMyBattleStatus();
 }
 
@@ -102,7 +102,7 @@ void Battle::SetImReady( bool ready )
 
 /*bool Battle::HasMod()
 {
-  return usync().ModExists( m_opts.modname );
+  return usync().GameExists( m_opts.modname );
 }*/
 
 void Battle::Say( const std::string& msg )

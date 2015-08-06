@@ -537,7 +537,7 @@ void Server::OnBattleMapChanged(const IBattlePtr battle, UnitsyncMap map)
 	battle->SetHostMap( map.name, map.hash );
 }
 
-void Server::OnBattleModChanged( const IBattlePtr battle, UnitsyncMod mod )
+void Server::OnBattleModChanged( const IBattlePtr battle, UnitsyncGame mod )
 {
 	if (!battle) return;
 	battle->SetHostMod( mod.name, mod.hash );

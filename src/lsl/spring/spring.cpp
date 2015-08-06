@@ -293,7 +293,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     tdf.AppendStr("MapHash", battle->LoadMap().hash );
 
     tdf.AppendStr( "Mapname", battle->GetHostMapName() );
-    tdf.AppendStr( "GameType", battle->GetHostModName() );
+    tdf.AppendStr( "GameType", battle->GetHostGameName() );
 
     tdf.AppendLineBreak();
 
@@ -488,7 +488,7 @@ std::string Spring::WriteScriptTxt( const IBattlePtr battle ) const
     tdf.AppendLineBreak();
 
     std::set<int> parsedteams;
-    StringVector sides = usync().GetSides( battle->GetHostModName() );
+    StringVector sides = usync().GetSides( battle->GetHostGameName() );
     for( const ConstCommonUserPtr usr: battle->Users() )
     {
         const UserBattleStatus& status = usr->BattleStatus();

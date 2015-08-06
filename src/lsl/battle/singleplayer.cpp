@@ -17,7 +17,7 @@ SinglePlayerBattle::SinglePlayerBattle( MainSinglePlayerTab& msptab ):
   m_me( new User( usync().IsLoaded() ? usync().GetDefaultNick() : _T("invalid") ) )
 {
 	OnUserAdded( m_me );
-	m_me.BattleStatus().side = sett().GetBattleLastSideSel( GetHostModName() );
+	m_me.BattleStatus().side = sett().GetBattleLastSideSel( GetHostGameName() );
 	m_me.BattleStatus().color = sett().GetBattleLastColour();
 	CustomBattleOptions().setSingleOption( _T("startpostype"), wxFormat(_T("%d") ) % ST_Pick, OptionsWrapper::EngineOption );
 }
@@ -43,7 +43,7 @@ void SinglePlayerBattle::SendHostInfo( HostInfo update )
   {
     RemoveUnfittingBots();
 	LoadMod();
-    std::string presetname = sett().GetModDefaultPresetName( GetHostModName() );
+    std::string presetname = sett().GetModDefaultPresetName( GetHostGameName() );
     if ( !presetname.empty() )
     {
       LoadOptionsPreset( presetname );
@@ -68,7 +68,7 @@ void SinglePlayerBattle::SendHostInfo( HostInfo update )
 void SinglePlayerBattle::RemoveUnfittingBots()
 {
     StringVector old_ais = usync().GetAIList( m_previous_local_mod_name );
-    StringVector new_ais = usync().GetAIList( m_local_mod.name );
+    StringVector new_ais = usync().GetAIList( m_local_game.name );
     for ( size_t i = 0; i < old_ais.GetCount(); ++i) {
         if ( new_ais.Index(old_ais[i]) == wxNOT_FOUND  ) {
             for( size_t j = 0; j < GetNumUsers(); ++j  ) {

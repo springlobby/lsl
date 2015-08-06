@@ -631,7 +631,7 @@ void ServerImpl::OnBattleOpened( int id, Enum::BattleType type, Enum::NatType na
     if (user) m_iface->OnUserIP( user, host );
     m_iface->OnBattleMaxPlayersChanged(battle, maxplayers );
     m_iface->OnBattleMapChanged( battle,UnitsyncMap(map, maphash) );
-    m_iface->OnBattleModChanged( battle, UnitsyncMod(mod, "") );
+    m_iface->OnBattleModChanged( battle, UnitsyncGame(mod, "") );
 
     const std::string battlechanname = m_battles.GetChannelName(battle);
     ChannelPtr channel = m_channels.Get( battlechanname );
@@ -690,7 +690,7 @@ void ServerImpl::OnSelfJoinedBattle( int battleid, const std::string& hash )
     BattlePtr battle = m_battles.Get( battleid );
 	if ( !battle ) return;
     m_current_battle = battle;
-    battle->SetHostMod( battle->GetHostModName(), hash );
+    battle->SetHostMod( battle->GetHostGameName(), hash );
 
 	UserBattleStatus& bs = m_me->BattleStatus();
 	bs.spectator = false;

@@ -149,13 +149,13 @@ public:
     virtual int GetPlayerNum(const ConstCommonUserPtr user ) const;
 
 	virtual void SetHostMod( const std::string& modname, const std::string& hash );
-	virtual void SetLocalMod( const UnitsyncMod& mod );
-	virtual const UnitsyncMod& LoadMod();
-	virtual std::string GetHostModName() const;
-	virtual std::string GetHostModHash() const;
+	virtual void SetLocalMod( const UnitsyncGame& mod );
+	virtual const UnitsyncGame& LoadMod();
+	virtual std::string GetHostGameName() const;
+	virtual std::string GetHostGameHash() const;
 
 	virtual bool MapExists() const;
-	virtual bool ModExists() const;
+	virtual bool GameExists() const;
 
 	virtual BattleStartRect GetStartRect( unsigned int allyno ) const;
     void OnUserAdded(const CommonUserPtr user );
@@ -342,11 +342,11 @@ private:
 	bool m_map_loaded;
 	bool m_mod_loaded;
 	bool m_map_exists;
-	bool m_mod_exists;
+	bool m_game_exists;
 	UnitsyncMap m_local_map;
-	UnitsyncMod m_local_mod;
+	UnitsyncGame m_local_game;
 	UnitsyncMap m_host_map;
-	UnitsyncMod m_host_mod;
+	UnitsyncGame m_host_game;
 	std::string m_previous_local_mod_name;
 
 	std::map<std::string, int> m_restricted_units;

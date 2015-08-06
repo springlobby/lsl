@@ -46,7 +46,7 @@ class User;
 class Channel;
 class Server;
 struct UnitsyncMap;
-struct UnitsyncMod;
+struct UnitsyncGame;
 struct UserBattleStatus;
 struct UserPosition;
 class OptionsWrapper;

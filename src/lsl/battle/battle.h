@@ -12,7 +12,7 @@ namespace LSL {
 class Server;
 class User;
 struct UnitsyncMap;
-struct UnitsyncMod;
+struct UnitsyncGame;
 
 namespace Battle {
 
