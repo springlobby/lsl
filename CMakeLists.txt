@@ -1,7 +1,7 @@
 PROJECT(libSpringLobby)
 
 #set minimum cmake version
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
 SET(CMAKE_COLOR_MAKEFILE ON)
 
 # Add Definitions, Compiler-Switches, etc.: -Wall -O2 -g3 ...

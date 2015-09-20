@@ -4,7 +4,6 @@
 #include "common.h"
 
 #include <lslutils/type_forwards.h>
-#include <boost/shared_ptr.hpp>
 
 
 namespace LSL {
