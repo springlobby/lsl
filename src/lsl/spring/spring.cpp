@@ -1,7 +1,4 @@
-/* Copyright (C) 2007 The SpringLobby Team. All rights reserved. */
-//
-// Class: Spring
-//
+/* This file is part of the Springlobby (GPL v2 or later), see COPYING */
 
 #ifdef _MSC_VER
 #ifndef NOMINMAX

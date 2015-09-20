@@ -1,3 +1,5 @@
+/* This file is part of the Springlobby (GPL v2 or later), see COPYING */
+
 #ifndef LIBSPRINGLOBBY_HEADERGUARD_SPRINGBUNDLE_H
 #define LIBSPRINGLOBBY_HEADERGUARD_SPRINGBUNDLE_H
 

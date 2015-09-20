@@ -1,3 +1,5 @@
+/* This file is part of the Springlobby (GPL v2 or later), see COPYING */
+
 #include "tasserverdataformats.h"
 #include <lsl/user/user.h>
 #include <lsl/battle/ibattle.h>
