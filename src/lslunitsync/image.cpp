@@ -317,22 +317,14 @@ void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned
 		return;
 	}
 
-	//no alpha channel, create new image with alpha channel
-	PrivateImageType* tmp = new PrivateImageType(m_data_ptr->width(), m_data_ptr->height(), 1, 4);
-	cimg_forXY(*m_data_ptr, x, y)
-	{								// loop over existing image
-		*tmp->data(x, y, 0, 0) = *m_data_ptr->data(x, y, 0, 0); // copy rgb to image with alpha channel
-		*tmp->data(x, y, 0, 1) = *m_data_ptr->data(x, y, 0, 1);
-		*tmp->data(x, y, 0, 2) = *m_data_ptr->data(x, y, 0, 2);
+	m_data_ptr->channels(0,3); //add 4th channel
+	cimg_forXY(*m_data_ptr, x, y) {
 		if ((*m_data_ptr->data(x, y, 0, 0) == r) && (*m_data_ptr->data(x, y, 0, 1) == g) && (*m_data_ptr->data(x, y, 0, 2) == b)) { //pixel is white, make transparent
-			*tmp->data(x, y, 0, 3) = 0;
+			*m_data_ptr->data(x, y, 0, 3) = 0;
 		} else {
-			*tmp->data(x, y, 0, 3) = 255;
+			*m_data_ptr->data(x, y, 0, 3) = 255;
 		}
 	}
-	if (m_data_ptr != NULL)
-		delete m_data_ptr;
-	m_data_ptr = tmp;
 }
 
 int UnitsyncImage::GetWidth() const
