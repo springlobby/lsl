@@ -7,15 +7,17 @@
 #include <map>
 #include <list>
 
-namespace LSL {
+namespace LSL
+{
 
 class SpringBundle
 {
 public:
-	SpringBundle(): valid(false){};
+	SpringBundle()
+	    : valid(false){};
 	bool GetBundleVersion();
 	// try to fill missing information by guessing
-	bool AutoComplete(std::string searchpath="");
+	bool AutoComplete(std::string searchpath = "");
 	bool IsValid();
 	std::string unitsync;
 	std::string spring;
@@ -37,7 +39,6 @@ private:
 	std::string Serialize();
 	bool valid;
 };
-
 };
 
 #endif

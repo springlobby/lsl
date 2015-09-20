@@ -6,14 +6,15 @@
 #include <string>
 #include <lslutils/debug.h>
 #ifdef WIN32
-	#include <windows.h>
-	#include <lslutils/conversion.h>
-	#include <lslutils/misc.h>
+#include <windows.h>
+#include <lslutils/conversion.h>
+#include <lslutils/misc.h>
 #else
-	#include <dlfcn.h>
+#include <dlfcn.h>
 #endif
 
-namespace LSL {
+namespace LSL
+{
 
 void _FreeLibrary(void* handle)
 {
@@ -28,7 +29,7 @@ void _FreeLibrary(void* handle)
 
 void* _LoadLibrary(const std::string& libpath)
 {
-	void * res =NULL;
+	void* res = NULL;
 #ifdef WIN32
 	const std::wstring wparentpath = Util::s2ws(LSL::Util::ParentPath(libpath));
 	const std::wstring wlibpath = Util::s2ws(libpath);
@@ -37,30 +38,31 @@ void* _LoadLibrary(const std::string& libpath)
 	res = LoadLibrary(wlibpath.c_str());
 	if (res == NULL) {
 		const std::string errmsg = Util::geterrormsg().c_str();
-		LSL_THROWF( unitsync, "Couldn't load the unitsync library: %s", errmsg.c_str());
+		LSL_THROWF(unitsync, "Couldn't load the unitsync library: %s", errmsg.c_str());
 	}
 #else
-	res = dlopen(libpath.c_str(), RTLD_GLOBAL|RTLD_LAZY);
+	res = dlopen(libpath.c_str(), RTLD_GLOBAL | RTLD_LAZY);
 	if (res == NULL) {
 		const char* errmsg = dlerror();
-		LSL_THROWF( unitsync, "Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
+		LSL_THROWF(unitsync, "Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
 	}
 #endif
 	return res;
 }
 
-void* GetLibFuncPtr( void* libhandle, const std::string& name)
+void* GetLibFuncPtr(void* libhandle, const std::string& name)
 {
-	if (libhandle == NULL) return NULL;
+	if (libhandle == NULL)
+		return NULL;
 
 #if defined _WIN32
 	void* p = (void*)GetProcAddress((HMODULE)libhandle, name.c_str());
-#else // defined _WIN32
-        void* p = dlsym(libhandle, name.c_str());
+#else  // defined _WIN32
+	void* p = dlsym(libhandle, name.c_str());
 #endif // else defined _WIN32
 
-	if ( p == NULL ) {
-		LslError( "Couldn't load %s from unitsync library",name.c_str() );
+	if (p == NULL) {
+		LslError("Couldn't load %s from unitsync library", name.c_str());
 	}
 	return p;
 }

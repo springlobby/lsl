@@ -9,7 +9,8 @@
 #include <boost/noncopyable.hpp>
 #include <vector>
 
-namespace LSL {
+namespace LSL
+{
 
 class WorkItemQueue;
 
@@ -18,30 +19,39 @@ class WorkItemQueue;
     Inherit this class to define concrete work items. */
 class WorkItem : public boost::noncopyable
 {
-  public:
+public:
+	/** @brief Construct a new WorkItem */
+	WorkItem()
+	    : m_priority(0)
+	    , m_toBeDeleted(true)
+	    , m_queue(NULL)
+	{
+	}
 
-    /** @brief Construct a new WorkItem */
-    WorkItem() : m_priority(0), m_toBeDeleted(true), m_queue(NULL) {}
+	/** @brief Destructor */
+	virtual ~WorkItem()
+	{
+	}
 
-    /** @brief Destructor */
-    virtual ~WorkItem() {}
+	/** @brief Implement this in derived class to do the work */
+	virtual void Run() = 0;
 
-    /** @brief Implement this in derived class to do the work */
-    virtual void Run() = 0;
-
-    /** @brief Cancel this WorkItem, remove it from queue
+	/** @brief Cancel this WorkItem, remove it from queue
         @return true if it was removed, false otherwise */
-    bool Cancel();
+	bool Cancel();
 
-    int GetPriority() const { return m_priority; }
+	int GetPriority() const
+	{
+		return m_priority;
+	}
 
-  private:
-    int m_priority;              ///< Priority of item, highest is run first
-    volatile bool m_toBeDeleted; ///< Should this item be deleted after it has run?
-    WorkItemQueue* m_queue;
+private:
+	int m_priority;		     ///< Priority of item, highest is run first
+	volatile bool m_toBeDeleted; ///< Should this item be deleted after it has run?
+	WorkItemQueue* m_queue;
 
-    friend class WorkItemQueue;
-    friend class WorkerThread;
+	friend class WorkItemQueue;
+	friend class WorkerThread;
 };
 
 
@@ -50,52 +60,53 @@ class WorkItem : public boost::noncopyable
  * */
 class WorkItemQueue : public boost::noncopyable
 {
-  public:
-    WorkItemQueue();
-    ~WorkItemQueue();
-    /** @brief thread entry point */
-    void Process();
-    /** @brief Push more work onto the queue */
-    void Push(WorkItem* item);
-    /** @brief Remove a specific workitem from the queue
+public:
+	WorkItemQueue();
+	~WorkItemQueue();
+	/** @brief thread entry point */
+	void Process();
+	/** @brief Push more work onto the queue */
+	void Push(WorkItem* item);
+	/** @brief Remove a specific workitem from the queue
         @return true if it was removed, false otherwise */
-    bool Remove(WorkItem* item);
-    //! dangerous
-    void Cancel();
+	bool Remove(WorkItem* item);
+	//! dangerous
+	void Cancel();
 
-  private:
-    /** @brief Pop one work item from the queue
+private:
+	/** @brief Pop one work item from the queue
         @return A work item or NULL when the queue is empty */
-    WorkItem* Pop();
+	WorkItem* Pop();
 
-  private:
-    friend class boost::thread;
-    void CleanupWorkItem(WorkItem* item);
+private:
+	friend class boost::thread;
+	void CleanupWorkItem(WorkItem* item);
 
-    boost::mutex m_mutex;
-    boost::mutex m_lock;
-    boost::condition_variable m_cond;
-    // this is a priority queue maintained as a heap stored in a vector :o
-    std::vector<WorkItem*> m_queue;
-    bool m_dying;
+	boost::mutex m_mutex;
+	boost::mutex m_lock;
+	boost::condition_variable m_cond;
+	// this is a priority queue maintained as a heap stored in a vector :o
+	std::vector<WorkItem*> m_queue;
+	bool m_dying;
 };
 
 
 /** @brief Thread which processes WorkItems in it's WorkItemQueue */
 class WorkerThread : public boost::noncopyable
 {
-  public:
-    WorkerThread();
+public:
+	WorkerThread();
 	~WorkerThread();
-    /** @brief Adds a new WorkItem to the queue */
-    void DoWork(WorkItem* item, int priority = 0, bool toBeDeleted = true);
+	/** @brief Adds a new WorkItem to the queue */
+	void DoWork(WorkItem* item, int priority = 0, bool toBeDeleted = true);
 	//! joins underlying thread
 	void Wait();
-  private:
-    friend class boost::thread;
-    WorkItemQueue m_workeritemqueue;
+
+private:
+	friend class boost::thread;
+	WorkItemQueue m_workeritemqueue;
 	boost::thread* m_thread;
-    boost::mutex m_mutex;
+	boost::mutex m_mutex;
 };
 
 } // namespace LSL

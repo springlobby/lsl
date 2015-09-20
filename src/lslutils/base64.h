@@ -1,11 +1,16 @@
 #ifndef BASE64_H
 #define BASE64_H
 
-namespace LSL {
+namespace LSL
+{
 
-struct base64 {
-    template < class T >
-    static std::string encode( const T& , int ) { return "";}
+struct base64
+{
+	template <class T>
+	static std::string encode(const T&, int)
+	{
+		return "";
+	}
 };
 
 } // namespace LSL {

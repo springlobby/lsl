@@ -7,29 +7,32 @@
 #include "lslutils/conversion.h"
 #include "lslutils/debug.h"
 
-namespace LSL {
-namespace Util {
+namespace LSL
+{
+namespace Util
+{
 
 class GlobalsManager
 {
 public:
 	GlobalsManager();
-	bool RegisterGlobal(IGlobalObjectHolder *obj);
+	bool RegisterGlobal(IGlobalObjectHolder* obj);
 	void DestroyAll();
 	virtual ~GlobalsManager();
+
 private:
-	std::vector<IGlobalObjectHolder *> globals;
+	std::vector<IGlobalObjectHolder*> globals;
 	bool de_initialized;
 };
 
-GlobalsManager *mgr=NULL;
-bool destroyed=false;
+GlobalsManager* mgr = NULL;
+bool destroyed = false;
 
-GlobalsManager *globals()
+GlobalsManager* globals()
 {
-	if ( destroyed ) return NULL;
-	if ( !mgr )
-	{
+	if (destroyed)
+		return NULL;
+	if (!mgr) {
 		mgr = new GlobalsManager;
 	}
 	return mgr;
@@ -37,8 +40,7 @@ GlobalsManager *globals()
 
 void DestroyGlobals()
 {
-	if ( mgr )
-	{
+	if (mgr) {
 		mgr->DestroyAll();
 		delete mgr;
 		mgr = NULL;
@@ -48,42 +50,36 @@ void DestroyGlobals()
 
 bool IGlobalObjectHolder::RegisterSelf()
 {
-	if ( !globals() ) return false;
-	return globals()->RegisterGlobal( this );
+	if (!globals())
+		return false;
+	return globals()->RegisterGlobal(this);
 }
 
-GlobalsManager::GlobalsManager():
-	de_initialized( false )
+GlobalsManager::GlobalsManager()
+    : de_initialized(false)
 {
-
 }
 
-bool GlobalsManager::RegisterGlobal( IGlobalObjectHolder *obj )
+bool GlobalsManager::RegisterGlobal(IGlobalObjectHolder* obj)
 {
-	if ( de_initialized )
-	{
+	if (de_initialized) {
 		return false;
 	}
-	globals.push_back( obj );
+	globals.push_back(obj);
 	return true;
 }
 
 void GlobalsManager::DestroyAll()
 {
-	for ( std::vector<IGlobalObjectHolder *>::iterator i = globals.begin(); i != globals.end(); ++i )
-	{
+	for (std::vector<IGlobalObjectHolder*>::iterator i = globals.begin(); i != globals.end(); ++i) {
 		(*i)->Nullify();
 	}
 
-	for ( std::vector<IGlobalObjectHolder *>::iterator i = globals.begin(); i != globals.end(); ++i )
-	{
-		try
-		{
+	for (std::vector<IGlobalObjectHolder*>::iterator i = globals.begin(); i != globals.end(); ++i) {
+		try {
 			(*i)->Destroy();
-		}
-		catch ( std::runtime_error& e )
-		{
-			LslDebug( "GlobalsManager::DestroyAll(), runtume_error '%s' when destroying", e.what() );
+		} catch (std::runtime_error& e) {
+			LslDebug("GlobalsManager::DestroyAll(), runtume_error '%s' when destroying", e.what());
 		}
 	}
 	globals.clear();

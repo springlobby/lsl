@@ -8,11 +8,13 @@
 
 #include "enum.h"
 
-namespace LSL {
+namespace LSL
+{
 
-namespace Constants {
-	const std::string nosection_name("none");
-	const std::string nostyle_name("none");
+namespace Constants
+{
+const std::string nosection_name("none");
+const std::string nostyle_name("none");
 }
 
 //! used to hold an item in an option list
@@ -21,11 +23,11 @@ namespace Constants {
  */
 struct listItem
 {
-	listItem(std::string key_, std::string name_,std::string desc_);
+	listItem(std::string key_, std::string name_, std::string desc_);
 
-		std::string key;
-		std::string name;
-		std::string desc;
+	std::string key;
+	std::string name;
+	std::string desc;
 };
 
 //! Used in option list
@@ -41,9 +43,9 @@ struct mmOptionModel
 	//! sets members accordingly
 	///* this ctor sets controltype enum according to string *///
 	mmOptionModel(std::string name_, std::string key_, std::string description_, Enum::OptionType type_ = Enum::opt_undefined,
-				std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
+		      std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
 	mmOptionModel(std::string name_, std::string key_, std::string description_, Enum::OptionType type_ = Enum::opt_undefined,
-				std::string section_ = Constants::nosection_name, Enum::OptionControlType style_ = Enum::oct_undefined);
+		      std::string section_ = Constants::nosection_name, Enum::OptionControlType style_ = Enum::oct_undefined);
 
 	virtual ~mmOptionModel();
 	//! all members are set to empty strings, type to opt_undefined
@@ -63,7 +65,7 @@ struct mmOptionBool : public mmOptionModel
 {
 	//! sets members accordingly
 	mmOptionBool(std::string name_, std::string key_, std::string description_, bool def_,
-				 std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
+		     std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
 	//! sets wxstring member to "" and bool members to false
 	mmOptionBool();
 	bool def;
@@ -76,7 +78,7 @@ struct mmOptionFloat : public mmOptionModel
 {
 	//! sets members accordingly
 	mmOptionFloat(std::string name_, std::string key_, std::string description_, float def_, float stepping_, float min_, float max_,
-				  std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
+		      std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
 	//! sets wxstring member to "" and float members to 0.0
 	mmOptionFloat();
 
@@ -94,7 +96,7 @@ struct mmOptionString : public mmOptionModel
 {
 	//! sets members accordingly
 	mmOptionString(std::string name_, std::string key_, std::string description_, std::string def_, unsigned int max_len_,
-				   std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
+		       std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
 	//! sets wxstring member to "" and max_len to 0
 	mmOptionString();
 
@@ -115,7 +117,7 @@ struct mmOptionList : public mmOptionModel
 {
 	//! sets members accordingly; listitems,cbx_choices remain empty
 	mmOptionList(std::string name_, std::string key_, std::string description_, std::string def_,
-				 std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
+		     std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
 	//! def, value are set to ""; listitems,cbx_choices remain empty
 	mmOptionList();
 
@@ -131,14 +133,14 @@ struct mmOptionList : public mmOptionModel
 	ListItemVec listitems;
 	//! for easy mapping to a combobox
 	std::vector<std::string> cbx_choices;
-
 };
 
 
-struct mmOptionSection : public mmOptionModel{
-    mmOptionSection (std::string name_, std::string key_, std::string description_,
-			std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name );
-    mmOptionSection ();
+struct mmOptionSection : public mmOptionModel
+{
+	mmOptionSection(std::string name_, std::string key_, std::string description_,
+			std::string section_ = Constants::nosection_name, std::string style_ = Constants::nostyle_name);
+	mmOptionSection();
 };
 
 } //end namespace LSL

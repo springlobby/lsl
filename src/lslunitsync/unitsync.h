@@ -138,14 +138,14 @@ private:
 
 	UnitsyncImage GetImage(const std::string& gamename, const std::string& image_path, bool useWhiteAsTransparent = true) const;
 
-	LocalArchivesVector m_maps_list;	   /// mapname -> hash
-	LocalArchivesVector m_mods_list;	   /// gamename -> hash
-	LocalArchivesVector m_mods_archive_name;   /// gamename -> archive name
-	LocalArchivesVector m_maps_archive_name;   /// mapname -> archive name
-	StringVector m_map_array;		   // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
-	StringVector m_mod_array;		   // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
-	StringVector m_unsorted_map_array;	 // this is because unitsync doesn't have a search map index by name ..
-	StringVector m_unsorted_mod_array;	 // this isn't necessary but makes things more symmetrical :P
+	LocalArchivesVector m_maps_list;	 /// mapname -> hash
+	LocalArchivesVector m_mods_list;	 /// gamename -> hash
+	LocalArchivesVector m_mods_archive_name; /// gamename -> archive name
+	LocalArchivesVector m_maps_archive_name; /// mapname -> archive name
+	StringVector m_map_array;		 // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
+	StringVector m_mod_array;		 // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
+	StringVector m_unsorted_map_array;       // this is because unitsync doesn't have a search map index by name ..
+	StringVector m_unsorted_mod_array;       // this isn't necessary but makes things more symmetrical :P
 
 	/// caches sett().GetCachePath(), because that method calls back into
 	/// susynclib(), there's a good chance main thread blocks on some

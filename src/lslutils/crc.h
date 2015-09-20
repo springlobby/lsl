@@ -19,7 +19,10 @@ public:
 
 	void ResetCRC();
 
-	unsigned int GetCRC() const { return crc ^ 0xFFFFFFFF; }
+	unsigned int GetCRC() const
+	{
+		return crc ^ 0xFFFFFFFF;
+	}
 
 private:
 	static unsigned int crcTable[256];
@@ -31,4 +34,3 @@ private:
 //} // namespace LSL
 
 #endif // !LSL_CRC_H
-

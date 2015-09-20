@@ -1,14 +1,15 @@
 #include <lslunitsync/unitsync.h>
 
 
-void dump(LSL::StringVector& vec){
+void dump(LSL::StringVector& vec)
+{
 	LSL::StringVector::iterator it;
-	for(it=vec.begin(); it!=vec.end(); ++it) {
+	for (it = vec.begin(); it != vec.end(); ++it) {
 		printf("%s\n", (*it).c_str());
 	}
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	if (argc != 2) {
 		printf("Usage: %s <unitsync path>\n", argv[0]);

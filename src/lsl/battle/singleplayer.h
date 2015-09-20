@@ -6,36 +6,48 @@
 #include "ibattle.h"
 #include <lsl/user/user.h>
 
-namespace LSL {
-namespace Battle {
-
-class SinglePlayerBattle: public IBattle
+namespace LSL
 {
-  public:
+namespace Battle
+{
 
-    SinglePlayerBattle(  );
-    virtual ~SinglePlayerBattle();
+class SinglePlayerBattle : public IBattle
+{
+public:
+	SinglePlayerBattle();
+	virtual ~SinglePlayerBattle();
 
-// (koshi) these are never called
-//    unsigned int AddBot( int ally, int posx, int posy, int handicap, const std::string& aidll );
-//    void UpdateBot( unsigned int index, int ally, int posx, int posy, int side );
+	// (koshi) these are never called
+	//    unsigned int AddBot( int ally, int posx, int posy, int handicap, const std::string& aidll );
+	//    void UpdateBot( unsigned int index, int ally, int posx, int posy, int side );
 
-	bool IsFounderMe() const { return true; }
+	bool IsFounderMe() const
+	{
+		return true;
+	}
 
-    virtual const CommonUserPtr GetMe() { return m_me; }
-    virtual const ConstCommonUserPtr GetMe() const { return m_me; }
+	virtual const CommonUserPtr GetMe()
+	{
+		return m_me;
+	}
+	virtual const ConstCommonUserPtr GetMe() const
+	{
+		return m_me;
+	}
 
-    void SendHostInfo( Enum::HostInfo update );
-    void SendHostInfo( const std::string& /*unused*/ ){ }
+	void SendHostInfo(Enum::HostInfo update);
+	void SendHostInfo(const std::string& /*unused*/)
+	{
+	}
 
-    void Update( const std::string& Tag );
+	void Update(const std::string& Tag);
 
-    void StartSpring();
+	void StartSpring();
 
-  protected:
-    void RemoveUnfittingBots();
+protected:
+	void RemoveUnfittingBots();
 
-    UserPtr m_me;
+	UserPtr m_me;
 };
 
 } // namespace Battle {

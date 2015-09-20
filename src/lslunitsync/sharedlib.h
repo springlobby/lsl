@@ -6,14 +6,15 @@
 #include <string>
 #include <lslutils/debug.h>
 
-namespace LSL {
+namespace LSL
+{
 
 
 //! common loading point for functions from a given library handle
 void _FreeLibrary(void* handle);
 void* _LoadLibrary(const std::string& libpath);
 
-void* GetLibFuncPtr( void* libhandle, const std::string& name);
+void* GetLibFuncPtr(void* libhandle, const std::string& name);
 
 } // namespace LSL
 

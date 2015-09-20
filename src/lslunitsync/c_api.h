@@ -12,7 +12,8 @@
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 
-namespace LSL {
+namespace LSL
+{
 
 class UnitsyncImage;
 struct UnitsyncFunctionLoader;
@@ -46,19 +47,20 @@ struct SpringMapInfo
 
 	char* author;
 
-  SpringMapInfo()
-    : description(NULL)
-    , tidalStrength(0)
-    , gravity(0)
-    , maxMetal(0.0f)
-    , extractorRadius(0)
-    , minWind(0)
-    , maxWind(0)
-    , width(0)
-    , height(0)
-    , posCount(0)
-    , author(NULL)
-  {}
+	SpringMapInfo()
+	    : description(NULL)
+	    , tidalStrength(0)
+	    , gravity(0)
+	    , maxMetal(0.0f)
+	    , extractorRadius(0)
+	    , minWind(0)
+	    , maxWind(0)
+	    , width(0)
+	    , height(0)
+	    , posCount(0)
+	    , author(NULL)
+	{
+	}
 };
 
 /**
@@ -74,7 +76,7 @@ struct SpringMapInfo
 class UnitsyncLib : public boost::noncopyable
 {
 	//! we use this to offload the mind numblingly boring pointer loading
-    friend struct UnitsyncFunctionLoader;
+	friend struct UnitsyncFunctionLoader;
 
 public:
 	/**
@@ -93,7 +95,7 @@ public:
 	 * @see Unload().
 	 * @note Throws runtime_error if load failed.
 	 */
-	void Load( const std::string& path);
+	void Load(const std::string& path);
 
 	/**
 	 * Unload the unitsync library. Does nothing if not loaded.
@@ -111,83 +113,83 @@ public:
 	 */
 	std::vector<std::string> GetUnitsyncErrors() const;
 
-	bool VersionSupports( LSL::GameFeature feature ) const;
+	bool VersionSupports(LSL::GameFeature feature) const;
 
 
-	int GetModIndex( const std::string& name );
+	int GetModIndex(const std::string& name);
 
 	std::string GetSpringVersion();
 
 	std::string GetSpringDataDir();
 	int GetSpringDataDirCount();
-	std::string GetSpringDataDirByIndex( const int index );
+	std::string GetSpringDataDirByIndex(const int index);
 	std::string GetConfigFilePath();
 
 	int GetMapCount();
-	unsigned int GetMapChecksum( int index );
-	std::string GetMapName( int index );
-	int GetMapArchiveCount( int index );
-	std::string GetMapArchiveName( int arnr );
+	unsigned int GetMapChecksum(int index);
+	std::string GetMapName(int index);
+	int GetMapArchiveCount(int index);
+	std::string GetMapArchiveName(int arnr);
 
-	typedef std::vector< std::string >
-		StringVector;
-	StringVector GetMapDeps( int index );
+	typedef std::vector<std::string>
+	    StringVector;
+	StringVector GetMapDeps(int index);
 
 	/**
 	 * @brief Get information about a map.
 	 * @param version will get author if >=1.
 	 * @note Throws assert_exception if unsuccessful.
 	 */
-	MapInfo GetMapInfoEx( int index, int version );
+	MapInfo GetMapInfoEx(int index, int version);
 
 	/**
 	 * @brief Get minimap.
 	 * @note Throws assert_exception if unsuccessful.
 	 */
-	UnitsyncImage GetMinimap( const std::string& mapFileName );
+	UnitsyncImage GetMinimap(const std::string& mapFileName);
 
 	/**
 	 * @brief Get metalmap.
 	 * @note Throws assert_exception if unsuccessful.
 	 */
-	UnitsyncImage GetMetalmap( const std::string& mapFileName );
+	UnitsyncImage GetMetalmap(const std::string& mapFileName);
 
 	/**
 	 * @brief Get heightmap.
 	 * @note Throws assert_exception if unsuccesful.
 	 */
-	UnitsyncImage GetHeightmap( const std::string& mapFileName );
+	UnitsyncImage GetHeightmap(const std::string& mapFileName);
 
-	unsigned int GetPrimaryModChecksum( int index );
-	int GetPrimaryModIndex( const std::string& modName );
-	std::string GetPrimaryModName( int index );
+	unsigned int GetPrimaryModChecksum(int index);
+	int GetPrimaryModIndex(const std::string& modName);
+	std::string GetPrimaryModName(int index);
 	int GetPrimaryModCount();
-	std::string GetPrimaryModArchive( int index );
-	std::string GetPrimaryModShortName( int index );
-	std::string GetPrimaryModVersion( int index );
-	std::string GetPrimaryModMutator( int index );
-	std::string GetPrimaryModGame( int index );
-	std::string GetPrimaryModShortGame( int index );
-	std::string GetPrimaryModDescription( int index );
-	int GetPrimaryModArchiveCount( int index );
-	std::string GetPrimaryModArchiveList( int arnr );
-	unsigned int GetPrimaryModChecksumFromName( const std::string& name );
-	StringVector GetModDeps( int index );
+	std::string GetPrimaryModArchive(int index);
+	std::string GetPrimaryModShortName(int index);
+	std::string GetPrimaryModVersion(int index);
+	std::string GetPrimaryModMutator(int index);
+	std::string GetPrimaryModGame(int index);
+	std::string GetPrimaryModShortGame(int index);
+	std::string GetPrimaryModDescription(int index);
+	int GetPrimaryModArchiveCount(int index);
+	std::string GetPrimaryModArchiveList(int arnr);
+	unsigned int GetPrimaryModChecksumFromName(const std::string& name);
+	StringVector GetModDeps(int index);
 
-	StringVector GetSides( const std::string& modName );
+	StringVector GetSides(const std::string& modName);
 
 	/**
 	 * Add all achives.
 	 * @note Not sure what this does, but adding the mod archive path to this when setting new mod seems to work :)
 	 */
-	void AddAllArchives( const std::string& root );
-    void AddArchive(const std::string& name);
+	void AddAllArchives(const std::string& root);
+	void AddArchive(const std::string& name);
 
-	void SetCurrentMod( const std::string& gamename );
-	void UnSetCurrentMod( );
+	void SetCurrentMod(const std::string& gamename);
+	void UnSetCurrentMod();
 
-	std::string GetFullUnitName( int index );
-	std::string GetUnitName( int index );
+	std::string GetFullUnitName(int index);
+	std::string GetUnitName(int index);
 	int GetUnitCount();
 	int ProcessUnitsNoChecksum();
 
@@ -196,111 +198,111 @@ public:
 	 * @param the search patterns
 	 * @return wxarraystring of results
 	 */
-	StringVector FindFilesVFS( const std::string& name );
-	int OpenFileVFS( const std::string& name );
-	int FileSizeVFS( int handle );
-	int ReadFileVFS( int handle, void* buffer, int bufferLength );
-	void CloseFileVFS( int handle );
+	StringVector FindFilesVFS(const std::string& name);
+	int OpenFileVFS(const std::string& name);
+	int FileSizeVFS(int handle);
+	int ReadFileVFS(int handle, void* buffer, int bufferLength);
+	void CloseFileVFS(int handle);
 
-	unsigned int GetValidMapCount( const std::string& gamename );
-	std::string GetValidMapName( unsigned int MapIndex );
+	unsigned int GetValidMapCount(const std::string& gamename);
+	std::string GetValidMapName(unsigned int MapIndex);
 
-	int GetMapOptionCount( const std::string& name );
-	int GetCustomOptionCount( const std::string& gamename, const std::string& filename );
-	int GetModOptionCount( const std::string& name );
-	int GetAIOptionCount( const std::string& gamename, int index );
-	std::string GetOptionKey( int optIndex );
-	std::string GetOptionName( int optIndex );
-	std::string GetOptionDesc( int optIndex );
-	std::string GetOptionSection( int optIndex );
-	std::string GetOptionStyle( int optIndex );
-	int GetOptionType( int optIndex );
-	int GetOptionBoolDef( int optIndex );
-	float GetOptionNumberDef( int optIndex );
-	float GetOptionNumberMin( int optIndex );
-	float GetOptionNumberMax( int optIndex );
-	float GetOptionNumberStep( int optIndex );
-	std::string GetOptionStringDef( int optIndex );
-	int GetOptionStringMaxLen( int optIndex );
-	int GetOptionListCount( int optIndex );
-	std::string GetOptionListDef( int optIndex );
-	std::string GetOptionListItemKey( int optIndex, int itemIndex );
-	std::string GetOptionListItemName( int optIndex, int itemIndex );
-	std::string GetOptionListItemDesc( int optIndex, int itemIndex );
+	int GetMapOptionCount(const std::string& name);
+	int GetCustomOptionCount(const std::string& gamename, const std::string& filename);
+	int GetModOptionCount(const std::string& name);
+	int GetAIOptionCount(const std::string& gamename, int index);
+	std::string GetOptionKey(int optIndex);
+	std::string GetOptionName(int optIndex);
+	std::string GetOptionDesc(int optIndex);
+	std::string GetOptionSection(int optIndex);
+	std::string GetOptionStyle(int optIndex);
+	int GetOptionType(int optIndex);
+	int GetOptionBoolDef(int optIndex);
+	float GetOptionNumberDef(int optIndex);
+	float GetOptionNumberMin(int optIndex);
+	float GetOptionNumberMax(int optIndex);
+	float GetOptionNumberStep(int optIndex);
+	std::string GetOptionStringDef(int optIndex);
+	int GetOptionStringMaxLen(int optIndex);
+	int GetOptionListCount(int optIndex);
+	std::string GetOptionListDef(int optIndex);
+	std::string GetOptionListItemKey(int optIndex, int itemIndex);
+	std::string GetOptionListItemName(int optIndex, int itemIndex);
+	std::string GetOptionListItemDesc(int optIndex, int itemIndex);
 
-	int OpenArchive( const std::string& name );
-	void CloseArchive( int archive );
-	int FindFilesArchive( int archive, int cur, std::string& nameBuf );
-	int OpenArchiveFile( int archive, const std::string& name );
-	int ReadArchiveFile( int archive, int handle, void* buffer, int numBytes) ;
-	void CloseArchiveFile( int archive, int handle );
-	int SizeArchiveFile( int archive, int handle );
-	std::string GetArchivePath( const std::string& name );
+	int OpenArchive(const std::string& name);
+	void CloseArchive(int archive);
+	int FindFilesArchive(int archive, int cur, std::string& nameBuf);
+	int OpenArchiveFile(int archive, const std::string& name);
+	int ReadArchiveFile(int archive, int handle, void* buffer, int numBytes);
+	void CloseArchiveFile(int archive, int handle);
+	int SizeArchiveFile(int archive, int handle);
+	std::string GetArchivePath(const std::string& name);
 
-	int GetSpringConfigInt( const std::string& key, int defValue );
-	std::string GetSpringConfigString( const std::string& key, const std::string& defValue );
-	float GetSpringConfigFloat( const std::string& key, const float defValue );
-	void SetSpringConfigString( const std::string& key, const std::string& value );
-	void SetSpringConfigInt( const std::string& key, int value );
-	void SetSpringConfigFloat( const std::string& key, const float value );
+	int GetSpringConfigInt(const std::string& key, int defValue);
+	std::string GetSpringConfigString(const std::string& key, const std::string& defValue);
+	float GetSpringConfigFloat(const std::string& key, const float defValue);
+	void SetSpringConfigString(const std::string& key, const std::string& value);
+	void SetSpringConfigInt(const std::string& key, int value);
+	void SetSpringConfigFloat(const std::string& key, const float value);
 
 	/// AI info
-	int GetSkirmishAICount( const std::string& gamename );
+	int GetSkirmishAICount(const std::string& gamename);
 	/**
 	 * Get next search result.
 	 * @param the AI index within range of GetSkirmishAIInfoCount
 	 * @return an array made of blocks with this layout { key, value, description }
 	 */
-	StringVector GetAIInfo( int index );
+	StringVector GetAIInfo(int index);
 
-	unsigned int GetArchiveChecksum( const std::string& VFSPath );
+	unsigned int GetArchiveChecksum(const std::string& VFSPath);
 
 	/// lua parser
 
 	void CloseParser();
-	bool OpenParserFile( const std::string& filename, const std::string& filemodes, const std::string& accessModes );
-	bool OpenParserSource( const std::string& source, const std::string& accessModes );
+	bool OpenParserFile(const std::string& filename, const std::string& filemodes, const std::string& accessModes);
+	bool OpenParserSource(const std::string& source, const std::string& accessModes);
 	bool ParserExecute();
 	std::string ParserErrorLog();
 
-	void ParserAddTable( int key, bool override );
-	void ParserAddTable( const std::string& key, bool override );
+	void ParserAddTable(int key, bool override);
+	void ParserAddTable(const std::string& key, bool override);
 	void ParserEndTable();
-	void ParserAddTableValue( int key, int val );
-	void ParserAddTableValue( const std::string& key, int val );
-	void ParserAddTableValue( int key, bool val );
-	void ParserAddTableValue( const std::string& key, bool val );
-	void ParserAddTableValue( int key, const std::string& val );
-	void ParserAddTableValue( const std::string& key, const std::string& val );
-	void ParserAddTableValue( int key, float val );
-	void ParserAddTableValue( const std::string& key, float val );
+	void ParserAddTableValue(int key, int val);
+	void ParserAddTableValue(const std::string& key, int val);
+	void ParserAddTableValue(int key, bool val);
+	void ParserAddTableValue(const std::string& key, bool val);
+	void ParserAddTableValue(int key, const std::string& val);
+	void ParserAddTableValue(const std::string& key, const std::string& val);
+	void ParserAddTableValue(int key, float val);
+	void ParserAddTableValue(const std::string& key, float val);
 
 	bool ParserGetRootTable();
-	bool ParserGetRootTableExpression( const std::string& exp );
-	bool ParserGetSubTableInt( int key );
-	bool ParserGetSubTableString( const std::string& key );
-	bool ParserGetSubTableInt( const std::string& exp );
+	bool ParserGetRootTableExpression(const std::string& exp);
+	bool ParserGetSubTableInt(int key);
+	bool ParserGetSubTableString(const std::string& key);
+	bool ParserGetSubTableInt(const std::string& exp);
 	void ParserPopTable();
 
-	bool ParserKeyExists( int key );
-	bool ParserKeyExists( const std::string& key );
+	bool ParserKeyExists(int key);
+	bool ParserKeyExists(const std::string& key);
 
-	int ParserGetKeyType( int key );
-	int ParserGetKeyType( const std::string& key );
+	int ParserGetKeyType(int key);
+	int ParserGetKeyType(const std::string& key);
 
 	int ParserGetIntKeyListCount();
-	int ParserGetIntKeyListEntry( int index );
+	int ParserGetIntKeyListEntry(int index);
 	int ParserGetStringKeyListCount();
-	int ParserGetStringKeyListEntry( int index );
+	int ParserGetStringKeyListEntry(int index);
 
-	int GetKeyValue( int key, int defval );
-	bool GetKeyValue( int key, bool defval );
-	std::string GetKeyValue( int key, const std::string& defval );
-	float GetKeyValue( int key, float defval );
-	int GetKeyValue( const std::string& key, int defval );
-	bool GetKeyValue( const std::string& key, bool defval );
-	std::string GetKeyValue( const std::string& key, const std::string& defval );
-	float GetKeyValue( const std::string& key, float defval );
+	int GetKeyValue(int key, int defval);
+	bool GetKeyValue(int key, bool defval);
+	std::string GetKeyValue(int key, const std::string& defval);
+	float GetKeyValue(int key, float defval);
+	int GetKeyValue(const std::string& key, int defval);
+	bool GetKeyValue(const std::string& key, bool defval);
+	std::string GetKeyValue(const std::string& key, const std::string& defval);
+	float GetKeyValue(const std::string& key, float defval);
 
 	int GetPrimaryModInfoCount(int index);
 
@@ -313,7 +315,7 @@ public:
 	bool GetInfoValueBool(int index);
 
 private:
-	UnitsyncLib( const UnitsyncLib& );
+	UnitsyncLib(const UnitsyncLib&);
 	//! Keeps track if unitsync is loaded or not.
 	bool m_loaded;
 
@@ -334,7 +336,7 @@ private:
 	 * @note this function is not threadsafe if called from code not locked.
 	 * @see Load()
 	 */
-	void _Load( const std::string& path );
+	void _Load(const std::string& path);
 
 	/**
 	 * Initializes unitsync.
@@ -358,15 +360,15 @@ private:
 	 */
 	bool _IsLoaded() const;
 
-	void _ConvertSpringMapInfo( const SpringMapInfo& in, MapInfo& out );
+	void _ConvertSpringMapInfo(const SpringMapInfo& in, MapInfo& out);
 
-	void _SetCurrentMod( const std::string& gamename );
+	void _SetCurrentMod(const std::string& gamename);
 
 	/**
      * \name function objects
      * Pointers to the functions in unitsync.
 	 */
-    ///@{
+	///@{
 
 	InitPtr m_init;
 	UnInitPtr m_uninit;
@@ -546,7 +548,7 @@ private:
 	lpGetIntKeyStrValPtr m_parser_int_key_get_string_value;
 	lpGetStrKeyStrValPtr m_parser_string_key_get_string_value;
 
-    ///@}
+	///@}
 };
 
 UnitsyncLib& susynclib();

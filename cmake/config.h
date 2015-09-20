@@ -6,4 +6,4 @@
 /* the git tag / commit we build from */
 #define VERSION "@LIBSPRINGLOBBY_REV@"
 
-#endif	/* LIBLIBSPRINGLOBBY_HEADERGUARD_CONFIG_H */
+#endif /* LIBLIBSPRINGLOBBY_HEADERGUARD_CONFIG_H */

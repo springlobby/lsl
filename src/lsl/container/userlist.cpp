@@ -2,38 +2,38 @@
 
 #include "userlist.h"
 
-namespace LSL {
-
-const ConstUserPtr UserList::FindByNick( const std::string& nick ) const
+namespace LSL
 {
-    MapType::const_iterator it = find( nick );
-    if ( it != end() )
-        return it->second;
-    return ConstUserPtr();
+
+const ConstUserPtr UserList::FindByNick(const std::string& nick) const
+{
+	MapType::const_iterator it = find(nick);
+	if (it != end())
+		return it->second;
+	return ConstUserPtr();
 }
 
-const UserPtr UserList::FindByNick(const std::string &nick)
+const UserPtr UserList::FindByNick(const std::string& nick)
 {
-    MapType::const_iterator it = find( nick );
-    if ( it != end() )
-        return it->second;
-    return UserPtr();
+	MapType::const_iterator it = find(nick);
+	if (it != end())
+		return it->second;
+	return UserPtr();
 }
 
-const ConstCommonUserPtr CommonUserList::FindByNick( const std::string& nick ) const
+const ConstCommonUserPtr CommonUserList::FindByNick(const std::string& nick) const
 {
-    MapType::const_iterator it = find( nick );
-    if ( it != end() )
-        return it->second;
-    return ConstCommonUserPtr();
+	MapType::const_iterator it = find(nick);
+	if (it != end())
+		return it->second;
+	return ConstCommonUserPtr();
 }
 
-const CommonUserPtr CommonUserList::FindByNick(const std::string &nick)
+const CommonUserPtr CommonUserList::FindByNick(const std::string& nick)
 {
-    MapType::const_iterator it = find( nick );
-    if ( it != end() )
-        return it->second;
-    return CommonUserPtr();
+	MapType::const_iterator it = find(nick);
+	if (it != end())
+		return it->second;
+	return CommonUserPtr();
 }
-
 }

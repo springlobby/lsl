@@ -7,16 +7,21 @@
 #include <map>
 #include <string>
 
-namespace LSL {
+namespace LSL
+{
 
 struct UnitsyncGame
 {
-    UnitsyncGame()
-        : name(std::string()),hash(std::string())
-    {}
-    UnitsyncGame(const std::string& name, const std::string& hash)
-        : name(name),hash(hash)
-    {}
+	UnitsyncGame()
+	    : name(std::string())
+	    , hash(std::string())
+	{
+	}
+	UnitsyncGame(const std::string& name, const std::string& hash)
+	    : name(name)
+	    , hash(hash)
+	{
+	}
 	std::string name;
 	std::string hash;
 };
@@ -42,52 +47,52 @@ struct MapInfo
 	std::vector<StartPos> positions;
 
 	std::string author;
-	MapInfo():
-		description(""),
-		tidalStrength(0),
-		gravity(0),
-		maxMetal(0.0f),
-		extractorRadius(0),
-		minWind(0),
-		maxWind(0),
-		width(0),
-		height(0),
-		author("")
+	MapInfo()
+	    : description("")
+	    , tidalStrength(0)
+	    , gravity(0)
+	    , maxMetal(0.0f)
+	    , extractorRadius(0)
+	    , minWind(0)
+	    , maxWind(0)
+	    , width(0)
+	    , height(0)
+	    , author("")
 	{
 	}
 };
 
 struct UnitsyncMap
 {
-    UnitsyncMap():
-		name(std::string()),
-        hash(std::string())
-    {}
-    UnitsyncMap(const std::string& name, const std::string& hash):
-		name(name),
-		hash(hash)
-    {}
+	UnitsyncMap()
+	    : name(std::string())
+	    , hash(std::string())
+	{
+	}
+	UnitsyncMap(const std::string& name, const std::string& hash)
+	    : name(name)
+	    , hash(hash)
+	{
+	}
 	std::string name;
 	std::string hash;
 	MapInfo info;
 };
 
-enum GameFeature
-{
+enum GameFeature {
 	USYNC_Sett_Handler,
 	USYNC_GetInfoMap,
 	USYNC_GetDataDir,
 	USYNC_GetSkirmishAI
 };
 
-enum MediaType
-{
+enum MediaType {
 	map,
 	game
 };
 
 
-typedef std::map<std::string,std::string> LocalArchivesVector;
+typedef std::map<std::string, std::string> LocalArchivesVector;
 
 } // namespace LSL
 

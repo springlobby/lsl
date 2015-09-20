@@ -2,13 +2,15 @@
 
 #include "battlelist.h"
 
-namespace LSL {
-namespace Battle {
-
-std::string BattleList::GetChannelName( const ConstIBattlePtr /*battle*/ )
+namespace LSL
 {
-    assert( false );
-    return "";
-}
+namespace Battle
+{
 
-} } //namespace LSL { namespace Battle {
+std::string BattleList::GetChannelName(const ConstIBattlePtr /*battle*/)
+{
+	assert(false);
+	return "";
+}
+}
+} //namespace LSL { namespace Battle {

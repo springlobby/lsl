@@ -5,32 +5,34 @@
 
 #include <iostream>
 
-namespace LSL {
-    boost::signals2::signal<void ()> battleSig;
-
-    struct User
-    {
-        User(const std::string& id, const std::string& nick, const std::string& country, const int cpu)
-        {
-            battleSig.connect( *this );
-        }
-      void operator()() const
-      {
-        std::cout << "I was called" << std::endl;
-      }
-    };
-
-    struct Battle {
-        void update() {
-            battleSig();
-        }
-    };
-}
-
-int main(int,char**)
+namespace LSL
 {
-    using namespace LSL;
-    Battle battle;
-    battle.update();
+boost::signals2::signal<void()> battleSig;
+
+struct User
+{
+	User(const std::string& id, const std::string& nick, const std::string& country, const int cpu)
+	{
+		battleSig.connect(*this);
+	}
+	void operator()() const
+	{
+		std::cout << "I was called" << std::endl;
+	}
+};
+
+struct Battle
+{
+	void update()
+	{
+		battleSig();
+	}
+};
 }
 
+int main(int, char**)
+{
+	using namespace LSL;
+	Battle battle;
+	battle.update();
+}

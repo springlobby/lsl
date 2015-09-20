@@ -6,29 +6,39 @@
 #include <lslutils/global_interfaces.h>
 #include <lslutils/type_forwards.h>
 
-namespace LSL {
+namespace LSL
+{
 
 //! minimal channel model
-class Channel : public HasKey< std::string >
+class Channel : public HasKey<std::string>
 {
 public:
-    Channel();
-    Channel(const std::string& name);
+	Channel();
+	Channel(const std::string& name);
 
-    //! the HasKey mandated identifier, must be unique
-    std::string key() const { return Name(); }
-    static std::string className() { return "Channel"; }
+	//! the HasKey mandated identifier, must be unique
+	std::string key() const
+	{
+		return Name();
+	}
+	static std::string className()
+	{
+		return "Channel";
+	}
 
-	std::string Name() const { return "dummy"; }
+	std::string Name() const
+	{
+		return "dummy";
+	}
 
-    void OnChannelJoin( const ConstUserPtr user );
+	void OnChannelJoin(const ConstUserPtr user);
 
-    void SetNumUsers( size_t numusers );
+	void SetNumUsers(size_t numusers);
 	size_t GetNumUsers() const;
-    void SetTopic( const std::string& topic);
+	void SetTopic(const std::string& topic);
 
 private:
-    std::string m_topic;
+	std::string m_topic;
 };
 
 } // namespace LSL {

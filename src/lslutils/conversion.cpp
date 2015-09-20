@@ -5,15 +5,17 @@
 #include <sstream>
 
 #ifndef INT_MAX
-#define INT_MAX    2147483647
+#define INT_MAX 2147483647
 #endif
 
 #ifndef INT_MIN
-#define INT_MIN	   (-2147483647 - 1)
+#define INT_MIN (-2147483647 - 1)
 #endif
 
-namespace LSL {
-namespace Util {
+namespace LSL
+{
+namespace Util
+{
 
 int32_t FromIntString(const std::string& s)
 {
@@ -67,23 +69,23 @@ std::string ToFloatString(float f)
 	return str.str();
 }
 
-std::string MakeHashUnsigned( const std::string& hash )
+std::string MakeHashUnsigned(const std::string& hash)
 {
-	return ToUIntString(FromIntString( hash ));
+	return ToUIntString(FromIntString(hash));
 }
 
-std::string MakeHashSigned( const std::string& hash )
+std::string MakeHashSigned(const std::string& hash)
 {
-	return ToIntString(FromIntString( hash ));
+	return ToIntString(FromIntString(hash));
 }
 
 // convert const char* to std::string, as std::string(NULL) crashes
 std::string SafeString(const char* str)
 {
-	if (str == NULL) return "";
+	if (str == NULL)
+		return "";
 	return std::string(str);
 }
-
 
 
 #ifdef WIN32
@@ -93,7 +95,7 @@ std::string SafeString(const char* str)
 std::wstring s2ws(const std::string& s)
 {
 	const size_t slength = s.length();
-	const int len = MultiByteToWideChar(CP_UTF8 , 0, s.c_str(), slength, 0, 0);
+	const int len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, 0, 0);
 	wchar_t* buf = new wchar_t[len];
 	MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, buf, len);
 	std::wstring r(buf, len);
@@ -104,11 +106,11 @@ std::wstring s2ws(const std::string& s)
 std::string ws2s(const std::wstring& s)
 {
 	const size_t slength = s.length();
-	const int len = WideCharToMultiByte(CP_UTF8,0, s.c_str(),slength,NULL,0,NULL,NULL);
+	const int len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), slength, NULL, 0, NULL, NULL);
 	char* buf = new char[len];
 	WideCharToMultiByte(CP_UTF8, 0, s.c_str(), slength, buf, len, NULL, NULL);
 	std::string r(buf, len);
-	delete [] buf;
+	delete[] buf;
 	return r;
 }
 
@@ -118,7 +120,7 @@ std::string geterrormsg()
 	const int code = GetLastError();
 	static const int bufsize = 256;
 	char lpBuffer[bufsize];
-	const int len = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), lpBuffer, bufsize-1, NULL);
+	const int len = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), lpBuffer, bufsize - 1, NULL);
 	return std::string(lpBuffer, len);
 }
 
@@ -126,4 +128,3 @@ std::string geterrormsg()
 
 } // namespace Util
 } // namespace LSL
-

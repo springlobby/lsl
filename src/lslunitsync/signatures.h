@@ -1,7 +1,8 @@
 #ifndef LSL_SIGNATURES_H
 #define LSL_SIGNATURES_H
 
-namespace LSL {
+namespace LSL
+{
 
 struct SpringMapInfo;
 
@@ -19,14 +20,14 @@ struct SpringMapInfo;
 #endif
 
 #define FUNC(ret, name, ...) \
-	typedef ret (USYNC_CALLCONV *name)(__VA_ARGS__)
+	typedef ret(USYNC_CALLCONV* name)(__VA_ARGS__)
 
 FUNC(const char*, GetSpringVersionPtr);
 FUNC(const char*, GetSpringVersionPatchsetPtr);
 FUNC(bool, IsSpringReleaseVersionPtr);
 
-FUNC(int,InitPtr, bool, int);
-FUNC(void,UnInitPtr);
+FUNC(int, InitPtr, bool, int);
+FUNC(void, UnInitPtr);
 FUNC(const char*, GetNextErrorPtr);
 FUNC(const char*, GetWritableDataDirectoryPtr);
 FUNC(const char*, GetDataDirectoryPtr, int);
@@ -65,34 +66,34 @@ FUNC(const char*, GetPrimaryModArchivePtr, int);
 FUNC(int, GetSideCountPtr);
 FUNC(const char*, GetSideNamePtr, int);
 
-FUNC(void,AddAllArchivesPtr, const char*);
-FUNC(void,RemoveAllArchivesPtr);
+FUNC(void, AddAllArchivesPtr, const char*);
+FUNC(void, RemoveAllArchivesPtr);
 
 FUNC(const char*, GetFullUnitNamePtr, int);
 FUNC(const char*, GetUnitNamePtr, int);
 FUNC(int, GetUnitCountPtr);
-FUNC(int,ProcessUnitsNoChecksumPtr);
+FUNC(int, ProcessUnitsNoChecksumPtr);
 
-FUNC(int,InitFindVFSPtr, const char*);
-FUNC(int,FindFilesVFSPtr, int, char*, int);
-FUNC(int,OpenFileVFSPtr, const char*);
-FUNC(int,FileSizeVFSPtr, int);
-FUNC(int,ReadFileVFSPtr, int, void*, int);
-FUNC(void,CloseFileVFSPtr, int);
+FUNC(int, InitFindVFSPtr, const char*);
+FUNC(int, FindFilesVFSPtr, int, char*, int);
+FUNC(int, OpenFileVFSPtr, const char*);
+FUNC(int, FileSizeVFSPtr, int);
+FUNC(int, ReadFileVFSPtr, int, void*, int);
+FUNC(void, CloseFileVFSPtr, int);
 
-FUNC(void,SetSpringConfigFilePtr, const char*);
+FUNC(void, SetSpringConfigFilePtr, const char*);
 FUNC(const char*, GetSpringConfigFilePtr);
 
-FUNC(int, GetSpringConfigIntPtr, const char*, int );
-FUNC(const char*, GetSpringConfigStringPtr, const char*, const char* );
-FUNC(float, GetSpringConfigFloatPtr, const char*, float );
+FUNC(int, GetSpringConfigIntPtr, const char*, int);
+FUNC(const char*, GetSpringConfigStringPtr, const char*, const char*);
+FUNC(float, GetSpringConfigFloatPtr, const char*, float);
 
-FUNC(void,SetSpringConfigStringPtr, const char*, const char* );
-FUNC(void,SetSpringConfigIntPtr, const char*, int );
-FUNC(void,SetSpringConfigFloatPtr, const char*, float );
+FUNC(void, SetSpringConfigStringPtr, const char*, const char*);
+FUNC(void, SetSpringConfigIntPtr, const char*, int);
+FUNC(void, SetSpringConfigFloatPtr, const char*, float);
 
-FUNC(int,ProcessUnitsPtr, void);
-FUNC(void,AddArchivePtr, const char*);
+FUNC(int, ProcessUnitsPtr, void);
+FUNC(void, AddArchivePtr, const char*);
 FUNC(unsigned int, GetArchiveChecksumPtr, const char*);
 FUNC(const char*, GetArchivePathPtr, const char*);
 FUNC(int, GetMapArchiveCountPtr, const char*);
@@ -140,13 +141,13 @@ FUNC(const char*, GetOptionListItemKeyPtr, int, int);
 FUNC(const char*, GetOptionListItemNamePtr, int, int);
 FUNC(const char*, GetOptionListItemDescPtr, int, int);
 
-FUNC(int,OpenArchivePtr, const char*);
-FUNC(void,CloseArchivePtr, int);
-FUNC(int,FindFilesArchivePtr, int, int, char*, int*);
-FUNC(int,OpenArchiveFilePtr, int, const char*);
-FUNC(int,ReadArchiveFilePtr, int, int, void*, int);
-FUNC(void,CloseArchiveFilePtr, int, int);
-FUNC(int,SizeArchiveFilePtr, int, int);
+FUNC(int, OpenArchivePtr, const char*);
+FUNC(void, CloseArchivePtr, int);
+FUNC(int, FindFilesArchivePtr, int, int, char*, int*);
+FUNC(int, OpenArchiveFilePtr, int, const char*);
+FUNC(int, ReadArchiveFilePtr, int, int, void*, int);
+FUNC(void, CloseArchiveFilePtr, int, int);
+FUNC(int, SizeArchiveFilePtr, int, int);
 
 FUNC(int, GetSkirmishAICountPtr);
 FUNC(int, GetSkirmishAIInfoCountPtr, int);

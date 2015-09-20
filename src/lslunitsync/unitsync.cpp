@@ -26,7 +26,7 @@
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
-#define ASYNC_LOAD 0  //FIXME: repair/set to 1!
+#define ASYNC_LOAD 0 //FIXME: repair/set to 1!
 #if ASYNC_LOAD
 #define TRY_LOCK(ret)                                               \
 	boost::mutex::scoped_try_lock lock_criticalsection(m_lock); \
@@ -124,15 +124,15 @@ void Unitsync::FetchUnitsyncErrors(const std::string& prefix)
 	if (!prefix.empty()) {
 		pre += " ";
 	}
-	for(const std::string error: errors ) {
-		LslWarning("Unitsync: %s%s",pre.c_str(), error.c_str() );
+	for (const std::string error : errors) {
+		LslWarning("Unitsync: %s%s", pre.c_str(), error.c_str());
 	}
 }
 
 static std::string GetGameInfo(int index, const std::string keyname)
 {
 	const int count = susynclib().GetPrimaryModInfoCount(index);
-	for (int i=0; i < count; i++) {
+	for (int i = 0; i < count; i++) {
 		const std::string key = Util::SafeString(susynclib().GetInfoKey(i));
 		if (key == keyname) {
 			return Util::SafeString(susynclib().GetInfoValueString(i));

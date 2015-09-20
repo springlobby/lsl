@@ -8,38 +8,42 @@
 #include <lslutils/type_forwards.h>
 
 
-namespace LSL {
+namespace LSL
+{
 
 //! actual "Online user"
 class User : public CommonUser
 {
 public:
-    User( IServerPtr serv,
-          const std::string id = GetNewUserId(),
-          const std::string nick = "invalid",
-          const std::string country = "",
-          const int cpu = DEFAULT_CPU_ID );
+	User(IServerPtr serv,
+	     const std::string id = GetNewUserId(),
+	     const std::string nick = "invalid",
+	     const std::string country = "",
+	     const int cpu = DEFAULT_CPU_ID);
 
 	virtual ~User();
 
 	// User interface
 
-	ConstIServerPtr GetServer() const { return m_serv; }
+	ConstIServerPtr GetServer() const
+	{
+		return m_serv;
+	}
 
-	void Said( const std::string& message ) const;
-	void Say( const std::string& message ) const;
-	void DoAction( const std::string& message ) const;
+	void Said(const std::string& message) const;
+	void Say(const std::string& message) const;
+	void DoAction(const std::string& message) const;
 
 	void SendMyUserStatus() const;
-	void SetStatus( const UserStatus& status );
-	void SetCountry( const std::string& country );
+	void SetStatus(const UserStatus& status);
+	void SetCountry(const std::string& country);
 
-	bool ExecuteSayCommand( const std::string& cmd ) const;
+	bool ExecuteSayCommand(const std::string& cmd) const;
 
 	static std::string GetRankName(UserStatus::RankContainer rank);
 
-    UserStatus::RankContainer GetRank() const;
-    std::string GetClan() const;
+	UserStatus::RankContainer GetRank() const;
+	std::string GetClan() const;
 
 	//bool operator< ( const ConstUserPtr other ) const { return m_nick < other.GetNick() ; }
 	//User& operator= ( const ConstUserPtr other );

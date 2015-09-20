@@ -5,25 +5,38 @@
 
 #include "ibattle.h"
 
-namespace LSL {
-namespace Battle {
+namespace LSL
+{
+namespace Battle
+{
 
 class OfflineBattle : public IBattle
 {
-	public:
-			OfflineBattle ( const int id );
-			OfflineBattle ( );
-			OfflineBattle ( const OfflineBattle&  );
-			OfflineBattle& operator = ( const OfflineBattle&  );
-			~OfflineBattle (){}
-            virtual const CommonUserPtr GetMe() { return m_me; }
-            virtual const ConstCommonUserPtr GetMe() const { return m_me; }
-			bool IsFounderMe() const { return true; }
-			void StartSpring();
+public:
+	OfflineBattle(const int id);
+	OfflineBattle();
+	OfflineBattle(const OfflineBattle&);
+	OfflineBattle& operator=(const OfflineBattle&);
+	~OfflineBattle()
+	{
+	}
+	virtual const CommonUserPtr GetMe()
+	{
+		return m_me;
+	}
+	virtual const ConstCommonUserPtr GetMe() const
+	{
+		return m_me;
+	}
+	bool IsFounderMe() const
+	{
+		return true;
+	}
+	void StartSpring();
 
-	protected:
-			int m_id;
-            UserPtr m_me;
+protected:
+	int m_id;
+	UserPtr m_me;
 };
 
 } // namespace Battle {

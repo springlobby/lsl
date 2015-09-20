@@ -15,52 +15,53 @@
 #include <list>
 #include <map>
 
-namespace LSL {
+namespace LSL
+{
 
 /// Thread safe MRU cache (works like a std::map but has maximum size)
-template<typename TKey, typename TValue>
+template <typename TKey, typename TValue>
 class MostRecentlyUsedCache
 {
 public:
 	//! name parameter might be used to identify stats in dgb output
-	MostRecentlyUsedCache(int max_size, const std::string& name = "" )
-		: m_size(0),
-		m_max_size(max_size),
-		m_cache_hits(0),
-		m_cache_misses(0),
-		m_name(name)
+	MostRecentlyUsedCache(int max_size, const std::string& name = "")
+	    : m_size(0)
+	    , m_max_size(max_size)
+	    , m_cache_hits(0)
+	    , m_cache_misses(0)
+	    , m_name(name)
 	{
 	}
 
 	~MostRecentlyUsedCache()
 	{
-		LslDebug( "%s - cache hits: %d misses: %d", m_name.c_str(), m_cache_hits, m_cache_misses );
+		LslDebug("%s - cache hits: %d misses: %d", m_name.c_str(), m_cache_hits, m_cache_misses);
 	}
 
-	void Add( const TKey& name, const TValue& img )
+	void Add(const TKey& name, const TValue& img)
 	{
 		boost::mutex::scoped_lock lock(m_lock);
-		while ( m_size >= m_max_size ) {
+		while (m_size >= m_max_size) {
 			--m_size;
-			m_iterator_map.erase( m_items.back().first );
+			m_iterator_map.erase(m_items.back().first);
 			m_items.pop_back();
 		}
 		++m_size;
-		m_items.push_front( CacheItem( name, img ) );
+		m_items.push_front(CacheItem(name, img));
 		m_iterator_map[name] = m_items.begin();
 	}
 
-	bool TryGet( const TKey& name, TValue& img )
+	bool TryGet(const TKey& name, TValue& img)
 	{
 		boost::mutex::scoped_lock lock(m_lock);
-		typename IteratorMap::iterator it = m_iterator_map.find( name );
-		if ( it == m_iterator_map.end() ) {
+		typename IteratorMap::iterator it = m_iterator_map.find(name);
+		if (it == m_iterator_map.end()) {
 			++m_cache_misses;
 			return false;
 		}
 		// reinsert at front, so that most recently used items are always at front
-		m_items.push_front( *it->second );
-		m_items.erase( it->second );
+		m_items.push_front(*it->second);
+		m_items.erase(it->second);
 		it->second = m_items.begin();
 		// return image
 		img = it->second->second;
@@ -93,9 +94,9 @@ private:
 
 class UnitsyncImage;
 struct MapInfo;
-typedef MostRecentlyUsedCache<std::string,UnitsyncImage> MostRecentlyUsedImageCache;
-typedef MostRecentlyUsedCache<std::string,MapInfo> MostRecentlyUsedMapInfoCache;
-typedef MostRecentlyUsedCache<std::string,std::vector<std::string> > MostRecentlyUsedArrayStringCache;
+typedef MostRecentlyUsedCache<std::string, UnitsyncImage> MostRecentlyUsedImageCache;
+typedef MostRecentlyUsedCache<std::string, MapInfo> MostRecentlyUsedMapInfoCache;
+typedef MostRecentlyUsedCache<std::string, std::vector<std::string> > MostRecentlyUsedArrayStringCache;
 
 } // namespace LSL
 

@@ -4,27 +4,30 @@
 #include <string>
 #include <lslutils/type_forwards.h>
 
-namespace LSL {
+namespace LSL
+{
 
 class Spring;
 
 class SpringProcess
 {
-  public:
-    SpringProcess( const Spring& sp );
-    ~SpringProcess();
+public:
+	SpringProcess(const Spring& sp);
+	~SpringProcess();
 
-    void OnExit();
+	void OnExit();
 
-    void SetCommand( const std::string& cmd );
+	void SetCommand(const std::string& cmd);
 
-    void Create() {}
-    int Run();
+	void Create()
+	{
+	}
+	int Run();
 
-  protected:
-    const Spring& m_sp;
-    std::string m_cmd;
-    int m_exit_code;
+protected:
+	const Spring& m_sp;
+	std::string m_cmd;
+	int m_exit_code;
 };
 
 } // namespace LSL {

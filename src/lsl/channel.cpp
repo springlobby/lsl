@@ -4,29 +4,30 @@
 
 #include <lsl/user/user.h>
 
-namespace LSL {
+namespace LSL
+{
 
 Channel::Channel()
 {
 }
 
-Channel::Channel(const std::string &/*name*/)
+Channel::Channel(const std::string& /*name*/)
 {
 }
 
 void Channel::OnChannelJoin(const ConstUserPtr /*user*/)
 {
-    assert(false);
+	assert(false);
 }
 
 void Channel::SetNumUsers(size_t /*numusers*/)
 {
-    assert(false);
+	assert(false);
 }
 
 void Channel::SetTopic(const std::string& topic)
 {
-    m_topic = topic;
+	m_topic = topic;
 }
 
 

@@ -6,8 +6,10 @@
 #include <string>
 #include <cstring>
 
-namespace LSL {
-namespace Util {
+namespace LSL
+{
+namespace Util
+{
 
 int32_t FromIntString(const std::string& s);
 float FromFloatString(const std::string& s);
@@ -15,8 +17,8 @@ std::string ToIntString(int i);
 std::string ToUIntString(int i);
 std::string ToFloatString(float f);
 
-std::string MakeHashUnsigned( const std::string& hash );
-std::string MakeHashSigned( const std::string& hash );
+std::string MakeHashUnsigned(const std::string& hash);
+std::string MakeHashSigned(const std::string& hash);
 
 // convert const char* to std::string, as std::string(NULL) crashes
 std::string SafeString(const char* str);

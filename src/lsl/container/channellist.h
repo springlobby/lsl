@@ -6,11 +6,13 @@
 #include "base.h"
 #include <lsl/channel.h>
 
-namespace LSL {
+namespace LSL
+{
 
 //! container for channel pointers
-class ChannelList : public ContainerBase< Channel >
-{};
+class ChannelList : public ContainerBase<Channel>
+{
+};
 
 } //end namespace LSL
 

@@ -6,45 +6,47 @@
 #include <lslutils/type_forwards.h>
 #include <boost/signals2.hpp>
 
-namespace LSL {
-namespace Battle {
+namespace LSL
+{
+namespace Battle
+{
 class OfflineBattle;
 }
 class SpringProcess;
 
 class Spring
 {
-  public:
+public:
 	explicit Spring();
-    ~Spring();
+	~Spring();
 
-    bool IsRunning() const;
-    /**
+	bool IsRunning() const;
+	/**
      * @brief executes spring with abs path to script
      * @param script
      * @return true on launch success, false otherwise
      */
-    bool Run( const std::string& script );
-    bool Run( const IBattlePtr battle );
-    bool Run( Battle::OfflineBattle& battle );
+	bool Run(const std::string& script);
+	bool Run(const IBattlePtr battle);
+	bool Run(Battle::OfflineBattle& battle);
 
-    /** @brief executes spring with replay abs path
+	/** @brief executes spring with replay abs path
      * @param filename the full path for the replayfile
      * @return true on launch success, false otherwise
      **/
-    bool RunReplay ( const std::string& filename );
+	bool RunReplay(const std::string& filename);
 
-    std::string WriteScriptTxt(const IBattlePtr battle ) const;
-    void OnTerminated( int event );
+	std::string WriteScriptTxt(const IBattlePtr battle) const;
+	void OnTerminated(int event);
 
-    boost::signals2::signal<void (int,std::string)> sig_springStopped;
-    boost::signals2::signal<void ()> sig_springStarted;
+	boost::signals2::signal<void(int, std::string)> sig_springStopped;
+	boost::signals2::signal<void()> sig_springStarted;
 
 protected:
-    bool LaunchSpring( const std::string& params );
+	bool LaunchSpring(const std::string& params);
 
-    SpringProcess* m_process;
-    bool m_running;
+	SpringProcess* m_process;
+	bool m_running;
 };
 
 Spring& spring();

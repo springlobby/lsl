@@ -7,7 +7,8 @@
 
 #include <lslutils/misc.h>
 
-namespace LSL {
+namespace LSL
+{
 
 bool SpringBundle::GetBundleVersion()
 {
@@ -18,17 +19,17 @@ bool SpringBundle::GetBundleVersion()
 	}
 	void* temphandle = _LoadLibrary(unitsync);
 	std::string functionname = "GetSpringVersion";
-	GetSpringVersionPtr getspringversion =(GetSpringVersionPtr)GetLibFuncPtr( temphandle, functionname);
-	if( !getspringversion ) {
+	GetSpringVersionPtr getspringversion = (GetSpringVersionPtr)GetLibFuncPtr(temphandle, functionname);
+	if (!getspringversion) {
 		_FreeLibrary(temphandle);
 		LslError("getspringversion: function not found %s", unitsync.c_str());
 		return false;
 	}
 	functionname = "IsSpringReleaseVersion";
-	IsSpringReleaseVersionPtr isspringreleaseversion =(IsSpringReleaseVersionPtr)GetLibFuncPtr( temphandle, functionname);
+	IsSpringReleaseVersionPtr isspringreleaseversion = (IsSpringReleaseVersionPtr)GetLibFuncPtr(temphandle, functionname);
 
 	functionname = "GetSpringVersionPatchset";
-	GetSpringVersionPatchsetPtr getspringversionpatcheset =(GetSpringVersionPatchsetPtr)GetLibFuncPtr( temphandle, functionname);
+	GetSpringVersionPatchsetPtr getspringversionpatcheset = (GetSpringVersionPatchsetPtr)GetLibFuncPtr(temphandle, functionname);
 
 	version = getspringversion();
 	if (isspringreleaseversion && getspringversionpatcheset && isspringreleaseversion()) {
@@ -41,7 +42,8 @@ bool SpringBundle::GetBundleVersion()
 
 bool SpringBundle::IsValid()
 {
-	if (valid) return true; //verify only once
+	if (valid)
+		return true; //verify only once
 	if (!Util::FileExists(path)) {
 		return false;
 	}
@@ -74,8 +76,8 @@ bool SpringBundle::AutoComplete(std::string searchpath)
 {
 	// try to find unitsync file name from path
 	if (unitsync.empty()) {
-		if (!searchpath.empty() && (AutoFindUnitsync(searchpath))) {}
-		else if (!path.empty())
+		if (!searchpath.empty() && (AutoFindUnitsync(searchpath))) {
+		} else if (!path.empty())
 			AutoFindUnitsync(path);
 	}
 	//try to find path from unitsync
@@ -108,11 +110,12 @@ bool SpringBundle::AutoComplete(std::string searchpath)
 	return IsValid();
 }
 
-std::string SpringBundle::Serialize(){
-	std::string ret = "version " + version +"\n";
-	ret += "version " + spring +"\n";
-	ret += "unitsync " + unitsync +"\n";
-	ret += "path " + path +"\n";
+std::string SpringBundle::Serialize()
+{
+	std::string ret = "version " + version + "\n";
+	ret += "version " + spring + "\n";
+	ret += "unitsync " + unitsync + "\n";
+	ret += "path " + path + "\n";
 	return ret;
 }
 
@@ -127,10 +130,11 @@ static void AddPath(const std::string& path, LSL::StringVector& pathlist)
 //reads envvar, splits it by : and ; and add it to pathlist, when exists
 static void GetEnv(const std::string& name, LSL::StringVector& pathlist)
 {
-	const char* envvar= getenv(name.c_str());
-	if (envvar == NULL) return;
+	const char* envvar = getenv(name.c_str());
+	if (envvar == NULL)
+		return;
 	LSL::StringVector res = LSL::Util::StringTokenize(envvar, ";:");
-	for (const std::string path:res) {
+	for (const std::string path : res) {
 		AddPath(path, pathlist);
 	}
 }
@@ -162,7 +166,7 @@ bool SpringBundle::LocateSystemInstalledSpring(LSL::SpringBundle& bundle)
 	AddPath("/lib", paths);
 	AddPath("/bin", paths);
 
-	for (const std::string path: paths) {
+	for (const std::string path : paths) {
 		if (bundle.AutoComplete(path)) {
 			return true;
 		}
@@ -171,26 +175,24 @@ bool SpringBundle::LocateSystemInstalledSpring(LSL::SpringBundle& bundle)
 }
 
 
-
 std::map<std::string, SpringBundle> SpringBundle::GetSpringVersionList(const std::list<SpringBundle>& unitsync_paths)
 {
 	std::map<std::string, SpringBundle> ret;
 	std::map<std::string, std::string> uniq;
 
-	for (SpringBundle bundle: unitsync_paths) {
+	for (SpringBundle bundle : unitsync_paths) {
 		try {
 			bundle.AutoComplete();
 			if (uniq.find(bundle.unitsync) != uniq.end()) //don't check/add the same unitsync twice
 				continue;
 			if (bundle.IsValid() && (ret.find(bundle.version) == ret.end())) {
-				LslDebug( "Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
+				LslDebug("Found spring version: %s %s %s", bundle.version.c_str(), bundle.spring.c_str(), bundle.unitsync.c_str());
 				ret[bundle.version] = bundle;
 				uniq[bundle.unitsync] = bundle.version;
 			}
+		} catch (...) {
 		}
-		catch(...){}
 	}
 	return ret;
 }
-
 };

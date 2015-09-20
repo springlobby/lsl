@@ -6,29 +6,33 @@
 #include <lslutils/conversion.h>
 #include <lslutils/logging.h>
 
-namespace LSL {
+namespace LSL
+{
 
-SpringProcess::SpringProcess(const Spring &sp ) :
-		m_sp( sp ), m_exit_code( 0 )
-{}
+SpringProcess::SpringProcess(const Spring& sp)
+    : m_sp(sp)
+    , m_exit_code(0)
+{
+}
 
 SpringProcess::~SpringProcess()
-{}
+{
+}
 
-void SpringProcess::SetCommand(const std::string &cmd )
+void SpringProcess::SetCommand(const std::string& cmd)
 {
 	m_cmd = cmd;
 }
 
 void SpringProcess::OnExit()
 {
-//    m_exit_code
+	//    m_exit_code
 }
 
 int SpringProcess::Run()
 {
-    m_exit_code = system( m_cmd.c_str() );
-    LslDebug( "Spring closed." );
+	m_exit_code = system(m_cmd.c_str());
+	LslDebug("Spring closed.");
 	return 0;
 }
 
