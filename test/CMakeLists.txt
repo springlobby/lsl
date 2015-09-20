@@ -1,5 +1,3 @@
-
-INCLUDE_DIRECTORIES(${libSpringLobby_SOURCE_DIR}/src)
 add_custom_target(check ${CMAKE_CTEST_COMMAND} --output-on-failure)
 
 ################################################################################
@@ -15,6 +13,9 @@ add_test(NAME libSpringLobbyTest COMMAND libSpringLobby_test)
 
 
 TARGET_LINK_LIBRARIES(libSpringLobby_test dl lsl-server lsl-unitsync dl)
+target_include_directories(libSpringLobby_test
+		PRIVATE ${libSpringLobby_SOURCE_DIR}/src
+	)
 IF( NOT WIN32 )
 	TARGET_LINK_LIBRARIES(libSpringLobby_test X11 )
 ENDIF()

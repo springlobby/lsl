@@ -26,4 +26,7 @@ if (UNIX AND NOT MINGW AND NOT APPLE)
 	FIND_LIBRARY(RT_LIBRARY rt)
 endif()
 TARGET_LINK_LIBRARIES(lsl-unitsync lsl-utils ${Boost_LIBRARIES} ${PNG_LIBRARY} ${X11_LIBRARIES} ${CMAKE_DL_LIBS} ${RT_LIBRARY})
-
+target_include_directories(lsl-unitsync
+		PRIVATE ${libSpringLobby_SOURCE_DIR}/src
+		PRIVATE ${libSpringLobby_SOURCE_DIR}/lib
+	)
