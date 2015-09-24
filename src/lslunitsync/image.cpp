@@ -141,6 +141,14 @@ UnitsyncImage::UnitsyncImage(PrivateImageType* ptr)
 {
 }
 
+UnitsyncImage::~UnitsyncImage()
+{
+	if (m_data_ptr != nullptr) {
+		delete m_data_ptr;
+		m_data_ptr = nullptr;
+	}
+}
+
 UnitsyncImage::PrivateImageType* UnitsyncImage::NewImagePtr(int width, int height)
 {
 	try {

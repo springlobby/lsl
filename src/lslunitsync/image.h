@@ -38,6 +38,7 @@ private:
 
 public:
 	UnitsyncImage();
+	~UnitsyncImage();
 	UnitsyncImage& operator=(const UnitsyncImage& other);
 	explicit UnitsyncImage(int width, int height);
 	UnitsyncImage(const std::string& filename);
