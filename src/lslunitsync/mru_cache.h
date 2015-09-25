@@ -19,14 +19,13 @@ namespace LSL
 {
 
 /// Thread safe MRU cache (works like a std::map but has maximum size)
-template <typename TKey, typename TValue>
+template <typename TValue>
 class MostRecentlyUsedCache
 {
 public:
 	//! name parameter might be used to identify stats in dgb output
 	MostRecentlyUsedCache(int max_size, const std::string& name = "")
-	    : m_size(0)
-	    , m_max_size(max_size)
+	    : m_max_size(max_size)
 	    , m_cache_hits(0)
 	    , m_cache_misses(0)
 	    , m_name(name)
@@ -38,54 +37,45 @@ public:
 		LslDebug("%s - cache hits: %d misses: %d", m_name.c_str(), m_cache_hits, m_cache_misses);
 	}
 
-	void Add(const TKey& name, const TValue& img)
+	void Add(const std::string& name, const TValue img)
 	{
 		boost::mutex::scoped_lock lock(m_lock);
-		while (m_size >= m_max_size) {
-			--m_size;
-			m_iterator_map.erase(m_items.back().first);
-			m_items.pop_back();
+		if (m_itemnames.size() > m_max_size) {
+			m_items.erase(m_itemnames.back());
+			m_itemnames.pop_back();
 		}
-		++m_size;
-		m_items.push_front(CacheItem(name, img));
-		m_iterator_map[name] = m_items.begin();
+		m_itemnames.push_front(name);
+		m_items[name] = img;
 	}
 
-	bool TryGet(const TKey& name, TValue& img)
+	bool TryGet(const std::string& name, TValue& img)
 	{
 		boost::mutex::scoped_lock lock(m_lock);
-		typename IteratorMap::iterator it = m_iterator_map.find(name);
-		if (it == m_iterator_map.end()) {
+
+		auto it = m_items.find(name);
+		if (it == m_items.end()) {
 			++m_cache_misses;
 			return false;
 		}
 		// reinsert at front, so that most recently used items are always at front
-		m_items.push_front(*it->second);
-		m_items.erase(it->second);
-		it->second = m_items.begin();
-		// return image
-		img = it->second->second;
+		m_itemnames.push_front(m_itemnames.back());
+		m_itemnames.pop_back();
 		++m_cache_hits;
+		img = it->second; //copy!
 		return true;
 	}
 
 	void Clear()
 	{
 		boost::mutex::scoped_lock lock(m_lock);
-		m_size = 0;
 		m_items.clear();
-		m_iterator_map.clear();
+		m_itemnames.clear();
 	}
 
 private:
-	typedef std::pair<TKey, TValue> CacheItem;
-	typedef std::list<CacheItem> CacheItemList;
-	typedef std::map<TKey, typename CacheItemList::iterator> IteratorMap;
-
 	mutable boost::mutex m_lock;
-	CacheItemList m_items;
-	IteratorMap m_iterator_map;
-	int m_size;
+	std::list<std::string> m_itemnames;
+	std::map<std::string,TValue> m_items;
 	const int m_max_size;
 	int m_cache_hits;
 	int m_cache_misses;
@@ -94,9 +84,9 @@ private:
 
 class UnitsyncImage;
 struct MapInfo;
-typedef MostRecentlyUsedCache<std::string, UnitsyncImage> MostRecentlyUsedImageCache;
-typedef MostRecentlyUsedCache<std::string, MapInfo> MostRecentlyUsedMapInfoCache;
-typedef MostRecentlyUsedCache<std::string, std::vector<std::string> > MostRecentlyUsedArrayStringCache;
+typedef MostRecentlyUsedCache<UnitsyncImage> MostRecentlyUsedImageCache;
+typedef MostRecentlyUsedCache<MapInfo> MostRecentlyUsedMapInfoCache;
+typedef MostRecentlyUsedCache<std::vector<std::string>> MostRecentlyUsedArrayStringCache;
 
 } // namespace LSL
 

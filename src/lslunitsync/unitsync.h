@@ -7,6 +7,7 @@
 #include "data.h"
 #include "mru_cache.h"
 #include <lslutils/type_forwards.h>
+#include "image.h"
 
 #include <boost/thread/mutex.hpp>
 #include <boost/signals2/signal.hpp>
