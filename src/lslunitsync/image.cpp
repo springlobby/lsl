@@ -143,8 +143,10 @@ UnitsyncImage::UnitsyncImage(PrivateImageType* ptr)
 
 UnitsyncImage::~UnitsyncImage()
 {
-	if ((m_data_ptr != nullptr) && isValid()) {
-		delete m_data_ptr;
+	if (m_data_ptr != nullptr) {
+		if (isValid()) {
+			delete m_data_ptr;
+		}
 		m_data_ptr = nullptr;
 	}
 }
@@ -365,9 +367,12 @@ void UnitsyncImage::RescaleIfBigger(const int maxwidth, const int maxheight)
 
 UnitsyncImage& UnitsyncImage::operator=(const UnitsyncImage& other)
 {
-	const PrivateImageType& src = *other.m_data_ptr;
-	PrivateImageType& dest = *m_data_ptr;
-	dest = src;
+	if (this != &other) {
+		if (isValid()) {
+			delete m_data_ptr;
+		}
+		m_data_ptr = new PrivateImageType(*other.m_data_ptr);
+	}
 	return *this;
 }
 
