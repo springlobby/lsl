@@ -70,7 +70,7 @@ public:
 
 	bool isValid() const
 	{
-		return ((GetWidth() > 0) && (GetHeight() > 0));
+		return ((m_data_ptr != nullptr) && (GetWidth() > 0) && (GetHeight() > 0));
 	}
 	// makes given color transparent
 	void MakeTransparent(unsigned short r = 255, unsigned short g = 255, unsigned short b = 255);

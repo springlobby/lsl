@@ -803,7 +803,7 @@ bool Unitsync::GetCacheFile(const std::string& path, StringVector& ret) const
 	ret.clear();
 	char line[1024];
 	while (fgets(line, 1024, file) != NULL) {
-		const int len = strlen(line);
+		const int len = strnlen(line, 1024);
 		ret.push_back(std::string(line, len - 1));
 	}
 	fclose(file);
