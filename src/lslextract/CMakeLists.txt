@@ -2,21 +2,6 @@ message(STATUS ${libUnitsyncSrc})
 
 add_executable(lslextract
 	lslextract.cpp
-	../lslunitsync/c_api.cpp
-	../lslunitsync/sharedlib.cpp
-	../lslunitsync/image.cpp
-	../lslunitsync/loader.cpp
-	../lslunitsync/mmoptionmodel.cpp
-	../lslunitsync/optionswrapper.cpp
-	../lslunitsync/unitsync.cpp
-
-	../lslutils/misc.cpp
-	../lslutils/config.cpp
-	../lslutils/crc.cpp
-	../lslutils/thread.cpp
-	../lslutils/net.cpp
-	../lslutils/globalsmanager.cpp
-	../lslutils/md5.c
 )
 FIND_PACKAGE(PNG REQUIRED)
 FIND_PACKAGE(X11 REQUIRED)
@@ -27,5 +12,10 @@ TARGET_LINK_LIBRARIES(lslextract
 	${PNG_LIBRARY}
 	${X11_LIBRARIES}
 	${CMAKE_DL_LIBS}
+	lsl-unitsync
+	lsl-utils
 )
 
+target_include_directories(lslextract
+	PRIVATE ${libSpringLobby_SOURCE_DIR}/src
+)
