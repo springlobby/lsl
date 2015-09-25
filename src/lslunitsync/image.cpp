@@ -143,7 +143,7 @@ UnitsyncImage::UnitsyncImage(PrivateImageType* ptr)
 
 UnitsyncImage::~UnitsyncImage()
 {
-	if (m_data_ptr != nullptr) {
+	if ((m_data_ptr != nullptr) && isValid()) {
 		delete m_data_ptr;
 		m_data_ptr = nullptr;
 	}
