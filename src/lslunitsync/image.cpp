@@ -137,9 +137,15 @@ UnitsyncImage::UnitsyncImage(const std::string& filename)
 }
 
 UnitsyncImage::UnitsyncImage(PrivateImageType* ptr)
-    : m_data_ptr(ptr)
 {
+	m_data_ptr = new PrivateImageType(*ptr);
 }
+
+UnitsyncImage::UnitsyncImage(const UnitsyncImage& other)
+{
+	m_data_ptr = new PrivateImageType(*other.m_data_ptr);
+}
+
 
 UnitsyncImage::~UnitsyncImage()
 {

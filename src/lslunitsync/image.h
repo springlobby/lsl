@@ -37,10 +37,11 @@ private:
 	typedef cimg_library::CImg<RawDataType> PrivateImageType;
 
 public:
+	UnitsyncImage(const UnitsyncImage& other);
 	UnitsyncImage();
 	~UnitsyncImage();
 	UnitsyncImage& operator=(const UnitsyncImage& other);
-	explicit UnitsyncImage(int width, int height);
+	UnitsyncImage(int width, int height);
 	UnitsyncImage(const std::string& filename);
 
 	//! delegates save to cimg library, format is deducted from last path compoment (ie. after the last dot)
