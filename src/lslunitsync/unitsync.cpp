@@ -238,7 +238,7 @@ std::string Unitsync::GetSpringVersion() const
 }
 
 
-StringVector Unitsync::GetModList() const
+StringVector Unitsync::GetGameList() const
 {
 	TRY_LOCK(StringVector())
 	return m_mod_array;
@@ -255,7 +255,7 @@ bool Unitsync::GameExists(const std::string& gamename, const std::string& hash) 
 	return itor->second == hash;
 }
 
-UnitsyncGame Unitsync::GetMod(const std::string& gamename)
+UnitsyncGame Unitsync::GetGame(const std::string& gamename)
 {
 	UnitsyncGame m;
 	TRY_LOCK(m);
@@ -265,7 +265,7 @@ UnitsyncGame Unitsync::GetMod(const std::string& gamename)
 }
 
 
-UnitsyncGame Unitsync::GetMod(int index)
+UnitsyncGame Unitsync::GetGame(int index)
 {
 	UnitsyncGame m;
 	TRY_LOCK(m);
@@ -280,7 +280,7 @@ StringVector Unitsync::GetMapList() const
 	return m_map_array;
 }
 
-StringVector Unitsync::GetModValidMapList(const std::string& gamename) const
+StringVector Unitsync::GetGameValidMapList(const std::string& gamename) const
 {
 	StringVector ret;
 	TRY_LOCK(ret)
@@ -401,7 +401,7 @@ UnitsyncMap Unitsync::GetMap(const std::string& mapname)
 	return m;
 }
 
-GameOptions Unitsync::GetModOptions(const std::string& name)
+GameOptions Unitsync::GetGameOptions(const std::string& name)
 {
 	assert(!name.empty());
 	GameOptions ret;
@@ -419,7 +419,7 @@ GameOptions Unitsync::GetModOptions(const std::string& name)
 	return ret;
 }
 
-StringVector Unitsync::GetModDeps(const std::string& gamename) const
+StringVector Unitsync::GetGameDeps(const std::string& gamename) const
 {
 	assert(!gamename.empty());
 	StringVector ret;
@@ -522,7 +522,7 @@ StringVector Unitsync::GetAIList(const std::string& gamename) const
 	return ret;
 }
 
-void Unitsync::UnSetCurrentMod()
+void Unitsync::UnSetCurrentArchive()
 {
 #if ASYNC_LOAD
 	LOCK_UNITSYNC;

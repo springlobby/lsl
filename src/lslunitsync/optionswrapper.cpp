@@ -91,7 +91,7 @@ bool OptionsWrapper::loadOptions(Enum::GameOption modmapFlag, const std::string&
 
 		case Enum::ModOption:
 			try {
-				opt = usync().GetModOptions(name);
+				opt = usync().GetGameOptions(name);
 			} catch (...) {
 				LslError("Could not load game options");
 				return false;

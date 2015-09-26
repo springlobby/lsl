@@ -80,7 +80,7 @@ IBattle::~IBattle()
 {
 	m_timer->cancel();
 	if (m_is_self_in)
-		usync().UnSetCurrentMod();
+		usync().UnSetCurrentArchive();
 }
 
 bool IBattle::IsSynced()
@@ -788,7 +788,7 @@ const UnitsyncGame& IBattle::LoadMod()
 	if (!m_mod_loaded) {
 		try {
 			ASSERT_EXCEPTION(m_game_exists, "Mod does not exist.");
-			m_local_game = usync().GetMod(m_host_game.name);
+			m_local_game = usync().GetGame(m_host_game.name);
 			bool options_loaded = CustomBattleOptions()->loadOptions(LSL::Enum::ModOption, m_host_game.name);
 			ASSERT_EXCEPTION(options_loaded, "couldn't load the mod options");
 			m_mod_loaded = true;
@@ -865,7 +865,7 @@ void IBattle::OnSelfLeftBattle()
 	m_players_ready = 0;
 	m_players_sync = 0;
 	m_players_ok = 0;
-	usync().UnSetCurrentMod(); //left battle
+	usync().UnSetCurrentArchive(); //left battle
 }
 
 void IBattle::OnUnitsyncReloaded()

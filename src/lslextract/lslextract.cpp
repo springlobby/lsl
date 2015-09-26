@@ -51,7 +51,7 @@ void GetMapInfo(LSL::StringVector& maps)
 	}
 }
 
-void GetGameInfo()
+void GetGameInfo(LSL::StringVector& games)
 {
 }
 
@@ -68,13 +68,10 @@ int main(int argc, char* argv[])
 	LSL::Util::config().ConfigurePaths(argv[1], argv[2], "");
 	LSL::usync().LoadUnitSyncLib(argv[2]);
 
-	//LSL::StringVector games = LSL::usync().GetModList();
-	//dump(games);
 	LSL::StringVector maps = LSL::usync().GetMapList();
-
-	//dump(maps);
 	GetMapInfo(maps);
-
+	LSL::StringVector games = LSL::usync().GetGameList();
+	GetGameInfo(games);
 	//LSL::usync().
 	LSL::usync().FreeUnitSyncLib();
 }

@@ -43,16 +43,16 @@ public:
 	Unitsync();
 	~Unitsync();
 
-	StringVector GetModList() const;
+	StringVector GetGameList() const;
 	bool GameExists(const std::string& gamename, const std::string& hash = "") const;
-	UnitsyncGame GetMod(const std::string& gamename);
-	UnitsyncGame GetMod(int index);
+	UnitsyncGame GetGame(const std::string& gamename);
+	UnitsyncGame GetGame(int index);
 
-	GameOptions GetModOptions(const std::string& name);
-	StringVector GetModDeps(const std::string& name) const;
+	GameOptions GetGameOptions(const std::string& name);
+	StringVector GetGameDeps(const std::string& name) const;
 
 	StringVector GetMapList() const;
-	StringVector GetModValidMapList(const std::string& gamename) const;
+	StringVector GetGameValidMapList(const std::string& gamename) const;
 	bool MapExists(const std::string& mapname, const std::string& hash = "") const;
 
 	UnitsyncMap GetMap(const std::string& mapname);
@@ -68,7 +68,7 @@ public:
 	bool IsLoaded() const;
 
 	std::string GetSpringVersion() const;
-	void UnSetCurrentMod();
+	void UnSetCurrentArchive();
 
 	StringVector GetAIList(const std::string& gamename) const;
 	StringVector GetAIInfos(int index) const;
@@ -172,7 +172,7 @@ private:
 
 	//! this function returns only the cache path without the file extension,
 	//! the extension itself would be added in the function as needed
-	std::string GetFileCachePath(const std::string& archivename, bool IsMod, bool usehash = true);
+	std::string GetFileCachePath(const std::string& archivename, bool IsGame, bool usehash = true);
 
 	bool _LoadUnitSyncLib(const std::string& unitsyncloc);
 	void _FreeUnitSyncLib();
