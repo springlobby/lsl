@@ -24,7 +24,7 @@ class MostRecentlyUsedCache
 {
 public:
 	//! name parameter might be used to identify stats in dgb output
-	MostRecentlyUsedCache(int max_size, const std::string& name = "")
+	MostRecentlyUsedCache(size_t max_size, const std::string& name = "")
 	    : m_max_size(max_size)
 	    , m_cache_hits(0)
 	    , m_cache_misses(0)
@@ -76,7 +76,7 @@ private:
 	mutable boost::mutex m_lock;
 	std::list<std::string> m_itemnames;
 	std::map<std::string,TValue> m_items;
-	const int m_max_size;
+	const size_t m_max_size;
 	int m_cache_hits;
 	int m_cache_misses;
 	const std::string m_name;
