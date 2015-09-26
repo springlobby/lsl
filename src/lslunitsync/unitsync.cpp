@@ -474,7 +474,12 @@ UnitsyncImage Unitsync::GetSidePicture(const std::string& gamename, const std::s
 		try {
 			img = GetImage(gamename, ImgName + ".png", false);
 		} catch (Exceptions::unitsync& u) {
-			img = GetImage(gamename, ImgName + ".bmp", true);
+		}
+		if (!img.isValid()) {
+			try {
+				img = GetImage(gamename, ImgName + ".bmp", true);
+			} catch (Exceptions::unitsync& u) {
+			}
 		}
 
 		if (img.isValid()) {
