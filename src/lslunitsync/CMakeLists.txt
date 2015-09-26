@@ -1,3 +1,8 @@
+option(ADD_WXCONVERT "add wx convert functions to image lib" OFF)
+
+if (NOT ADD_WXCONVERT)
+	message(FATAL_ERROR "wx not defined")
+endif()
 SET(libUnitsyncSrc
 	"${CMAKE_CURRENT_SOURCE_DIR}/c_api.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/sharedlib.cpp"
@@ -21,6 +26,9 @@ set_source_files_properties(  ${libUnitsyncHeader} PROPERTIES HEADER_FILE_ONLY 1
 FIND_PACKAGE(PNG REQUIRED)
 FIND_PACKAGE(X11 REQUIRED)
 ADD_LIBRARY(lsl-unitsync STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} )
+if(ADD_WXCONVERT)
+	target_compile_definitions(lsl-unitsync PRIVATE -DHAVE_WX)
+endif()
 
 if (UNIX AND NOT MINGW AND NOT APPLE)
 	FIND_LIBRARY(RT_LIBRARY rt)
