@@ -613,10 +613,10 @@ UnitsyncImage Unitsync::GetMinimap(const std::string& mapname, int width, int he
 			img = UnitsyncImage(1, 1);
 		}
 	}
-/*
+
 	if (tiny)
 		m_tiny_minimap_cache.Add(mapname, img);
-*/
+
 	return img;
 }
 
@@ -664,7 +664,7 @@ UnitsyncImage Unitsync::_GetMapImage(const std::string& mapname, const std::stri
 			img = UnitsyncImage(1, 1);
 		}
 	}
-//	m_map_image_cache.Add(mapname + imagename, img);
+	m_map_image_cache.Add(mapname + imagename, img);
 	return img;
 }
 
