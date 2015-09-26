@@ -37,7 +37,7 @@ public:
 		LslDebug("%s - cache hits: %d misses: %d", m_name.c_str(), m_cache_hits, m_cache_misses);
 	}
 
-	void Add(const std::string& name, const TValue img)
+	void Add(const std::string& name, const TValue& img)
 	{
 		boost::mutex::scoped_lock lock(m_lock);
 		if (m_itemnames.size() > m_max_size) {
