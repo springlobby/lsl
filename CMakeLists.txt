@@ -33,8 +33,11 @@ if(NOT DEFINED LIBSPRINGLOBBY_REV)
 endif(NOT DEFINED LIBSPRINGLOBBY_REV)
 
 
-INCLUDE(cmake/package_config.cmake)
-INCLUDE(cmake/sources_list.cmake)
+if(springlobby_SOURCE_DIR)
+	message(STATUS "springlobby build, disabling cpack config")
+else()
+	include(cmake/package_config.cmake)
+endif()
 
 FIND_PACKAGE( PkgConfig )
 
