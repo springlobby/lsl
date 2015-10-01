@@ -367,7 +367,7 @@ bool LSL::OptionsWrapper::setSingleOptionTypeSwitch(const std::string& key, cons
 		case Enum::opt_bool: {
 			const long l_val = Util::FromIntString(value);
 			if (l_val != 1 && l_val != 0) {
-				LslWarning("recieved bool option that is neither 0 or 1");
+				LslWarning("received bool option that is neither 0 or 1");
 				return false;
 			} else
 				(gameoptions.bool_map)[key].value = bool(l_val);
@@ -377,7 +377,7 @@ bool LSL::OptionsWrapper::setSingleOptionTypeSwitch(const std::string& key, cons
 			// test if maxlength isn't exceeded
 			unsigned int max_length = (gameoptions.string_map)[key].max_len;
 			if ((max_length != 0) && (value.length() > max_length)) {
-				LslWarning("recieved string option exceeds max_len");
+				LslWarning("received string option exceeds max_len");
 				return false;
 			} else
 				(gameoptions.string_map)[key].value = value;
