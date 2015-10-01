@@ -44,7 +44,7 @@ public:
 	//! load corresponding options through unitsync calls
 	/*!
 	 * the containers for corresponding flag are recreated and then gets the number of options from unitsync
-	 * and adds them one by one  to the appropiate container
+	 * and adds them one by one  to the appropriate container
 	 * \param flag decides which type of option to load
 	 * \param name Mod/Mapname
 	 * \return true if load successful, false otherwise
@@ -71,7 +71,7 @@ public:
 	 * \return they container section
 	 */
 	LSL::Enum::GameOption GetSection(const std::string& key) const;
-	//! given a vector of key/value pairs sets the appropiate options to new values
+	//! given a vector of key/value pairs sets the appropriate options to new values
 	/*!	Every new value is tested for meeting boundary conditions, type, etc.
 	 * If test fails error is logged and false is returned.
 	 * \param values the std::stringPairVec containing key / new value pairs
