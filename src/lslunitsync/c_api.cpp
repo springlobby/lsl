@@ -871,7 +871,7 @@ UnitsyncLib::StringVector UnitsyncLib::GetAIInfo(int aiIndex)
 	CHECK_FUNCTION(m_get_skirmish_ai_info_count);
 	CHECK_FUNCTION(m_get_description);
 	CHECK_FUNCTION(m_get_info_key);
-	CHECK_FUNCTION(m_get_info_value);
+	CHECK_FUNCTION(m_get_info_value_string);
 
 	StringVector ret;
 	if (!((aiIndex >= 0) && (aiIndex < m_get_skirmish_ai_count())))
@@ -880,7 +880,7 @@ UnitsyncLib::StringVector UnitsyncLib::GetAIInfo(int aiIndex)
 	int infoCount = m_get_skirmish_ai_info_count(aiIndex);
 	for (int i = 0; i < infoCount; i++) {
 		ret.push_back(m_get_info_key(i));
-		ret.push_back(m_get_info_value(i));
+		ret.push_back(m_get_info_value_string(i));
 		ret.push_back(m_get_description(i));
 	}
 	return ret;

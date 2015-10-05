@@ -165,7 +165,6 @@ void UnitsyncFunctionLoader::Basic(UnitsyncLib* s)
 	BIND(GetSkirmishAIInfoCountPtr, "GetSkirmishAIInfoCount", m_get_skirmish_ai_info_count);
 
 	BIND(GetInfoKeyPtr, "GetInfoKey", m_get_info_key);
-	BIND(GetInfoValuePtr, "GetInfoValue", m_get_info_value);
 	BIND(GetInfoDescriptionPtr, "GetInfoDescription", m_get_description);
 
 	BIND(GetInfoTypePtr, "GetInfoType", m_get_info_type);

@@ -476,7 +476,6 @@ private:
 	GetSkirmishAICountPtr m_get_skirmish_ai_count;
 	GetSkirmishAIInfoCountPtr m_get_skirmish_ai_info_count;
 	GetInfoKeyPtr m_get_info_key;
-	GetInfoValuePtr m_get_info_value;
 	GetInfoTypePtr m_get_info_type;
 	GetInfoDescriptionPtr m_get_description;
 	GetInfoValueStringPtr m_get_info_value_string;
