@@ -160,17 +160,9 @@ public:
 	 */
 	UnitsyncImage GetHeightmap(const std::string& mapFileName);
 
-	unsigned int GetPrimaryModChecksum(int index);
 	int GetPrimaryModIndex(const std::string& modName);
-	std::string GetPrimaryModName(int index);
 	int GetPrimaryModCount();
 	std::string GetPrimaryModArchive(int index);
-	std::string GetPrimaryModShortName(int index);
-	std::string GetPrimaryModVersion(int index);
-	std::string GetPrimaryModMutator(int index);
-	std::string GetPrimaryModGame(int index);
-	std::string GetPrimaryModShortGame(int index);
-	std::string GetPrimaryModDescription(int index);
 	int GetPrimaryModArchiveCount(int index);
 	std::string GetPrimaryModArchiveList(int arnr);
 	unsigned int GetPrimaryModChecksumFromName(const std::string& name);
@@ -400,9 +392,7 @@ private:
 	GetInfoMapSizePtr m_get_infomap_size;
 	GetInfoMapPtr m_get_infomap;
 
-	GetPrimaryModChecksumPtr m_get_mod_checksum;
 	GetPrimaryModIndexPtr m_get_mod_index;
-	GetPrimaryModNamePtr m_get_mod_name;
 	GetPrimaryModCountPtr m_get_mod_count;
 	GetPrimaryModArchivePtr m_get_mod_archive;
 
@@ -436,12 +426,6 @@ private:
 	GetMapArchiveNamePtr m_get_map_archive_name;
 	GetMapChecksumFromNamePtr m_get_map_checksum_from_name;
 
-	GetPrimaryModShortNamePtr m_get_primary_mod_short_name;
-	GetPrimaryModVersionPtr m_get_primary_mod_version;
-	GetPrimaryModMutatorPtr m_get_primary_mod_mutator;
-	GetPrimaryModGamePtr m_get_primary_mod_game;
-	GetPrimaryModShortGamePtr m_get_primary_mod_short_game;
-	GetPrimaryModDescriptionPtr m_get_primary_mod_description;
 	GetPrimaryModArchivePtr m_get_primary_mod_archive;
 	GetPrimaryModArchiveCountPtr m_get_primary_mod_archive_count;
 	GetPrimaryModArchiveListPtr m_get_primary_mod_archive_list;

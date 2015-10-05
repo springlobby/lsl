@@ -467,22 +467,11 @@ UnitsyncImage UnitsyncLib::GetHeightmap(const std::string& mapFileName)
 	return img;
 }
 
-unsigned int UnitsyncLib::GetPrimaryModChecksum(int index)
-{
-	InitLib(m_get_mod_checksum);
-	return m_get_mod_checksum(index);
-}
 
 int UnitsyncLib::GetPrimaryModIndex(const std::string& modName)
 {
 	InitLib(m_get_mod_index);
 	return m_get_mod_index(modName.c_str());
-}
-
-std::string UnitsyncLib::GetPrimaryModName(int index)
-{
-	InitLib(m_get_mod_name);
-	return Util::SafeString(m_get_mod_name(index));
 }
 
 int UnitsyncLib::GetPrimaryModCount()
@@ -499,42 +488,6 @@ std::string UnitsyncLib::GetPrimaryModArchive(int index)
 	if (index >= count)
 		LSL_THROW(unitsync, "index out of bounds");
 	return Util::SafeString(m_get_mod_archive(index));
-}
-
-std::string UnitsyncLib::GetPrimaryModShortName(int index)
-{
-	InitLib(m_get_primary_mod_short_name);
-	return Util::SafeString(m_get_primary_mod_short_name(index));
-}
-
-std::string UnitsyncLib::GetPrimaryModVersion(int index)
-{
-	InitLib(m_get_primary_mod_version);
-	return Util::SafeString(m_get_primary_mod_version(index));
-}
-
-std::string UnitsyncLib::GetPrimaryModMutator(int index)
-{
-	InitLib(m_get_primary_mod_mutator);
-	return Util::SafeString(m_get_primary_mod_mutator(index));
-}
-
-std::string UnitsyncLib::GetPrimaryModGame(int index)
-{
-	InitLib(m_get_primary_mod_game);
-	return Util::SafeString(m_get_primary_mod_game(index));
-}
-
-std::string UnitsyncLib::GetPrimaryModShortGame(int index)
-{
-	InitLib(m_get_primary_mod_short_game);
-	return m_get_primary_mod_short_game(index);
-}
-
-std::string UnitsyncLib::GetPrimaryModDescription(int index)
-{
-	InitLib(m_get_primary_mod_description);
-	return Util::SafeString(m_get_primary_mod_description(index));
 }
 
 int UnitsyncLib::GetPrimaryModArchiveCount(int index)

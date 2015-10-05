@@ -190,9 +190,7 @@ void UnitsyncFunctionLoader::Config(UnitsyncLib* s)
 
 void UnitsyncFunctionLoader::Mod(UnitsyncLib* s)
 {
-	BIND(GetPrimaryModChecksumPtr, "GetPrimaryModChecksum", m_get_mod_checksum);
 	BIND(GetPrimaryModIndexPtr, "GetPrimaryModIndex", m_get_mod_index);
-	BIND(GetPrimaryModNamePtr, "GetPrimaryModName", m_get_mod_name);
 	BIND(GetPrimaryModCountPtr, "GetPrimaryModCount", m_get_mod_count);
 	BIND(GetPrimaryModArchivePtr, "GetPrimaryModArchive", m_get_mod_archive);
 	BIND(GetPrimaryModInfoCountPtr, "GetPrimaryModInfoCount", m_get_primary_mod_info_count);
@@ -200,12 +198,6 @@ void UnitsyncFunctionLoader::Mod(UnitsyncLib* s)
 	BIND(GetSideCountPtr, "GetSideCount", m_get_side_count);
 	BIND(GetSideNamePtr, "GetSideName", m_get_side_name);
 
-	BIND(GetPrimaryModShortNamePtr, "GetPrimaryModShortName", m_get_primary_mod_short_name);
-	BIND(GetPrimaryModVersionPtr, "GetPrimaryModVersion", m_get_primary_mod_version);
-	BIND(GetPrimaryModMutatorPtr, "GetPrimaryModMutator", m_get_primary_mod_mutator);
-	BIND(GetPrimaryModGamePtr, "GetPrimaryModGame", m_get_primary_mod_game);
-	BIND(GetPrimaryModShortGamePtr, "GetPrimaryModShortGame", m_get_primary_mod_short_game);
-	BIND(GetPrimaryModDescriptionPtr, "GetPrimaryModDescription", m_get_primary_mod_description);
 	BIND(GetPrimaryModArchivePtr, "GetPrimaryModArchive", m_get_primary_mod_archive);
 	BIND(GetPrimaryModArchiveCountPtr, "GetPrimaryModArchiveCount", m_get_primary_mod_archive_count);
 	BIND(GetPrimaryModArchiveListPtr, "GetPrimaryModArchiveList", m_get_primary_mod_archive_list);
