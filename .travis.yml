@@ -1,18 +1,19 @@
 language: cpp
 compiler:
-#  - clang  # boost is broken: https://svn.boost.org/trac/boost/ticket/6198
+  - clang
   - gcc
 
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test # gcc
   - sudo add-apt-repository -y ppa:george-edison55/precise-backports #cmake
+  - sudo add-apt-repository --yes ppa:boost-latest/ppa
   - sudo apt-get update -q
 
 install:
   - sudo apt-get install gcc-4.7 g++-4.7 cmake cmake-data
 
 before_script:
-  - sudo apt-get install libboost-thread-dev libboost-system-dev libboost-filesystem-dev spring
+  - sudo apt-get install libboost-thread1.55-dev libboost-system1.55-dev libboost-filesystem1.55-dev spring
   - cmake -DBUILD_TESTS=ON .
 script:
   - make && make check
