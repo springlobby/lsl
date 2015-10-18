@@ -251,6 +251,9 @@ UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType* c
 
 UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<unsigned short>& grayscale, int width, int height)
 {
+	assert(width > 0);
+	assert(height > 0);
+
 	PrivateImageType* img_p = NewImagePtr(width, height);
 	PrivateImageType& img = *img_p;
 
