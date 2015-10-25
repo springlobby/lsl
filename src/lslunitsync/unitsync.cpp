@@ -295,6 +295,7 @@ StringVector Unitsync::GetGameValidMapList(const std::string& gamename) const
 
 bool Unitsync::MapExists(const std::string& mapname, const std::string& hash) const
 {
+	assert(!mapname.empty());
 	TRY_LOCK(false)
 	LocalArchivesVector::const_iterator itor = m_maps_list.find(mapname);
 	if (itor == m_maps_list.end())
