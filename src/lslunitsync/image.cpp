@@ -143,7 +143,6 @@ UnitsyncImage::UnitsyncImage(PrivateImageType* ptr)
 
 UnitsyncImage::UnitsyncImage(const UnitsyncImage& other)
 {
-	delete m_data_ptr;
 	m_data_ptr = new PrivateImageType(*other.m_data_ptr);
 }
 
