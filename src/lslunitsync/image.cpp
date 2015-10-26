@@ -169,32 +169,31 @@ UnitsyncImage::PrivateImageType* UnitsyncImage::NewImagePtr(int width, int heigh
 
 UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<unsigned char>& data, int width, int height)
 {
-	PrivateImageType* img_p = NewImagePtr(width, height);
-	PrivateImageType& img = *img_p;
+	UnitsyncImage newimg(width, height);
+	PrivateImageType& img = *newimg.m_data_ptr;
 	cimg_forXY(img, x, y)
 	{
 		img(x, y, 0, 0) = 0;
 		img(x, y, 0, 1) = data[x + (y * width)];
 		img(x, y, 0, 2) = 0;
 	}
-	PrivateImageType* ptr(img_p);
-	return UnitsyncImage(ptr);
+	return newimg;
 }
 
 UnitsyncImage UnitsyncImage::FromVfsFileData(Util::uninitialized_array<char>& data, size_t size,
 					     const std::string& fn, bool useWhiteAsTransparent)
 {
-	PrivateImageType* img_p = new PrivateImageType(100, 100, 1, 4);
+	UnitsyncImage newimg(1,1);
+	PrivateImageType& img = *newimg.m_data_ptr;
 	try {
-		cimg_library::load_mem(data, size, fn, *img_p);
+		cimg_library::load_mem(data, size, fn, img);
 	} catch (std::exception& e) {
 		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, fn.c_str(), e.what());
 	}
-	UnitsyncImage img(img_p);
 	if (useWhiteAsTransparent) {
-		img.MakeTransparent();
+		newimg.MakeTransparent();
 	}
-	return img;
+	return newimg;
 }
 
 UnitsyncImage::UnitsyncImage()
@@ -236,8 +235,8 @@ void UnitsyncImage::Load(const std::string& path) const
 
 UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType* colors, int width, int height)
 {
-	PrivateImageType* img_p = NewImagePtr(width, height);
-	PrivateImageType& img = *img_p;
+	UnitsyncImage newimg(width, height);
+	PrivateImageType& img = *newimg.m_data_ptr;
 	cimg_forXY(img, x, y)
 	{
 		int at = x + (y * width);
@@ -245,8 +244,7 @@ UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType* c
 		img(x, y, 0, 1) = (unsigned char)((((colors[at] >> 5) & 63) / 63.0) * 255.0);
 		img(x, y, 0, 2) = (unsigned char)(((colors[at] & 31) / 31.0) * 255.0);
 	}
-	PrivateImageType* ptr(img_p);
-	return UnitsyncImage(ptr);
+	return newimg;
 }
 
 UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<unsigned short>& grayscale, int width, int height)
