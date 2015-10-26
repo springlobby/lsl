@@ -504,6 +504,7 @@ UnitsyncImage Unitsync::GetImage(const std::string& gamename, const std::string&
 	}
 	Util::uninitialized_array<char> FileContent(FileSize);
 	susynclib().ReadFileVFS(ini, FileContent, FileSize);
+	susynclib().CloseFileVFS(ini);
 	return UnitsyncImage::FromVfsFileData(FileContent, FileSize, image_path, useWhiteAsTransparent);
 }
 
