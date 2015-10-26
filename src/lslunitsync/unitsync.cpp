@@ -622,21 +622,20 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 			break;
 	}
 	assert(!imagename.empty());
+	const std::string cachename = mapname + imagename;
 	const bool rescale = (width > 0) && (height > 0);
 	const bool tiny = (width <= 100 && height <= 100);
 	bool loaded = false;
-	if (tiny && m_tiny_minimap_cache.TryGet(mapname, img)) {
+	if (tiny && m_tiny_minimap_cache.TryGet(cachename, img)) {
 		loaded = img.isValid();
 	}
-	if (!loaded && m_map_image_cache.TryGet(mapname + imagename, img)) {
+	if (!loaded && m_map_image_cache.TryGet(cachename, img)) {
 		loaded = img.isValid();
 	}
 
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + imagename;
-	if (!loaded) {
-		if (Util::FileExists(cachefile)) {
-			img = UnitsyncImage(cachefile);
-		}
+	if (!loaded && Util::FileExists(cachefile)) {
+		img = UnitsyncImage(cachefile);
 		loaded = img.isValid();
 	}
 
@@ -661,7 +660,7 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 		}
 	}
 
-	m_map_image_cache.Add(mapname + imagename, img); //cache before rescale
+	m_map_image_cache.Add(cachename, img); //cache before rescale
 
 	if (rescale && img.isValid()) {
 		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit(lslSize(width, height));
@@ -671,7 +670,7 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	}
 
 	if (tiny) {
-			m_tiny_minimap_cache.Add(mapname + imagename, img);
+			m_tiny_minimap_cache.Add(cachename, img);
 	}
 	return img;
 }
