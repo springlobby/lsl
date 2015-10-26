@@ -52,11 +52,7 @@ void GetGameInfo(LSL::StringVector& games)
 {
 	for(const std::string gamename: games) {
 		lsllogdebug("Extracting %s", gamename.c_str());
-		LSL::StringVector sides = LSL::usync().GetSides(gamename);
-		for(const std::string side: sides) {
-			LSL::usync().GetSidePicture(gamename, side);
-		}
-		LSL::usync().GetGameOptions(gamename);
+		LSL::usync().PrefetchGame(gamename);
 	}
 }
 

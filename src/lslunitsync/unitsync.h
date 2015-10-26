@@ -101,6 +101,7 @@ public:
 
 	/// schedule a map for prefetching
 	void PrefetchMap(const std::string& mapname);
+	void PrefetchGame(const std::string& gamename);
 
 	boost::signals2::connection RegisterEvtHandler(const StringSignalSlotType& handler);
 	void UnregisterEvtHandler(boost::signals2::connection& conn);

@@ -995,6 +995,15 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
 }
 
+void Unitsync::PrefetchGame(const std::string& gamename)
+{
+	StringVector sides = GetSides(gamename);
+	for(const std::string& side: sides){
+		GetSidePicture(gamename, side);
+	}
+	GetUnitsList(gamename);
+}
+
 boost::signals2::connection Unitsync::RegisterEvtHandler(const StringSignalSlotType& handler)
 {
 	return m_async_ops_complete_sig.connect(handler);
