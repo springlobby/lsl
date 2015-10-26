@@ -999,6 +999,7 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 
 void Unitsync::PrefetchGame(const std::string& gamename)
 {
+	assert(!gamename.empty());
 	StringVector sides = GetSides(gamename);
 	for(const std::string& side: sides){
 		GetSidePicture(gamename, side);
