@@ -990,10 +990,10 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 		LslDebug("cache thread not initialized %s", "PrefetchMap");
 		return;
 	}
-	GetMapExAsync(mapname);
-	GetMinimapAsync(mapname, -1, -1);
-	GetMetalmapAsync(mapname, -1, -1);
-	GetHeightmapAsync(mapname, -1, -1);
+	GetMap(mapname);
+	GetScaledMapImage(mapname, IMAGE_MAP);
+	GetScaledMapImage(mapname, IMAGE_METALMAP);
+	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
 }
 
 boost::signals2::connection Unitsync::RegisterEvtHandler(const StringSignalSlotType& handler)

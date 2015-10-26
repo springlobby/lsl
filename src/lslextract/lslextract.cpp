@@ -44,10 +44,7 @@ void GetMapInfo(LSL::StringVector& maps)
 {
 	for(const std::string mapname: maps) {
 		lsllogdebug("Extracting %s", mapname.c_str());
-		LSL::usync().GetMetalmap(mapname, 512, 512);
-		LSL::usync().GetHeightmap(mapname, 512, 512);
-		LSL::usync().GetMinimap(mapname, 512, 512);
-		LSL::usync().GetMap(mapname);
+		LSL::usync().PrefetchMap(mapname);
 	}
 }
 
