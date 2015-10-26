@@ -45,9 +45,9 @@ public:
 	UnitsyncImage(const std::string& filename);
 
 	//! delegates save to cimg library, format is deducted from last path compoment (ie. after the last dot)
-	void Save(const std::string& path) const;
+	bool Save(const std::string& path) const;
 	//! same principle as \ref Save
-	void Load(const std::string& path) const;
+	bool Load(const std::string& path) const;
 
 	/** \name factory functions
    * \brief creating UnitsyncImage from raw data pointers

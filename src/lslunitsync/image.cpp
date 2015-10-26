@@ -199,38 +199,42 @@ UnitsyncImage::UnitsyncImage()
 {
 }
 
-void UnitsyncImage::Save(const std::string& path) const
+bool UnitsyncImage::Save(const std::string& path) const
 {
 	if (!isValid()) {
 		LslError("%s:%d (%s) %s failed, invalid image", __FILE__, __LINE__, __FUNCTION__, path.c_str());
-		return;
+		return false;
 	}
 	FILE* f = Util::lslopen(path, "wb+");
 	if (f == NULL) {
 		LslError("%s:%d (%s) error creating file %s", __FILE__, __LINE__, __FUNCTION__, path.c_str());
-		return;
+		return false;
 	}
 	m_data_ptr->save_png(f);
 	fclose(f);
+	return true;
 }
 
-void UnitsyncImage::Load(const std::string& path) const
+bool UnitsyncImage::Load(const std::string& path) const
 {
 	try {
 		FILE* f = Util::lslopen(path, "rb");
 		if (f == NULL) {
 			LslError("%s:%d (%s) could not open file %s", __FILE__, __LINE__, __FUNCTION__, path.c_str());
-			return;
+			return false;
 		}
 		m_data_ptr->load_png(f);
 		fclose(f);
 	} catch (cimg_library::CImgIOException& c) {
 		m_data_ptr->clear();
 		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, path.c_str(), c.what());
+		return false;
 	} catch (cimg_library::CImgException& c) {
 		m_data_ptr->clear();
 		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, path.c_str(), c.what());
+		return false;
 	}
+	return true;
 }
 
 UnitsyncImage UnitsyncImage::FromMinimapData(const UnitsyncImage::RawDataType* colors, int width, int height)
