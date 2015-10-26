@@ -909,9 +909,9 @@ public:
 	CacheMapImageWorkItem(Unitsync* usync, const std::string& mapname, LSL::ImageType imgtype, int w = -1, int h = -1)
 	    : m_usync(usync)
 	    , m_mapname(mapname)
-	    , m_imgtype(imgtype)
 	    , m_width(w)
 	    , m_height(h)
+	    , m_imgtype(imgtype)
 	{
 		assert(usync != nullptr);
 	}
