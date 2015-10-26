@@ -31,6 +31,7 @@
 #define TRY_LOCK(ret)                                               \
 	boost::mutex::scoped_try_lock lock_criticalsection(m_lock); \
 	if (!lock_criticalsection.owns_lock()) {                    \
+		LslDebug("Lock failed: %s:%d", __FUNCTION__, __LINE__); \
 		return ret;                                         \
 	}
 #else
@@ -459,33 +460,27 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 UnitsyncImage Unitsync::GetSidePicture(const std::string& gamename, const std::string& SideName)
 {
 	assert(!gamename.empty());
-
 	const std::string cachepath = GetFileCachePath(gamename, true, false) + "-side-" + SideName + ".png";
 	UnitsyncImage img;
 	TRY_LOCK(img);
-
-	if (Util::FileExists(cachepath)) {
-		img = UnitsyncImage(cachepath);
+	if (Util::FileExists(cachepath) && img.Load(cachepath)) {
+		return img;
 	}
-
-	if (!img.isValid()) { //image seems invalid, recreate
-		std::string ImgName("SidePics");
-		ImgName += "/";
-		ImgName += boost::to_lower_copy(SideName);
+	const std::string ImgName = "sidepics/" + boost::to_lower_copy(SideName);
+	try {
+		img = GetImage(gamename, ImgName + ".png", false);
+	} catch (Exceptions::unitsync& e) {
+	}
+	if (!img.isValid() || img.GetWidth() < 2 || img.GetHeight() < 2) { //fallback to .bmp when file doesn't exist / is to small
 		try {
-			img = GetImage(gamename, ImgName + ".png", false);
-		} catch (Exceptions::unitsync& u) {
+			img = GetImage(gamename, ImgName + ".bmp", true);
+		} catch (Exceptions::unitsync& e) {
 		}
-		if (!img.isValid()) {
-			try {
-				img = GetImage(gamename, ImgName + ".bmp", true);
-			} catch (Exceptions::unitsync& u) {
-			}
-		}
-
-		if (img.isValid()) {
-			img.Save(cachepath);
-		}
+	}
+	if (img.isValid() && img.GetWidth() > 1 && img.GetWidth() > 1) {
+		img.Save(cachepath);
+	} else {
+		LslWarning("Couldn't extract side picture %s %s", gamename.c_str(), SideName.c_str());
 	}
 	return img;
 }
