@@ -582,12 +582,6 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 	return cache;
 }
 
-UnitsyncImage Unitsync::GetMinimap(const std::string& mapname)
-{
-	assert(!mapname.empty());
-	return _GetMapImage(mapname, ".minimap.png", &UnitsyncLib::GetMinimap);
-}
-
 UnitsyncImage Unitsync::GetMinimap(const std::string& mapname, int width, int height)
 {
 	UnitsyncImage img;
@@ -595,91 +589,89 @@ UnitsyncImage Unitsync::GetMinimap(const std::string& mapname, int width, int he
 	if (mapname.empty()) {
 		return img;
 	}
-
-	const bool tiny = (width <= 100 && height <= 100);
-	if (tiny && m_tiny_minimap_cache.TryGet(mapname, img)) {
-
-		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit(lslSize(width, height));
-		if (image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight()) {
-			img.Rescale(image_size.GetWidth(), image_size.GetHeight());
-		}
-		return img;
-	}
-
-	img = GetMinimap(mapname);
-	// special resizing code because minimap is always square,
-	// and we need to resize it to the correct aspect ratio.
-	if (img.isValid()) {
-		try {
-			MapInfo mapinfo = _GetMapInfoEx(mapname);
-
-			lslSize image_size = lslSize(mapinfo.width, mapinfo.height).MakeFit(lslSize(width, height));
-			img.Rescale(image_size.GetWidth(), image_size.GetHeight());
-		} catch (...) {
-			img = UnitsyncImage(1, 1);
-		}
-	}
-
-	if (tiny)
-		m_tiny_minimap_cache.Add(mapname, img);
-
-	return img;
-}
-
-UnitsyncImage Unitsync::GetMetalmap(const std::string& mapname)
-{
-	return _GetMapImage(mapname, ".metalmap.png", &UnitsyncLib::GetMetalmap);
+	return GetScaledMapImage(mapname, IMAGE_MAP, width, height);
 }
 
 UnitsyncImage Unitsync::GetMetalmap(const std::string& mapname, int width, int height)
 {
 	TRY_LOCK(UnitsyncImage())
-	return _GetScaledMapImage(mapname, &Unitsync::GetMetalmap, width, height);
+	return GetScaledMapImage(mapname, IMAGE_METALMAP, width, height);
 }
 
-UnitsyncImage Unitsync::GetHeightmap(const std::string& mapname)
-{
-	return _GetMapImage(mapname, ".heightmap.png", &UnitsyncLib::GetHeightmap);
-}
 
 UnitsyncImage Unitsync::GetHeightmap(const std::string& mapname, int width, int height)
 {
 	TRY_LOCK(UnitsyncImage())
-	return _GetScaledMapImage(mapname, &Unitsync::GetHeightmap, width, height);
+	return GetScaledMapImage(mapname, IMAGE_HEIGHTMAP, width, height);
 }
 
-UnitsyncImage Unitsync::_GetMapImage(const std::string& mapname, const std::string& imagename, UnitsyncImage (UnitsyncLib::*loadMethod)(const std::string&))
+
+UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width, int height)
 {
 	UnitsyncImage img;
-	if (m_map_image_cache.TryGet(mapname + imagename, img)) {
-		return img;
+    std::string imagename;
+	switch(imgtype) {
+		case IMAGE_MAP:
+            imagename = ".minimap.png";
+			break;
+		case IMAGE_METALMAP:
+			imagename = ".metalmap.png";
+			break;
+		case IMAGE_HEIGHTMAP:
+            imagename = ".heightmap.png";
+			break;
+	}
+	assert(!imagename.empty());
+	const bool rescale = (width > 0) && (height > 0);
+	const bool tiny = (width <= 100 && height <= 100);
+	bool loaded = false;
+	if (tiny && m_tiny_minimap_cache.TryGet(mapname, img)) {
+		loaded = img.isValid();
+	}
+	if (!loaded && m_map_image_cache.TryGet(mapname + imagename, img)) {
+		loaded = img.isValid();
 	}
 
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + imagename;
-	if (Util::FileExists(cachefile)) {
-		img = UnitsyncImage(cachefile);
+	if (!loaded) {
+		if (Util::FileExists(cachefile)) {
+			img = UnitsyncImage(cachefile);
+		}
+		loaded = img.isValid();
 	}
 
-	if (!img.isValid()) { //image seems invalid, recreate
+	if (!loaded) { //image seems invalid, recreate
 		try {
 			//convert and save
-			img = (susynclib().*loadMethod)(mapname);
+			switch(imgtype) {
+				case IMAGE_MAP:
+					img = susynclib().GetMinimap(mapname);
+					break;
+				case IMAGE_METALMAP:
+					img = susynclib().GetMetalmap(mapname);
+					break;
+				case IMAGE_HEIGHTMAP:
+					img = susynclib().GetHeightmap(mapname);
+					break;
+			}
 			img.Save(cachefile);
 		} catch (...) { //we failed horrible, use dummy image
 			//dummy image
 			img = UnitsyncImage(1, 1);
 		}
 	}
-	m_map_image_cache.Add(mapname + imagename, img);
-	return img;
-}
 
-UnitsyncImage Unitsync::_GetScaledMapImage(const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int width, int height)
-{
-	UnitsyncImage img = (this->*loadMethod)(mapname);
-	if (img.isValid()) {
+	m_map_image_cache.Add(mapname + imagename, img); //cache before rescale
+
+	if (rescale && img.isValid()) {
 		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit(lslSize(width, height));
-		img.Rescale(image_size.GetWidth(), image_size.GetHeight());
+		if (rescale && (image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight())) {
+			img.Rescale(image_size.GetWidth(), image_size.GetHeight());
+		}
+	}
+
+	if (tiny) {
+			m_tiny_minimap_cache.Add(mapname + imagename, img);
 	}
 	return img;
 }
@@ -903,118 +895,51 @@ std::string Unitsync::GetArchivePath(const std::string& name) const
 
 namespace
 {
-typedef UnitsyncImage (Unitsync::*LoadMethodPtr)(const std::string&);
-typedef UnitsyncImage (Unitsync::*ScaledLoadMethodPtr)(const std::string&, int, int);
-
-class CacheMapWorkItem : public WorkItem
+class CacheMapImageWorkItem : public WorkItem
 {
 public:
 	Unitsync* m_usync;
 	std::string m_mapname;
-	LoadMethodPtr m_loadMethod;
 
 	void Run()
 	{
-		(m_usync->*m_loadMethod)(m_mapname);
+		m_usync->GetScaledMapImage(m_mapname, m_imgtype, m_width, m_height);
+		m_usync->PostEvent(m_mapname);
 	}
-
-	CacheMapWorkItem(Unitsync* usync, const std::string& mapname, LoadMethodPtr loadMethod)
+	CacheMapImageWorkItem(Unitsync* usync, const std::string& mapname, LSL::ImageType imgtype, int w = -1, int h = -1)
 	    : m_usync(usync)
-	    , m_mapname(mapname.c_str())
-	    , m_loadMethod(loadMethod)
+	    , m_mapname(mapname)
+	    , m_imgtype(imgtype)
+	    , m_width(w)
+	    , m_height(h)
 	{
+		assert(usync != nullptr);
 	}
+private:
+	int m_width;
+	int m_height;
+	LSL::ImageType m_imgtype;
+	CacheMapImageWorkItem(){}
 };
 
-class GetMapImageAsyncResult : public WorkItem // TODO: rename
+class GetMapExAsyncWorkItem : public WorkItem
 {
 public:
 	void Run()
 	{
-		try {
-			RunCore();
-		} catch (...) {
-			// Event without mapname means some async job failed.
-			// This is sufficient for now, we just need symmetry between
-			// number of initiated async jobs and number of finished/failed
-			// async jobs.
-			m_mapname = std::string();
-		}
-		PostEvent();
-	}
-
-protected:
-	std::string m_mapname;
-	Unitsync* m_usync;
-
-	GetMapImageAsyncResult(Unitsync* usync, const std::string& mapname, int evtId)
-	    : m_mapname(mapname.c_str())
-	    , m_usync(usync)
-	{
-	}
-
-private:
-	void PostEvent()
-	{
+		m_usync->GetMap(m_mapname);
 		m_usync->PostEvent(m_mapname);
 	}
 
-	virtual void RunCore() = 0;
+	GetMapExAsyncWorkItem(Unitsync* usync, const std::string& mapname):
+	    m_usync(usync),
+		m_mapname(mapname)
+	{
+	}
+private:
+	Unitsync* m_usync;
+	std::string m_mapname;
 };
-
-class GetMapImageAsyncWorkItem : public GetMapImageAsyncResult
-{
-public:
-	void RunCore()
-	{
-		(m_usync->*m_loadMethod)(m_mapname);
-	}
-
-	LoadMethodPtr m_loadMethod;
-
-	GetMapImageAsyncWorkItem(Unitsync* usync, const std::string& mapname, LoadMethodPtr loadMethod)
-	    : GetMapImageAsyncResult(usync, mapname, ASYNC_MAP_IMAGE_EVT)
-	    , m_loadMethod(loadMethod)
-	{
-	}
-};
-
-class GetScaledMapImageAsyncWorkItem : public GetMapImageAsyncResult
-{
-public:
-	void RunCore()
-	{
-		(m_usync->*m_loadMethod)(m_mapname, m_width, m_height);
-	}
-
-	int m_width;
-	int m_height;
-	ScaledLoadMethodPtr m_loadMethod;
-
-	GetScaledMapImageAsyncWorkItem(Unitsync* usync, const std::string& mapname, int w, int h, ScaledLoadMethodPtr loadMethod)
-	    : GetMapImageAsyncResult(usync, mapname, ASYNC_MAP_IMAGE_SCALED_EVT)
-	    , m_width(w)
-	    , m_height(h)
-	    , m_loadMethod(loadMethod)
-	{
-	}
-};
-
-class GetMapExAsyncWorkItem : public GetMapImageAsyncResult
-{
-public:
-	void RunCore()
-	{
-		m_usync->GetMap(m_mapname);
-	}
-
-	GetMapExAsyncWorkItem(Unitsync* usync, const std::string& mapname)
-	    : GetMapImageAsyncResult(usync, mapname, ASYNC_MAP_EX_EVT)
-	{
-	}
-};
-}
-
 
 class LoadUnitSyncLibAsyncWorkItem : public WorkItem
 {
@@ -1043,6 +968,7 @@ public:
 	{
 	}
 };
+}
 
 
 void Unitsync::PrefetchMap(const std::string& mapname)
@@ -1056,23 +982,18 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	// 50% hits without, 80% hits with this code.  (cache size 20 images)
 	assert(!mapname.empty());
 
-	const int length = std::max(0, int(mapname.length()) - 4);
-	const int hash = (mapname[length * 1 / 4] << 16) | (mapname[length * 2 / 4] << 8) | mapname[length * 3 / 4];
-	const int priority = -hash;
+//	const int length = std::max(0, int(mapname.length()) - 4);
+//	const int hash = (mapname[length * 1 / 4] << 16) | (mapname[length * 2 / 4] << 8) | mapname[length * 3 / 4];
+//	const int priority = -hash;
 
 	if (!m_cache_thread) {
 		LslDebug("cache thread not initialized %s", "PrefetchMap");
 		return;
 	}
-	{
-		CacheMapWorkItem* work;
-
-		work = new CacheMapWorkItem(this, mapname, &Unitsync::GetMetalmap);
-		m_cache_thread->DoWork(work, priority);
-
-		work = new CacheMapWorkItem(this, mapname, &Unitsync::GetHeightmap);
-		m_cache_thread->DoWork(work, priority);
-	}
+	GetMapExAsync(mapname);
+	GetMinimapAsync(mapname, -1, -1);
+	GetMetalmapAsync(mapname, -1, -1);
+	GetHeightmapAsync(mapname, -1, -1);
 }
 
 boost::signals2::connection Unitsync::RegisterEvtHandler(const StringSignalSlotType& handler)
@@ -1090,25 +1011,6 @@ void Unitsync::PostEvent(const std::string& evt)
 	m_async_ops_complete_sig(evt);
 }
 
-void Unitsync::_GetMapImageAsync(const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&))
-{
-	if (mapname.empty())
-		return;
-	if (!m_cache_thread) {
-		LslDebug("cache thread not initialised -- %s", mapname.c_str());
-		return;
-	}
-	GetMapImageAsyncWorkItem* work;
-	work = new GetMapImageAsyncWorkItem(this, mapname, loadMethod);
-	m_cache_thread->DoWork(work, 100);
-}
-
-void Unitsync::GetMinimapAsync(const std::string& mapname)
-{
-	assert(!mapname.empty());
-	_GetMapImageAsync(mapname, &Unitsync::GetMinimap);
-}
-
 void Unitsync::GetMinimapAsync(const std::string& mapname, int width, int height)
 {
 	if (mapname.empty())
@@ -1117,33 +1019,23 @@ void Unitsync::GetMinimapAsync(const std::string& mapname, int width, int height
 		LslError("cache thread not initialised");
 		return;
 	}
-	GetScaledMapImageAsyncWorkItem* work;
-	work = new GetScaledMapImageAsyncWorkItem(this, mapname, width, height, &Unitsync::GetMinimap);
+	CacheMapImageWorkItem* work = new CacheMapImageWorkItem(this, mapname, IMAGE_MAP, width, height);
 	m_cache_thread->DoWork(work, 100);
 }
 
-void Unitsync::GetMetalmapAsync(const std::string& mapname)
+
+void Unitsync::GetMetalmapAsync(const std::string& mapname, int width, int height)
 {
 	assert(!mapname.empty());
-	_GetMapImageAsync(mapname, &Unitsync::GetMetalmap);
+	CacheMapImageWorkItem* work = new CacheMapImageWorkItem(this, mapname, IMAGE_METALMAP, width, height);
+	m_cache_thread->DoWork(work, 100);
 }
 
-void Unitsync::GetMetalmapAsync(const std::string& mapname, int /*width*/, int /*height*/)
+void Unitsync::GetHeightmapAsync(const std::string& mapname, int width, int height)
 {
 	assert(!mapname.empty());
-	GetMetalmapAsync(mapname);
-}
-
-void Unitsync::GetHeightmapAsync(const std::string& mapname)
-{
-	assert(!mapname.empty());
-	_GetMapImageAsync(mapname, &Unitsync::GetHeightmap);
-}
-
-void Unitsync::GetHeightmapAsync(const std::string& mapname, int /*width*/, int /*height*/)
-{
-	assert(!mapname.empty());
-	GetHeightmapAsync(mapname);
+	CacheMapImageWorkItem* work = new CacheMapImageWorkItem(this, mapname, IMAGE_HEIGHTMAP, width, height);
+	m_cache_thread->DoWork(work, 100);
 }
 
 void Unitsync::GetMapExAsync(const std::string& mapname)

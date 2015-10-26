@@ -30,6 +30,12 @@ class WorkerThread;
 extern const wxEventType UnitSyncAsyncOperationCompletedEvt;
 #endif
 
+enum ImageType {
+	IMAGE_MAP = 0,
+	IMAGE_METALMAP,
+	IMAGE_HEIGHTMAP,
+};
+
 class Unitsync : public boost::noncopyable
 {
 private:
@@ -116,11 +122,11 @@ public:
 	void GetMetalmapAsync(const std::string& mapname, int width, int height);
 	void GetHeightmapAsync(const std::string& mapname, int width, int height);
 
+    //! get a map image, if width/height is set, scale it to the given dimensions
+	UnitsyncImage GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width = -1, int height = -1);
+
 private:
 	void ClearCache();
-	void GetMinimapAsync(const std::string& mapname);
-	void GetMetalmapAsync(const std::string& mapname);
-	void GetHeightmapAsync(const std::string& mapname);
 
 	/// fetch all errors from unitsync and push to our error handling
 	void FetchUnitsyncErrors(const std::string& prefix);
@@ -180,11 +186,6 @@ private:
 	MapInfo _GetMapInfoEx(const std::string& mapname);
 
 	void PopulateArchiveList();
-
-	UnitsyncImage _GetMapImage(const std::string& mapname, const std::string& imagename, UnitsyncImage (UnitsyncLib::*loadMethod)(const std::string&));
-	UnitsyncImage _GetScaledMapImage(const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&), int width, int height);
-
-	void _GetMapImageAsync(const std::string& mapname, UnitsyncImage (Unitsync::*loadMethod)(const std::string&));
 
 	friend Unitsync& usync();
 
