@@ -143,6 +143,7 @@ UnitsyncImage::UnitsyncImage(PrivateImageType* ptr)
 
 UnitsyncImage::UnitsyncImage(const UnitsyncImage& other)
 {
+	delete m_data_ptr;
 	m_data_ptr = new PrivateImageType(*other.m_data_ptr);
 }
 
@@ -150,9 +151,7 @@ UnitsyncImage::UnitsyncImage(const UnitsyncImage& other)
 UnitsyncImage::~UnitsyncImage()
 {
 	if (m_data_ptr != nullptr) {
-		if (isValid()) {
-			delete m_data_ptr;
-		}
+		delete m_data_ptr;
 		m_data_ptr = nullptr;
 	}
 }
@@ -197,7 +196,7 @@ UnitsyncImage UnitsyncImage::FromVfsFileData(Util::uninitialized_array<char>& da
 }
 
 UnitsyncImage::UnitsyncImage()
-    : m_data_ptr(NewImagePtr())
+    : m_data_ptr(NewImagePtr(1,1))
 {
 }
 
@@ -252,9 +251,8 @@ UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<u
 	assert(width > 0);
 	assert(height > 0);
 
-	PrivateImageType* img_p = NewImagePtr(width, height);
-	PrivateImageType& img = *img_p;
-
+	UnitsyncImage newimg(width, height);
+	PrivateImageType& img = *newimg.m_data_ptr;
 	// the height is mapped to this "palette" of colors
 	// the colors are linearly interpolated
 	const unsigned char points[][3] = {
@@ -280,7 +278,6 @@ UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<u
 
 	// prevent division by zero -- heightmap wouldn't contain any information anyway
 	if (min == max) {
-		delete img_p;
 		return UnitsyncImage(1, 1);
 	}
 
@@ -304,8 +301,7 @@ UnitsyncImage UnitsyncImage::FromHeightmapData(const Util::uninitialized_array<u
 		}
 	}
 
-	PrivateImageType* ptr(img_p);
-	return UnitsyncImage(ptr);
+	return newimg;
 }
 
 int UnitsyncImage::GetHeight() const

@@ -127,7 +127,7 @@ public:
 	}
 	~uninitialized_array()
 	{
-		operator delete[](elems);
+		delete[] elems;
 	}
 
 	/// this opens the door to basically any operation allowed on C style arrays

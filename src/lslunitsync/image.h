@@ -79,7 +79,7 @@ public:
 private:
 	UnitsyncImage(PrivateImageType* ptr);
 	static PrivateImageType* NewImagePtr(int width = 0, int height = 0);
-	PrivateImageType* m_data_ptr;
+	PrivateImageType* m_data_ptr = nullptr;
 };
 
 } //namespace LSL
