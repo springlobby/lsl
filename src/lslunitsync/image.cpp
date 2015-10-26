@@ -225,8 +225,10 @@ void UnitsyncImage::Load(const std::string& path) const
 		m_data_ptr->load_png(f);
 		fclose(f);
 	} catch (cimg_library::CImgIOException& c) {
+		m_data_ptr->clear();
 		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, path.c_str(), c.what());
 	} catch (cimg_library::CImgException& c) {
+		m_data_ptr->clear();
 		LslError("%s:%d (%s) %s failed: %s", __FILE__, __LINE__, __FUNCTION__, path.c_str(), c.what());
 	}
 }
