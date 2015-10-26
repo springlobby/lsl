@@ -494,10 +494,11 @@ UnitsyncImage Unitsync::GetImage(const std::string& gamename, const std::string&
 {
 	assert(!gamename.empty());
 	susynclib().SetCurrentMod(gamename);
-	int ini = susynclib().OpenFileVFS(image_path);
-	if (!ini)
+	const int ini = susynclib().OpenFileVFS(image_path);
+	if (!ini) {
 		LSL_THROWF(unitsync, "%s: cannot find image %s\n", gamename.c_str(), image_path.c_str());
-	int FileSize = susynclib().FileSizeVFS(ini);
+	}
+	const int FileSize = susynclib().FileSizeVFS(ini);
 	if (FileSize == 0) {
 		susynclib().CloseFileVFS(ini);
 		LSL_THROWF(unitsync, "%s: image has size 0 %s\n", gamename.c_str(), image_path.c_str());
