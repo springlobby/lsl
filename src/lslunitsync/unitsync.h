@@ -220,6 +220,11 @@ public:
 
 	~UnitSyncAsyncOps()
 	{
+		Disconnect();
+	}
+
+	void Disconnect()
+	{
 		usync().UnregisterEvtHandler(m_evtHandler_connection);
 	}
 
