@@ -784,9 +784,9 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 		return ret;
 
 	if (IsMod) {
-		ret += "-" + m_mods_list[name];
+		ret += std::string("-") + m_mods_list[name];
 	} else {
-		ret += "-" + m_maps_list[name];
+		ret += std::string("-") + m_maps_list[name];
 	}
 	return ret;
 }
