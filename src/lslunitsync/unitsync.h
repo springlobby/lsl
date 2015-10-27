@@ -227,6 +227,10 @@ public:
 	{
 		usync().UnregisterEvtHandler(m_evtHandler_connection);
 	}
+	bool Connected()
+	{
+		return m_evtHandler_connection.connected();
+	}
 
 	void GetMinimap(const std::string& mapname, int w, int h)
 	{
