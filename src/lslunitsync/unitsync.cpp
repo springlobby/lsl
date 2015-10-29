@@ -579,44 +579,70 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 	return cache;
 }
 
-UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width, int height)
+static std::string GetImageName(ImageType imgtype)
 {
-	UnitsyncImage img;
-    std::string imagename;
 	switch(imgtype) {
 		case IMAGE_MAP:
-            imagename = ".minimap.png";
-			break;
+            return ".minimap.png";
+		case IMAGE_MAP_THUMB:
+            return ".minimap_thumb.png";
 		case IMAGE_METALMAP:
-			imagename = ".metalmap.png";
-			break;
+			return ".metalmap.png";
 		case IMAGE_HEIGHTMAP:
-            imagename = ".heightmap.png";
-			break;
+            return ".heightmap.png";
 	}
-	assert(!imagename.empty());
-	const std::string cachename = mapname + imagename;
-	const bool rescale = (width > 0) && (height > 0);
-	const bool tiny = (width <= 100 && height <= 100);
-	bool loaded = false;
-	if (tiny && m_tiny_minimap_cache.TryGet(cachename, img)) {
-		loaded = img.isValid();
+	assert(false);
+}
+
+bool Unitsync::GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, ImageType imgtype, int width, int height)
+{
+	const bool tiny = (width <= 98 && height <= 98);
+
+	if (tiny && m_tiny_minimap_cache.TryGet(cachefile, img) && img.isValid()) {
+		return true;
 	}
-	if (!loaded && m_map_image_cache.TryGet(cachename, img)) {
-		loaded = img.isValid();
+	if (m_map_image_cache.TryGet(cachefile, img) && img.isValid()) {
+		return true;
 	}
 
-	const std::string cachefile = GetFileCachePath(mapname, false, false) + imagename;
-	if (!loaded && Util::FileExists(cachefile)) {
+	if (tiny && Util::FileExists(tncachefile)) {
+		img = UnitsyncImage(tncachefile);
+		if (img.isValid())
+			return true;
+	}
+
+	if (Util::FileExists(cachefile)) {
 		img = UnitsyncImage(cachefile);
-		loaded = img.isValid();
+		if (img.isValid())
+			return true;
+	}
+	return false;
+}
+
+UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width, int height)
+{
+	assert(imgtype != IMAGE_MAP_THUMB || width == 98); //FIXME: allow to set by config
+	assert(imgtype != IMAGE_MAP_THUMB || height == 98);
+
+	UnitsyncImage img;
+	ImageType fullsize = imgtype;
+	if (imgtype == IMAGE_MAP_THUMB) {
+        fullsize = IMAGE_MAP;
 	}
 
+	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(fullsize);
+	const std::string tncachefile = GetFileCachePath(mapname, false, false) + GetImageName(IMAGE_MAP_THUMB);
+
+	const bool rescale = (width > 0) && (height > 0);
+	const bool loaded = GetImageFromCache(cachefile, tncachefile, img, imgtype, width, height);
+
+	bool dummy = false;
 	if (!loaded) { //image seems invalid, recreate
 		try {
 			//convert and save
 			switch(imgtype) {
 				case IMAGE_MAP:
+				case IMAGE_MAP_THUMB:
 					img = susynclib().GetMinimap(mapname);
 					break;
 				case IMAGE_METALMAP:
@@ -630,20 +656,23 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 		} catch (...) { //we failed horrible, use dummy image
 			//dummy image
 			img = UnitsyncImage(1, 1);
+			dummy = true;
 		}
 	}
-
-	m_map_image_cache.Add(cachename, img); //cache before rescale
+	if (imgtype != IMAGE_MAP_THUMB) {
+		m_map_image_cache.Add(cachefile, img); //cache before rescale
+	}
 
 	if (rescale && img.isValid()) {
 		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit(lslSize(width, height));
-		if (rescale && (image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight())) {
+		if ((image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight())) {
 			img.Rescale(image_size.GetWidth(), image_size.GetHeight());
 		}
 	}
 
-	if (tiny) {
-			m_tiny_minimap_cache.Add(cachename, img);
+	if ((imgtype == IMAGE_MAP_THUMB) && !dummy) {
+		img.Save(tncachefile);
+		m_tiny_minimap_cache.Add(cachefile, img);
 	}
 	return img;
 }
