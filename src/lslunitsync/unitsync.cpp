@@ -652,6 +652,9 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 					img = susynclib().GetHeightmap(mapname);
 					break;
 			}
+			const UnitsyncMap mapinfo = GetMap(mapname);
+			lslSize image_size = lslSize(mapinfo.info.width, mapinfo.info.height).MakeFit(lslSize(img.GetWidth(), img.GetHeight()));
+			img.Rescale(image_size.GetWidth(), image_size.GetHeight()); //rescale to keep aspect ratio
 			img.Save(cachefile);
 		} catch (...) { //we failed horrible, use dummy image
 			//dummy image
@@ -664,7 +667,10 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	}
 
 	if (rescale && img.isValid()) {
-		img.Rescale(width, height);
+		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit(lslSize(width, height));
+		if ((image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight())) {
+			img.Rescale(image_size.GetWidth(), image_size.GetHeight());
+		}
 	}
 
 	if ((imgtype == IMAGE_MAP_THUMB) && !dummy) {

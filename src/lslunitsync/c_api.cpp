@@ -431,7 +431,6 @@ UnitsyncImage UnitsyncLib::GetMinimap(const std::string& mapFileName)
 	if (!colors)
 		LSL_THROWF(unitsync, "Get minimap failed %s", mapFileName.c_str());
 	UnitsyncImage img = UnitsyncImage::FromMinimapData(colors, width, height);
-	img.RescaleIfBigger();
 	return img;
 }
 
