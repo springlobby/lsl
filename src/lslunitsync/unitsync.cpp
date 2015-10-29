@@ -664,7 +664,7 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	}
 
 	if (rescale && img.isValid()) {
-		img.Rescale(width, width);
+		img.Rescale(width, height);
 	}
 
 	if ((imgtype == IMAGE_MAP_THUMB) && !dummy) {
