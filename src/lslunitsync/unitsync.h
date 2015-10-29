@@ -83,13 +83,6 @@ public:
 
 	StringVector GetUnitsList(const std::string& gamename);
 
-	/// get minimap rescaled to given width x height
-	UnitsyncImage GetMinimap(const std::string& mapname, int width, int height);
-	/// get metalmap rescaled to given width x height
-	UnitsyncImage GetMetalmap(const std::string& mapname, int width, int height);
-	/// get heightmap rescaled to given width x height
-	UnitsyncImage GetHeightmap(const std::string& mapname, int width, int height);
-
 	bool ReloadUnitSyncLib();
 
 	void SetSpringDataPath(const std::string& path);
@@ -119,9 +112,7 @@ public:
 	std::string GetConfigFilePath();
 
 	void GetMapExAsync(const std::string& mapname);
-	void GetMinimapAsync(const std::string& mapname, int width, int height);
-	void GetMetalmapAsync(const std::string& mapname, int width, int height);
-	void GetHeightmapAsync(const std::string& mapname, int width, int height);
+	void GetMapImageAsync(const std::string& mapname, ImageType imgtype, int width, int height);
 
     //! get a map image, if width/height is set, scale it to the given dimensions
 	UnitsyncImage GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width = -1, int height = -1);
@@ -232,21 +223,9 @@ public:
 		return m_evtHandler_connection.connected();
 	}
 
-	void GetMinimap(const std::string& mapname, int w, int h)
+	void GetMapImageAsync(const std::string& mapname, ImageType imgtype, int width, int height)
 	{
-		usync().GetMinimapAsync(mapname, w, h);
-	}
-	void GetMetalmap(const std::string& mapname, int w, int h)
-	{
-		usync().GetMetalmapAsync(mapname, w, h);
-	}
-	void GetHeightmap(const std::string& mapname, int w, int h)
-	{
-		usync().GetHeightmapAsync(mapname, w, h);
-	}
-	void GetMap(const std::string& mapname)
-	{
-		usync().GetMapExAsync(mapname);
+		usync().GetMapImageAsync(mapname, imgtype, width, height);
 	}
 
 private:

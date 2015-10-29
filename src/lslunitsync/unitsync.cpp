@@ -579,30 +579,6 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 	return cache;
 }
 
-UnitsyncImage Unitsync::GetMinimap(const std::string& mapname, int width, int height)
-{
-	UnitsyncImage img;
-	TRY_LOCK(img)
-	if (mapname.empty()) {
-		return img;
-	}
-	return GetScaledMapImage(mapname, IMAGE_MAP, width, height);
-}
-
-UnitsyncImage Unitsync::GetMetalmap(const std::string& mapname, int width, int height)
-{
-	TRY_LOCK(UnitsyncImage())
-	return GetScaledMapImage(mapname, IMAGE_METALMAP, width, height);
-}
-
-
-UnitsyncImage Unitsync::GetHeightmap(const std::string& mapname, int width, int height)
-{
-	TRY_LOCK(UnitsyncImage())
-	return GetScaledMapImage(mapname, IMAGE_HEIGHTMAP, width, height);
-}
-
-
 UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width, int height)
 {
 	UnitsyncImage img;
@@ -1017,7 +993,7 @@ void Unitsync::PostEvent(const std::string& evt)
 	m_async_ops_complete_sig(evt);
 }
 
-void Unitsync::GetMinimapAsync(const std::string& mapname, int width, int height)
+void Unitsync::GetMapImageAsync(const std::string& mapname, ImageType imgtype, int width, int height)
 {
 	if (mapname.empty())
 		return;
@@ -1025,22 +1001,7 @@ void Unitsync::GetMinimapAsync(const std::string& mapname, int width, int height
 		LslError("cache thread not initialised");
 		return;
 	}
-	CacheMapImageWorkItem* work = new CacheMapImageWorkItem(this, mapname, IMAGE_MAP, width, height);
-	m_cache_thread->DoWork(work, 100);
-}
-
-
-void Unitsync::GetMetalmapAsync(const std::string& mapname, int width, int height)
-{
-	assert(!mapname.empty());
-	CacheMapImageWorkItem* work = new CacheMapImageWorkItem(this, mapname, IMAGE_METALMAP, width, height);
-	m_cache_thread->DoWork(work, 100);
-}
-
-void Unitsync::GetHeightmapAsync(const std::string& mapname, int width, int height)
-{
-	assert(!mapname.empty());
-	CacheMapImageWorkItem* work = new CacheMapImageWorkItem(this, mapname, IMAGE_HEIGHTMAP, width, height);
+	CacheMapImageWorkItem* work = new CacheMapImageWorkItem(this, mapname, imgtype, width, height);
 	m_cache_thread->DoWork(work, 100);
 }
 
