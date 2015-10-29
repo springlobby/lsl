@@ -187,7 +187,7 @@ private:
 	bool GetCacheFile(const std::string& path, StringVector& ret) const;
 	//! write a file where each element of the array is a line
 	void SetCacheFile(const std::string& path, const StringVector& data);
-	bool GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, ImageType imgtype, int width, int height);
+	bool GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, int width, int height);
 };
 
 Unitsync& usync();

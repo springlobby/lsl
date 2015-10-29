@@ -594,7 +594,7 @@ static std::string GetImageName(ImageType imgtype)
 	assert(false);
 }
 
-bool Unitsync::GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, ImageType imgtype, int width, int height)
+bool Unitsync::GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, int width, int height)
 {
 	const bool tiny = (width <= 98 && height <= 98);
 
@@ -634,7 +634,7 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	const std::string tncachefile = GetFileCachePath(mapname, false, false) + GetImageName(IMAGE_MAP_THUMB);
 
 	const bool rescale = (width > 0) && (height > 0);
-	const bool loaded = GetImageFromCache(cachefile, tncachefile, img, imgtype, width, height);
+	const bool loaded = GetImageFromCache(cachefile, tncachefile, img, width, height);
 
 	bool dummy = false;
 	if (!loaded) { //image seems invalid, recreate
@@ -664,10 +664,7 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	}
 
 	if (rescale && img.isValid()) {
-		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit(lslSize(width, height));
-		if ((image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight())) {
-			img.Rescale(image_size.GetWidth(), image_size.GetHeight());
-		}
+		img.Rescale(width, width);
 	}
 
 	if ((imgtype == IMAGE_MAP_THUMB) && !dummy) {
