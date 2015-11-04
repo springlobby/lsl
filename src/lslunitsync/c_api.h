@@ -137,10 +137,9 @@ public:
 
 	/**
 	 * @brief Get information about a map.
-	 * @param version will get author if >=1.
 	 * @note Throws assert_exception if unsuccessful.
 	 */
-	MapInfo GetMapInfoEx(int index, int version);
+	MapInfo GetMapInfoEx(int index);
 
 	/**
 	 * @brief Get minimap.
@@ -390,7 +389,6 @@ private:
 	GetMapPosCountPtr m_get_map_pos_count;
 	GetMapPosXPtr m_get_map_pos_x;
 	GetMapPosZPtr m_get_map_pos_z;
-	GetMapInfoExPtr m_get_map_info_ex;
 	GetMinimapPtr m_get_minimap;
 	GetInfoMapSizePtr m_get_infomap_size;
 	GetInfoMapPtr m_get_infomap;

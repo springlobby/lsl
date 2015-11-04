@@ -721,7 +721,7 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 		const int index = Util::IndexInSequence(m_unsorted_map_array, mapname);
 		ASSERT_EXCEPTION(index >= 0, "Map not found");
 
-		info = susynclib().GetMapInfoEx(index, 1);
+		info = susynclib().GetMapInfoEx(index);
 
 		cache.push_back(info.author);
 		cache.push_back(Util::ToFloatString(info.tidalStrength));

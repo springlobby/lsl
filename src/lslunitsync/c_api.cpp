@@ -238,21 +238,6 @@ bool UnitsyncLib::VersionSupports(LSL::GameFeature feature) const
 	}
 }
 
-void UnitsyncLib::_ConvertSpringMapInfo(const SpringMapInfo& in, MapInfo& out)
-{
-	out.author = in.author;
-	out.description = in.description;
-	out.extractorRadius = in.extractorRadius;
-	out.gravity = in.gravity;
-	out.tidalStrength = in.tidalStrength;
-	out.maxMetal = in.maxMetal;
-	out.minWind = in.minWind;
-	out.maxWind = in.maxWind;
-	out.width = in.width;
-	out.height = in.height;
-	out.positions = std::vector<StartPos>(in.positions, in.positions + in.posCount);
-}
-
 void UnitsyncLib::SetCurrentMod(const std::string& gamename)
 {
 	InitLib(m_init); // assumes the others are fine
@@ -365,65 +350,44 @@ UnitsyncLib::StringVector UnitsyncLib::GetMapDeps(int index)
 	return ret;
 }
 
-MapInfo UnitsyncLib::GetMapInfoEx(int index, int version)
+MapInfo UnitsyncLib::GetMapInfoEx(int index)
 {
-	if (m_get_map_description == NULL) {
-		// old fetch method
-		InitLib(m_get_map_info_ex);
+	InitLib(m_get_map_description)
 
-		const std::string mapName = Util::SafeString(m_get_map_name(index));
+	MapInfo info;
+	info.description = Util::SafeString(m_get_map_description(index));
+	info.tidalStrength = m_get_map_tidalStrength(index);
+	info.gravity = m_get_map_gravity(index);
 
-		char tmpdesc[256];
-		char tmpauth[256];
-
-		MapInfo info;
-		SpringMapInfo tm;
-		tm.description = &tmpdesc[0];
-		tm.author = &tmpauth[0];
-
-		bool result = m_get_map_info_ex(mapName.c_str(), &tm, version);
-		if (!result)
-			LSL_THROW(unitsync, "Failed to get map infos");
-		_ConvertSpringMapInfo(tm, info);
-		return info;
+	const int resCount = m_get_map_resource_count(index);
+	if (resCount > 0) {
+		const int resourceIndex = 0;
+		info.maxMetal = m_get_map_resource_max(index, resourceIndex);
+		info.extractorRadius = m_get_map_resource_extractorRadius(index, resourceIndex);
 	} else {
-		// new fetch method
-		InitLib(m_get_map_description)
-
-		    MapInfo info;
-		info.description = Util::SafeString(m_get_map_description(index));
-		info.tidalStrength = m_get_map_tidalStrength(index);
-		info.gravity = m_get_map_gravity(index);
-
-		const int resCount = m_get_map_resource_count(index);
-		if (resCount > 0) {
-			const int resourceIndex = 0;
-			info.maxMetal = m_get_map_resource_max(index, resourceIndex);
-			info.extractorRadius = m_get_map_resource_extractorRadius(index, resourceIndex);
-		} else {
-			info.maxMetal = 0.0f;
-			info.extractorRadius = 0.0f;
-		}
-
-		info.minWind = m_get_map_windMin(index);
-		info.maxWind = m_get_map_windMax(index);
-
-		info.width = m_get_map_width(index);
-		info.height = m_get_map_height(index);
-		const int posCount = m_get_map_pos_count(index);
-		for (int p = 0; p < posCount; ++p) {
-			StartPos sp;
-			sp.x = m_get_map_pos_x(index, p);
-			sp.y = m_get_map_pos_z(index, p);
-			info.positions.push_back(sp);
-		}
-		const char* author = m_get_map_author(index);
-		if (author == NULL)
-			info.author = "";
-		else
-			info.author = m_get_map_author(index);
-		return info;
+		info.maxMetal = 0.0f;
+		info.extractorRadius = 0.0f;
 	}
+
+	info.minWind = m_get_map_windMin(index);
+	info.maxWind = m_get_map_windMax(index);
+
+	info.width = m_get_map_width(index);
+	info.height = m_get_map_height(index);
+	const int posCount = m_get_map_pos_count(index);
+	for (int p = 0; p < posCount; ++p) {
+		StartPos sp;
+		sp.x = m_get_map_pos_x(index, p);
+		sp.y = m_get_map_pos_z(index, p);
+		info.positions.push_back(sp);
+	}
+	const char* author = m_get_map_author(index);
+	if (author == NULL)
+		info.author = "";
+	else
+		info.author = m_get_map_author(index);
+	return info;
+
 }
 
 UnitsyncImage UnitsyncLib::GetMinimap(const std::string& mapFileName)
