@@ -208,7 +208,6 @@ void UnitsyncFunctionLoader::Mod(UnitsyncLib* s)
 	BIND(GetUnitCountPtr, "GetUnitCount", m_get_unit_count);
 	BIND(GetUnitNamePtr, "GetUnitName", m_get_unit_name);
 	BIND(GetFullUnitNamePtr, "GetFullUnitName", m_get_unit_full_name);
-	BIND(ProcessUnitsNoChecksumPtr, "ProcessUnitsNoChecksum", m_proc_units_nocheck);
 }
 
 

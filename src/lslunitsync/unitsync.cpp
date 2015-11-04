@@ -576,7 +576,7 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 
 	if (!GetCacheFile(cachefile, cache)) { //cache read failed
 		susynclib().SetCurrentMod(gamename);
-		while (susynclib().ProcessUnitsNoChecksum() > 0) {
+		while (susynclib().ProcessUnits() > 0) {
 		}
 		const int unitcount = susynclib().GetUnitCount();
 		for (int i = 0; i < unitcount; i++) {

@@ -565,10 +565,10 @@ int UnitsyncLib::GetUnitCount()
 	return m_get_unit_count();
 }
 
-int UnitsyncLib::ProcessUnitsNoChecksum()
+int UnitsyncLib::ProcessUnits()
 {
-	InitLib(m_proc_units_nocheck);
-	return m_proc_units_nocheck();
+	InitLib(m_process_units);
+	return m_process_units();
 }
 
 UnitsyncLib::StringVector UnitsyncLib::FindFilesVFS(const std::string& name)

@@ -183,7 +183,7 @@ public:
 	std::string GetFullUnitName(int index);
 	std::string GetUnitName(int index);
 	int GetUnitCount();
-	int ProcessUnitsNoChecksum();
+	int ProcessUnits();
 
 	/**
 	 * Search for a file pattern.
@@ -408,7 +408,6 @@ private:
 	GetUnitCountPtr m_get_unit_count;
 	GetUnitNamePtr m_get_unit_name;
 	GetFullUnitNamePtr m_get_unit_full_name;
-	ProcessUnitsNoChecksumPtr m_proc_units_nocheck;
 
 	InitFindVFSPtr m_init_find_vfs;
 	FindFilesVFSPtr m_find_files_vfs;
