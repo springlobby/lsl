@@ -160,6 +160,12 @@ void UnitsyncLib::_RemoveAllArchives()
 		_Init();
 }
 
+void UnitsyncLib::RemoveAllArchives()
+{
+	InitLib(m_add_all_archives);
+	m_remove_all_archives();
+}
+
 void UnitsyncLib::Unload()
 {
 	if (!_IsLoaded())

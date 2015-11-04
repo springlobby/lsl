@@ -306,6 +306,9 @@ public:
 	float GetInfoValueFloat(int index);
 	bool GetInfoValueBool(int index);
 
+	void RemoveAllArchives();
+
+
 private:
 	UnitsyncLib(const UnitsyncLib&);
 	//! Keeps track if unitsync is loaded or not.

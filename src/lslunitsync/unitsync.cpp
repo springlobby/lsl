@@ -57,6 +57,7 @@ Unitsync::Unitsync()
     m_mapinfo_cache(1000000, "m_mapinfo_cache")
     ,					// this one is just misused as thread safe std::map ...
     m_sides_cache(200, "m_sides_cache") // another misuse
+    , supportsManualUnLoad(false)
 {
 }
 
@@ -97,6 +98,13 @@ bool Unitsync::LoadUnitSyncLib(const std::string& unitsyncloc)
 	ClearCache();
 	bool ret = _LoadUnitSyncLib(unitsyncloc);
 	if (ret) {
+		supportsManualUnLoad = LSL::susynclib().GetSpringConfigInt("UnitsyncSupportsAutoUnLoadMaps", 0) != 0;
+		if (supportsManualUnLoad) {
+			LslDebug("Unitsync supports manual loading of archives (faster, yey!)");
+			LSL::usync().SetSpringConfigInt("UnitsyncAutoUnLoadMaps", 1);
+		} else {
+			LslDebug("Unitsync doesn't support manual loading of archives :-/");
+		}
 		m_cache_path = LSL::Util::config().GetCachePath();
 		PopulateArchiveList();
 	}
@@ -216,7 +224,7 @@ bool Unitsync::_LoadUnitSyncLib(const std::string& unitsyncloc)
 void Unitsync::FreeUnitSyncLib()
 {
 	LOCK_UNITSYNC;
-
+	supportsManualUnLoad = false;
 	susynclib().Unload();
 }
 
@@ -994,10 +1002,17 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 		LslDebug("cache thread not initialized %s", "PrefetchMap");
 		return;
 	}
+	if (supportsManualUnLoad) {
+		susynclib().AddAllArchives(mapname);
+	}
+
+
 	GetMap(mapname);
 	GetScaledMapImage(mapname, IMAGE_MAP);
 	GetScaledMapImage(mapname, IMAGE_METALMAP);
 	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
+	if (supportsManualUnLoad)
+		susynclib().RemoveAllArchives();
 }
 
 void Unitsync::PrefetchGame(const std::string& gamename)
