@@ -353,8 +353,75 @@ UnitsyncLib::StringVector UnitsyncLib::GetMapDeps(int index)
 MapInfo UnitsyncLib::GetMapInfoEx(int index)
 {
 	InitLib(m_get_map_description)
-
 	MapInfo info;
+
+	if(m_get_map_info_count != nullptr) { //new style fetching!
+		const int infos = m_get_map_info_count(index);
+		int x = -1;
+		for(int i=0; i < infos; i++) {
+			const std::string& key = Util::SafeString(m_get_info_key(i));
+			if (key == "description") {
+                    info.description = Util::SafeString(m_get_info_value_string(i));
+					continue;
+			}
+			if (key == "author") {
+					info.author = Util::SafeString(m_get_info_value_string(i));
+					continue;
+			}
+			if (key == "tidalStrength") {
+					info.tidalStrength = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "gravity") {
+					info.gravity = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "maxMetal") {
+					info.maxMetal = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "extractorRadius") {
+					info.extractorRadius = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "minWind") {
+					info.minWind = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "maxWind") {
+					info.maxWind = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "width") {
+					info.width = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "height") {
+					info.height = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "resource") {
+					// FIXME: implement ?!
+					//info.resource = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "xPos") {
+					x = m_get_info_value_integer(i);
+					continue;
+			}
+			if (key == "zPos") {
+                    assert(x!= -1);
+					LSL::StartPos pos;
+                    pos.x = x;
+                    pos.y = m_get_info_value_integer(i);
+					info.positions.push_back(pos);
+					x = -1;
+					continue;
+			}
+            LslWarning("Unknown key in GetMapInfoCount(): %s", key.c_str());
+		}
+		return info;
+	}
 	info.description = Util::SafeString(m_get_map_description(index));
 	info.tidalStrength = m_get_map_tidalStrength(index);
 	info.gravity = m_get_map_gravity(index);

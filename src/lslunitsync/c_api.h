@@ -371,6 +371,7 @@ private:
 	GetDataDirectoryPtr m_get_data_dir_by_index;
 	GetDataDirectoryCountPtr m_get_data_dir_count;
 
+	GetMapInfoCountPtr m_get_map_info_count;
 	GetMapCountPtr m_get_map_count;
 	GetMapChecksumPtr m_get_map_checksum;
 	GetMapNamePtr m_get_map_name;

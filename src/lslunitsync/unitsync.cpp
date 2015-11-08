@@ -1011,8 +1011,9 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	GetScaledMapImage(mapname, IMAGE_MAP);
 	GetScaledMapImage(mapname, IMAGE_METALMAP);
 	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
-	if (supportsManualUnLoad)
+	if (supportsManualUnLoad) {
 		susynclib().RemoveAllArchives();
+	}
 }
 
 void Unitsync::PrefetchGame(const std::string& gamename)

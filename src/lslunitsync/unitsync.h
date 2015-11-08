@@ -182,7 +182,6 @@ private:
 
 	friend Unitsync& usync();
 
-private:
 	//! returns an array where each element is a line of the file
 	bool GetCacheFile(const std::string& path, StringVector& ret) const;
 	//! write a file where each element of the array is a line

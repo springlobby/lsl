@@ -209,6 +209,7 @@ FUNC(const char*, GetInfoValueStringPtr, int);
 FUNC(int, GetInfoValueIntegerPtr, int);
 FUNC(float, GetInfoValueFloatPtr, int);
 FUNC(bool, GetInfoValueBoolPtr, int);
+FUNC(int, GetMapInfoCountPtr, int);
 
 } //namespace LSL
 

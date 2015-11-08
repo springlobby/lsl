@@ -89,25 +89,35 @@ void UnitsyncFunctionLoader::MMOptions(UnitsyncLib* s)
 
 void UnitsyncFunctionLoader::Map(UnitsyncLib* s)
 {
+	bool oldstyle = false;
+	try {
+		BIND(GetMapInfoCountPtr, "GetMapInfoCount", m_get_map_info_count);
+	} catch (...) {
+		oldstyle = true;
+		s->m_get_map_info_count = nullptr;
+		LslDebug("Using old style map-info fetching (GetMap*()).");
+	}
 	BIND(GetMapCountPtr, "GetMapCount", m_get_map_count);
 	BIND(GetMapChecksumPtr, "GetMapChecksum", m_get_map_checksum);
 	BIND(GetMapNamePtr, "GetMapName", m_get_map_name);
 
-	BIND(GetMapDescriptionPtr, "GetMapDescription", m_get_map_description);
-	BIND(GetMapAuthorPtr, "GetMapAuthor", m_get_map_author);
-	BIND(GetMapWidthPtr, "GetMapWidth", m_get_map_width);
-	BIND(GetMapHeightPtr, "GetMapHeight", m_get_map_height);
-	BIND(GetMapTidalStrengthPtr, "GetMapTidalStrength", m_get_map_tidalStrength);
-	BIND(GetMapWindMinPtr, "GetMapWindMin", m_get_map_windMin);
-	BIND(GetMapWindMaxPtr, "GetMapWindMax", m_get_map_windMax);
-	BIND(GetMapGravityPtr, "GetMapGravity", m_get_map_gravity);
-	BIND(GetMapResourceCountPtr, "GetMapResourceCount", m_get_map_resource_count);
-	BIND(GetMapResourceNamePtr, "GetMapResourceName", m_get_map_resource_name);
-	BIND(GetMapResourceMaxPtr, "GetMapResourceMax", m_get_map_resource_max);
-	BIND(GetMapResourceExtractorRadiusPtr, "GetMapResourceExtractorRadius", m_get_map_resource_extractorRadius);
-	BIND(GetMapPosCountPtr, "GetMapPosCount", m_get_map_pos_count);
-	BIND(GetMapPosXPtr, "GetMapPosX", m_get_map_pos_x);
-	BIND(GetMapPosZPtr, "GetMapPosZ", m_get_map_pos_z);
+	if (oldstyle) {
+		BIND(GetMapDescriptionPtr, "GetMapDescription", m_get_map_description);
+		BIND(GetMapAuthorPtr, "GetMapAuthor", m_get_map_author);
+		BIND(GetMapWidthPtr, "GetMapWidth", m_get_map_width);
+		BIND(GetMapHeightPtr, "GetMapHeight", m_get_map_height);
+		BIND(GetMapTidalStrengthPtr, "GetMapTidalStrength", m_get_map_tidalStrength);
+		BIND(GetMapWindMinPtr, "GetMapWindMin", m_get_map_windMin);
+		BIND(GetMapWindMaxPtr, "GetMapWindMax", m_get_map_windMax);
+		BIND(GetMapGravityPtr, "GetMapGravity", m_get_map_gravity);
+		BIND(GetMapResourceCountPtr, "GetMapResourceCount", m_get_map_resource_count);
+		BIND(GetMapResourceNamePtr, "GetMapResourceName", m_get_map_resource_name);
+		BIND(GetMapResourceMaxPtr, "GetMapResourceMax", m_get_map_resource_max);
+		BIND(GetMapResourceExtractorRadiusPtr, "GetMapResourceExtractorRadius", m_get_map_resource_extractorRadius);
+		BIND(GetMapPosCountPtr, "GetMapPosCount", m_get_map_pos_count);
+		BIND(GetMapPosXPtr, "GetMapPosX", m_get_map_pos_x);
+		BIND(GetMapPosZPtr, "GetMapPosZ", m_get_map_pos_z);
+	}
 
 	BIND(GetMinimapPtr, "GetMinimap", m_get_minimap);
 	BIND(GetInfoMapSizePtr, "GetInfoMapSize", m_get_infomap_size);
