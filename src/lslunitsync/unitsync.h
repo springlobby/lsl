@@ -184,8 +184,10 @@ private:
 
 	//! returns an array where each element is a line of the file
 	bool GetCacheFile(const std::string& path, StringVector& ret) const;
+	bool GetCacheFile(const std::string& path, GameOptions& opt) const;
 	//! write a file where each element of the array is a line
-	void SetCacheFile(const std::string& path, const StringVector& data);
+	void SetCacheFile(const std::string& path, const StringVector& data) const;
+	void SetCacheFile(const std::string& path, const GameOptions& opt) const;
 	bool GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, int width, int height);
 	bool supportsManualUnLoad;
 };

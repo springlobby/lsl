@@ -12,6 +12,8 @@
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include <iterator>
+#include <json/json.h>
+#include <sstream>
 
 #include "c_api.h"
 #include "image.h"
@@ -368,21 +370,26 @@ void GetOptionEntry(const int i, GameOptions& ret)
 }
 
 
+
+
 GameOptions Unitsync::GetMapOptions(const std::string& name)
 {
 	GameOptions ret;
 	TRY_LOCK(ret)
-
 	assert(!name.empty());
 	if (m_map_gameoptions.find(name) != m_map_gameoptions.end()) {
 		return m_map_gameoptions[name];
 	}
-
-	int count = susynclib().GetMapOptionCount(name);
-	for (int i = 0; i < count; ++i) {
-		GetOptionEntry(i, ret);
+	const std::string filename = GetFileCachePath(name, false, true) + ".mapoptions";
+	if (!GetCacheFile(filename, ret)) {
+		const int count = susynclib().GetMapOptionCount(name);
+		for (int i = 0; i < count; ++i) {
+			GetOptionEntry(i, ret);
+		}
+		SetCacheFile(filename, ret);
 	}
 	m_map_gameoptions[name] = ret;
+
 	return ret;
 }
 
@@ -419,11 +426,15 @@ GameOptions Unitsync::GetGameOptions(const std::string& name)
 	if (m_game_gameoptions.find(name) != m_game_gameoptions.end()) {
 		return m_game_gameoptions[name];
 	}
-	if (!IsLoaded())
-		return ret;
-	int count = susynclib().GetModOptionCount(name);
-	for (int i = 0; i < count; ++i) {
-		GetOptionEntry(i, ret);
+	const std::string filename = GetFileCachePath(name, true, true) + ".gameoptions";
+	if (!GetCacheFile(filename, ret)) {
+		if (!IsLoaded())
+			return ret;
+		int count = susynclib().GetModOptionCount(name);
+		for (int i = 0; i < count; ++i) {
+			GetOptionEntry(i, ret);
+		}
+		SetCacheFile(filename, ret);
 	}
 	m_game_gameoptions[name] = ret;
 	return ret;
@@ -822,10 +833,9 @@ bool Unitsync::GetCacheFile(const std::string& path, StringVector& ret) const
 	return true;
 }
 
-void Unitsync::SetCacheFile(const std::string& path, const StringVector& data)
+void Unitsync::SetCacheFile(const std::string& path, const StringVector& data) const
 {
 	FILE* file = Util::lslopen(path, "w");
-
 	ASSERT_EXCEPTION(file != NULL, (boost::format("cache file( %s ) not found") % path).str().c_str());
 
 	for (std::string line : data) {
@@ -834,6 +844,76 @@ void Unitsync::SetCacheFile(const std::string& path, const StringVector& data)
 	}
 	fclose(file);
 }
+
+void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) const
+{
+	FILE* f = Util::lslopen(path, "w");
+	ASSERT_EXCEPTION(f != NULL, (boost::format("cache file( %s ) not found") % path).str().c_str());
+	Json::Value root;
+
+	for (auto const &ent: opt.bool_map ){
+		Json::Value entry;
+		entry["def"] = ent.second.def;
+		entry["value"] = ent.second.value;
+		root["bools"][ent.first].append(entry);
+	}
+	for (auto const &ent: opt.float_map ){
+		Json::Value entry;
+		entry["def"] = ent.second.def;
+		entry["value"] = ent.second.value;
+		root["floats"][ent.first].append(entry);
+	}
+	for (auto const &ent: opt.string_map ){
+		Json::Value entry;
+		entry["def"] = ent.second.def;
+		entry["value"] = ent.second.value;
+		root["strings"][ent.first].append(entry);
+	}
+	for (auto const &ent: opt.list_map ){
+		Json::Value entry;
+		entry["def"] = ent.second.def;
+		entry["value"] = ent.second.value;
+		entry["cur_choice_index"] = ent.second.cur_choice_index;
+
+		for(const listItem& item: ent.second.listitems) {
+			Json::Value dict;
+			dict["key"] = item.key;
+			dict["name"] = item.name;
+			dict["desc"] = item.desc;
+			entry["listitems"].append(dict);
+		}
+
+		entry["choices"].append(Json::Value::null);
+		entry["choices"].clear();
+		for(const std::string& choice: ent.second.cbx_choices) {
+			entry["choices"].append(choice);
+		}
+		root["bools"][ent.first].append(entry);
+	}
+	for (auto const &ent: opt.section_map ){
+		Json::Value entry;
+		entry["name"] = ent.second.name;
+		entry["key"] = ent.second.key;
+		entry["description"] = ent.second.description;
+		entry["type"] = ent.second.type;
+		entry["ct_type"] = ent.second.ct_type;
+		entry["section"] = ent.second.section;
+		entry["ct_type_string"] = ent.second.ct_type_string;
+		root["sections"][ent.first].append(entry);
+	}
+	std::stringstream ss;
+	ss << root; //FIXME: make this efficient
+	const std::string& str = ss.str();
+	fwrite(str.c_str(), str.size(), 1, f);
+	fclose(f);
+}
+
+bool Unitsync::GetCacheFile(const std::string& path, GameOptions& opt) const
+{
+	//FIXME: implement this
+	return false;
+}
+
 
 StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 {
