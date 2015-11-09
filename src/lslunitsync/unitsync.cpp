@@ -57,7 +57,7 @@ Unitsync::Unitsync()
     m_mapinfo_cache(1000000, "m_mapinfo_cache")
     ,					// this one is just misused as thread safe std::map ...
     m_sides_cache(200, "m_sides_cache") // another misuse
-    , supportsManualUnLoad(false)
+    , supportsManualUnLoad(false) //new style fetching (>= spring 101.0)
 {
 }
 
@@ -98,7 +98,7 @@ bool Unitsync::LoadUnitSyncLib(const std::string& unitsyncloc)
 	ClearCache();
 	bool ret = _LoadUnitSyncLib(unitsyncloc);
 	if (ret) {
-		supportsManualUnLoad = LSL::susynclib().GetSpringConfigInt("UnitsyncSupportsAutoUnLoadMaps", 0) != 0;
+		supportsManualUnLoad = LSL::susynclib().GetSpringConfigInt("UnitsyncAutoUnLoadMapsIsSupported", 0) != 0;
 		if (supportsManualUnLoad) {
 			LslDebug("Unitsync supports manual loading of archives (faster, yey!)");
 			LSL::usync().SetSpringConfigInt("UnitsyncAutoUnLoadMaps", 1);
