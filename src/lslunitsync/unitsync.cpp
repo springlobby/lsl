@@ -853,52 +853,71 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 
 	for (auto const &ent: opt.bool_map ){
 		Json::Value entry;
+		entry["key"] = ent.second.key;
+		entry["name"] = ent.second.name;
+		entry["description"] = ent.second.description;
+		entry["type"] = ent.second.type;
+		entry["section"] = ent.second.section;
+
 		entry["def"] = ent.second.def;
-		entry["value"] = ent.second.value;
 		root["bools"][ent.first].append(entry);
 	}
 	for (auto const &ent: opt.float_map ){
 		Json::Value entry;
+		entry["key"] = ent.second.key;
+		entry["name"] = ent.second.name;
+		entry["description"] = ent.second.description;
+		entry["type"] = ent.second.type;
+		entry["section"] = ent.second.section;
+
 		entry["def"] = ent.second.def;
-		entry["value"] = ent.second.value;
+		entry["min"] = ent.second.min;
+		entry["max"] = ent.second.max;
+		entry["stepping"] = ent.second.stepping;
 		root["floats"][ent.first].append(entry);
 	}
+
 	for (auto const &ent: opt.string_map ){
 		Json::Value entry;
+		entry["key"] = ent.second.key;
+		entry["name"] = ent.second.name;
+		entry["description"] = ent.second.description;
+		entry["type"] = ent.second.type;
+		entry["section"] = ent.second.section;
+
 		entry["def"] = ent.second.def;
-		entry["value"] = ent.second.value;
+		entry["max_len"] = ent.second.max_len;
+
 		root["strings"][ent.first].append(entry);
 	}
 	for (auto const &ent: opt.list_map ){
 		Json::Value entry;
-		entry["def"] = ent.second.def;
-		entry["value"] = ent.second.value;
+		entry["key"] = ent.second.key;
+		entry["name"] = ent.second.name;
+		entry["description"] = ent.second.description;
+		entry["type"] = ent.second.type;
+		entry["section"] = ent.second.section;
+
 		entry["cur_choice_index"] = ent.second.cur_choice_index;
+		entry["def"] = ent.second.def;
 
 		for(const listItem& item: ent.second.listitems) {
 			Json::Value dict;
 			dict["key"] = item.key;
 			dict["name"] = item.name;
 			dict["desc"] = item.desc;
-			entry["listitems"].append(dict);
+			entry["items"].append(dict);
 		}
-
-		entry["choices"].append(Json::Value::null);
-		entry["choices"].clear();
-		for(const std::string& choice: ent.second.cbx_choices) {
-			entry["choices"].append(choice);
-		}
-		root["bools"][ent.first].append(entry);
+		root["list"][ent.first].append(entry);
 	}
 	for (auto const &ent: opt.section_map ){
 		Json::Value entry;
-		entry["name"] = ent.second.name;
 		entry["key"] = ent.second.key;
+		entry["name"] = ent.second.name;
 		entry["description"] = ent.second.description;
 		entry["type"] = ent.second.type;
-		entry["ct_type"] = ent.second.ct_type;
 		entry["section"] = ent.second.section;
-		entry["ct_type_string"] = ent.second.ct_type_string;
+
 		root["sections"][ent.first].append(entry);
 	}
 	std::stringstream ss;
