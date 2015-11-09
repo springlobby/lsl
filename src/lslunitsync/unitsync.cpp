@@ -156,7 +156,6 @@ static std::string GetGameInfo(int index, const std::string keyname)
 
 void Unitsync::PopulateArchiveList()
 {
-
 	const int numMaps = susynclib().GetMapCount();
 	for (int i = 0; i < numMaps; i++) {
 		std::string name, archivename;
@@ -1170,6 +1169,7 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	GetScaledMapImage(mapname, IMAGE_MAP);
 	GetScaledMapImage(mapname, IMAGE_METALMAP);
 	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
+	GetMapOptions(mapname);
 	if (supportsManualUnLoad) {
 		susynclib().RemoveAllArchives();
 	}
@@ -1183,6 +1183,7 @@ void Unitsync::PrefetchGame(const std::string& gamename)
 		GetSidePicture(gamename, side);
 	}
 	GetUnitsList(gamename);
+	GetGameOptions(gamename);
 }
 
 boost::signals2::connection Unitsync::RegisterEvtHandler(const StringSignalSlotType& handler)
