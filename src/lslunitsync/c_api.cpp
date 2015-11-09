@@ -352,12 +352,18 @@ UnitsyncLib::StringVector UnitsyncLib::GetMapDeps(int index)
 
 MapInfo UnitsyncLib::GetMapInfoEx(int index)
 {
-	InitLib(m_get_map_description)
+	InitLib(m_get_map_info_count)
 	MapInfo info;
 
-	if(m_get_map_info_count != nullptr) { //new style fetching!
+	if(m_get_map_info_count != nullptr) { //new style fetching (>= spring 101.0)
+		CHECK_FUNCTION(m_get_info_key);
+		CHECK_FUNCTION(m_get_info_value_string);
+		CHECK_FUNCTION(m_get_info_value_integer);
+		CHECK_FUNCTION(m_get_info_value_float);
+
 		const int infos = m_get_map_info_count(index);
-		int x = -1;
+		int x = 0;
+		bool xset = false;
 		for(int i=0; i < infos; i++) {
 			const std::string& key = Util::SafeString(m_get_info_key(i));
 			if (key == "description") {
@@ -377,7 +383,7 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 					continue;
 			}
 			if (key == "maxMetal") {
-					info.maxMetal = m_get_info_value_integer(i);
+					info.maxMetal = m_get_info_value_float(i);
 					continue;
 			}
 			if (key == "extractorRadius") {
@@ -407,21 +413,24 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 			}
 			if (key == "xPos") {
 					x = m_get_info_value_integer(i);
+					xset = true;
 					continue;
 			}
 			if (key == "zPos") {
-                    assert(x!= -1);
+					assert(xset);
 					LSL::StartPos pos;
-                    pos.x = x;
-                    pos.y = m_get_info_value_integer(i);
+					pos.x = x;
+					pos.y = m_get_info_value_integer(i);
 					info.positions.push_back(pos);
-					x = -1;
+					xset = false;
 					continue;
 			}
-            LslWarning("Unknown key in GetMapInfoCount(): %s", key.c_str());
+			LslWarning("Unknown key in GetMapInfoCount(): %s", key.c_str());
 		}
 		return info;
 	}
+	//deprecated style of fetching (<= spring 100.0)
+	CHECK_FUNCTION(m_get_map_description);
 	info.description = Util::SafeString(m_get_map_description(index));
 	info.tidalStrength = m_get_map_tidalStrength(index);
 	info.gravity = m_get_map_gravity(index);
