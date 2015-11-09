@@ -115,7 +115,21 @@ if(LSLSERVER)
 	ENDIF (WIN32)
 endif()
 
+OPTION(LSL_JSONCPP_INTERNAL "use bundled JsonCpp" ON)
+if (LSL_JSONCPP_INTERNAL)
+        # use bundled JsonCpp
+        set(Jsoncpp_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/include)
+	set(libjsonsrc
+		${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/src/lib_json/json_value.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/src/lib_json/json_reader.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/src/lib_json/json_writer.cpp
+	)
+else()
+        find_package(Jsoncpp REQUIRED)
+endif()
+
 add_subdirectory( src )
+
 add_subdirectory( doc )
 if (${BUILD_TESTS})
 	enable_testing()
