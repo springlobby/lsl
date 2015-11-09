@@ -728,12 +728,6 @@ std::string UnitsyncLib::GetOptionSection(int optIndex)
 	return Util::SafeString(m_get_option_section(optIndex));
 }
 
-std::string UnitsyncLib::GetOptionStyle(int optIndex)
-{
-	InitLib(m_get_option_style);
-	return Util::SafeString(m_get_option_style(optIndex));
-}
-
 int UnitsyncLib::GetOptionType(int optIndex)
 {
 	InitLib(m_get_option_type);

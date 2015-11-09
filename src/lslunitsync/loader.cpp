@@ -72,7 +72,6 @@ void UnitsyncFunctionLoader::MMOptions(UnitsyncLib* s)
 	BIND(GetOptionDescPtr, "GetOptionDesc", m_get_option_desc);
 	BIND(GetOptionTypePtr, "GetOptionType", m_get_option_type);
 	BIND(GetOptionSectionPtr, "GetOptionSection", m_get_option_section);
-	BIND(GetOptionStylePtr, "GetOptionStyle", m_get_option_style);
 	BIND(GetOptionBoolDefPtr, "GetOptionBoolDef", m_get_option_bool_def);
 	BIND(GetOptionNumberDefPtr, "GetOptionNumberDef", m_get_option_number_def);
 	BIND(GetOptionNumberMinPtr, "GetOptionNumberMin", m_get_option_number_min);

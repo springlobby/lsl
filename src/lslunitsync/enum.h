@@ -17,11 +17,6 @@ enum OptionType {
 	opt_section = 5
 };
 
-enum OptionControlType {
-	oct_undefined,
-	oct_someothers
-};
-
 //! enum to differentiate option category easily at runtime
 enum GameOption {
 	PrivateOptions = 3,

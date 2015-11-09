@@ -206,7 +206,6 @@ public:
 	std::string GetOptionName(int optIndex);
 	std::string GetOptionDesc(int optIndex);
 	std::string GetOptionSection(int optIndex);
-	std::string GetOptionStyle(int optIndex);
 	int GetOptionType(int optIndex);
 	int GetOptionBoolDef(int optIndex);
 	float GetOptionNumberDef(int optIndex);
@@ -443,7 +442,6 @@ private:
 	GetOptionDescPtr m_get_option_desc;
 	GetOptionTypePtr m_get_option_type;
 	GetOptionSectionPtr m_get_option_section;
-	GetOptionStylePtr m_get_option_style;
 	GetOptionBoolDefPtr m_get_option_bool_def;
 	GetOptionNumberDefPtr m_get_option_number_def;
 	GetOptionNumberMinPtr m_get_option_number_min;

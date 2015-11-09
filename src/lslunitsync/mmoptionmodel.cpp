@@ -6,36 +6,16 @@ namespace LSL
 {
 
 mmOptionModel::mmOptionModel(std::string name_, std::string key_, std::string description_, Enum::OptionType type_,
-			     std::string section_, std::string style_)
+			     std::string section_)
     : name(name_)
     , key(key_)
     , description(description_)
     , type(type_)
     , section(section_)
-    , ct_type_string(style_)
 {
-	//set style according to input string
-	if (style_ == "yaadda") //TODO(koshi) the fuck?
-		ct_type = Enum::oct_someothers;
-	else
-		ct_type = Enum::oct_undefined; //lobby will chooose best fit
-
-	if (section == std::string())
+	if (section.empty())
 		section = Constants::nosection_name;
 
-	if (ct_type_string == std::string())
-		ct_type_string = Constants::nostyle_name;
-}
-
-mmOptionModel::mmOptionModel(std::string name_, std::string key_, std::string description_, Enum::OptionType type_,
-			     std::string section_, Enum::OptionControlType style_)
-    : name(name_)
-    , key(key_)
-    , description(description_)
-    , type(type_)
-    , ct_type(style_)
-    , section(section_)
-{
 }
 
 mmOptionModel::~mmOptionModel()
@@ -47,14 +27,13 @@ mmOptionModel::mmOptionModel()
     , key("")
     , description("")
     , type(Enum::opt_undefined)
-    , ct_type(Enum::oct_undefined)
     , section(Constants::nosection_name)
 {
 }
 
 mmOptionBool::mmOptionBool(std::string name_, std::string key_, std::string description_, bool def_,
-			   std::string section_, std::string style_)
-    : mmOptionModel(name_, key_, description_, Enum::opt_bool, section_, style_)
+			   std::string section_)
+    : mmOptionModel(name_, key_, description_, Enum::opt_bool, section_)
     , def(def_)
     , value(def_)
 {
@@ -68,8 +47,8 @@ mmOptionBool::mmOptionBool()
 }
 
 mmOptionFloat::mmOptionFloat(std::string name_, std::string key_, std::string description_, float def_, float stepping_, float min_, float max_,
-			     std::string section_, std::string style_)
-    : mmOptionModel(name_, key_, description_, Enum::opt_float, section_, style_)
+			     std::string section_)
+    : mmOptionModel(name_, key_, description_, Enum::opt_float, section_)
     , def(def_)
     , value(def_)
     , stepping(stepping_)
@@ -89,8 +68,8 @@ mmOptionFloat::mmOptionFloat()
 }
 
 mmOptionString::mmOptionString(std::string name_, std::string key_, std::string description_, std::string def_, unsigned int max_len_,
-			       std::string section_, std::string style_)
-    : mmOptionModel(name_, key_, description_, Enum::opt_string, section_, style_)
+			       std::string section_)
+    : mmOptionModel(name_, key_, description_, Enum::opt_string, section_)
     , def(def_)
     , value(def_)
     , max_len(max_len_)
@@ -106,8 +85,8 @@ mmOptionString::mmOptionString()
 }
 
 mmOptionList::mmOptionList(std::string name_, std::string key_, std::string description_, std::string def_,
-			   std::string section_, std::string style_)
-    : mmOptionModel(name_, key_, description_, Enum::opt_list, section_, style_)
+			   std::string section_)
+    : mmOptionModel(name_, key_, description_, Enum::opt_list, section_)
     , def(def_)
     , value(def_)
 {
@@ -145,8 +124,8 @@ mmOptionSection::mmOptionSection()
 	key = Constants::nosection_name;
 }
 
-mmOptionSection::mmOptionSection(std::string name_, std::string key_, std::string description_, std::string section_, std::string style_)
-    : mmOptionModel(name_, key_, description_, Enum::opt_section, section_, style_)
+mmOptionSection::mmOptionSection(std::string name_, std::string key_, std::string description_, std::string section_)
+    : mmOptionModel(name_, key_, description_, Enum::opt_section, section_)
 {
 }
 

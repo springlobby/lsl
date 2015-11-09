@@ -343,19 +343,19 @@ void GetOptionEntry(const int i, GameOptions& ret)
 			ret.float_map[key] = mmOptionFloat(name, key, optiondesc, susynclib().GetOptionNumberDef(i),
 							   susynclib().GetOptionNumberStep(i),
 							   susynclib().GetOptionNumberMin(i), susynclib().GetOptionNumberMax(i),
-							   section_str, susynclib().GetOptionStyle(i));
+							   section_str);
 			break;
 		}
 		case Enum::opt_bool: {
-			ret.bool_map[key] = mmOptionBool(name, key, optiondesc, susynclib().GetOptionBoolDef(i), section_str, susynclib().GetOptionStyle(i));
+			ret.bool_map[key] = mmOptionBool(name, key, optiondesc, susynclib().GetOptionBoolDef(i), section_str);
 			break;
 		}
 		case Enum::opt_string: {
-			ret.string_map[key] = mmOptionString(name, key, optiondesc, susynclib().GetOptionStringDef(i), susynclib().GetOptionStringMaxLen(i), section_str, susynclib().GetOptionStyle(i));
+			ret.string_map[key] = mmOptionString(name, key, optiondesc, susynclib().GetOptionStringDef(i), susynclib().GetOptionStringMaxLen(i), section_str);
 			break;
 		}
 		case Enum::opt_list: {
-			ret.list_map[key] = mmOptionList(name, key, optiondesc, susynclib().GetOptionListDef(i), section_str, susynclib().GetOptionStyle(i));
+			ret.list_map[key] = mmOptionList(name, key, optiondesc, susynclib().GetOptionListDef(i), section_str);
 			const int listItemCount = susynclib().GetOptionListCount(i);
 			for (int j = 0; j < listItemCount; ++j) {
 				std::string descr = susynclib().GetOptionListItemDesc(i, j);
@@ -364,7 +364,7 @@ void GetOptionEntry(const int i, GameOptions& ret)
 			break;
 		}
 		case Enum::opt_section: {
-			ret.section_map[key] = mmOptionSection(name, key, optiondesc, section_str, susynclib().GetOptionStyle(i));
+			ret.section_map[key] = mmOptionSection(name, key, optiondesc, section_str);
 		}
 	}
 }
