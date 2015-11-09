@@ -16,5 +16,3 @@ if( ${RESULT_VAR} )
 endif( ${RESULT_VAR} )
 endfunction( target_exists )
 
-GET_TARGET_PROPERTY(target_location target_name LOCATION)
-
