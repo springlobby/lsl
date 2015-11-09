@@ -673,6 +673,8 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 					break;
 			}
 			const MapInfo info = _GetMapInfoEx(mapname);
+			assert(info.width > 0);
+			assert(info.height > 0);
 			lslSize image_size = lslSize(info.width, info.height).MakeFit(lslSize(img.GetWidth(), img.GetHeight()));
 			img.Rescale(image_size.GetWidth(), image_size.GetHeight()); //rescale to keep aspect ratio
 			img.Save(cachefile);
@@ -1166,10 +1168,10 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 
 
 	GetMap(mapname);
+	GetMapOptions(mapname);
 	GetScaledMapImage(mapname, IMAGE_MAP);
 	GetScaledMapImage(mapname, IMAGE_METALMAP);
 	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
-	GetMapOptions(mapname);
 	if (supportsManualUnLoad) {
 		susynclib().RemoveAllArchives();
 	}
@@ -1178,12 +1180,12 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 void Unitsync::PrefetchGame(const std::string& gamename)
 {
 	assert(!gamename.empty());
+	GetGameOptions(gamename);
 	StringVector sides = GetSides(gamename);
 	for(const std::string& side: sides){
 		GetSidePicture(gamename, side);
 	}
 	GetUnitsList(gamename);
-	GetGameOptions(gamename);
 }
 
 boost::signals2::connection Unitsync::RegisterEvtHandler(const StringSignalSlotType& handler)
