@@ -932,6 +932,9 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 bool Unitsync::GetCacheFile(const std::string& path, GameOptions& opt) const
 {
 	std::FILE * fp = Util::lslopen(path, "rb");
+	if (fp == nullptr) {
+		return false;
+	}
 	std::fseek(fp, 0L, SEEK_END);
 	unsigned int fsize = std::ftell(fp);
 	std::rewind(fp);
@@ -941,8 +944,8 @@ bool Unitsync::GetCacheFile(const std::string& path, GameOptions& opt) const
 		return false;
 	}
 	std::fclose(fp);
-    Json::Reader reader;
-    Json::Value root;
+	Json::Reader reader;
+	Json::Value root;
 	if (!reader.parse(s, root, false)) {
 		return false;
 	}
