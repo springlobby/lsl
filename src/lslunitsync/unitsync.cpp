@@ -13,6 +13,8 @@
 #include <boost/filesystem.hpp>
 #include <iterator>
 #include <json/json.h>
+#include <json/reader.h>
+
 #include <sstream>
 
 #include "c_api.h"
@@ -860,7 +862,7 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 		entry["section"] = ent.second.section;
 
 		entry["def"] = ent.second.def;
-		root["bools"][ent.first].append(entry);
+		root.append(entry);
 	}
 	for (auto const &ent: opt.float_map ){
 		Json::Value entry;
@@ -874,7 +876,7 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 		entry["min"] = ent.second.min;
 		entry["max"] = ent.second.max;
 		entry["stepping"] = ent.second.stepping;
-		root["floats"][ent.first].append(entry);
+		root.append(entry);
 	}
 
 	for (auto const &ent: opt.string_map ){
@@ -888,7 +890,7 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 		entry["def"] = ent.second.def;
 		entry["max_len"] = ent.second.max_len;
 
-		root["strings"][ent.first].append(entry);
+		root.append(entry);
 	}
 	for (auto const &ent: opt.list_map ){
 		Json::Value entry;
@@ -908,7 +910,7 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 			dict["desc"] = item.desc;
 			entry["items"].append(dict);
 		}
-		root["list"][ent.first].append(entry);
+		root.append(entry);
 	}
 	for (auto const &ent: opt.section_map ){
 		Json::Value entry;
@@ -918,7 +920,7 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 		entry["type"] = ent.second.type;
 		entry["section"] = ent.second.section;
 
-		root["sections"][ent.first].append(entry);
+		root.append(entry);
 	}
 	std::stringstream ss;
 	ss << root; //FIXME: make this efficient
@@ -929,8 +931,63 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 
 bool Unitsync::GetCacheFile(const std::string& path, GameOptions& opt) const
 {
-	//FIXME: implement this
-	return false;
+	std::FILE * fp = Util::lslopen(path, "rb");
+	std::fseek(fp, 0L, SEEK_END);
+	unsigned int fsize = std::ftell(fp);
+	std::rewind(fp);
+
+	std::string s(fsize, 0);
+	if (fsize != std::fread(static_cast<void*>(&s[0]), 1, fsize, fp)) {
+		return false;
+	}
+	std::fclose(fp);
+    Json::Reader reader;
+    Json::Value root;
+	if (!reader.parse(s, root, false)) {
+		return false;
+	}
+
+
+	for(Json::ArrayIndex i=0; i<root.size(); i++) {
+		const std::string key = root[i]["key"].asString();
+		const std::string name = root[i]["name"].asString();
+		const std::string section_str = root[i]["section"].asString();
+		const std::string optiondesc = root[i]["description"].asString();
+		const int opttype = root[i]["type"].asInt();
+		switch (opttype) {
+			case Enum::opt_float: {
+				opt.float_map[key] = mmOptionFloat(name, key, optiondesc, root[i]["def"].asFloat(),
+								   root[i]["stepping"].asFloat(),
+								   root[i]["min"].asFloat(), root[i]["max"].asFloat(),
+								   section_str);
+				break;
+			}
+			case Enum::opt_bool: {
+				opt.bool_map[key] = mmOptionBool(name, key, optiondesc, root[i]["def"].asBool(), section_str);
+				break;
+			}
+			case Enum::opt_string: {
+				opt.string_map[key] = mmOptionString(name, key, optiondesc, root[i]["def"].asString(), root[i]["max_len"].asInt(), section_str);
+				break;
+			}
+			case Enum::opt_list: {
+				opt.list_map[key] = mmOptionList(name, key, optiondesc, root[i]["def"].asString(), section_str);
+				const int listItemCount = root[i]["items"].size();
+				for (int j = 0; j < listItemCount; ++j) {
+					Json::Value &item = root[i]["items"][j];
+					const std::string itemkey = item["key"].asString();
+					const std::string name = item["name"].asString();
+					const std::string desc = item["desc"].asString();
+					opt.list_map[key].addItem(itemkey, name, desc);
+				}
+				break;
+			}
+			case Enum::opt_section: {
+				opt.section_map[key] = mmOptionSection(name, key, optiondesc, section_str);
+			}
+		}
+	}
+	return true;
 }
 
 
