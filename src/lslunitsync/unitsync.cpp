@@ -951,7 +951,7 @@ bool Unitsync::GetCacheFile(const std::string& path, GameOptions& opt) const
 		return false;
 	}
 
-
+	try {
 	for(Json::ArrayIndex i=0; i<root.size(); i++) {
 		const std::string key = root[i]["key"].asString();
 		const std::string name = root[i]["name"].asString();
@@ -990,6 +990,10 @@ bool Unitsync::GetCacheFile(const std::string& path, GameOptions& opt) const
 				opt.section_map[key] = mmOptionSection(name, key, optiondesc, section_str);
 			}
 		}
+	}
+	} catch (std::exception& e) {
+		LslWarning("Exception when parsing %s %s",path.c_str(), e.what());
+		return false;
 	}
 	return true;
 }
