@@ -182,14 +182,6 @@ private:
 
 	friend Unitsync& usync();
 
-	//! returns an array where each element is a line of the file
-	bool GetCacheFile(const std::string& path, MapInfo& ret) const;
-	bool GetCacheFile(const std::string& path, GameOptions& opt) const;
-	bool GetCacheFile(const std::string& path, StringVector& opt) const;
-	//! write a file where each element of the array is a line
-	void SetCacheFile(const std::string& path, const MapInfo& data) const;
-	void SetCacheFile(const std::string& path, const GameOptions& opt) const;
-	bool SetCacheFile(const std::string& path, const StringVector& opt) const;
 	bool GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, int width, int height);
 	bool supportsManualUnLoad;
 };

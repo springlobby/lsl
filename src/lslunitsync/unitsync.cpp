@@ -9,17 +9,12 @@
 #include <set>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include <iterator>
-#include <json/json.h>
-#include <json/reader.h>
-
-#include <sstream>
-
 #include "c_api.h"
 #include "image.h"
 #include "springbundle.h"
+#include "unitsync_cache.h"
 
 #include <lslutils/config.h>
 #include <lslutils/debug.h>
@@ -370,9 +365,6 @@ void GetOptionEntry(const int i, GameOptions& ret)
 	}
 }
 
-
-
-
 GameOptions Unitsync::GetMapOptions(const std::string& name)
 {
 	GameOptions ret;
@@ -382,12 +374,12 @@ GameOptions Unitsync::GetMapOptions(const std::string& name)
 		return m_map_gameoptions[name];
 	}
 	const std::string filename = GetFileCachePath(name, false, true) + ".mapoptions";
-	if (!GetCacheFile(filename, ret)) {
+	if (!LSL::Cache::Get(filename, ret)) {
 		const int count = susynclib().GetMapOptionCount(name);
 		for (int i = 0; i < count; ++i) {
 			GetOptionEntry(i, ret);
 		}
-		SetCacheFile(filename, ret);
+		LSL::Cache::Set(filename, ret);
 	}
 	m_map_gameoptions[name] = ret;
 
@@ -428,14 +420,14 @@ GameOptions Unitsync::GetGameOptions(const std::string& name)
 		return m_game_gameoptions[name];
 	}
 	const std::string filename = GetFileCachePath(name, true, true) + ".gameoptions";
-	if (!GetCacheFile(filename, ret)) {
+	if (!LSL::Cache::Get(filename, ret)) {
 		if (!IsLoaded())
 			return ret;
 		int count = susynclib().GetModOptionCount(name);
 		for (int i = 0; i < count; ++i) {
 			GetOptionEntry(i, ret);
 		}
-		SetCacheFile(filename, ret);
+		LSL::Cache::Set(filename, ret);
 	}
 	m_game_gameoptions[name] = ret;
 	return ret;
@@ -463,10 +455,10 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 		return ret;
 	}
 
-	if (!GetCacheFile(cachefile, ret) && (GameExists(gamename))) { // cache file failed, try from lsl
+	if (!LSL::Cache::Get(cachefile, ret) && (GameExists(gamename))) { // cache file failed, try from lsl
 		try {
 			ret = susynclib().GetSides(gamename);
-			SetCacheFile(cachefile, ret); //store into cachefile
+			LSL::Cache::Set(cachefile, ret); //store into cachefile
 		} catch (Exceptions::unitsync& u) {
 			LslWarning("Error in GetSides: %s %s", gamename.c_str(), u.what());
 			return ret;
@@ -586,7 +578,7 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 	StringVector cache;
 	TRY_LOCK(cache)
 
-	if (!GetCacheFile(cachefile, cache)) { //cache read failed
+	if (!LSL::Cache::Get(cachefile, cache)) { //cache read failed
 		susynclib().SetCurrentMod(gamename);
 		while (susynclib().ProcessUnits() > 0) {
 		}
@@ -594,7 +586,7 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 		for (int i = 0; i < unitcount; i++) {
 			cache.push_back(susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")");
 		}
-		SetCacheFile(cachefile, cache);
+		LSL::Cache::Set(cachefile, cache);
 	}
 	return cache;
 }
@@ -711,40 +703,14 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 		return info;
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + ".mapinfo";
 	StringVector cache;
-	if (!GetCacheFile(cachefile, info)) { //cache file failed
+	if (!LSL::Cache::Get(cachefile, info)) { //cache file failed
 		const int index = Util::IndexInSequence(m_unsorted_map_array, mapname);
 		ASSERT_EXCEPTION(index >= 0, "Map not found");
-
 		info = susynclib().GetMapInfoEx(index);
-
-		cache.push_back(info.author);
-		cache.push_back(Util::ToFloatString(info.tidalStrength));
-		cache.push_back(Util::ToIntString(info.gravity));
-		cache.push_back(Util::ToFloatString(info.maxMetal));
-		cache.push_back(Util::ToFloatString(info.extractorRadius));
-		cache.push_back(Util::ToFloatString(info.minWind));
-		cache.push_back(Util::ToFloatString(info.maxWind));
-		cache.push_back(Util::ToIntString(info.width));
-		cache.push_back(Util::ToIntString(info.height));
-
-		std::string postring;
-		for (unsigned int i = 0; i < info.positions.size(); i++) {
-			if (!postring.empty()) {
-				postring += " ";
-			}
-			postring += Util::ToIntString(info.positions[i].x) + "-" + Util::ToIntString(info.positions[i].y);
-		}
-		cache.push_back(postring);
-
-		const StringVector descrtokens = Util::StringTokenize(info.description, "\n");
-		for (const std::string descrtoken : descrtokens) {
-			cache.push_back(descrtoken);
-		}
-		SetCacheFile(cachefile, cache);
+		LSL::Cache::Set(cachefile, info);
 	}
 
 	m_mapinfo_cache.Add(mapname, info);
-
 	return info;
 }
 
@@ -800,223 +766,6 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 	}
 	return ret;
 }
-
-static bool ParseJsonFile(const std::string& path, Json::Value& root)
-{
-	std::FILE * fp = Util::lslopen(path, "rb");
-	if (fp == nullptr) {
-		return false;
-	}
-	std::fseek(fp, 0L, SEEK_END);
-	unsigned int fsize = std::ftell(fp);
-	std::rewind(fp);
-
-	std::string s(fsize, 0);
-	if (fsize != std::fread(static_cast<void*>(&s[0]), 1, fsize, fp)) {
-		return false;
-	}
-	std::fclose(fp);
-	Json::Reader reader;
-	if (!reader.parse(s, root, false)) {
-		return false;
-	}
-	return true;
-}
-
-static bool writeJsonFile(const std::string& path, const Json::Value& root)
-{
-	FILE* f = Util::lslopen(path, "w");
-	ASSERT_EXCEPTION(f != NULL, (boost::format("cache file( %s ) not found") % path).str().c_str());
-	std::stringstream ss;
-	ss << root; //FIXME: make this efficient
-	const std::string& str = ss.str();
-	fwrite(str.c_str(), str.size(), 1, f);
-	fclose(f);
-}
-
-bool Unitsync::GetCacheFile(const std::string& path, MapInfo& info) const
-{
-	Json::Value root;
-	if (!ParseJsonFile(path, root)) {
-		return false;
-	}
-	try {
-		info.author = root["author"].asString();
-		info.tidalStrength = root["tidalStrength"].asFloat();
-		info.gravity = root["gravity"].asInt();
-		info.maxMetal = root["maxMetal"].asFloat();
-		info.extractorRadius = root["extractorRadius"].asFloat();
-		info.minWind = root["minWind"].asInt();
-		info.maxWind = root["maxWind"].asInt();
-		info.width = root["width"].asInt();
-		info.height = root["height"].asInt();
-		info.description = root["description"].asString();
-		Json::Value items = root["startpositions"];
-		for (Json::ArrayIndex i=0; i<items.size(); i++) {
-			StartPos position;
-			position.x = items[i]["x"].asInt();
-			position.y = items[i]["y"].asInt();
-			info.positions.push_back(position);
-		}
-	} catch (std::exception& e) {
-		LslWarning("Exception when parsing %s %s",path.c_str(), e.what());
-		return false;
-	}
-	return true;
-}
-
-void Unitsync::SetCacheFile(const std::string& path, const MapInfo& info) const
-{
-	Json::Value root;
-	root["author"] = info.author;
-	root["tidalStrength"] = info.tidalStrength;
-	root["gravity"] = info.gravity;
-	root["maxMetal"] = info.maxMetal;
-	root["extractorRadius"] = info.extractorRadius;
-	root["minWind"] = info.minWind;
-	root["maxWind"] = info.maxWind;
-	root["width"] = info.width;
-	root["height"] = info.height;
-	root["description"] = info.description;
-	for (StartPos pos: info.positions) {
-		Json::Value item;
-		item["x"] = pos.x;
-		item["y"] = pos.y;
-		root["startpositions"].append(item);
-	}
-	writeJsonFile(path, root);
-}
-
-void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) const
-{
-	Json::Value root;
-
-	for (auto const &ent: opt.bool_map ){
-		Json::Value entry;
-		entry["key"] = ent.second.key;
-		entry["name"] = ent.second.name;
-		entry["description"] = ent.second.description;
-		entry["type"] = ent.second.type;
-		entry["section"] = ent.second.section;
-
-		entry["def"] = ent.second.def;
-		root.append(entry);
-	}
-	for (auto const &ent: opt.float_map ){
-		Json::Value entry;
-		entry["key"] = ent.second.key;
-		entry["name"] = ent.second.name;
-		entry["description"] = ent.second.description;
-		entry["type"] = ent.second.type;
-		entry["section"] = ent.second.section;
-
-		entry["def"] = ent.second.def;
-		entry["min"] = ent.second.min;
-		entry["max"] = ent.second.max;
-		entry["stepping"] = ent.second.stepping;
-		root.append(entry);
-	}
-
-	for (auto const &ent: opt.string_map ){
-		Json::Value entry;
-		entry["key"] = ent.second.key;
-		entry["name"] = ent.second.name;
-		entry["description"] = ent.second.description;
-		entry["type"] = ent.second.type;
-		entry["section"] = ent.second.section;
-
-		entry["def"] = ent.second.def;
-		entry["max_len"] = ent.second.max_len;
-
-		root.append(entry);
-	}
-	for (auto const &ent: opt.list_map ){
-		Json::Value entry;
-		entry["key"] = ent.second.key;
-		entry["name"] = ent.second.name;
-		entry["description"] = ent.second.description;
-		entry["type"] = ent.second.type;
-		entry["section"] = ent.second.section;
-
-		entry["cur_choice_index"] = ent.second.cur_choice_index;
-		entry["def"] = ent.second.def;
-
-		for(const listItem& item: ent.second.listitems) {
-			Json::Value dict;
-			dict["key"] = item.key;
-			dict["name"] = item.name;
-			dict["desc"] = item.desc;
-			entry["items"].append(dict);
-		}
-		root.append(entry);
-	}
-	for (auto const &ent: opt.section_map ){
-		Json::Value entry;
-		entry["key"] = ent.second.key;
-		entry["name"] = ent.second.name;
-		entry["description"] = ent.second.description;
-		entry["type"] = ent.second.type;
-		entry["section"] = ent.second.section;
-
-		root.append(entry);
-	}
-	writeJsonFile(path, root);
-}
-
-bool Unitsync::GetCacheFile(const std::string& path, GameOptions& opt) const
-{
-	Json::Value root;
-	if (!ParseJsonFile(path, root)){
-		return false;
-	}
-
-	try {
-	for(Json::ArrayIndex i=0; i<root.size(); i++) {
-		const std::string key = root[i]["key"].asString();
-		const std::string name = root[i]["name"].asString();
-		const std::string section_str = root[i]["section"].asString();
-		const std::string optiondesc = root[i]["description"].asString();
-		const int opttype = root[i]["type"].asInt();
-		switch (opttype) {
-			case Enum::opt_float: {
-				opt.float_map[key] = mmOptionFloat(name, key, optiondesc, root[i]["def"].asFloat(),
-								   root[i]["stepping"].asFloat(),
-								   root[i]["min"].asFloat(), root[i]["max"].asFloat(),
-								   section_str);
-				break;
-			}
-			case Enum::opt_bool: {
-				opt.bool_map[key] = mmOptionBool(name, key, optiondesc, root[i]["def"].asBool(), section_str);
-				break;
-			}
-			case Enum::opt_string: {
-				opt.string_map[key] = mmOptionString(name, key, optiondesc, root[i]["def"].asString(), root[i]["max_len"].asInt(), section_str);
-				break;
-			}
-			case Enum::opt_list: {
-				opt.list_map[key] = mmOptionList(name, key, optiondesc, root[i]["def"].asString(), section_str);
-				const int listItemCount = root[i]["items"].size();
-				for (int j = 0; j < listItemCount; ++j) {
-					Json::Value &item = root[i]["items"][j];
-					const std::string itemkey = item["key"].asString();
-					const std::string name = item["name"].asString();
-					const std::string desc = item["desc"].asString();
-					opt.list_map[key].addItem(itemkey, name, desc);
-				}
-				break;
-			}
-			case Enum::opt_section: {
-				opt.section_map[key] = mmOptionSection(name, key, optiondesc, section_str);
-			}
-		}
-	}
-	} catch (std::exception& e) {
-		LslWarning("Exception when parsing %s %s",path.c_str(), e.what());
-		return false;
-	}
-	return true;
-}
-
 
 StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 {
