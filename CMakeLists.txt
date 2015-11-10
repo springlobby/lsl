@@ -4,6 +4,18 @@ PROJECT(libSpringLobby)
 cmake_minimum_required(VERSION 2.8.11)
 SET(CMAKE_COLOR_MAKEFILE ON)
 
+
+# check for minimal gcc version
+set(MIN_GCC_VER "4.7")
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "${MIN_GCC_VER}")
+		message(FATAL_ERROR "gcc >=${MIN_GCC_VER} required")
+	else()
+		message(STATUS "gcc ${CMAKE_CXX_COMPILER_VERSION} detected")
+	endif()
+endif()
+
+
 # Add Definitions, Compiler-Switches, etc.: -Wall -O2 -g3 ...
 # MSVC compiler (cl.exe) does not accept the same switches as gcc, although preprocessor definitions in the -D form will work for both
 IF(NOT MSVC)
