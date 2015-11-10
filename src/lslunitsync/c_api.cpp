@@ -352,10 +352,10 @@ UnitsyncLib::StringVector UnitsyncLib::GetMapDeps(int index)
 
 MapInfo UnitsyncLib::GetMapInfoEx(int index)
 {
-	InitLib(m_get_map_info_count)
 	MapInfo info;
 
 	if(m_get_map_info_count != nullptr) { //new style fetching (>= spring 101.0)
+		InitLib(m_get_map_info_count)
 		CHECK_FUNCTION(m_get_info_key);
 		CHECK_FUNCTION(m_get_info_value_string);
 		CHECK_FUNCTION(m_get_info_value_integer);
@@ -430,7 +430,7 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 		return info;
 	}
 	//deprecated style of fetching (<= spring 100.0)
-	CHECK_FUNCTION(m_get_map_description);
+	InitLib(m_get_map_description);
 	info.description = Util::SafeString(m_get_map_description(index));
 	info.tidalStrength = m_get_map_tidalStrength(index);
 	info.gravity = m_get_map_gravity(index);

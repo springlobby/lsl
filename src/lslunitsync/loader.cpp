@@ -89,11 +89,9 @@ void UnitsyncFunctionLoader::MMOptions(UnitsyncLib* s)
 void UnitsyncFunctionLoader::Map(UnitsyncLib* s)
 {
 	bool oldstyle = false;
-	try {
-		BIND(GetMapInfoCountPtr, "GetMapInfoCount", m_get_map_info_count);
-	} catch (...) {
+	BIND(GetMapInfoCountPtr, "GetMapInfoCount", m_get_map_info_count);
+	if (s->m_get_map_info_count == nullptr) {
 		oldstyle = true;
-		s->m_get_map_info_count = nullptr;
 		LslDebug("Using old style map-info fetching (GetMap*()).");
 	}
 	BIND(GetMapCountPtr, "GetMapCount", m_get_map_count);
