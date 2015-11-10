@@ -2,7 +2,6 @@ message(STATUS ${libUnitsyncSrc})
 
 add_executable(lslextract
 	lslextract.cpp
-	${libjsonsrc}
 )
 FIND_PACKAGE(PNG REQUIRED)
 FIND_PACKAGE(X11 REQUIRED)

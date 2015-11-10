@@ -23,7 +23,7 @@ set_source_files_properties(  ${libUnitsyncHeader} PROPERTIES HEADER_FILE_ONLY 1
 #cimage deps
 FIND_PACKAGE(PNG REQUIRED)
 FIND_PACKAGE(X11 REQUIRED)
-ADD_LIBRARY(lsl-unitsync STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} ${jsonlibcppsrc})
+ADD_LIBRARY(lsl-unitsync STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} ${libjsonsrc})
 if(ADD_WXCONVERT)
 	target_compile_definitions(lsl-unitsync PRIVATE -DHAVE_WX)
 endif()
