@@ -711,27 +711,7 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 		return info;
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + ".mapinfo";
 	StringVector cache;
-	if (GetCacheFile(cachefile, cache) && cache.size() >= 11) { //cache file failed
-		info.author = cache[0];
-		info.tidalStrength = Util::FromFloatString(cache[1]);
-		info.gravity = Util::FromIntString(cache[2]);
-		info.maxMetal = Util::FromFloatString(cache[3]);
-		info.extractorRadius = Util::FromFloatString(cache[4]);
-		info.minWind = Util::FromIntString(cache[5]);
-		info.maxWind = Util::FromIntString(cache[6]);
-		info.width = Util::FromIntString(cache[7]);
-		info.height = Util::FromIntString(cache[8]);
-		const StringVector posinfo = Util::StringTokenize(cache[9], " ");
-		for (const std::string pos : posinfo) {
-			StartPos position;
-			position.x = Util::FromIntString(Util::BeforeFirst(pos, "-"));
-			position.y = Util::FromIntString(Util::AfterFirst(pos, "-"));
-			info.positions.push_back(position);
-		}
-		const unsigned int LineCount = cache.size();
-		for (unsigned int i = 10; i < LineCount; i++)
-			info.description += cache[i] + "\n";
-	} else {
+	if (!GetCacheFile(cachefile, info)) { //cache file failed
 		const int index = Util::IndexInSequence(m_unsorted_map_array, mapname);
 		ASSERT_EXCEPTION(index >= 0, "Map not found");
 
@@ -821,37 +801,94 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 	return ret;
 }
 
-bool Unitsync::GetCacheFile(const std::string& path, StringVector& ret) const
+static bool ParseJsonFile(const std::string& path, Json::Value& root)
 {
-	FILE* file = Util::lslopen(path, "r");
-	if (file == NULL)
+	std::FILE * fp = Util::lslopen(path, "rb");
+	if (fp == nullptr) {
 		return false;
-	ret.clear();
-	char line[1024];
-	while (fgets(line, 1024, file) != NULL) {
-		const int len = strnlen(line, 1024);
-		ret.push_back(std::string(line, len - 1));
 	}
-	fclose(file);
+	std::fseek(fp, 0L, SEEK_END);
+	unsigned int fsize = std::ftell(fp);
+	std::rewind(fp);
+
+	std::string s(fsize, 0);
+	if (fsize != std::fread(static_cast<void*>(&s[0]), 1, fsize, fp)) {
+		return false;
+	}
+	std::fclose(fp);
+	Json::Reader reader;
+	if (!reader.parse(s, root, false)) {
+		return false;
+	}
 	return true;
 }
 
-void Unitsync::SetCacheFile(const std::string& path, const StringVector& data) const
+static bool writeJsonFile(const std::string& path, const Json::Value& root)
 {
-	FILE* file = Util::lslopen(path, "w");
-	ASSERT_EXCEPTION(file != NULL, (boost::format("cache file( %s ) not found") % path).str().c_str());
+	FILE* f = Util::lslopen(path, "w");
+	ASSERT_EXCEPTION(f != NULL, (boost::format("cache file( %s ) not found") % path).str().c_str());
+	std::stringstream ss;
+	ss << root; //FIXME: make this efficient
+	const std::string& str = ss.str();
+	fwrite(str.c_str(), str.size(), 1, f);
+	fclose(f);
+}
 
-	for (std::string line : data) {
-		line += "\n";
-		fwrite(line.c_str(), line.size(), 1, file);
+bool Unitsync::GetCacheFile(const std::string& path, MapInfo& info) const
+{
+	Json::Value root;
+	if (!ParseJsonFile(path, root)) {
+		return false;
 	}
-	fclose(file);
+	try {
+		info.author = root["author"].asString();
+		info.tidalStrength = root["tidalStrength"].asFloat();
+		info.gravity = root["gravity"].asInt();
+		info.maxMetal = root["maxMetal"].asFloat();
+		info.extractorRadius = root["extractorRadius"].asFloat();
+		info.minWind = root["minWind"].asInt();
+		info.maxWind = root["maxWind"].asInt();
+		info.width = root["width"].asInt();
+		info.height = root["height"].asInt();
+		info.description = root["description"].asString();
+		Json::Value items = root["startpositions"];
+		for (Json::ArrayIndex i=0; i<items.size(); i++) {
+			StartPos position;
+			position.x = items[i]["x"].asInt();
+			position.y = items[i]["y"].asInt();
+			info.positions.push_back(position);
+		}
+	} catch (std::exception& e) {
+		LslWarning("Exception when parsing %s %s",path.c_str(), e.what());
+		return false;
+	}
+	return true;
+}
+
+void Unitsync::SetCacheFile(const std::string& path, const MapInfo& info) const
+{
+	Json::Value root;
+	root["author"] = info.author;
+	root["tidalStrength"] = info.tidalStrength;
+	root["gravity"] = info.gravity;
+	root["maxMetal"] = info.maxMetal;
+	root["extractorRadius"] = info.extractorRadius;
+	root["minWind"] = info.minWind;
+	root["maxWind"] = info.maxWind;
+	root["width"] = info.width;
+	root["height"] = info.height;
+	root["description"] = info.description;
+	for (StartPos pos: info.positions) {
+		Json::Value item;
+		item["x"] = pos.x;
+		item["y"] = pos.y;
+		root["startpositions"].append(item);
+	}
+	writeJsonFile(path, root);
 }
 
 void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) const
 {
-	FILE* f = Util::lslopen(path, "w");
-	ASSERT_EXCEPTION(f != NULL, (boost::format("cache file( %s ) not found") % path).str().c_str());
 	Json::Value root;
 
 	for (auto const &ent: opt.bool_map ){
@@ -923,31 +960,13 @@ void Unitsync::SetCacheFile(const std::string& path, const GameOptions& opt) con
 
 		root.append(entry);
 	}
-	std::stringstream ss;
-	ss << root; //FIXME: make this efficient
-	const std::string& str = ss.str();
-	fwrite(str.c_str(), str.size(), 1, f);
-	fclose(f);
+	writeJsonFile(path, root);
 }
 
 bool Unitsync::GetCacheFile(const std::string& path, GameOptions& opt) const
 {
-	std::FILE * fp = Util::lslopen(path, "rb");
-	if (fp == nullptr) {
-		return false;
-	}
-	std::fseek(fp, 0L, SEEK_END);
-	unsigned int fsize = std::ftell(fp);
-	std::rewind(fp);
-
-	std::string s(fsize, 0);
-	if (fsize != std::fread(static_cast<void*>(&s[0]), 1, fsize, fp)) {
-		return false;
-	}
-	std::fclose(fp);
-	Json::Reader reader;
 	Json::Value root;
-	if (!reader.parse(s, root, false)) {
+	if (!ParseJsonFile(path, root)){
 		return false;
 	}
 
