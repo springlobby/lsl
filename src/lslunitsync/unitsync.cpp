@@ -770,7 +770,6 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 {
 	StringVector ret;
-	TRY_LOCK(ret)
 	if (!IsLoaded())
 		return ret;
 	std::string type;
@@ -782,14 +781,17 @@ StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 		type = ".ssf";
 		subpath = "Saves";
 	}
-	const int count = susynclib().GetSpringDataDirCount();
 	StringVector paths;
-	for (int i = 0; i < count; i++) {
-		const std::string datadir = susynclib().GetSpringDataDirByIndex(i);
-		if (datadir.empty()) {
-			continue;
+	{
+		TRY_LOCK(ret)
+		const int count = susynclib().GetSpringDataDirCount();
+		for (int i = 0; i < count; i++) {
+			const std::string datadir = susynclib().GetSpringDataDirByIndex(i);
+			if (datadir.empty()) {
+				continue;
+			}
+			paths.push_back(datadir);
 		}
-		paths.push_back(datadir);
 	}
 	try {
 		for (const std::string datadir : paths) {
