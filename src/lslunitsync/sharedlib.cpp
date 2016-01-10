@@ -18,7 +18,7 @@ namespace LSL
 
 void _FreeLibrary(void* handle)
 {
-	if (handle == NULL)
+	if (handle == nullptr)
 		return;
 #ifdef WIN32
 	FreeLibrary((HMODULE)handle);
@@ -29,22 +29,23 @@ void _FreeLibrary(void* handle)
 
 void* _LoadLibrary(const std::string& libpath)
 {
-	void* res = NULL;
+	void* res = nullptr;
 #ifdef WIN32
 	const std::wstring wparentpath = Util::s2ws(LSL::Util::ParentPath(libpath));
 	const std::wstring wlibpath = Util::s2ws(libpath);
-	SetDllDirectory(NULL);
+	SetDllDirectory(nullptr);
 	SetDllDirectory(wparentpath.c_str());
 	res = LoadLibrary(wlibpath.c_str());
-	if (res == NULL) {
+	if (res == nullptr) {
 		const std::string errmsg = Util::geterrormsg().c_str();
-		LSL_THROWF(unitsync, "Couldn't load the unitsync library: %s", errmsg.c_str());
+		LslError("Couldn't load the unitsync library: %s", errmsg.c_str());
+		return res;
 	}
 #else
 	res = dlopen(libpath.c_str(), RTLD_GLOBAL | RTLD_LAZY);
-	if (res == NULL) {
+	if (res == nullptr) {
 		const char* errmsg = dlerror();
-		LSL_THROWF(unitsync, "Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
+		LslError("Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
 	}
 #endif
 	return res;
@@ -52,8 +53,8 @@ void* _LoadLibrary(const std::string& libpath)
 
 void* GetLibFuncPtr(void* libhandle, const std::string& name)
 {
-	if (libhandle == NULL)
-		return NULL;
+	if (libhandle == nullptr)
+		return nullptr;
 
 #if defined _WIN32
 	void* p = (void*)GetProcAddress((HMODULE)libhandle, name.c_str());
@@ -61,7 +62,7 @@ void* GetLibFuncPtr(void* libhandle, const std::string& name)
 	void* p = dlsym(libhandle, name.c_str());
 #endif // else defined _WIN32
 
-	if (p == NULL) {
+	if (p == nullptr) {
 		LslError("Couldn't load %s from unitsync library", name.c_str());
 	}
 	return p;

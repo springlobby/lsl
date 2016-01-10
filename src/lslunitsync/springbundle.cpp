@@ -18,6 +18,8 @@ bool SpringBundle::GetBundleVersion()
 		return false;
 	}
 	void* temphandle = _LoadLibrary(unitsync);
+	if (temphandle == nullptr)
+		return false;
 	std::string functionname = "GetSpringVersion";
 	GetSpringVersionPtr getspringversion = (GetSpringVersionPtr)GetLibFuncPtr(temphandle, functionname);
 	if (!getspringversion) {
