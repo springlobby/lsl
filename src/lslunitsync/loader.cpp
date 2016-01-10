@@ -6,6 +6,7 @@
 
 #include "c_api.h"
 #include "sharedlib.h"
+#include "lslutils/logging.h"
 
 namespace LSL
 {

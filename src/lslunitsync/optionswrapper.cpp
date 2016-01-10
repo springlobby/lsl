@@ -3,9 +3,8 @@
 #include "optionswrapper.h"
 
 #include "unitsync.h"
-#include <lslutils/conversion.h>
-#include <lslutils/debug.h>
-#include <lslutils/logging.h>
+#include "lslutils/conversion.h"
+#include "lslutils/logging.h"
 #include <boost/shared_ptr.hpp>
 
 #include <stdexcept>

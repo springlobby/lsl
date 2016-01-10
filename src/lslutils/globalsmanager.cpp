@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "lslutils/conversion.h"
-#include "lslutils/debug.h"
+#include "lslutils/logging.h"
 
 namespace LSL
 {

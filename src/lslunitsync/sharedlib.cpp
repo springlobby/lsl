@@ -4,7 +4,7 @@
 #define LSL_FUNCTION_PTR_H
 
 #include <string>
-#include <lslutils/debug.h>
+#include "lslutils/logging.h"
 #ifdef WIN32
 #include <windows.h>
 #include <lslutils/conversion.h>

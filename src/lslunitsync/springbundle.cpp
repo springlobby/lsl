@@ -5,7 +5,8 @@
 #include "signatures.h"
 #include <string>
 
-#include <lslutils/misc.h>
+#include "lslutils/misc.h"
+#include "lslutils/logging.h"
 
 namespace LSL
 {

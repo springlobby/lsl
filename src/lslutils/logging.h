@@ -1,9 +1,6 @@
 #ifndef LSL_LOGGING_H
 #define LSL_LOGGING_H
 
-#include <cstdio>
-
-
 extern void lsllogerror(const char* format, ...);
 extern void lsllogdebug(const char* format, ...);
 extern void lsllogwarning(const char* format, ...);

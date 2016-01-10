@@ -3,10 +3,10 @@
 #ifndef LSL_HEADERGUARD_MRU_CACHE_H
 #define LSL_HEADERGUARD_MRU_CACHE_H
 
-#include <lslutils/debug.h>
 
 #include <string>
 #include <boost/thread/mutex.hpp>
+#include "lslutils/logging.h"
 #ifdef WIN32 //undefine windows header pollution
 #ifdef GetUserName
 #undef GetUserName

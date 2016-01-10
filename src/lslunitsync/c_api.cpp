@@ -5,11 +5,11 @@
 #include <stdexcept>
 #include <cmath>
 
-#include <lslutils/logging.h>
-#include <lslutils/misc.h>
-#include <lslutils/globalsmanager.h>
-#include <lslutils/debug.h>
-#include <lslutils/conversion.h>
+#include "lslutils/logging.h"
+#include "lslutils/debug.h"
+#include "lslutils/misc.h"
+#include "lslutils/globalsmanager.h"
+#include "lslutils/conversion.h"
 
 #include "image.h"
 #include "loader.h"
@@ -555,7 +555,7 @@ unsigned int UnitsyncLib::GetPrimaryModChecksumFromName(const std::string& name)
 
 UnitsyncLib::StringVector UnitsyncLib::GetModDeps(int index)
 {
-	int count = GetPrimaryModArchiveCount(index);
+	const int count = GetPrimaryModArchiveCount(index);
 	StringVector ret;
 	for (int i = 0; i < count; i++)
 		ret.push_back(GetPrimaryModArchiveList(i));

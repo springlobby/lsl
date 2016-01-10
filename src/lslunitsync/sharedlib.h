@@ -4,7 +4,6 @@
 #define LSL_FUNCTION_PTR_H
 
 #include <string>
-#include <lslutils/debug.h>
 
 namespace LSL
 {
