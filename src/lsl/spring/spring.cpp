@@ -39,9 +39,6 @@
 namespace LSL
 {
 
-namespace BF = boost::filesystem;
-namespace BA = boost::algorithm;
-
 Spring& spring()
 {
 	static LSL::Util::LineInfo<Spring> m(AT);
@@ -74,10 +71,10 @@ bool Spring::RunReplay(const std::string& filename)
 
 bool Spring::Run(const IBattlePtr battle)
 {
-	BF::path path; // = sett().GetCurrentUsedDataDir();
+	boost::filesystem::path path; // = sett().GetCurrentUsedDataDir();
 	path /= "script.txt";
 	try {
-		BF::ofstream f(path);
+		boost::filesystem::ofstream f(path);
 		if (!f.is_open()) {
 			LslError("Access denied to script.txt at %s", path.string().c_str());
 		}
@@ -107,11 +104,11 @@ bool Spring::Run(const IBattlePtr battle)
 
 //bool Spring::Run( Battle::SinglePlayerBattle& battle )
 //{
-//    BF::path path = sett().GetCurrentUsedDataDir();
+//    boost::filesystem::path path = sett().GetCurrentUsedDataDir();
 //    path /= "script.txt";
 //    std::string cmd = "\"" + path.string().c_str() + "\"";
 //    try {
-//        BF::ofstream f( path );
+//        boost::filesystem::ofstream f( path );
 //        if ( !f.is_open() ) {
 //            LslError( "Access denied to script.txt at %s", path.string().c_str() );
 //        }
@@ -133,11 +130,11 @@ bool Spring::Run(const IBattlePtr battle)
 
 //bool Spring::Run(NoGuiSinglePlayerBattle &battle)
 //{
-//    BF::path path = sett().GetCurrentUsedDataDir();
+//    boost::filesystem::path path = sett().GetCurrentUsedDataDir();
 //    path /= "script.txt";
 //    std::string cmd = "\"" + path.string().c_str() + "\"";
 //    try {
-//        BF::ofstream f( path );
+//        boost::filesystem::ofstream f( path );
 //        if ( !f.is_open() ) {
 //            LslError( "Access denied to script.txt at %s", path.string().c_str() );
 //        }
@@ -159,11 +156,11 @@ bool Spring::Run(const IBattlePtr battle)
 
 bool Spring::Run(const std::string& script)
 {
-	BF::path path; // = sett().GetCurrentUsedDataDir();
+	boost::filesystem::path path; // = sett().GetCurrentUsedDataDir();
 	path /= "script.txt";
 	std::string cmd = std::string(" \"" + path.string() + "\"");
 	try {
-		BF::ofstream f(path);
+		boost::filesystem::ofstream f(path);
 		if (!f.is_open()) {
 			LslError("Access denied to script.txt at %s", path.string().c_str());
 		}
@@ -405,7 +402,7 @@ std::string Spring::WriteScriptTxt(const IBattlePtr battle) const
 			continue;
 		tdf.EnterSection("PLAYER" + Util::ToIntString(i));
 		tdf.AppendStr("Name", user->Nick());
-		tdf.AppendStr("CountryCode", BA::to_lower_copy(user->GetCountry()));
+		tdf.AppendStr("CountryCode", boost::algorithm::to_lower_copy(user->GetCountry()));
 		tdf.AppendInt("Spectator", status.spectator);
 		tdf.AppendInt("Rank", (int)user->GetRank());
 		tdf.AppendInt("IsFromDemo", int(status.isfromdemo));
