@@ -12,10 +12,16 @@ namespace LSL
 {
 
 #define BIND(type, name, var) \
+	s->var = (type)GetLibFuncPtr(s->m_libhandle, name); \
+	if (s->var == nullptr) return false;
+
+#define BIND_OPTIONAL(type, name, var) \
 	s->var = (type)GetLibFuncPtr(s->m_libhandle, name);
 
-void UnitsyncFunctionLoader::LuaParser(UnitsyncLib* s)
+bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 {
+
+// LUA
 	BIND(lpClosePtr, "lpClose", m_parser_close);
 	BIND(lpOpenFilePtr, "lpOpenFile", m_parser_open_file);
 	BIND(lpOpenSourcePtr, "lpOpenSource", m_parser_open_source);
@@ -60,10 +66,8 @@ void UnitsyncFunctionLoader::LuaParser(UnitsyncLib* s)
 	BIND(lpGetStrKeyFloatValPtr, "lpGetStrKeyFloatVal", m_parser_string_key_get_float_value);
 	BIND(lpGetIntKeyStrValPtr, "lpGetIntKeyStrVal", m_parser_int_key_get_string_value);
 	BIND(lpGetStrKeyStrValPtr, "lpGetStrKeyStrVal", m_parser_string_key_get_string_value);
-}
 
-void UnitsyncFunctionLoader::MMOptions(UnitsyncLib* s)
-{
+// MMOptions
 	BIND(GetMapOptionCountPtr, "GetMapOptionCount", m_get_map_option_count);
 	BIND(GetCustomOptionCountPtr, "GetCustomOptionCount", m_get_custom_option_count);
 	BIND(GetModOptionCountPtr, "GetModOptionCount", m_get_mod_option_count);
@@ -85,12 +89,10 @@ void UnitsyncFunctionLoader::MMOptions(UnitsyncLib* s)
 	BIND(GetOptionListItemKeyPtr, "GetOptionListItemKey", m_get_option_list_item_key);
 	BIND(GetOptionListItemNamePtr, "GetOptionListItemName", m_get_option_list_item_name);
 	BIND(GetOptionListItemDescPtr, "GetOptionListItemDesc", m_get_option_list_item_desc);
-}
 
-void UnitsyncFunctionLoader::Map(UnitsyncLib* s)
-{
+//MAP
 	bool oldstyle = false;
-	BIND(GetMapInfoCountPtr, "GetMapInfoCount", m_get_map_info_count);
+	BIND_OPTIONAL(GetMapInfoCountPtr, "GetMapInfoCount", m_get_map_info_count);
 	if (s->m_get_map_info_count == nullptr) {
 		oldstyle = true;
 		LslDebug("Using old style map-info fetching (GetMap*()).");
@@ -125,10 +127,9 @@ void UnitsyncFunctionLoader::Map(UnitsyncLib* s)
 	BIND(GetMapArchiveNamePtr, "GetMapArchiveName", m_get_map_archive_name);
 	BIND(GetMapChecksumPtr, "GetMapChecksum", m_get_map_checksum);
 	BIND(GetMapChecksumFromNamePtr, "GetMapChecksumFromName", m_get_map_checksum_from_name);
-}
 
-void UnitsyncFunctionLoader::Basic(UnitsyncLib* s)
-{
+//Basic stuff
+
 	BIND(InitPtr, "Init", m_init);
 	BIND(UnInitPtr, "UnInit", m_uninit);
 	BIND(GetNextErrorPtr, "GetNextError", m_get_next_error);
@@ -174,10 +175,8 @@ void UnitsyncFunctionLoader::Basic(UnitsyncLib* s)
 	BIND(GetInfoValueFloatPtr, "GetInfoValueFloat", m_get_info_value_float);
 	BIND(GetInfoValueBoolPtr, "GetInfoValueBool", m_get_info_value_bool);
 	BIND(GetInfoValueIntegerPtr, "GetInfoValueInteger", m_get_info_value_integer);
-}
 
-void UnitsyncFunctionLoader::Config(UnitsyncLib* s)
-{
+// Config
 	BIND(SetSpringConfigFilePtr, "SetSpringConfigFile", m_set_spring_config_file_path);
 	BIND(GetSpringConfigFilePtr, "GetSpringConfigFile", m_get_spring_config_file_path);
 
@@ -187,10 +186,8 @@ void UnitsyncFunctionLoader::Config(UnitsyncLib* s)
 	BIND(GetSpringConfigStringPtr, "GetSpringConfigString", m_get_spring_config_string);
 	BIND(SetSpringConfigStringPtr, "SetSpringConfigString", m_set_spring_config_string);
 	BIND(SetSpringConfigIntPtr, "SetSpringConfigInt", m_set_spring_config_int);
-}
 
-void UnitsyncFunctionLoader::Mod(UnitsyncLib* s)
-{
+// Game
 	BIND(GetPrimaryModIndexPtr, "GetPrimaryModIndex", m_get_mod_index);
 	BIND(GetPrimaryModCountPtr, "GetPrimaryModCount", m_get_mod_count);
 	BIND(GetPrimaryModArchivePtr, "GetPrimaryModArchive", m_get_mod_archive);

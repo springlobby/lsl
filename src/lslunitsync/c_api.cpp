@@ -100,11 +100,12 @@ UnitsyncLib::~UnitsyncLib()
 	Unload();
 }
 
-void UnitsyncLib::Load(const std::string& path)
+bool UnitsyncLib::Load(const std::string& path)
 {
 	LOCK_UNITSYNC;
 	_Load(path);
 	_Init();
+	return m_loaded;
 }
 
 
@@ -123,20 +124,12 @@ void UnitsyncLib::_Load(const std::string& path)
 	m_libhandle = _LoadLibrary(path);
 
 	// Load all function from library.
-	try {
-		UnitsyncFunctionLoader::Basic(this);
-		UnitsyncFunctionLoader::Map(this);
-		UnitsyncFunctionLoader::Mod(this);
-		UnitsyncFunctionLoader::Config(this);
-		UnitsyncFunctionLoader::MMOptions(this);
-		UnitsyncFunctionLoader::LuaParser(this);
-		// only when we end up here unitsync was succesfully loaded.
-		m_loaded = true;
-	} catch (std::exception& e) {
-		// don't uninit unitsync in _Unload -- it hasn't been init'ed yet
+
+	m_loaded = UnitsyncFunctionLoader::BindFunctions(this);
+
+	if (!m_loaded) {
 		m_uninit = NULL;
 		_Unload();
-		LSL_THROW(unitsync, e.what());
 	}
 }
 

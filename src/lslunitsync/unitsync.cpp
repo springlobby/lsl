@@ -95,19 +95,20 @@ bool Unitsync::LoadUnitSyncLib(const std::string& unitsyncloc)
 {
 	LOCK_UNITSYNC;
 	ClearCache();
-	bool ret = _LoadUnitSyncLib(unitsyncloc);
-	if (ret) {
-		supportsManualUnLoad = LSL::susynclib().GetSpringConfigInt("UnitsyncAutoUnLoadMapsIsSupported", 0) != 0;
-		if (supportsManualUnLoad) {
-			LslDebug("Unitsync supports manual loading of archives (faster, yey!)");
-			LSL::usync().SetSpringConfigInt("UnitsyncAutoUnLoadMaps", 1);
-		} else {
-			LslDebug("Unitsync doesn't support manual loading of archives :-/");
-		}
-		m_cache_path = LSL::Util::config().GetCachePath();
-		PopulateArchiveList();
+	const bool ret = susynclib().Load(unitsyncloc);
+	if (!ret) {
+		return false;
 	}
-	return ret;
+	supportsManualUnLoad = LSL::susynclib().GetSpringConfigInt("UnitsyncAutoUnLoadMapsIsSupported", 0) != 0;
+	if (supportsManualUnLoad) {
+		LslDebug("Unitsync supports manual loading of archives (faster, yey!)");
+		LSL::usync().SetSpringConfigInt("UnitsyncAutoUnLoadMaps", 1);
+	} else {
+		LslDebug("Unitsync doesn't support manual loading of archives :-/");
+	}
+	m_cache_path = LSL::Util::config().GetCachePath();
+	PopulateArchiveList();
+	return true;
 }
 
 void Unitsync::ClearCache()
@@ -207,17 +208,6 @@ void Unitsync::PopulateArchiveList()
 	std::sort(m_map_array.begin(), m_map_array.end(), &CompareStringNoCase);
 	std::sort(m_mod_array.begin(), m_mod_array.end(), &CompareStringNoCase);
 }
-
-bool Unitsync::_LoadUnitSyncLib(const std::string& unitsyncloc)
-{
-	try {
-		susynclib().Load(unitsyncloc);
-	} catch (...) {
-		return false;
-	}
-	return true;
-}
-
 
 void Unitsync::FreeUnitSyncLib()
 {

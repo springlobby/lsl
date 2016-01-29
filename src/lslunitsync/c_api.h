@@ -95,7 +95,7 @@ public:
 	 * @see Unload().
 	 * @note Throws runtime_error if load failed.
 	 */
-	void Load(const std::string& path);
+	bool Load(const std::string& path);
 
 	/**
 	 * Unload the unitsync library. Does nothing if not loaded.
