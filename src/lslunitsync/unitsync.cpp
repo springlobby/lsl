@@ -585,15 +585,17 @@ static std::string GetImageName(ImageType imgtype)
 {
 	switch(imgtype) {
 		case IMAGE_MAP:
-            return ".minimap.png";
+			return ".minimap.png";
 		case IMAGE_MAP_THUMB:
-            return ".minimap_thumb.png";
+			return ".minimap_thumb.png";
 		case IMAGE_METALMAP:
 			return ".metalmap.png";
 		case IMAGE_HEIGHTMAP:
-            return ".heightmap.png";
+			return ".heightmap.png";
+		default:
+			assert(false);
+			return "";
 	}
-	assert(false);
 }
 
 bool Unitsync::GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, int width, int height)
