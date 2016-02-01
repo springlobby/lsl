@@ -767,7 +767,7 @@ static bool directoryExists(const std::string& path)
 {
         if (path.empty()) return false;
 #ifdef WIN32
-        const std::wstring wpath = s2ws(path);
+        const std::wstring wpath = Util::s2ws(path);
         DWORD dwAttrib = GetFileAttributesW(wpath.c_str());
         return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 #else
@@ -815,17 +815,17 @@ StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 		while ((ent = readdir (dir)) != NULL) {
 			if (ent->d_name[0] == '.') //skip hidden files / . / ..
 				continue;
+			const std::string filename = datadir + std::string(ent->d_name);
 #ifndef WIN32
 			if ((ent->d_type & DT_REG)!=0) { //directory
 #else
 			struct stat sb;
-			stat(absname.c_str(), &sb);
+			stat(filename.c_str(), &sb);
 			if((sb.st_mode & S_IFDIR)!=0) {
 #endif
 				continue;
 			}
 
-			const std::string filename = datadir + std::string(ent->d_name);
 			if (filename.substr(filename.length() - 4) != type) // compare file ending
 				continue;
 			ret.push_back(filename);

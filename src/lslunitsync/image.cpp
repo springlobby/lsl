@@ -25,17 +25,17 @@
 //! we need our own fmemopen implementation since its posix only
 FILE* fmemopen(void* data, size_t size, const char* mode)
 {
-	char buf[MAX_PATH];
-	if (GetTempPath(MAX_PATH, buf) == 0) {
+	wchar_t buf[MAX_PATH];
+	if (GetTempPathW(MAX_PATH, &buf) == 0) {
 		return nullptr;
 	}
 
-	FILE* f = fopen(buf, "wb");
+	FILE* f = _wfopen(buf, "wb");
 	if (NULL == f)
 		return nullptr;
 	fwrite(data, size, 1, f);
 	fclose(f);
-	return fopen(fn.c_str(), mode);
+	return _wfopen(buf, mode);
 }
 #elif !defined(HAVE_FMEMOPEN)
 #error no fmemopen implementation!
