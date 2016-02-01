@@ -18,23 +18,27 @@
 #include <cimg/CImg.h>
 #include <lslutils/misc.h>
 #include <lslutils/logging.h>
+#include <stdio.h> //fmemopen
 
 
-#if !defined(HAVE_FMEMOPEN)
-#include <boost/filesystem.hpp>
+#if defined(WIN32)
 //! we need our own fmemopen implementation since its posix only
 FILE* fmemopen(void* data, size_t size, const char* mode)
 {
-	std::string fn(boost::filesystem::unique_path(
-			   boost::filesystem::temp_directory_path() /
-			   "tmp-lsl-cimage-%%%%-%%%%-%%%%-%%%%").string());
-	FILE* f = fopen(fn.c_str(), "wb");
+	char buf[MAX_PATH];
+	if (GetTempPath(MAX_PATH, buf) == 0) {
+		return nullptr;
+	}
+
+	FILE* f = fopen(buf, "wb");
 	if (NULL == f)
-		return NULL;
+		return nullptr;
 	fwrite(data, size, 1, f);
 	fclose(f);
 	return fopen(fn.c_str(), mode);
 }
+#elif !defined(HAVE_FMEMOPEN)
+#error no fmemopen implementation!
 #endif
 
 namespace cimg_library

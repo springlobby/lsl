@@ -15,7 +15,6 @@
 	}
 
 #include <string>
-#include <boost/filesystem/path.hpp>
 #include <lslutils/type_forwards.h>
 
 namespace LSL

@@ -28,7 +28,7 @@ LIST( APPEND libSpringLobbyHeader ${templatesources} )
 set_source_files_properties(  ${libSpringLobbyHeader} PROPERTIES HEADER_FILE_ONLY 1 )
 
 ADD_LIBRARY(lsl-server STATIC ${libSpringLobbyHeader} ${libSpringLobbySrc} ${libSpringLobby_RC_FILE} )
-TARGET_LINK_LIBRARIES(lsl-server lsl-utils ${Boost_SYSTEM} ${Boost_FILESYSTEM_LIBRARY} ${Boost_THREAD_LIBRARY} )
+TARGET_LINK_LIBRARIES(lsl-server lsl-utils ${Boost_SYSTEM} ${Boost_THREAD_LIBRARY} )
 target_include_directories(lsl-server PRIVATE ${libSpringLobby_SOURCE_DIR}/src)
 
 IF(MINGW)

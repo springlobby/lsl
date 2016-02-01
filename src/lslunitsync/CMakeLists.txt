@@ -1,5 +1,7 @@
 option(ADD_WXCONVERT "add wx convert functions to image lib" OFF)
 
+SET(CMAKE_REQUIRED_INCLUDES stdio.h)
+CHECK_FUNCTION_EXISTS(fmemopen HAVE_FMEMOPEN)
 SET(libUnitsyncSrc
 	"${CMAKE_CURRENT_SOURCE_DIR}/c_api.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/sharedlib.cpp"
@@ -19,6 +21,7 @@ SET( templatesources
 )
 LIST( APPEND libUnitsyncHeader ${templatesources} )
 set_source_files_properties(  ${libUnitsyncHeader} PROPERTIES HEADER_FILE_ONLY 1 )
+
 	
 #cimage deps
 FIND_PACKAGE(PNG REQUIRED)
@@ -27,6 +30,10 @@ ADD_LIBRARY(lsl-unitsync STATIC ${libUnitsyncHeader} ${libUnitsyncSrc} ${libjson
 if(ADD_WXCONVERT)
 	target_compile_definitions(lsl-unitsync PRIVATE -DHAVE_WX)
 endif()
+IF(HAVE_FMEMOPEN)
+        target_compile_definitions(lsl-unitsync PRIVATE -DHAVE_FMEMOPEN)
+ENDIF(HAVE_FMEMOPEN)
+
 
 if (UNIX AND NOT MINGW AND NOT APPLE)
 	FIND_LIBRARY(RT_LIBRARY rt)

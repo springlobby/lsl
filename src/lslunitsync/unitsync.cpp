@@ -7,21 +7,21 @@
 #include <stdexcept>
 #include <clocale>
 #include <set>
+#include <dirent.h>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 #include <iterator>
 #include "c_api.h"
 #include "image.h"
 #include "springbundle.h"
 #include "unitsync_cache.h"
 
-#include <lslutils/config.h>
-#include <lslutils/debug.h>
-#include <lslutils/conversion.h>
-#include <lslutils/misc.h>
-#include <lslutils/globalsmanager.h>
-#include <lslutils/thread.h>
+#include "lslutils/config.h"
+#include "lslutils/debug.h"
+#include "lslutils/conversion.h"
+#include "lslutils/misc.h"
+#include "lslutils/globalsmanager.h"
+#include "lslutils/thread.h"
 
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
@@ -759,6 +759,21 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 	return ret;
 }
 
+static bool directoryExists(const std::string& path)
+{
+        if (path.empty()) return false;
+#ifdef WIN32
+        const std::wstring wpath = s2ws(path);
+        DWORD dwAttrib = GetFileAttributesW(wpath.c_str());
+        return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else
+        struct stat fileinfo;
+        const int res = stat(path.c_str(),&fileinfo);
+        return (res == 0) && ((fileinfo.st_mode & S_IFDIR) != 0);
+#endif
+}
+
+
 StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 {
 	StringVector ret;
@@ -785,26 +800,32 @@ StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 			paths.push_back(datadir);
 		}
 	}
-	try {
-		for (const std::string datadir : paths) {
-			const std::string dir = Util::EnsureDelimiter(datadir) + subpath;
-			try {
-				if (!boost::filesystem::is_directory(dir)) {
-					continue;
-				}
-			} catch (...) {
-			}
-			boost::filesystem::directory_iterator enditer;
-			for (boost::filesystem::directory_iterator dir_iter(dir); dir_iter != enditer; ++dir_iter) {
-				if (!boost::filesystem::is_regular_file(dir_iter->status()))
-					continue;
-				const std::string filename(dir_iter->path().string());
-				if (filename.substr(filename.length() - 4) != type) // compare file ending
-					continue;
-				ret.push_back(filename);
-			}
+	for (const std::string datadir : paths) {
+		const std::string dirname = Util::EnsureDelimiter(datadir) + subpath;
+		DIR *dir;
+		struct dirent *ent;
+		if ((dir = opendir(dirname.c_str())) == NULL) {
+				continue;
 		}
-	} catch (...) {
+		/* print all the files and directories within directory */
+		while ((ent = readdir (dir)) != NULL) {
+			if (ent->d_name[0] == '.') //skip hidden files / . / ..
+				continue;
+#ifndef WIN32
+			if ((ent->d_type & DT_REG)!=0) { //directory
+#else
+			struct stat sb;
+			stat(absname.c_str(), &sb);
+			if((sb.st_mode & S_IFDIR)!=0) {
+#endif
+				continue;
+			}
+
+			const std::string filename = datadir + std::string(ent->d_name);
+			if (filename.substr(filename.length() - 4) != type) // compare file ending
+				continue;
+			ret.push_back(filename);
+		}
 	}
 	return ret;
 }

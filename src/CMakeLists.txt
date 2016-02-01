@@ -10,12 +10,6 @@ ENDIF ( EXISTS ${libSpringLobby_BINARY_DIR}/libSpringLobby_config.h  OR  EXISTS 
 
 INCLUDE (CheckFunctionExists)
 
-SET(CMAKE_REQUIRED_INCLUDES stdio.h)
-CHECK_FUNCTION_EXISTS(fmemopen HAVE_FMEMOPEN)
-IF(HAVE_FMEMOPEN)
-	ADD_DEFINITIONS(-DHAVE_FMEMOPEN)
-ENDIF(HAVE_FMEMOPEN)
-
 add_subdirectory( lslutils )
 if (LSLSERVER)
 	add_subdirectory( lsl )
