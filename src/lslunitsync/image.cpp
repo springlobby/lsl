@@ -21,14 +21,12 @@
 #include <stdio.h> //fmemopen
 
 
-#if defined(WIN32)
+#if !defined(HAVE_FMEMOPEN)
 //! we need our own fmemopen implementation since its posix only
 FILE* fmemopen(void* data, size_t size, const char* mode)
 {
 	return tmpfile();
 }
-#elif !defined(HAVE_FMEMOPEN)
-#error no fmemopen implementation!
 #endif
 
 namespace cimg_library
