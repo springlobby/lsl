@@ -23,6 +23,10 @@
 #include "lslutils/globalsmanager.h"
 #include "lslutils/thread.h"
 
+#ifndef WIN32
+#include <sys/stat.h>
+#endif
+
 #define LOCK_UNITSYNC boost::mutex::scoped_lock lock_criticalsection(m_lock)
 
 #define ASYNC_LOAD 0 //FIXME: repair/set to 1!
