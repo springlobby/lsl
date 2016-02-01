@@ -763,21 +763,6 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 	return ret;
 }
 
-static bool directoryExists(const std::string& path)
-{
-        if (path.empty()) return false;
-#ifdef WIN32
-        const std::wstring wpath = Util::s2ws(path);
-        DWORD dwAttrib = GetFileAttributesW(wpath.c_str());
-        return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else
-        struct stat fileinfo;
-        const int res = stat(path.c_str(),&fileinfo);
-        return (res == 0) && ((fileinfo.st_mode & S_IFDIR) != 0);
-#endif
-}
-
-
 StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 {
 	StringVector ret;
