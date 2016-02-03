@@ -801,15 +801,11 @@ StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 			if (ent->d_name[0] == '.') //skip hidden files / . / ..
 				continue;
 			const std::string filename = Util::EnsureDelimiter(dirname) + std::string(ent->d_name);
-			if (ent->d_type != DT_UNKNOWN) { // readdir doesn't set d_type, try stat()
-				struct stat sb;
-				stat(filename.c_str(), &sb);
-				if((sb.st_mode & S_IFDIR)!=0) { // is dir, skip
-					continue;
-				}
-			} else if ((ent->d_type & DT_REG) !=0 ) // not file
+			struct stat sb;
+			stat(filename.c_str(), &sb);
+			if ((sb.st_mode & S_IFDIR)!=0) { // is dir, skip
 				continue;
-
+			}
 
 			if (filename.substr(filename.length() - 4) != type) // compare file ending
 				continue;
