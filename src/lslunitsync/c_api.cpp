@@ -179,6 +179,7 @@ void UnitsyncLib::_Unload()
 
 	if (m_uninit)
 		m_uninit();
+	UnitsyncFunctionLoader::UnbindFunctions(this);
 	_FreeLibrary(m_libhandle);
 	m_libhandle = NULL;
 	m_init = NULL;

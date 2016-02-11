@@ -11,6 +11,7 @@ class UnitsyncLib;
 struct UnitsyncFunctionLoader
 {
 	static bool BindFunctions(UnitsyncLib* s);
+	static void UnbindFunctions(UnitsyncLib* s);
 };
 
 } // namespace LSL
