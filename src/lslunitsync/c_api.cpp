@@ -136,7 +136,7 @@ void UnitsyncLib::_Load(const std::string& path)
 void UnitsyncLib::_Init()
 {
 	if (_IsLoaded() && m_init != NULL) {
-		m_current_mod = std::string();
+		m_current_mod.clear();
 		m_init(true, 1);
 		auto errors = GetUnitsyncErrors();
 		for (const std::string error : errors) {
@@ -172,10 +172,10 @@ void UnitsyncLib::_Unload()
 	// as soon as we enter m_uninit unitsync technically isn't loaded anymore.
 	m_loaded = false;
 
-	m_path = std::string();
+	m_path.clear();
 
 	// can't call UnSetCurrentMod() because it takes the unitsync lock
-	m_current_mod = std::string();
+	m_current_mod.clear();
 
 	if (m_uninit)
 		m_uninit();
@@ -254,7 +254,7 @@ void UnitsyncLib::UnSetCurrentMod()
 	LOCK_UNITSYNC;
 	if (!m_current_mod.empty())
 		_RemoveAllArchives();
-	m_current_mod = std::string();
+	m_current_mod.clear();
 }
 
 int UnitsyncLib::GetModIndex(const std::string& name)
