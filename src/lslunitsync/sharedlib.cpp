@@ -48,6 +48,7 @@ void* _LoadLibrary(const std::string& libpath)
 	if (res == nullptr) {
 		const char* errmsg = dlerror();
 		LslError("Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
+		return nullptr;
 	}
 	if (lmid == LM_ID_NEWLM) { //store namespace / lmid for future usage:
 		const int ret = dlinfo(res, RTLD_DI_LMID, &lmid);
