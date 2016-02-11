@@ -940,6 +940,7 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 
 
 	GetMap(mapname);
+	FetchUnitsyncErrors(mapname);
 	GetMapOptions(mapname);
 	GetScaledMapImage(mapname, IMAGE_MAP);
 	GetScaledMapImage(mapname, IMAGE_METALMAP);
