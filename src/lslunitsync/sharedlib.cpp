@@ -44,7 +44,7 @@ void* _LoadLibrary(const std::string& libpath)
 #else
 	static Lmid_t lmid = LM_ID_NEWLM;
 
-	res = dlmopen(lmid, libpath.c_str(), RTLD_LOCAL | RTLD_LAZY);
+	res = dlmopen(lmid, libpath.c_str(), RTLD_LAZY);
 	if (res == nullptr) {
 		const char* errmsg = dlerror();
 		LslError("Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
