@@ -42,19 +42,11 @@ void* _LoadLibrary(const std::string& libpath)
 		return res;
 	}
 #else
-	static Lmid_t lmid = LM_ID_NEWLM;
-
-	res = dlmopen(lmid, libpath.c_str(), RTLD_LAZY);
+	res = dlopen(libpath.c_str(), RTLD_NOW | RTLD_LOCAL);
 	if (res == nullptr) {
 		const char* errmsg = dlerror();
 		LslError("Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
 		return nullptr;
-	}
-	if (lmid == LM_ID_NEWLM) { //store namespace / lmid for future usage:
-		const int ret = dlinfo(res, RTLD_DI_LMID, &lmid);
-		if (ret != 0) {
-			LslError("dlinfo failed, couln't get lmid!");
-		}
 	}
 #endif
 	return res;
