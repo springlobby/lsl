@@ -640,7 +640,6 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	const bool loaded = GetImageFromCache(cachefile, img, imgtype);
 
 	LslWarning("Cachefile: %s %d", cachefile.c_str(), loaded);
-	bool dummy = false;
 	if (!loaded) { //image seems invalid, recreate
 		try {
 			//convert and save
@@ -659,13 +658,13 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 			const MapInfo info = _GetMapInfoEx(mapname);
 			if ((info.width <= 0) || (info.height <= 0)) {
 				LslWarning("Couldn't load mapimage from %s, missing dependencies?", mapname.c_str());
-				return UnitsyncImage(width, height);
+				return UnitsyncImage(1, 1);
 			}
 			lslSize image_size = lslSize(info.width, info.height).MakeFit(lslSize(img.GetWidth(), img.GetHeight()));
 			img.Rescale(image_size.GetWidth(), image_size.GetHeight()); //rescale to keep aspect ratio
 		} catch (...) { //we failed horrible, use dummy image
 			LslWarning("Couldn't rescale map image from %s, missing dependencies?", mapname.c_str());
-			return UnitsyncImage(width, height);
+			return UnitsyncImage(1, 1);
 		}
 	}
 
@@ -950,7 +949,7 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	FetchUnitsyncErrors(mapname);
 	GetMapOptions(mapname);
 	GetScaledMapImage(mapname, IMAGE_MAP);
-	GetScaledMapImage(mapname, IMAGE_MAP_THUMB);
+	GetScaledMapImage(mapname, IMAGE_MAP_THUMB, 98, 98);
 	GetScaledMapImage(mapname, IMAGE_METALMAP);
 	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
 	if (supportsManualUnLoad) {
@@ -1087,12 +1086,9 @@ std::string Unitsync::GetMapImagePath(const std::string& mapname, ImageType imgt
 {
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(imgtype);
 	if (!Util::FileExists(cachefile)) {
-		if (imgtype == IMAGE_MAP_THUMB) {
-			GetScaledMapImage(mapname, imgtype, 98, 98);
-		} else {
-			GetScaledMapImage(mapname, imgtype);
-		}
+		PrefetchMap(mapname);
 	}
+	assert(Util::FileExists(cachefile));
 	return cachefile;
 }
 
@@ -1100,8 +1096,9 @@ std::string Unitsync::GetMapOptionsPath(const std::string& mapname)
 {
 	const std::string cachefile = GetFileCachePath(mapname, false, true) + ".mapoptions";
 	if (!Util::FileExists(cachefile)) {
-		GetMapOptions(mapname);
+		PrefetchMap(mapname);
 	}
+	assert(Util::FileExists(cachefile));
 	return cachefile;
 }
 
@@ -1109,8 +1106,9 @@ std::string Unitsync::GetMapInfoPath(const std::string& mapname)
 {
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + ".mapinfo";
 	if (!Util::FileExists(cachefile)) {
-		_GetMapInfoEx(mapname);
+		PrefetchMap(mapname);
 	}
+	assert(Util::FileExists(cachefile));
 	return cachefile;
 }
 
