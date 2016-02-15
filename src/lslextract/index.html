@@ -18,7 +18,7 @@
 		str = "<ul>";
 		for (var item in dict) {
 			if (dict[item] instanceof Object) {
-				str += dumpDict(dict[item]);
+				str += "<li>"+item+":" + dumpDict(dict[item]) + "</li>";
 			} else {
 				str += "<li>"+item +":" +dict[item] + "</li>"
 			}
