@@ -7,8 +7,7 @@ namespace LSL
 {
 
 //! @brief Struct used internally by the TASServer class to get client status information.
-struct TASClientstatus
-{
+struct TASClientstatus {
 	unsigned int in_game : 1;
 	unsigned int away : 1;
 	unsigned int rank : 3;
@@ -18,8 +17,7 @@ struct TASClientstatus
 
 
 //! @brief Union used internally by the TASServer class to get client status information.
-union UTASClientStatus
-{
+union UTASClientStatus {
 	unsigned char byte;
 	TASClientstatus tasdata;
 };
@@ -27,8 +25,7 @@ union UTASClientStatus
 
 //! @brief Struct used internally by the TASServer class to get battle status information.
 //!TODO is that last member necessary? throws a warning baout bein used uninited
-struct TASBattleStatus
-{
+struct TASBattleStatus {
 	unsigned int : 1;
 	unsigned int ready : 1;
 	unsigned int team : 4;
@@ -42,30 +39,26 @@ struct TASBattleStatus
 };
 
 //! @brief Union used internally by the TASServer class to get battle status information.
-union UTASBattleStatus
-{
+union UTASBattleStatus {
 	int data;
 	TASBattleStatus tasdata;
 };
 
 //! @brief struct used internallby by tasserver to convert offer file bitfields
-struct OfferFileData
-{
+struct OfferFileData {
 	bool autoopen : 1;
 	bool closelobbyondownload : 1;
 	bool disconnectonrefuse : 1;
 };
 
 //! @brief Union used internally by the TASServer class to get battle status information.
-union UTASOfferFileData
-{
+union UTASOfferFileData {
 	int data;
 	OfferFileData tasdata;
 };
 
 
-struct TASColor
-{
+struct TASColor {
 	unsigned int red : 8;
 	unsigned int green : 8;
 	unsigned int blue : 8;
@@ -73,8 +66,7 @@ struct TASColor
 };
 
 
-union UTASColor
-{
+union UTASColor {
 	int data;
 	TASColor color;
 };

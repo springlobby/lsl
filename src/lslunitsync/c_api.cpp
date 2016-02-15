@@ -348,7 +348,7 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 {
 	MapInfo info;
 
-	if(m_get_map_info_count != nullptr) { //new style fetching (>= spring 101.0)
+	if (m_get_map_info_count != nullptr) { //new style fetching (>= spring 101.0)
 		InitLib(m_get_map_info_count)
 		CHECK_FUNCTION(m_get_info_key);
 		CHECK_FUNCTION(m_get_info_value_string);
@@ -358,66 +358,66 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 		const int infos = m_get_map_info_count(index);
 		int x = 0;
 		bool xset = false;
-		for(int i=0; i < infos; i++) {
+		for (int i = 0; i < infos; i++) {
 			const std::string& key = Util::SafeString(m_get_info_key(i));
 			if (key == "description") {
-                    info.description = Util::SafeString(m_get_info_value_string(i));
-					continue;
+				info.description = Util::SafeString(m_get_info_value_string(i));
+				continue;
 			}
 			if (key == "author") {
-					info.author = Util::SafeString(m_get_info_value_string(i));
-					continue;
+				info.author = Util::SafeString(m_get_info_value_string(i));
+				continue;
 			}
 			if (key == "tidalStrength") {
-					info.tidalStrength = m_get_info_value_integer(i);
-					continue;
+				info.tidalStrength = m_get_info_value_integer(i);
+				continue;
 			}
 			if (key == "gravity") {
-					info.gravity = m_get_info_value_integer(i);
-					continue;
+				info.gravity = m_get_info_value_integer(i);
+				continue;
 			}
 			if (key == "maxMetal") {
-					info.maxMetal = m_get_info_value_float(i);
-					continue;
+				info.maxMetal = m_get_info_value_float(i);
+				continue;
 			}
 			if (key == "extractorRadius") {
-					info.extractorRadius = m_get_info_value_integer(i);
-					continue;
+				info.extractorRadius = m_get_info_value_integer(i);
+				continue;
 			}
 			if (key == "minWind") {
-					info.minWind = m_get_info_value_integer(i);
-					continue;
+				info.minWind = m_get_info_value_integer(i);
+				continue;
 			}
 			if (key == "maxWind") {
-					info.maxWind = m_get_info_value_integer(i);
-					continue;
+				info.maxWind = m_get_info_value_integer(i);
+				continue;
 			}
 			if (key == "width") {
-					info.width = m_get_info_value_integer(i);
-					continue;
+				info.width = m_get_info_value_integer(i);
+				continue;
 			}
 			if (key == "height") {
-					info.height = m_get_info_value_integer(i);
-					continue;
+				info.height = m_get_info_value_integer(i);
+				continue;
 			}
 			if (key == "resource") {
-					// FIXME: implement ?!
-					//info.resource = m_get_info_value_integer(i);
-					continue;
+				// FIXME: implement ?!
+				//info.resource = m_get_info_value_integer(i);
+				continue;
 			}
 			if (key == "xPos") {
-					x = m_get_info_value_integer(i);
-					xset = true;
-					continue;
+				x = m_get_info_value_integer(i);
+				xset = true;
+				continue;
 			}
 			if (key == "zPos") {
-					assert(xset);
-					LSL::StartPos pos;
-					pos.x = x;
-					pos.y = m_get_info_value_integer(i);
-					info.positions.push_back(pos);
-					xset = false;
-					continue;
+				assert(xset);
+				LSL::StartPos pos;
+				pos.x = x;
+				pos.y = m_get_info_value_integer(i);
+				info.positions.push_back(pos);
+				xset = false;
+				continue;
 			}
 			LslWarning("Unknown key in GetMapInfoCount(): %s", key.c_str());
 		}
@@ -457,7 +457,6 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 	else
 		info.author = m_get_map_author(index);
 	return info;
-
 }
 
 UnitsyncImage UnitsyncLib::GetMinimap(const std::string& mapFileName)

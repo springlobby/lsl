@@ -173,7 +173,7 @@ UnitsyncImage UnitsyncImage::FromMetalmapData(const Util::uninitialized_array<un
 UnitsyncImage UnitsyncImage::FromVfsFileData(Util::uninitialized_array<char>& data, size_t size,
 					     const std::string& fn, bool useWhiteAsTransparent)
 {
-	UnitsyncImage newimg(1,1);
+	UnitsyncImage newimg(1, 1);
 	PrivateImageType& img = *newimg.m_data_ptr;
 	try {
 		cimg_library::load_mem(data, size, fn, img);
@@ -187,7 +187,7 @@ UnitsyncImage UnitsyncImage::FromVfsFileData(Util::uninitialized_array<char>& da
 }
 
 UnitsyncImage::UnitsyncImage()
-    : m_data_ptr(NewImagePtr(1,1))
+    : m_data_ptr(NewImagePtr(1, 1))
 {
 }
 
@@ -327,8 +327,9 @@ void UnitsyncImage::MakeTransparent(unsigned short r, unsigned short g, unsigned
 		return;
 	}
 
-	m_data_ptr->channels(0,3); //add 4th channel
-	cimg_forXY(*m_data_ptr, x, y) {
+	m_data_ptr->channels(0, 3); //add 4th channel
+	cimg_forXY(*m_data_ptr, x, y)
+	{
 		if ((*m_data_ptr->data(x, y, 0, 0) == r) && (*m_data_ptr->data(x, y, 0, 1) == g) && (*m_data_ptr->data(x, y, 0, 2) == b)) { //pixel is white, make transparent
 			*m_data_ptr->data(x, y, 0, 3) = 0;
 		} else {

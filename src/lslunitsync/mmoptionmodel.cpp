@@ -15,7 +15,6 @@ mmOptionModel::mmOptionModel(std::string name_, std::string key_, std::string de
 {
 	if (section.empty())
 		section = Constants::nosection_name;
-
 }
 
 mmOptionModel::~mmOptionModel()

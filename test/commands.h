@@ -11,14 +11,12 @@
 #include <iostream>
 #include <lsl/networking/commands.h>
 
-struct ServerEvents
-{
+struct ServerEvents {
 	typedef boost::signals2::signal<void()> BattleSigType;
 	static BattleSigType battleSig;
 };
 
-struct User
-{
+struct User {
 	User()
 	{
 		ServerEvents::battleSig.connect(*this);
@@ -29,8 +27,7 @@ struct User
 	}
 };
 
-struct Server
-{
+struct Server {
 	Server();
 	void ExecuteCommand(const std::string& cmd, const std::string& inparams, int replyid);
 	void OnNewUser(const std::string& nick, const std::string& country, const int& cpu, const int& id);

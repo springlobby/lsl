@@ -10,8 +10,7 @@
 namespace LSL
 {
 
-struct UnitsyncGame
-{
+struct UnitsyncGame {
 	UnitsyncGame()
 	    : name(std::string())
 	    , hash(std::string())
@@ -26,14 +25,12 @@ struct UnitsyncGame
 	std::string hash;
 };
 
-struct StartPos
-{
+struct StartPos {
 	int x;
 	int y;
 };
 
-struct MapInfo
-{
+struct MapInfo {
 	std::string description;
 	int tidalStrength;
 	int gravity;
@@ -62,8 +59,7 @@ struct MapInfo
 	}
 };
 
-struct UnitsyncMap
-{
+struct UnitsyncMap {
 	UnitsyncMap()
 	    : name(std::string())
 	    , hash(std::string())

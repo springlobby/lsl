@@ -31,11 +31,11 @@
 
 #define ASYNC_LOAD 0 //FIXME: repair/set to 1!
 #if ASYNC_LOAD
-#define TRY_LOCK(ret)                                               \
-	boost::mutex::scoped_try_lock lock_criticalsection(m_lock); \
-	if (!lock_criticalsection.owns_lock()) {                    \
+#define TRY_LOCK(ret)                                                   \
+	boost::mutex::scoped_try_lock lock_criticalsection(m_lock);     \
+	if (!lock_criticalsection.owns_lock()) {                        \
 		LslDebug("Lock failed: %s:%d", __FUNCTION__, __LINE__); \
-		return ret;                                         \
+		return ret;                                             \
 	}
 #else
 #define TRY_LOCK(ret)
@@ -60,7 +60,7 @@ Unitsync::Unitsync()
     m_mapinfo_cache(1000000, "m_mapinfo_cache")
     ,					// this one is just misused as thread safe std::map ...
     m_sides_cache(200, "m_sides_cache") // another misuse
-    , supportsManualUnLoad(false) //new style fetching (>= spring 101.0)
+    , supportsManualUnLoad(false)       //new style fetching (>= spring 101.0)
 {
 }
 
@@ -587,7 +587,7 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 
 static std::string GetImageName(ImageType imgtype)
 {
-	switch(imgtype) {
+	switch (imgtype) {
 		case IMAGE_MAP:
 			return ".minimap.png";
 		case IMAGE_MAP_THUMB:
@@ -635,7 +635,7 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	UnitsyncImage img;
 	ImageType fullsize = imgtype;
 	if (imgtype == IMAGE_MAP_THUMB) {
-        fullsize = IMAGE_MAP;
+		fullsize = IMAGE_MAP;
 	}
 
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(fullsize);
@@ -648,7 +648,7 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	if (!loaded) { //image seems invalid, recreate
 		try {
 			//convert and save
-			switch(imgtype) {
+			switch (imgtype) {
 				case IMAGE_MAP:
 				case IMAGE_MAP_THUMB:
 					img = susynclib().GetMinimap(mapname);
@@ -791,19 +791,19 @@ StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 	}
 	for (const std::string datadir : paths) {
 		const std::string dirname = Util::EnsureDelimiter(datadir) + subpath;
-		DIR *dir;
-		struct dirent *ent;
+		DIR* dir;
+		struct dirent* ent;
 		if ((dir = opendir(dirname.c_str())) == NULL) {
-				continue;
+			continue;
 		}
 		/* print all the files and directories within directory */
-		while ((ent = readdir (dir)) != NULL) {
+		while ((ent = readdir(dir)) != NULL) {
 			if (ent->d_name[0] == '.') //skip hidden files / . / ..
 				continue;
 			const std::string filename = Util::EnsureDelimiter(dirname) + std::string(ent->d_name);
 			struct stat sb;
 			stat(filename.c_str(), &sb);
-			if ((sb.st_mode & S_IFDIR)!=0) { // is dir, skip
+			if ((sb.st_mode & S_IFDIR) != 0) { // is dir, skip
 				continue;
 			}
 
@@ -859,11 +859,14 @@ public:
 	{
 		assert(usync != nullptr);
 	}
+
 private:
 	int m_width;
 	int m_height;
 	LSL::ImageType m_imgtype;
-	CacheMapImageWorkItem(){}
+	CacheMapImageWorkItem()
+	{
+	}
 };
 
 class GetMapExAsyncWorkItem : public WorkItem
@@ -875,11 +878,12 @@ public:
 		m_usync->PostEvent(m_mapname);
 	}
 
-	GetMapExAsyncWorkItem(Unitsync* usync, const std::string& mapname):
-	    m_usync(usync),
-		m_mapname(mapname)
+	GetMapExAsyncWorkItem(Unitsync* usync, const std::string& mapname)
+	    : m_usync(usync)
+	    , m_mapname(mapname)
 	{
 	}
+
 private:
 	Unitsync* m_usync;
 	std::string m_mapname;
@@ -926,9 +930,9 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	// 50% hits without, 80% hits with this code.  (cache size 20 images)
 	assert(!mapname.empty());
 
-//	const int length = std::max(0, int(mapname.length()) - 4);
-//	const int hash = (mapname[length * 1 / 4] << 16) | (mapname[length * 2 / 4] << 8) | mapname[length * 3 / 4];
-//	const int priority = -hash;
+	//	const int length = std::max(0, int(mapname.length()) - 4);
+	//	const int hash = (mapname[length * 1 / 4] << 16) | (mapname[length * 2 / 4] << 8) | mapname[length * 3 / 4];
+	//	const int priority = -hash;
 
 	if (!m_cache_thread) {
 		LslDebug("cache thread not initialized %s", "PrefetchMap");
@@ -955,7 +959,7 @@ void Unitsync::PrefetchGame(const std::string& gamename)
 	assert(!gamename.empty());
 	GetGameOptions(gamename);
 	StringVector sides = GetSides(gamename);
-	for(const std::string& side: sides){
+	for (const std::string& side : sides) {
 		GetSidePicture(gamename, side);
 	}
 	GetUnitsList(gamename);

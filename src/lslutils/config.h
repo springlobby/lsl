@@ -25,8 +25,7 @@ namespace Util
 template <class PB, class I>
 class GlobalObjectHolder;
 
-struct SettStartBox
-{
+struct SettStartBox {
 	int ally;
 	int topx;
 	int topy;

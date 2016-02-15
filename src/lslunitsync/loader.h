@@ -8,8 +8,7 @@ namespace LSL
 
 class UnitsyncLib;
 
-struct UnitsyncFunctionLoader
-{
+struct UnitsyncFunctionLoader {
 	static bool BindFunctions(UnitsyncLib* s);
 	static void UnbindFunctions(UnitsyncLib* s);
 };

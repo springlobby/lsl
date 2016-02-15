@@ -708,8 +708,7 @@ bool PlayerTeamCompareFunction(const ConstCommonUserPtr a, const ConstCommonUser
 	return (a->BattleStatus().team > b->BattleStatus().team);
 }
 
-struct Alliance
-{
+struct Alliance {
 	CommonUserVector players;
 	float ranksum;
 	int allynum;
@@ -741,8 +740,7 @@ struct Alliance
 	}
 };
 
-struct ControlTeam
-{
+struct ControlTeam {
 	CommonUserVector players;
 	float ranksum;
 	int teamnum;

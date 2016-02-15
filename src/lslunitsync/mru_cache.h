@@ -75,7 +75,7 @@ public:
 private:
 	mutable boost::mutex m_lock;
 	std::list<std::string> m_itemnames;
-	std::map<std::string,TValue> m_items;
+	std::map<std::string, TValue> m_items;
 	const size_t m_max_size;
 	int m_cache_hits;
 	int m_cache_misses;

@@ -25,8 +25,7 @@ namespace Battle
 class IBattle;
 
 //! \brief Container modeling a rectangle to place startunit in for given allyteam
-struct BattleStartRect
-{
+struct BattleStartRect {
 	BattleStartRect()
 	    : toadd(false)
 	    , todelete(false)
@@ -58,8 +57,7 @@ struct BattleStartRect
 };
 
 //! Container to split certain options off from IBattle implementations
-struct BattleOptions
-{
+struct BattleOptions {
 	BattleOptions();
 
 	int battleid;
@@ -117,8 +115,7 @@ public:
 	virtual ~IBattle();
 
 	//! docme
-	struct TeamInfoContainer
-	{
+	struct TeamInfoContainer {
 		bool exist;
 		int TeamLeader;
 		int StartPosX;
@@ -130,8 +127,7 @@ public:
 		int SideNum;
 	};
 	//! docme
-	struct AllyInfoContainer
-	{
+	struct AllyInfoContainer {
 		bool exist;
 		int NumAllies;
 		int StartRectLeft;

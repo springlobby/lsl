@@ -187,8 +187,7 @@ inline bool IsWhitespace(char c)
 {
 	return (c == ' ') || (c == 10) || (c == 13) || (c == '\t');
 }
-struct Token
-{
+struct Token {
 	enum TokenType {
 		type_none,
 		type_section_name,
@@ -221,8 +220,7 @@ class Tokenizer
 {
 
 	/// simple reference counted pointer to stream.
-	struct IncludeCacheEntry
-	{
+	struct IncludeCacheEntry {
 		std::string name; ///< used for error reporting
 		int line;
 		int column;

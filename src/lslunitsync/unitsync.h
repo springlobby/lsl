@@ -115,7 +115,7 @@ public:
 	void GetMapExAsync(const std::string& mapname);
 	void GetMapImageAsync(const std::string& mapname, ImageType imgtype, int width, int height);
 
-    //! get a map image, if width/height is set, scale it to the given dimensions
+	//! get a map image, if width/height is set, scale it to the given dimensions
 	UnitsyncImage GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width = -1, int height = -1);
 
 private:
@@ -188,8 +188,7 @@ private:
 
 Unitsync& usync();
 
-struct GameOptions
-{
+struct GameOptions {
 	OptionMapBool bool_map;
 	OptionMapFloat float_map;
 	OptionMapString string_map;

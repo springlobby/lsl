@@ -14,11 +14,12 @@
 
 namespace LSL
 {
-namespace Cache {
+namespace Cache
+{
 
 static bool ParseJsonFile(const std::string& path, Json::Value& root)
 {
-	std::FILE * fp = Util::lslopen(path, "rb");
+	std::FILE* fp = Util::lslopen(path, "rb");
 	if (fp == nullptr) {
 		return false;
 	}
@@ -71,14 +72,14 @@ bool Get(const std::string& path, MapInfo& info)
 		info.height = root["height"].asInt();
 		info.description = root["description"].asString();
 		Json::Value items = root["startpositions"];
-		for (Json::ArrayIndex i=0; i<items.size(); i++) {
+		for (Json::ArrayIndex i = 0; i < items.size(); i++) {
 			StartPos position;
 			position.x = items[i]["x"].asInt();
 			position.y = items[i]["y"].asInt();
 			info.positions.push_back(position);
 		}
 	} catch (std::exception& e) {
-		LslWarning("Exception when parsing %s %s",path.c_str(), e.what());
+		LslWarning("Exception when parsing %s %s", path.c_str(), e.what());
 		return false;
 	}
 	return true;
@@ -97,7 +98,7 @@ void Set(const std::string& path, const MapInfo& info)
 	root["width"] = info.width;
 	root["height"] = info.height;
 	root["description"] = info.description;
-	for (StartPos pos: info.positions) {
+	for (StartPos pos : info.positions) {
 		Json::Value item;
 		item["x"] = pos.x;
 		item["y"] = pos.y;
@@ -110,7 +111,7 @@ void Set(const std::string& path, const GameOptions& opt)
 {
 	Json::Value root;
 
-	for (auto const &ent: opt.bool_map ){
+	for (auto const& ent : opt.bool_map) {
 		Json::Value entry;
 		entry["key"] = ent.second.key;
 		entry["name"] = ent.second.name;
@@ -121,7 +122,7 @@ void Set(const std::string& path, const GameOptions& opt)
 		entry["def"] = ent.second.def;
 		root.append(entry);
 	}
-	for (auto const &ent: opt.float_map ){
+	for (auto const& ent : opt.float_map) {
 		Json::Value entry;
 		entry["key"] = ent.second.key;
 		entry["name"] = ent.second.name;
@@ -136,7 +137,7 @@ void Set(const std::string& path, const GameOptions& opt)
 		root.append(entry);
 	}
 
-	for (auto const &ent: opt.string_map ){
+	for (auto const& ent : opt.string_map) {
 		Json::Value entry;
 		entry["key"] = ent.second.key;
 		entry["name"] = ent.second.name;
@@ -149,7 +150,7 @@ void Set(const std::string& path, const GameOptions& opt)
 
 		root.append(entry);
 	}
-	for (auto const &ent: opt.list_map ){
+	for (auto const& ent : opt.list_map) {
 		Json::Value entry;
 		entry["key"] = ent.second.key;
 		entry["name"] = ent.second.name;
@@ -160,7 +161,7 @@ void Set(const std::string& path, const GameOptions& opt)
 		entry["cur_choice_index"] = ent.second.cur_choice_index;
 		entry["def"] = ent.second.def;
 
-		for(const listItem& item: ent.second.listitems) {
+		for (const listItem& item : ent.second.listitems) {
 			Json::Value dict;
 			dict["key"] = item.key;
 			dict["name"] = item.name;
@@ -169,7 +170,7 @@ void Set(const std::string& path, const GameOptions& opt)
 		}
 		root.append(entry);
 	}
-	for (auto const &ent: opt.section_map ){
+	for (auto const& ent : opt.section_map) {
 		Json::Value entry;
 		entry["key"] = ent.second.key;
 		entry["name"] = ent.second.name;
@@ -185,52 +186,52 @@ void Set(const std::string& path, const GameOptions& opt)
 bool Get(const std::string& path, GameOptions& opt)
 {
 	Json::Value root;
-	if (!ParseJsonFile(path, root)){
+	if (!ParseJsonFile(path, root)) {
 		return false;
 	}
 
 	try {
-	for(Json::ArrayIndex i=0; i<root.size(); i++) {
-		const std::string key = root[i]["key"].asString();
-		const std::string name = root[i]["name"].asString();
-		const std::string section_str = root[i]["section"].asString();
-		const std::string optiondesc = root[i]["description"].asString();
-		const int opttype = root[i]["type"].asInt();
-		switch (opttype) {
-			case Enum::opt_float: {
-				opt.float_map[key] = mmOptionFloat(name, key, optiondesc, root[i]["def"].asFloat(),
-								   root[i]["stepping"].asFloat(),
-								   root[i]["min"].asFloat(), root[i]["max"].asFloat(),
-								   section_str);
-				break;
-			}
-			case Enum::opt_bool: {
-				opt.bool_map[key] = mmOptionBool(name, key, optiondesc, root[i]["def"].asBool(), section_str);
-				break;
-			}
-			case Enum::opt_string: {
-				opt.string_map[key] = mmOptionString(name, key, optiondesc, root[i]["def"].asString(), root[i]["max_len"].asInt(), section_str);
-				break;
-			}
-			case Enum::opt_list: {
-				opt.list_map[key] = mmOptionList(name, key, optiondesc, root[i]["def"].asString(), section_str);
-				const int listItemCount = root[i]["items"].size();
-				for (int j = 0; j < listItemCount; ++j) {
-					Json::Value &item = root[i]["items"][j];
-					const std::string itemkey = item["key"].asString();
-					const std::string name = item["name"].asString();
-					const std::string desc = item["desc"].asString();
-					opt.list_map[key].addItem(itemkey, name, desc);
+		for (Json::ArrayIndex i = 0; i < root.size(); i++) {
+			const std::string key = root[i]["key"].asString();
+			const std::string name = root[i]["name"].asString();
+			const std::string section_str = root[i]["section"].asString();
+			const std::string optiondesc = root[i]["description"].asString();
+			const int opttype = root[i]["type"].asInt();
+			switch (opttype) {
+				case Enum::opt_float: {
+					opt.float_map[key] = mmOptionFloat(name, key, optiondesc, root[i]["def"].asFloat(),
+									   root[i]["stepping"].asFloat(),
+									   root[i]["min"].asFloat(), root[i]["max"].asFloat(),
+									   section_str);
+					break;
 				}
-				break;
-			}
-			case Enum::opt_section: {
-				opt.section_map[key] = mmOptionSection(name, key, optiondesc, section_str);
+				case Enum::opt_bool: {
+					opt.bool_map[key] = mmOptionBool(name, key, optiondesc, root[i]["def"].asBool(), section_str);
+					break;
+				}
+				case Enum::opt_string: {
+					opt.string_map[key] = mmOptionString(name, key, optiondesc, root[i]["def"].asString(), root[i]["max_len"].asInt(), section_str);
+					break;
+				}
+				case Enum::opt_list: {
+					opt.list_map[key] = mmOptionList(name, key, optiondesc, root[i]["def"].asString(), section_str);
+					const int listItemCount = root[i]["items"].size();
+					for (int j = 0; j < listItemCount; ++j) {
+						Json::Value& item = root[i]["items"][j];
+						const std::string itemkey = item["key"].asString();
+						const std::string name = item["name"].asString();
+						const std::string desc = item["desc"].asString();
+						opt.list_map[key].addItem(itemkey, name, desc);
+					}
+					break;
+				}
+				case Enum::opt_section: {
+					opt.section_map[key] = mmOptionSection(name, key, optiondesc, section_str);
+				}
 			}
 		}
-	}
 	} catch (std::exception& e) {
-		LslWarning("Exception when parsing %s %s",path.c_str(), e.what());
+		LslWarning("Exception when parsing %s %s", path.c_str(), e.what());
 		return false;
 	}
 	return true;
@@ -239,24 +240,24 @@ bool Get(const std::string& path, GameOptions& opt)
 bool Get(const std::string& path, StringVector& opt)
 {
 	Json::Value root;
-	if (!ParseJsonFile(path, root)){
+	if (!ParseJsonFile(path, root)) {
 		return false;
 	}
 	try {
-        for (Json::ArrayIndex i=0; i<root.size(); i++) {
+		for (Json::ArrayIndex i = 0; i < root.size(); i++) {
 			opt.push_back(root[i].asString());
-        }
+		}
 	} catch (std::exception& e) {
-		LslWarning("Exception when parsing %s %s",path.c_str(), e.what());
+		LslWarning("Exception when parsing %s %s", path.c_str(), e.what());
 		return false;
 	}
-    return true;
+	return true;
 }
 
 void Set(const std::string& path, const StringVector& opt)
 {
 	Json::Value root;
-	for(const std::string& item: opt){
+	for (const std::string& item : opt) {
 		root.append(item);
 	}
 	writeJsonFile(path, root);

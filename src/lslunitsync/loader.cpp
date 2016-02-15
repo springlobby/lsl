@@ -11,9 +11,10 @@
 namespace LSL
 {
 
-#define BIND(type, name, var) \
+#define BIND(type, name, var)                               \
 	s->var = (type)GetLibFuncPtr(s->m_libhandle, name); \
-	if (s->var == nullptr) return false;
+	if (s->var == nullptr)                              \
+		return false;
 
 #define BIND_OPTIONAL(type, name, var) \
 	s->var = (type)GetLibFuncPtr(s->m_libhandle, name);
@@ -21,7 +22,7 @@ namespace LSL
 bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 {
 
-// LUA
+	// LUA
 	BIND(lpClosePtr, "lpClose", m_parser_close);
 	BIND(lpOpenFilePtr, "lpOpenFile", m_parser_open_file);
 	BIND(lpOpenSourcePtr, "lpOpenSource", m_parser_open_source);
@@ -67,7 +68,7 @@ bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 	BIND(lpGetIntKeyStrValPtr, "lpGetIntKeyStrVal", m_parser_int_key_get_string_value);
 	BIND(lpGetStrKeyStrValPtr, "lpGetStrKeyStrVal", m_parser_string_key_get_string_value);
 
-// MMOptions
+	// MMOptions
 	BIND(GetMapOptionCountPtr, "GetMapOptionCount", m_get_map_option_count);
 	BIND(GetCustomOptionCountPtr, "GetCustomOptionCount", m_get_custom_option_count);
 	BIND(GetModOptionCountPtr, "GetModOptionCount", m_get_mod_option_count);
@@ -90,7 +91,7 @@ bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 	BIND(GetOptionListItemNamePtr, "GetOptionListItemName", m_get_option_list_item_name);
 	BIND(GetOptionListItemDescPtr, "GetOptionListItemDesc", m_get_option_list_item_desc);
 
-//MAP
+	//MAP
 	bool oldstyle = false;
 	BIND_OPTIONAL(GetMapInfoCountPtr, "GetMapInfoCount", m_get_map_info_count);
 	if (s->m_get_map_info_count == nullptr) {
@@ -128,7 +129,7 @@ bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 	BIND(GetMapChecksumPtr, "GetMapChecksum", m_get_map_checksum);
 	BIND(GetMapChecksumFromNamePtr, "GetMapChecksumFromName", m_get_map_checksum_from_name);
 
-//Basic stuff
+	//Basic stuff
 
 	BIND(InitPtr, "Init", m_init);
 	BIND(UnInitPtr, "UnInit", m_uninit);
@@ -176,7 +177,7 @@ bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 	BIND(GetInfoValueBoolPtr, "GetInfoValueBool", m_get_info_value_bool);
 	BIND(GetInfoValueIntegerPtr, "GetInfoValueInteger", m_get_info_value_integer);
 
-// Config
+	// Config
 	BIND(SetSpringConfigFilePtr, "SetSpringConfigFile", m_set_spring_config_file_path);
 	BIND(GetSpringConfigFilePtr, "GetSpringConfigFile", m_get_spring_config_file_path);
 
@@ -187,7 +188,7 @@ bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 	BIND(SetSpringConfigStringPtr, "SetSpringConfigString", m_set_spring_config_string);
 	BIND(SetSpringConfigIntPtr, "SetSpringConfigInt", m_set_spring_config_int);
 
-// Game
+	// Game
 	BIND(GetPrimaryModIndexPtr, "GetPrimaryModIndex", m_get_mod_index);
 	BIND(GetPrimaryModCountPtr, "GetPrimaryModCount", m_get_mod_count);
 	BIND(GetPrimaryModArchivePtr, "GetPrimaryModArchive", m_get_mod_archive);
@@ -213,7 +214,7 @@ bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 
 void UnitsyncFunctionLoader::UnbindFunctions(UnitsyncLib* s)
 {
-// LUA
+	// LUA
 	s->m_parser_close = nullptr;
 	s->m_parser_open_file = nullptr;
 	s->m_parser_open_source = nullptr;
@@ -259,7 +260,7 @@ void UnitsyncFunctionLoader::UnbindFunctions(UnitsyncLib* s)
 	s->m_parser_int_key_get_string_value = nullptr;
 	s->m_parser_string_key_get_string_value = nullptr;
 
-// MMOptions
+	// MMOptions
 	s->m_get_map_option_count = nullptr;
 	s->m_get_custom_option_count = nullptr;
 	s->m_get_mod_option_count = nullptr;
@@ -282,7 +283,7 @@ void UnitsyncFunctionLoader::UnbindFunctions(UnitsyncLib* s)
 	s->m_get_option_list_item_name = nullptr;
 	s->m_get_option_list_item_desc = nullptr;
 
-//MAP
+	//MAP
 	s->m_get_map_info_count = nullptr;
 
 	s->m_get_map_count = nullptr;
@@ -314,7 +315,7 @@ void UnitsyncFunctionLoader::UnbindFunctions(UnitsyncLib* s)
 	s->m_get_map_checksum = nullptr;
 	s->m_get_map_checksum_from_name = nullptr;
 
-//Basic stuff
+	//Basic stuff
 
 	s->m_init = nullptr;
 	s->m_uninit = nullptr;
@@ -362,7 +363,7 @@ void UnitsyncFunctionLoader::UnbindFunctions(UnitsyncLib* s)
 	s->m_get_info_value_bool = nullptr;
 	s->m_get_info_value_integer = nullptr;
 
-// Config
+	// Config
 	s->m_set_spring_config_file_path = nullptr;
 	s->m_get_spring_config_file_path = nullptr;
 
@@ -373,7 +374,7 @@ void UnitsyncFunctionLoader::UnbindFunctions(UnitsyncLib* s)
 	s->m_set_spring_config_string = nullptr;
 	s->m_set_spring_config_int = nullptr;
 
-// Game
+	// Game
 	s->m_get_mod_index = nullptr;
 	s->m_get_mod_count = nullptr;
 	s->m_get_mod_archive = nullptr;
