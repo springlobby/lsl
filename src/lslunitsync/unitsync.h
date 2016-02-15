@@ -185,7 +185,7 @@ private:
 
 	friend Unitsync& usync();
 
-	bool GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, int width, int height);
+	bool GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, bool tiny);
 	bool supportsManualUnLoad;
 };
 

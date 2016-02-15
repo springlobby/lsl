@@ -602,24 +602,31 @@ static std::string GetImageName(ImageType imgtype)
 	}
 }
 
-bool Unitsync::GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, int width, int height)
+bool Unitsync::GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, bool tiny)
 {
-	const bool tiny = (width <= 98 && height <= 98);
 
-	if (tiny && m_tiny_minimap_cache.TryGet(cachefile, img) && img.isValid()) {
-		return true;
-	}
-	if (m_map_image_cache.TryGet(cachefile, img) && img.isValid()) {
-		return true;
-	}
-
-	if (tiny && Util::FileExists(tncachefile)) {
-		img = UnitsyncImage(tncachefile);
-		if (img.isValid())
+	if (tiny) {
+		m_tiny_minimap_cache.TryGet(cachefile, img);
+		if (img.isValid()) {
+			LslDebug("Loaded from m_tiny_minimap_cache: %s", cachefile.c_str());
 			return true;
+		}
+		if (Util::FileExists(tncachefile)) {
+			LslDebug("Loading from %s", tncachefile.c_str());
+			img = UnitsyncImage(tncachefile);
+			if (img.isValid())
+				return true;
+		}
 	}
+
+	if (m_map_image_cache.TryGet(cachefile, img) && img.isValid()) {
+		LslDebug("Loaded from m_map_image_cache: %s", cachefile.c_str());
+		return true;
+	}
+
 
 	if (Util::FileExists(cachefile)) {
+		LslDebug("Loading from %s", cachefile.c_str());
 		img = UnitsyncImage(cachefile);
 		if (img.isValid())
 			return true;
@@ -638,12 +645,14 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 		fullsize = IMAGE_MAP;
 	}
 
+	const bool tiny = (width <= 98 && height <= 98) && (imgtype == IMAGE_MAP || imgtype == IMAGE_MAP_THUMB); // tiny files only exists for mapimage
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(fullsize);
 	const std::string tncachefile = GetFileCachePath(mapname, false, false) + GetImageName(IMAGE_MAP_THUMB);
 
 	const bool rescale = (width > 0) && (height > 0);
-	const bool loaded = GetImageFromCache(cachefile, tncachefile, img, width, height);
+	const bool loaded = GetImageFromCache(cachefile, tncachefile, img, tiny);
 
+	LslWarning("Cachefile: %s %d", cachefile.c_str(), loaded);
 	bool dummy = false;
 	if (!loaded) { //image seems invalid, recreate
 		try {
