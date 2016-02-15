@@ -602,28 +602,22 @@ static std::string GetImageName(ImageType imgtype)
 	}
 }
 
-bool Unitsync::GetImageFromCache(const std::string& cachefile, const std::string& tncachefile, UnitsyncImage& img, bool tiny)
+bool Unitsync::GetImageFromCache(const std::string& cachefile, UnitsyncImage& img, ImageType imgtype)
 {
 
-	if (tiny) {
+	if (imgtype == IMAGE_MAP_THUMB) {
 		m_tiny_minimap_cache.TryGet(cachefile, img);
 		if (img.isValid()) {
 			LslDebug("Loaded from m_tiny_minimap_cache: %s", cachefile.c_str());
 			return true;
 		}
-		if (Util::FileExists(tncachefile)) {
-			LslDebug("Loading from %s", tncachefile.c_str());
-			img = UnitsyncImage(tncachefile);
-			if (img.isValid())
-				return true;
-		}
+		return false;
 	}
 
 	if (m_map_image_cache.TryGet(cachefile, img) && img.isValid()) {
 		LslDebug("Loaded from m_map_image_cache: %s", cachefile.c_str());
 		return true;
 	}
-
 
 	if (Util::FileExists(cachefile)) {
 		LslDebug("Loading from %s", cachefile.c_str());
@@ -641,16 +635,10 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 
 	UnitsyncImage img;
 	ImageType fullsize = imgtype;
-	if (imgtype == IMAGE_MAP_THUMB) {
-		fullsize = IMAGE_MAP;
-	}
 
-	const bool tiny = (width <= 98 && height <= 98) && (imgtype == IMAGE_MAP || imgtype == IMAGE_MAP_THUMB); // tiny files only exists for mapimage
-	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(fullsize);
-	const std::string tncachefile = GetFileCachePath(mapname, false, false) + GetImageName(IMAGE_MAP_THUMB);
+	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(imgtype);
 
-	const bool rescale = (width > 0) && (height > 0);
-	const bool loaded = GetImageFromCache(cachefile, tncachefile, img, tiny);
+	const bool loaded = GetImageFromCache(cachefile, img, imgtype);
 
 	LslWarning("Cachefile: %s %d", cachefile.c_str(), loaded);
 	bool dummy = false;
@@ -681,10 +669,14 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 			dummy = true;
 		}
 	}
-	if (imgtype != IMAGE_MAP_THUMB) {
+
+	if (imgtype == IMAGE_MAP_THUMB) {
+		m_tiny_minimap_cache.Add(cachefile, img);
+	}  else {
 		m_map_image_cache.Add(cachefile, img); //cache before rescale
 	}
 
+	const bool rescale = (width > 0) && (height > 0);
 	if (rescale && img.isValid()) {
 		lslSize image_size = lslSize(img.GetWidth(), img.GetHeight()).MakeFit(lslSize(width, height));
 		if ((image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight())) {
@@ -692,10 +684,6 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 		}
 	}
 
-	if ((imgtype == IMAGE_MAP_THUMB) && !dummy) {
-		img.Save(tncachefile);
-		m_tiny_minimap_cache.Add(cachefile, img);
-	}
 	return img;
 }
 
