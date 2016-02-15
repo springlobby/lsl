@@ -148,7 +148,7 @@ if (${BUILD_TESTS})
 	add_subdirectory( test )
 endif()
 
-find_program(CLANG_FORMAT_BINARY NAMES clang-format-3.5 clang-format-3.4 clang-format)
+find_program(CLANG_FORMAT_BINARY NAMES clang-format-3.7 clang-format-3.6 clang-format-3.5 clang-format-3.4 clang-format)
 if (EXISTS ${CLANG_FORMAT_BINARY})
         file(GLOB_RECURSE files {CMAKE_CURRENT_SOURCE_DIR} *.cpp *.hpp *.h)
 
