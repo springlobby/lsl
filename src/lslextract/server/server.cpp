@@ -1,6 +1,7 @@
 #include "server.h"
 #include <signal.h>
 #include <utility>
+#include "lslutils/logging.h"
 
 namespace http
 {
@@ -36,6 +37,7 @@ server::server(const std::string& address, const std::string& port,
 	acceptor_.listen();
 
 	do_accept();
+	LslWarning("Listening on http://%s:%s/", address.c_str(), port.c_str());
 }
 
 void server::run()
