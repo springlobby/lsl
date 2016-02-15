@@ -606,8 +606,7 @@ bool Unitsync::GetImageFromCache(const std::string& cachefile, UnitsyncImage& im
 {
 
 	if (imgtype == IMAGE_MAP_THUMB) {
-		m_tiny_minimap_cache.TryGet(cachefile, img);
-		if (img.isValid()) {
+		if (m_tiny_minimap_cache.TryGet(cachefile, img) && img.isValid()) {
 			LslDebug("Loaded from m_tiny_minimap_cache: %s", cachefile.c_str());
 			return true;
 		}
@@ -658,22 +657,22 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 					break;
 			}
 			const MapInfo info = _GetMapInfoEx(mapname);
-			assert(info.width > 0);
-			assert(info.height > 0);
+			if ((info.width <= 0) || (info.height <= 0)) {
+				LslWarning("Couldn't load mapimage from %s, missing dependencies?", mapname.c_str());
+				return UnitsyncImage(width, height);
+			}
 			lslSize image_size = lslSize(info.width, info.height).MakeFit(lslSize(img.GetWidth(), img.GetHeight()));
 			img.Rescale(image_size.GetWidth(), image_size.GetHeight()); //rescale to keep aspect ratio
-			img.Save(cachefile);
 		} catch (...) { //we failed horrible, use dummy image
-			//dummy image
-			img = UnitsyncImage(1, 1);
-			dummy = true;
+			LslWarning("Couldn't rescale map image from %s, missing dependencies?", mapname.c_str());
+			return UnitsyncImage(width, height);
 		}
 	}
 
-	if (imgtype == IMAGE_MAP_THUMB) {
-		m_tiny_minimap_cache.Add(cachefile, img);
-	}  else {
+	if (imgtype != IMAGE_MAP_THUMB) {
 		m_map_image_cache.Add(cachefile, img); //cache before rescale
+		if (!loaded)
+			img.Save(cachefile);
 	}
 
 	const bool rescale = (width > 0) && (height > 0);
@@ -682,6 +681,13 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 		if ((image_size.GetWidth() != img.GetWidth() || image_size.GetHeight() != img.GetHeight())) {
 			img.Rescale(image_size.GetWidth(), image_size.GetHeight());
 		}
+	}
+
+	if (imgtype == IMAGE_MAP_THUMB) { //cache thumb after rescaling (size is exact!)
+		assert(img.GetWidth() == 98 || img.GetHeight() == 98);
+		m_tiny_minimap_cache.Add(cachefile, img);
+		if (!loaded)
+			img.Save(cachefile);
 	}
 
 	return img;
@@ -944,6 +950,7 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	FetchUnitsyncErrors(mapname);
 	GetMapOptions(mapname);
 	GetScaledMapImage(mapname, IMAGE_MAP);
+	GetScaledMapImage(mapname, IMAGE_MAP_THUMB);
 	GetScaledMapImage(mapname, IMAGE_METALMAP);
 	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
 	if (supportsManualUnLoad) {
