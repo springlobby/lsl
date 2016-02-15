@@ -118,6 +118,9 @@ public:
 	//! get a map image, if width/height is set, scale it to the given dimensions
 	UnitsyncImage GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width = -1, int height = -1);
 
+	//! returns the absolute path of the requested image, creates the image when not exists
+	std::string GetMapImagePath(const std::string& mapname, ImageType imgtype);
+
 private:
 	void ClearCache();
 

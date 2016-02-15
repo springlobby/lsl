@@ -1079,4 +1079,20 @@ std::string Unitsync::GetConfigFilePath()
 	return susynclib().GetConfigFilePath();
 }
 
+std::string Unitsync::GetMapImagePath(const std::string& mapname, ImageType imgtype)
+{
+	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(imgtype);
+	if (!Util::FileExists(cachefile)) {
+		GetScaledMapImage(mapname, imgtype);
+	}
+
+	if (!Util::FileExists(cachefile)) {
+		LslWarning("Couldn't create %s", cachefile.c_str());
+		return "";
+	}
+
+	return cachefile;
+}
+
+
 } // namespace LSL

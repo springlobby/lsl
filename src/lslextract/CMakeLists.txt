@@ -2,6 +2,13 @@ message(STATUS ${libUnitsyncSrc})
 
 add_executable(lslextract
 	lslextract.cpp
+	server/server.cpp
+	server/connection.cpp
+	server/connection_manager.cpp
+	server/request_handler.cpp
+	server/request_parser.cpp
+	server/reply.cpp
+	server/mime_types.cpp
 )
 FIND_PACKAGE(PNG REQUIRED)
 FIND_PACKAGE(X11 REQUIRED)
@@ -21,3 +28,4 @@ target_include_directories(lslextract
 	PRIVATE ${libSpringLobby_SOURCE_DIR}/src
 	PRIVATE ${Jsoncpp_INCLUDE_DIR}
 )
+
