@@ -41,16 +41,6 @@ static void create_file_list(reply& rep, const LSL::StringVector& items, const s
 	rep.content.append(ss.str());
 }
 
-static bool root_request(LSL::StringVector params, reply& rep)
-{
-	LSL::StringVector types;
-	types.push_back("games");
-	types.push_back("maps");
-	types.push_back("ais");
-	create_file_list(rep, types, "");
-	reply_http_ok(rep, "text/html");
-	return true;
-}
 
 static bool gameinfo_request(const LSL::StringVector& params, reply& rep)
 {
@@ -75,7 +65,7 @@ static bool gameinfo_request(const LSL::StringVector& params, reply& rep)
 	return false;
 }
 
-static bool serve_file(reply& rep, const std::string& path)
+static bool serve_file(reply& rep, const std::string& path, const std::string& mimetype = "")
 {
 	// Open the file to send back.
 	std::ifstream is(path.c_str(), std::ios::in | std::ios::binary);
@@ -100,7 +90,17 @@ static bool serve_file(reply& rep, const std::string& path)
 	rep.headers[0].name = "Content-Length";
 	rep.headers[0].value = std::to_string(rep.content.size());
 	rep.headers[1].name = "Content-Type";
-	rep.headers[1].value = mime_types::extension_to_type(extension);
+	if (mimetype.empty()) {
+		rep.headers[1].value = mime_types::extension_to_type(extension);
+	} else {
+		rep.headers[1].value = mimetype;
+	}
+	return true;
+}
+
+static bool root_request(LSL::StringVector params, reply& rep)
+{
+	serve_file(rep, "index.html", "text/html");
 	return true;
 }
 
