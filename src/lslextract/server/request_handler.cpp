@@ -70,6 +70,7 @@ static bool serve_file(reply& rep, const std::string& path, const std::string& m
 	// Open the file to send back.
 	std::ifstream is(path.c_str(), std::ios::in | std::ios::binary);
 	if (!is) {
+		LslError("Couldn't open file %s", path.c_str());
 		rep = reply::stock_reply(reply::not_found);
 		return false;
 	}
@@ -151,6 +152,24 @@ static bool mapinfo_request(const LSL::StringVector& params, reply& rep)
 	return false;
 }
 
+bool system_requests(const LSL::StringVector& params, reply& rep)
+{
+	if (params.size() == 1) {
+		LSL::StringVector types;
+		types.push_back("reload");
+		create_file_list(rep, types, "system/");
+		reply_http_ok(rep, "text/html");
+		return true;
+	}
+	if (params.size() == 2) {
+		if (params[1] == "reload") {
+			LSL::usync().ReloadUnitSyncLib();
+			reply_http_ok(rep, "text/html");
+			return true;
+		}
+	}
+	return false;
+}
 
 void request_handler::handle_request(const request& req, reply& rep)
 {
@@ -171,9 +190,16 @@ void request_handler::handle_request(const request& req, reply& rep)
 
 	if (request_path == "/" && root_request(values, rep))
 		return;
+
+	if (values.empty()) {
+		rep = reply::stock_reply(reply::not_found);
+		return;
+	}
 	if (values[0] == "games" && gameinfo_request(values, rep))
 		return;
 	if (values[0] == "maps" && mapinfo_request(values, rep))
+		return;
+	if (values[0] == "system" && system_requests(values, rep))
 		return;
 
 	rep = reply::stock_reply(reply::not_found);

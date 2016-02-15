@@ -70,6 +70,11 @@
         xmlhttp.open("GET",str,true);
         xmlhttp.send();
     }
+	function reloadUnitsync() {
+		var xmlhttp = getHttpObj();
+		xmlhttp.open("GET", "/system/reload" ,true);
+		xmlhttp.send();
+	}
 showResult("/maps");
 //-->
 </script>
@@ -86,6 +91,7 @@ lslextract is a tool to extract metadata from spring engine content files
 <div>
 <h2>List of local content files</h2>
 <p>(click on the item to show more info)</p>
+<a href="#" onClick="reloadUnitsync();">Reload unitsync</a>
 <div id="items">
 </div>
 </div>
