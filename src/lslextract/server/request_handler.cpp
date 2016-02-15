@@ -8,6 +8,7 @@
 #include "lslunitsync/unitsync.h"
 #include "lslunitsync/image.h"
 #include "lslutils/misc.h"
+#include <json/json.h>
 
 namespace http
 {
@@ -31,11 +32,13 @@ static void reply_http_ok(reply& rep, const std::string& mimetype)
 
 static void create_file_list(reply& rep, const LSL::StringVector& items, const std::string& type)
 {
-	rep.content.append("<html><head></head><body>");
+	Json::Value root;
 	for (const std::string item : items) {
-		rep.content.append("<a href=\"/" + type + item + "\">" + item + "</a><br/>");
+		root.append(item);
 	}
-	rep.content.append("</body></html>");
+	std::stringstream ss;
+	ss << root;
+	rep.content.append(ss.str());
 }
 
 static bool root_request(LSL::StringVector params, reply& rep)
