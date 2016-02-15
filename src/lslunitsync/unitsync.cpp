@@ -1088,7 +1088,6 @@ std::string Unitsync::GetMapImagePath(const std::string& mapname, ImageType imgt
 	if (!Util::FileExists(cachefile)) {
 		PrefetchMap(mapname);
 	}
-	assert(Util::FileExists(cachefile));
 	return cachefile;
 }
 
@@ -1098,7 +1097,6 @@ std::string Unitsync::GetMapOptionsPath(const std::string& mapname)
 	if (!Util::FileExists(cachefile)) {
 		PrefetchMap(mapname);
 	}
-	assert(Util::FileExists(cachefile));
 	return cachefile;
 }
 
@@ -1108,7 +1106,6 @@ std::string Unitsync::GetMapInfoPath(const std::string& mapname)
 	if (!Util::FileExists(cachefile)) {
 		PrefetchMap(mapname);
 	}
-	assert(Util::FileExists(cachefile));
 	return cachefile;
 }
 
