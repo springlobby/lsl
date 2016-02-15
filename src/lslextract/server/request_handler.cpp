@@ -72,7 +72,7 @@ static bool gameinfo_request(const LSL::StringVector& params, reply& rep)
 	return false;
 }
 
-static bool server_file(reply& rep, const std::string& path)
+static bool serve_file(reply& rep, const std::string& path)
 {
 	// Open the file to send back.
 	std::ifstream is(path.c_str(), std::ios::in | std::ios::binary);
@@ -113,14 +113,36 @@ static bool mapinfo_request(const LSL::StringVector& params, reply& rep)
 	if (params.size() == 2) {
 		LSL::StringVector types;
 		types.push_back("minimap");
+		types.push_back("minimap_thumb");
+		types.push_back("metalmap");
+		types.push_back("heightmap");
+		types.push_back("mapinfo");
+		types.push_back("mapoptions");
 		create_file_list(rep, types, "maps/" + params[1] + "/");
 		reply_http_ok(rep, "text/html");
 		return true;
 	}
 
-	if (params.size() == 3 && params[2] == "minimap") {
-		const std::string path = LSL::usync().GetMapImagePath(params[1], LSL::IMAGE_MAP);
-		return server_file(rep, path);
+	if (params.size() == 3) {
+		LSL::ImageType ityp;
+		if (params[2] == "minimap") {
+			ityp = LSL::IMAGE_MAP;
+		} else if (params[2] == "minimap_thumb") {
+			ityp = LSL::IMAGE_MAP_THUMB;
+		} else if (params[2] == "metalmap") {
+			ityp = LSL::IMAGE_METALMAP;
+		} else if (params[2] == "heightmap") {
+			ityp = LSL::IMAGE_HEIGHTMAP;
+		} else if (params[2] == "mapoptions") {
+			return serve_file(rep, LSL::usync().GetMapOptionsPath(params[1]));
+		} else if (params[2] == "mapinfo") {
+			return serve_file(rep, LSL::usync().GetMapInfoPath(params[1]));
+		} else {
+			return false;
+		}
+
+		const std::string path = LSL::usync().GetMapImagePath(params[1], ityp);
+		return serve_file(rep, path);
 	}
 
 	return false;

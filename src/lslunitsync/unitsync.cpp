@@ -1092,14 +1092,30 @@ std::string Unitsync::GetMapImagePath(const std::string& mapname, ImageType imgt
 {
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(imgtype);
 	if (!Util::FileExists(cachefile)) {
-		GetScaledMapImage(mapname, imgtype);
+		if (imgtype == IMAGE_MAP_THUMB) {
+			GetScaledMapImage(mapname, imgtype, 98, 98);
+		} else {
+			GetScaledMapImage(mapname, imgtype);
+		}
 	}
+	return cachefile;
+}
 
+std::string Unitsync::GetMapOptionsPath(const std::string& mapname)
+{
+	const std::string cachefile = GetFileCachePath(mapname, false, true) + ".mapoptions";
 	if (!Util::FileExists(cachefile)) {
-		LslWarning("Couldn't create %s", cachefile.c_str());
-		return "";
+		GetMapOptions(mapname);
 	}
+	return cachefile;
+}
 
+std::string Unitsync::GetMapInfoPath(const std::string& mapname)
+{
+	const std::string cachefile = GetFileCachePath(mapname, false, false) + ".mapinfo";
+	if (!Util::FileExists(cachefile)) {
+		_GetMapInfoEx(mapname);
+	}
 	return cachefile;
 }
 
