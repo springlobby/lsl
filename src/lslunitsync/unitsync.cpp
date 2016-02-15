@@ -633,7 +633,6 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	assert(imgtype != IMAGE_MAP_THUMB || height == 98);
 
 	UnitsyncImage img;
-	ImageType fullsize = imgtype;
 
 	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(imgtype);
 
