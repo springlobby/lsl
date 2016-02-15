@@ -62,7 +62,7 @@
 		dompos.innerHTML = "";
 		for (var item in items) {
 			var name = items[item];
-			dompos.innerHTML += '<div><a href="#" onClick="showMap(\'' + name + '\');">' + name + '</a><div id="' + name + '"></div></div>';
+			dompos.innerHTML += '<div><img alt="'+name+'" src="/maps/'+name+'/minimap_thumb" onClick="showMap(\'' + name + '\');"/><div id="' + name + '"></div></div>';
 		}
 		//document.getElementById("items").style.border = "1px solid #A5ACB2";
             }
