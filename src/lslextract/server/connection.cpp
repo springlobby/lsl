@@ -3,6 +3,7 @@
 #include <vector>
 #include "connection_manager.h"
 #include "request_handler.h"
+#include "lslutils/logging.h"
 
 namespace http
 {
@@ -68,6 +69,7 @@ void connection::do_write()
 						 connection_manager_.stop(shared_from_this());
 					 }
 				 });
+	LslDebug("%s %s %d %d", request_.method.c_str(), request_.uri.c_str(), reply_.status, reply_.content.size());
 }
 
 } // namespace server

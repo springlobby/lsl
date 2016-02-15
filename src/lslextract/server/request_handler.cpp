@@ -142,7 +142,6 @@ void request_handler::handle_request(const request& req, reply& rep)
 		return;
 	}
 
-	LslDebug("%s", request_path.c_str());
 	LSL::StringVector values = LSL::Util::StringTokenize(request_path, "/");
 
 	if (request_path == "/" && root_request(values, rep))
