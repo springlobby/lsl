@@ -764,11 +764,10 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 	return ret;
 }
 
-StringVector Unitsync::GetPlaybackList(bool ReplayType) const
+bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) const
 {
-	StringVector ret;
 	if (!IsLoaded())
-		return ret;
+		return false;
 	std::string type;
 	std::string subpath;
 	if (ReplayType) {
@@ -810,10 +809,10 @@ StringVector Unitsync::GetPlaybackList(bool ReplayType) const
 
 			if (filename.substr(filename.length() - 4) != type) // compare file ending
 				continue;
-			ret.push_back(filename);
+			ret.emplace(filename);
 		}
 	}
-	return ret;
+	return true;
 }
 
 bool Unitsync::FileExists(const std::string& name) const

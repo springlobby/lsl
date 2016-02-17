@@ -12,6 +12,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/signals2/signal.hpp>
 #include <map>
+#include <set>
 
 #ifdef HAVE_WX
 #include <wx/event.h>
@@ -89,7 +90,7 @@ public:
 	void SetSpringDataPath(const std::string& path);
 	bool GetSpringDataPath(std::string& path);
 
-	StringVector GetPlaybackList(bool ReplayType = true) const; //savegames otehrwise
+	bool GetPlaybackList(std::set<std::string>& files, bool ReplayType = true) const; //savegames otehrwise
 
 	std::string GetArchivePath(const std::string& name) const;
 
