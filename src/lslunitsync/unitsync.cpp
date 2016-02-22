@@ -809,7 +809,7 @@ bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) cons
 
 			if (filename.substr(filename.length() - 4) != type) // compare file ending
 				continue;
-			ret.emplace(filename);
+			ret.insert(filename);
 		}
 	}
 	return true;
