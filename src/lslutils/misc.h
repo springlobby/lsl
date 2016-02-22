@@ -196,6 +196,10 @@ std::string AfterLast(const std::string& phrase, const std::string& searchterm);
 std::string BeforeFirst(const std::string& phrase, const std::string& searchterm);
 //! returns everything in phrase after the first occurrence of searchterm
 std::string AfterFirst(const std::string& phrase, const std::string& searchterm);
+//! returns true when string begins with searchterm
+bool BeginsWith(const std::string& phrase, const std::string& searchterm);
+//! returns true when string begins with searchterm
+bool EndsWith(const std::string& phrase, const std::string& searchterm);
 //! returns the parent path
 std::string ParentPath(const std::string& path);
 //! ensures path ends with (back)slash

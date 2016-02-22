@@ -130,6 +130,19 @@ std::string AfterFirst(const std::string& phrase, const std::string& searchterm)
 	return phrase.substr(pos + 1);
 }
 
+bool BeginsWith(const std::string& phrase, const std::string& searchterm)
+{
+	return phrase.compare(0, searchterm.length(), searchterm) == 0;
+}
+
+bool EndsWith(const std::string& phrase, const std::string& searchterm)
+{
+	if (phrase.length() >= searchterm.length()) {
+		return (0 == phrase.compare(phrase.length() - searchterm.length(), searchterm.length(), searchterm));
+	}
+	return false;
+}
+
 std::string ParentPath(const std::string& path)
 {
 	return BeforeLast(path, SEP);
