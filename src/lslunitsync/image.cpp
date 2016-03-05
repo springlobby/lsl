@@ -21,26 +21,28 @@
 #include <stdio.h> //fmemopen
 
 
-#if !defined(HAVE_FMEMOPEN)
-#ifdef WIN32
+#if defined(WIN32)
 //! we need our own fmemopen implementation since its posix only
 FILE* fmemopen(void* data, size_t size, const char* mode)
 {
 	wchar_t buf[MAX_PATH];
-	if (GetTempPathW(MAX_PATH, &buf) == 0) {
+	if (GetTempPathW(MAX_PATH, buf) == 0) {
 		return nullptr;
 	}
 
-	FILE* f = _wfopen(buf, "wb");
+	std::wstring tempFile(buf);
+	tempFile += L"tempFile" + std::to_wstring((unsigned long)data);
+	FILE* f = _wfopen(tempFile.c_str(), L"wb");
 	if (NULL == f)
 		return nullptr;
 	fwrite(data, size, 1, f);
 	fclose(f);
-	return _wfopen(buf, mode);
+
+	std::string modeString(mode);
+	return _wfopen(tempFile.c_str(), std::wstring(modeString.begin(), modeString.end()).c_str());
 }
-#else
+#elif !defined(HAVE_FMEMOPEN)
 #error no workarround for missing fmemopen!
-#endif
 #endif
 
 namespace cimg_library
