@@ -38,8 +38,9 @@ FILE* fmemopen(void* data, size_t size, const char* mode)
 	fclose(f);
 	return _wfopen(buf, mode);
 }
-#endif
+#else
 #error no workarround for missing fmemopen!
+#endif
 #endif
 
 namespace cimg_library
