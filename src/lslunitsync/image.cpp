@@ -21,6 +21,7 @@
 #include <stdio.h> //fmemopen
 
 
+#if !defined(HAVE_FMEMOPEN)
 #if defined(WIN32)
 //! we need our own fmemopen implementation since its posix only
 FILE* fmemopen(void* data, size_t size, const char* mode)
@@ -41,9 +42,10 @@ FILE* fmemopen(void* data, size_t size, const char* mode)
 	std::string modeString(mode);
 	return _wfopen(tempFile.c_str(), std::wstring(modeString.begin(), modeString.end()).c_str());
 }
-#elif !defined(HAVE_FMEMOPEN)
+#else //WIN32
 #error no workarround for missing fmemopen!
 #endif
+#endif // !defined(HAVE_FMEMOPEN)
 
 namespace cimg_library
 {
