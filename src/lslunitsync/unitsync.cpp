@@ -249,7 +249,10 @@ bool Unitsync::GameExists(const std::string& gamename, const std::string& hash) 
 {
 	TRY_LOCK(false)
 	LocalArchivesVector::const_iterator itor = m_mods_list.find(gamename);
-	if (itor == m_mods_list.end())
+	// "itor->second.empty()" in case if m_mods_list could contain
+	// empty hash string for mod that does not exits yet.
+	// Did not meet this for mods yet, only for maps.
+	if (itor == m_mods_list.end() || itor->second.empty())
 		return false;
 	if (hash.empty() || hash == "0")
 		return true;
@@ -299,7 +302,10 @@ bool Unitsync::MapExists(const std::string& mapname, const std::string& hash) co
 	assert(!mapname.empty());
 	TRY_LOCK(false)
 	LocalArchivesVector::const_iterator itor = m_maps_list.find(mapname);
-	if (itor == m_maps_list.end())
+	//FIXME: sometimes m_maps_list contain empty hash string
+	// for map that does not exits yet!
+	// "itor->second.empty()" prevents from bugs on Windows in that case.
+	if (itor == m_maps_list.end() || itor->second.empty())
 		return false;
 	if (hash.empty() || hash == "0")
 		return true;
