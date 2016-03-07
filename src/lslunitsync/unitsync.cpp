@@ -774,13 +774,22 @@ bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) cons
 {
 	if (!IsLoaded())
 		return false;
-	std::string type;
+		
+	struct {
+		bool operator()(bool isReplayType, const std::string& filename) {
+			if (isReplayType) {
+				return (filename.substr(filename.length() - 4) != ".sdf" && 
+					filename.substr(filename.length() - 5) != ".sdfz");
+			} else {
+				return (filename.substr(filename.length() - 4) != ".ssf");
+			}
+		}
+	}isUnneededFile;
+	
 	std::string subpath;
 	if (ReplayType) {
-		type = ".sdf";
 		subpath = "demos";
 	} else {
-		type = ".ssf";
 		subpath = "Saves";
 	}
 	StringVector paths;
@@ -813,7 +822,7 @@ bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) cons
 				continue;
 			}
 
-			if (filename.substr(filename.length() - 4) != type) // compare file ending
+			if (isUnneededFile(ReplayType, filename)) // compare file ending
 				continue;
 			ret.insert(filename);
 		}
