@@ -321,7 +321,7 @@ UnitsyncMap Unitsync::GetMap(int index)
 	m.name = m_map_array[index];
 	m.hash = m_maps_list[m.name];
 	m.info = _GetMapInfoEx(m.name);
-	assert(m.hash.empty() == false);
+	assert(!m.hash.empty());
 	return m;
 }
 
@@ -416,7 +416,7 @@ UnitsyncMap Unitsync::GetMap(const std::string& mapname)
 	m.name = m_map_array[i];
 	m.hash = m_maps_list[m.name];
 	m.info = _GetMapInfoEx(m.name);
-	assert(m.hash.empty() == false);
+	assert(!m.hash.empty());
 	return m;
 }
 
