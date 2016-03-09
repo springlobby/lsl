@@ -772,18 +772,18 @@ bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) cons
 {
 	if (!IsLoaded())
 		return false;
-		
+
 	struct {
 		bool operator()(bool isReplayType, const std::string& filename) {
 			if (isReplayType) {
-				return (filename.substr(filename.length() - 4) != ".sdf" && 
-					filename.substr(filename.length() - 5) != ".sdfz");
+				return (filename.substr(filename.length() - 4) == ".sdf" ||
+					filename.substr(filename.length() - 5) == ".sdfz");
 			} else {
-				return (filename.substr(filename.length() - 4) != ".ssf");
+				return (filename.substr(filename.length() - 4) == ".ssf");
 			}
 		}
-	}isUnneededFile;
-	
+	}isWantedFile;
+
 	std::string subpath;
 	if (ReplayType) {
 		subpath = "demos";
@@ -820,7 +820,7 @@ bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) cons
 				continue;
 			}
 
-			if (isUnneededFile(ReplayType, filename)) // compare file ending
+			if (!isWantedFile(ReplayType, filename)) // compare file ending
 				continue;
 			ret.insert(filename);
 		}
