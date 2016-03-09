@@ -772,20 +772,17 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 
 void Unitsync::GetSpringDataPaths()
 {
-	TRY_LOCK(ret)
 	m_datapaths.clear();
-
 	const int dirs = susynclib().GetSpringDataDirCount();
 	m_datapaths.resize(dirs + 1);
-	m_datapaths[0] = susynclib().GetSpringDataDir();
-
 	for (int i = 1; i <= dirs; i++) {
-		const std::string datadir = susynclib().GetSpringDataDirByIndex(i);
+		const std::string datadir = susynclib().GetSpringDataDirByIndex(i-1);
 		if (datadir.empty()) {
 			continue;
 		}
 		m_datapaths[i] = datadir;
 	}
+	m_datapaths[0] = susynclib().GetSpringDataDir();
 }
 
 bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) const
