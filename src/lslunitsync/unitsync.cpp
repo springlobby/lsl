@@ -321,6 +321,7 @@ UnitsyncMap Unitsync::GetMap(int index)
 	m.name = m_map_array[index];
 	m.hash = m_maps_list[m.name];
 	m.info = _GetMapInfoEx(m.name);
+	assert(m.hash.empty() == false);
 	return m;
 }
 
@@ -368,18 +369,25 @@ void GetOptionEntry(const int i, GameOptions& ret)
 GameOptions Unitsync::GetMapOptions(const std::string& name)
 {
 	GameOptions ret;
+	memset(&ret, 0, sizeof(ret));
+
 	TRY_LOCK(ret)
 	assert(!name.empty());
-	if (m_map_gameoptions.find(name) != m_map_gameoptions.end()) {
-		return m_map_gameoptions[name];
+
+	auto gameOptionsItor = m_map_gameoptions.find(name);
+	if (gameOptionsItor != m_map_gameoptions.end()) {
+		return gameOptionsItor->second;
 	}
-	const std::string filename = GetFileCachePath(name, false, true) + ".mapoptions";
-	if (!LSL::Cache::Get(filename, ret)) {
-		const int count = susynclib().GetMapOptionCount(name);
-		for (int i = 0; i < count; ++i) {
-			GetOptionEntry(i, ret);
+
+	if (MapExists(name)) {
+		const std::string filename = GetFileCachePath(name, false, true) + ".mapoptions";
+		if (!LSL::Cache::Get(filename, ret)) {
+			const int count = susynclib().GetMapOptionCount(name);
+			for (int i = 0; i < count; ++i) {
+				GetOptionEntry(i, ret);
+			}
+			LSL::Cache::Set(filename, ret);
 		}
-		LSL::Cache::Set(filename, ret);
 	}
 	m_map_gameoptions[name] = ret;
 
@@ -408,6 +416,7 @@ UnitsyncMap Unitsync::GetMap(const std::string& mapname)
 	m.name = m_map_array[i];
 	m.hash = m_maps_list[m.name];
 	m.info = _GetMapInfoEx(m.name);
+	assert(m.hash.empty() == false);
 	return m;
 }
 
@@ -761,11 +770,12 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 	if (!usehash)
 		return ret;
 
-	if (IsMod) {
-		ret += std::string("-") + m_mods_list[name];
-	} else {
-		ret += std::string("-") + m_maps_list[name];
-	}
+	std::string hashString;
+
+	hashString = IsMod ? m_mods_list[name] : m_maps_list[name];
+	assert(!hashString.empty());
+	ret += std::string("-") + hashString;
+
 	return ret;
 }
 
