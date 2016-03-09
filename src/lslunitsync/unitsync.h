@@ -126,7 +126,7 @@ public:
 
 private:
 	void ClearCache();
-
+	void GetSpringDataPaths();
 	/// fetch all errors from unitsync and push to our error handling
 	void FetchUnitsyncErrors(const std::string& prefix);
 
@@ -152,6 +152,7 @@ private:
 	StringVector m_mod_array;		 // this vector is CUSTOM SORTED ALPHABETICALLY, DON'T USE TO ACCESS UNITSYNC DIRECTLY
 	StringVector m_unsorted_map_array;       // this is because unitsync doesn't have a search map index by name ..
 	StringVector m_unsorted_mod_array;       // this isn't necessary but makes things more symmetrical :P
+	StringVector m_datapaths;
 
 	/// caches sett().GetCachePath(), because that method calls back into
 	/// susynclib(), there's a good chance main thread blocks on some

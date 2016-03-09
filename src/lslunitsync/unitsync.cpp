@@ -128,6 +128,7 @@ void Unitsync::ClearCache()
 	m_sides_cache.Clear();
 	m_map_gameoptions.clear();
 	m_game_gameoptions.clear();
+	m_datapaths.clear();
 }
 
 void Unitsync::FetchUnitsyncErrors(const std::string& prefix)
@@ -156,6 +157,7 @@ static std::string GetGameInfo(int index, const std::string keyname)
 
 void Unitsync::PopulateArchiveList()
 {
+	GetSpringDataPaths();
 	const int numMaps = susynclib().GetMapCount();
 	for (int i = 0; i < numMaps; i++) {
 		std::string name, archivename;
@@ -746,9 +748,8 @@ void Unitsync::SetSpringDataPath(const std::string& path)
 
 bool Unitsync::GetSpringDataPath(std::string& path)
 {
-	TRY_LOCK(false)
-	if (IsLoaded()) {
-		path = susynclib().GetSpringDataDir();
+	if (IsLoaded() && (!m_datapaths.empty())) {
+		path = m_datapaths[0];
 	}
 	return !path.empty();
 }
@@ -766,6 +767,25 @@ std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool
 		ret += std::string("-") + m_maps_list[name];
 	}
 	return ret;
+}
+
+
+void Unitsync::GetSpringDataPaths()
+{
+	TRY_LOCK(ret)
+	m_datapaths.clear();
+
+	const int dirs = susynclib().GetSpringDataDirCount();
+	m_datapaths.resize(dirs + 1);
+	m_datapaths[0] = susynclib().GetSpringDataDir();
+
+	for (int i = 1; i <= dirs; i++) {
+		const std::string datadir = susynclib().GetSpringDataDirByIndex(i);
+		if (datadir.empty()) {
+			continue;
+		}
+		m_datapaths[i] = datadir;
+	}
 }
 
 bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) const
@@ -790,20 +810,8 @@ bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) cons
 	} else {
 		subpath = "Saves";
 	}
-	StringVector paths;
-	{
-		TRY_LOCK(ret)
-		const int count = susynclib().GetSpringDataDirCount();
-		for (int i = 0; i < count; i++) {
-			const std::string datadir = susynclib().GetSpringDataDirByIndex(i);
-			if (datadir.empty()) {
-				continue;
-			}
-			paths.push_back(datadir);
-		}
-	}
-	for (const std::string datadir : paths) {
-		const std::string dirname = Util::EnsureDelimiter(datadir) + subpath;
+	for (const std::string& datadir : m_datapaths) {
+		const std::string& dirname = Util::EnsureDelimiter(datadir) + subpath;
 		DIR* dir;
 		struct dirent* ent;
 		if ((dir = opendir(dirname.c_str())) == NULL) {
@@ -813,7 +821,7 @@ bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) cons
 		while ((ent = readdir(dir)) != NULL) {
 			if (ent->d_name[0] == '.') //skip hidden files / . / ..
 				continue;
-			const std::string filename = Util::EnsureDelimiter(dirname) + std::string(ent->d_name);
+			const std::string& filename = Util::EnsureDelimiter(dirname) + std::string(ent->d_name);
 			struct stat sb;
 			stat(filename.c_str(), &sb);
 			if ((sb.st_mode & S_IFDIR) != 0) { // is dir, skip
