@@ -369,7 +369,6 @@ void GetOptionEntry(const int i, GameOptions& ret)
 GameOptions Unitsync::GetMapOptions(const std::string& name)
 {
 	GameOptions ret;
-	memset(&ret, 0, sizeof(ret));
 
 	TRY_LOCK(ret)
 	assert(!name.empty());
