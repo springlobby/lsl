@@ -3,6 +3,7 @@
 #include "conversion.h"
 #include <cassert>
 #include <sstream>
+#include <algorithm>
 
 #ifndef INT_MAX
 #define INT_MAX 2147483647
@@ -16,6 +17,28 @@ namespace LSL
 {
 namespace Util
 {
+
+long FromLongString(const std::string& s)
+{
+	int n = 0;
+	int sign = 1;
+	const char* str = s.c_str();
+
+	if (*str == '-') {
+		sign = -1;
+		++str;
+	} else if (*str == '+') {
+		sign = 1;
+		++str;
+	}
+	while (isdigit(*str)) {
+		n *= 10;
+		int ch = *str - '0';
+		n += ch;
+		++str;
+	}
+	return sign * n;
+}
 
 int32_t FromIntString(const std::string& s)
 {
@@ -85,6 +108,13 @@ std::string SafeString(const char* str)
 	if (str == NULL)
 		return "";
 	return std::string(str);
+}
+
+std::string ToLower(const std::string& s)
+{
+	std::string res = s;
+	std::transform(res.begin(), res.end(), res.begin(), ::tolower);
+	return res;
 }
 
 

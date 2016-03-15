@@ -11,11 +11,13 @@ namespace LSL
 namespace Util
 {
 
+long FromLongString(const std::string& s);
 int32_t FromIntString(const std::string& s);
 float FromFloatString(const std::string& s);
 std::string ToIntString(int i);
 std::string ToUIntString(int i);
 std::string ToFloatString(float f);
+std::string ToLower(const std::string& s);
 
 std::string MakeHashUnsigned(const std::string& hash);
 std::string MakeHashSigned(const std::string& hash);
