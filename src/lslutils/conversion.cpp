@@ -20,8 +20,8 @@ namespace Util
 
 long FromLongString(const std::string& s)
 {
-	int n = 0;
-	int sign = 1;
+	long n = 0;
+	long sign = 1;
 	const char* str = s.c_str();
 
 	if (*str == '-') {
