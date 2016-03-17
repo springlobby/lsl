@@ -119,6 +119,9 @@ public:
 	//! get a map image, if width/height is set, scale it to the given dimensions
 	UnitsyncImage GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width = -1, int height = -1);
 
+	/// fetch all errors from unitsync and push to our error handling
+	void FetchUnitsyncErrors(const std::string& prefix);
+
 private:
 	//! returns the absolute path of the requested item, creates the file when not exists
 	std::string GetMapImagePath(const std::string& mapname, ImageType imgtype) const;
@@ -131,8 +134,6 @@ private:
 
 	void ClearCache();
 	void GetSpringDataPaths();
-	/// fetch all errors from unitsync and push to our error handling
-	void FetchUnitsyncErrors(const std::string& prefix);
 
 	/// get minimap with native width x height
 	UnitsyncImage GetMinimap(const std::string& mapname);

@@ -652,7 +652,6 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 
 	const bool loaded = GetImageFromCache(cachefile, img, imgtype);
 
-	LslWarning("Cachefile: %s %d", cachefile.c_str(), loaded);
 	if (!loaded) { //image seems invalid, recreate
 		try {
 			//convert and save

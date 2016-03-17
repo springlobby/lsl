@@ -84,6 +84,7 @@ bool OptionsWrapper::loadOptions(Enum::GameOption modmapFlag, const std::string&
 				opt = usync().GetMapOptions(name);
 			} catch (...) {
 				LslError("Could not load map options");
+				usync().FetchUnitsyncErrors(name);
 				return false;
 			}
 			break;
@@ -93,6 +94,7 @@ bool OptionsWrapper::loadOptions(Enum::GameOption modmapFlag, const std::string&
 				opt = usync().GetGameOptions(name);
 			} catch (...) {
 				LslError("Could not load game options");
+				usync().FetchUnitsyncErrors(name);
 				return false;
 			}
 			break;
