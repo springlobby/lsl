@@ -17,6 +17,8 @@ namespace LSL
 namespace Cache
 {
 
+const static int CACHE_VERSION = 1;
+
 static bool ParseJsonFile(const std::string& path, Json::Value& root)
 {
 	std::FILE* fp = Util::lslopen(path, "rb");
@@ -33,21 +35,30 @@ static bool ParseJsonFile(const std::string& path, Json::Value& root)
 	}
 	std::fclose(fp);
 	Json::Reader reader;
-	if (!reader.parse(s, root, false)) {
+	Json::Value tmp;
+	if (!reader.parse(s, tmp, false)) {
 		return false;
 	}
+	if (tmp["CacheVersion"] != CACHE_VERSION) {
+		return false;
+	}
+	root = tmp["data"];
 	return true;
 }
 
 static bool writeJsonFile(const std::string& path, const Json::Value& root)
 {
+	Json::Value tmp;
+	tmp["CacheVersion"] = CACHE_VERSION;
+	tmp["data"] = root;
+
 	FILE* f = Util::lslopen(path, "w");
 	if (f == nullptr) {
 		LslWarning("Couldn't open %s for writing!", path.c_str());
 		return false;
 	}
 	std::stringstream ss;
-	ss << root; //FIXME: make this efficient
+	ss << tmp; //FIXME: make this efficient
 	const std::string& str = ss.str();
 	fwrite(str.c_str(), str.size(), 1, f);
 	fclose(f);
@@ -57,10 +68,10 @@ static bool writeJsonFile(const std::string& path, const Json::Value& root)
 bool Get(const std::string& path, MapInfo& info)
 {
 	Json::Value root;
-	if (!ParseJsonFile(path, root)) {
-		return false;
-	}
 	try {
+		if (!ParseJsonFile(path, root)) {
+			return false;
+		}
 		info.author = root["author"].asString();
 		info.tidalStrength = root["tidalStrength"].asFloat();
 		info.gravity = root["gravity"].asInt();
