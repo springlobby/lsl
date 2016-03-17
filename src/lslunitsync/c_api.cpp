@@ -359,6 +359,10 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 		int x = 0;
 		bool xset = false;
 		for (int i = 0; i < infos; i++) {
+			auto errors = GetUnitsyncErrors();
+			for (const std::string error : errors) {
+				LslError("%s", error.c_str());
+			}
 			const std::string& key = Util::SafeString(m_get_info_key(i));
 			if (key == "description") {
 				info.description = Util::SafeString(m_get_info_value_string(i));
@@ -406,7 +410,14 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 				continue;
 			}
 			if (key == "xPos") {
-				x = m_get_info_value_integer(i);
+				const std::string type = Util::SafeString(m_get_info_type(i));
+				if (type == "integer") {
+					x = m_get_info_value_integer(i);
+				} else if (type == "float") {
+					x = m_get_info_value_float(i);
+				} else {
+					LslWarning("Unknown datatype for start position: %s", type.c_str());
+				}
 				xset = true;
 				continue;
 			}
@@ -414,7 +425,15 @@ MapInfo UnitsyncLib::GetMapInfoEx(int index)
 				assert(xset);
 				LSL::StartPos pos;
 				pos.x = x;
-				pos.y = m_get_info_value_integer(i);
+				const std::string type = Util::SafeString(m_get_info_type(i));
+				if (type == "integer") {
+					pos.y = m_get_info_value_integer(i);
+				} else if (type == "float") {
+					pos.y = m_get_info_value_float(i);
+				} else {
+					LslWarning("Unknown datatype for start position: %s", type.c_str());
+				}
+
 				info.positions.push_back(pos);
 				xset = false;
 				continue;
