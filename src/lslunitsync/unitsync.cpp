@@ -379,7 +379,7 @@ GameOptions Unitsync::GetMapOptions(const std::string& name)
 	}
 
 	if (MapExists(name)) {
-		const std::string filename = GetFileCachePath(name, false, true) + ".mapoptions";
+		const std::string filename = GetMapOptionsPath(name);
 		if (!LSL::Cache::Get(filename, ret)) {
 			const int count = susynclib().GetMapOptionCount(name);
 			for (int i = 0; i < count; ++i) {
@@ -427,7 +427,7 @@ GameOptions Unitsync::GetGameOptions(const std::string& name)
 	if (m_game_gameoptions.find(name) != m_game_gameoptions.end()) {
 		return m_game_gameoptions[name];
 	}
-	const std::string filename = GetFileCachePath(name, true, true) + ".gameoptions";
+	const std::string filename = GetGameOptionsPath(name);
 	if (!LSL::Cache::Get(filename, ret)) {
 		if (!IsLoaded())
 			return ret;
@@ -458,7 +458,7 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 	assert(!gamename.empty());
 	StringVector ret;
 	TRY_LOCK(ret);
-	const std::string cachefile = GetFileCachePath(gamename, true) + ".sides";
+	const std::string cachefile = GetSidesCachePath(gamename);
 	if (m_sides_cache.TryGet(cachefile, ret)) { //first return from mru cache
 		return ret;
 	}
@@ -480,7 +480,7 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 UnitsyncImage Unitsync::GetSidePicture(const std::string& gamename, const std::string& SideName)
 {
 	assert(!gamename.empty());
-	const std::string cachepath = GetFileCachePath(gamename, true, false) + "-side-" + SideName + ".png";
+	const std::string cachepath = GetSideImageCachePath(gamename, SideName);
 	UnitsyncImage img;
 	TRY_LOCK(img);
 	if (Util::FileExists(cachepath) && img.Load(cachepath)) {
@@ -582,7 +582,7 @@ GameOptions Unitsync::GetAIOptions(const std::string& gamename, int index)
 StringVector Unitsync::GetUnitsList(const std::string& gamename)
 {
 	assert(!gamename.empty());
-	const std::string cachefile = GetFileCachePath(gamename, true) + ".units";
+	const std::string cachefile = GetUnitsCacheFilePath(gamename);
 	StringVector cache;
 	TRY_LOCK(cache)
 
@@ -648,7 +648,7 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 
 	UnitsyncImage img;
 
-	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(imgtype);
+	const std::string cachefile = GetMapImagePath(mapname, imgtype);
 
 	const bool loaded = GetImageFromCache(cachefile, img, imgtype);
 
@@ -712,7 +712,7 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 	info.height = 1;
 	if (m_mapinfo_cache.TryGet(mapname, info))
 		return info;
-	const std::string cachefile = GetFileCachePath(mapname, false, false) + ".mapinfo";
+	const std::string cachefile = GetMapInfoPath(mapname);
 	StringVector cache;
 	if (!LSL::Cache::Get(cachefile, info)) { //cache file failed
 		const int index = Util::IndexInSequence(m_unsorted_map_array, mapname);
@@ -762,19 +762,20 @@ bool Unitsync::GetSpringDataPath(std::string& path)
 	return !path.empty();
 }
 
-std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool usehash)
+std::string Unitsync::GetFileCachePath(const std::string& name, bool IsMod, bool usehash) const
 {
 	assert(!name.empty());
 	std::string ret = m_cache_path + name;
 	if (!usehash)
 		return ret;
 
-	std::string hashString;
-
-	hashString = IsMod ? m_mods_list[name] : m_maps_list[name];
-	assert(!hashString.empty());
-	ret += std::string("-") + hashString;
-
+	ret += "-";
+	try {
+		 ret += IsMod ? m_mods_list.at(name) : m_maps_list.at(name);
+	} catch (std::out_of_range) {
+		LslWarning("Hash of %s doesn't exist!", name.c_str());
+		assert(false);
+	}
 	return ret;
 }
 
@@ -1107,32 +1108,39 @@ std::string Unitsync::GetConfigFilePath()
 	return susynclib().GetConfigFilePath();
 }
 
-std::string Unitsync::GetMapImagePath(const std::string& mapname, ImageType imgtype)
+std::string Unitsync::GetMapImagePath(const std::string& mapname, ImageType imgtype) const
 {
-	const std::string cachefile = GetFileCachePath(mapname, false, false) + GetImageName(imgtype);
-	if (!Util::FileExists(cachefile)) {
-		PrefetchMap(mapname);
-	}
-	return cachefile;
+	return GetFileCachePath(mapname, false, false) + GetImageName(imgtype);
 }
 
-std::string Unitsync::GetMapOptionsPath(const std::string& mapname)
+std::string Unitsync::GetMapOptionsPath(const std::string& mapname) const
 {
-	const std::string cachefile = GetFileCachePath(mapname, false, true) + ".mapoptions";
-	if (!Util::FileExists(cachefile)) {
-		PrefetchMap(mapname);
-	}
-	return cachefile;
+	return GetFileCachePath(mapname, false, true) + ".mapoptions.json";
 }
 
-std::string Unitsync::GetMapInfoPath(const std::string& mapname)
+std::string Unitsync::GetMapInfoPath(const std::string& mapname) const
 {
-	const std::string cachefile = GetFileCachePath(mapname, false, false) + ".mapinfo";
-	if (!Util::FileExists(cachefile)) {
-		PrefetchMap(mapname);
-	}
-	return cachefile;
+	return GetFileCachePath(mapname, false, false) + ".mapinfo.json";
 }
 
+std::string Unitsync::GetGameOptionsPath(const std::string& name) const
+{
+	return GetFileCachePath(name, true, true) + ".gameoptions.json";
+}
+
+std::string Unitsync::GetSidesCachePath(const std::string& gamename) const
+{
+	return GetFileCachePath(gamename, true) + ".sides.json";
+}
+
+std::string Unitsync::GetSideImageCachePath(const std::string& gamename, const std::string sidename) const
+{
+	return GetFileCachePath(gamename, true, false) + "-side-" + sidename + ".png";
+}
+
+std::string Unitsync::GetUnitsCacheFilePath(const std::string& gamename) const
+{
+	return GetFileCachePath(gamename, true) + ".units.json";
+}
 
 } // namespace LSL

@@ -119,12 +119,16 @@ public:
 	//! get a map image, if width/height is set, scale it to the given dimensions
 	UnitsyncImage GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width = -1, int height = -1);
 
-	//! returns the absolute path of the requested item, creates the file when not exists
-	std::string GetMapImagePath(const std::string& mapname, ImageType imgtype);
-	std::string GetMapOptionsPath(const std::string& mapname);
-	std::string GetMapInfoPath(const std::string& mapname);
-
 private:
+	//! returns the absolute path of the requested item, creates the file when not exists
+	std::string GetMapImagePath(const std::string& mapname, ImageType imgtype) const;
+	std::string GetMapOptionsPath(const std::string& mapname) const;
+	std::string GetMapInfoPath(const std::string& mapname) const;
+	std::string GetGameOptionsPath(const std::string& name) const;
+	std::string GetSidesCachePath(const std::string& gamename) const;
+	std::string GetSideImageCachePath(const std::string& gamename, const std::string sidename) const;
+	std::string GetUnitsCacheFilePath(const std::string& gamename) const;
+
 	void ClearCache();
 	void GetSpringDataPaths();
 	/// fetch all errors from unitsync and push to our error handling
@@ -178,7 +182,7 @@ private:
 
 	//! this function returns only the cache path without the file extension,
 	//! the extension itself would be added in the function as needed
-	std::string GetFileCachePath(const std::string& archivename, bool IsGame, bool usehash = true);
+	std::string GetFileCachePath(const std::string& archivename, bool IsGame, bool usehash = true) const;
 
 	bool _LoadUnitSyncLib(const std::string& unitsyncloc);
 	void _FreeUnitSyncLib();
