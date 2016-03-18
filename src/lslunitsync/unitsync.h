@@ -122,7 +122,6 @@ public:
 	/// fetch all errors from unitsync and push to our error handling
 	void FetchUnitsyncErrors(const std::string& prefix);
 
-private:
 	//! returns the absolute path of the requested item, creates the file when not exists
 	std::string GetMapImagePath(const std::string& mapname, ImageType imgtype) const;
 	std::string GetMapOptionsPath(const std::string& mapname) const;
@@ -131,6 +130,7 @@ private:
 	std::string GetSidesCachePath(const std::string& gamename) const;
 	std::string GetSideImageCachePath(const std::string& gamename, const std::string sidename) const;
 	std::string GetUnitsCacheFilePath(const std::string& gamename) const;
+private:
 	bool GetImageFromCache(const std::string& cachefile, UnitsyncImage& img, ImageType imgtype);
 	UnitsyncImage GetImageFromUS(const std::string& mapname, const MapInfo& info, ImageType imgtype);
 
