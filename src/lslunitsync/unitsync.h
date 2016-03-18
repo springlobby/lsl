@@ -131,6 +131,8 @@ private:
 	std::string GetSidesCachePath(const std::string& gamename) const;
 	std::string GetSideImageCachePath(const std::string& gamename, const std::string sidename) const;
 	std::string GetUnitsCacheFilePath(const std::string& gamename) const;
+	bool GetImageFromCache(const std::string& cachefile, UnitsyncImage& img, ImageType imgtype);
+	UnitsyncImage GetImageFromUS(const std::string& mapname, ImageType imgtype);
 
 	void ClearCache();
 	void GetSpringDataPaths();
@@ -147,7 +149,7 @@ private:
 
 	StringVector GetMapDeps(const std::string& name);
 
-	UnitsyncImage GetImage(const std::string& gamename, const std::string& image_path, bool useWhiteAsTransparent = true) const;
+	UnitsyncImage GetImage(const std::string& image_path, bool useWhiteAsTransparent = true) const;
 
 	LocalArchivesVector m_maps_list;	 /// mapname -> hash
 	LocalArchivesVector m_mods_list;	 /// gamename -> hash
@@ -194,7 +196,6 @@ private:
 
 	friend Unitsync& usync();
 
-	bool GetImageFromCache(const std::string& cachefile, UnitsyncImage& img, ImageType imgtype);
 	bool supportsManualUnLoad;
 };
 

@@ -381,11 +381,8 @@ GameOptions Unitsync::GetMapOptions(const std::string& name)
 	if (MapExists(name)) {
 		const std::string filename = GetMapOptionsPath(name);
 		if (!LSL::Cache::Get(filename, ret)) {
-			const int count = susynclib().GetMapOptionCount(name);
-			for (int i = 0; i < count; ++i) {
-				GetOptionEntry(i, ret);
-			}
-			LSL::Cache::Set(filename, ret);
+			PrefetchMap(name);
+			LSL::Cache::Get(filename, ret);
 		}
 	}
 	m_map_gameoptions[name] = ret;
@@ -429,13 +426,8 @@ GameOptions Unitsync::GetGameOptions(const std::string& name)
 	}
 	const std::string filename = GetGameOptionsPath(name);
 	if (!LSL::Cache::Get(filename, ret)) {
-		if (!IsLoaded())
-			return ret;
-		int count = susynclib().GetModOptionCount(name);
-		for (int i = 0; i < count; ++i) {
-			GetOptionEntry(i, ret);
-		}
-		LSL::Cache::Set(filename, ret);
+		PrefetchGame(name);
+		LSL::Cache::Get(filename, ret);
 	}
 	m_game_gameoptions[name] = ret;
 	return ret;
@@ -464,13 +456,8 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 	}
 
 	if (!LSL::Cache::Get(cachefile, ret) && (GameExists(gamename))) { // cache file failed, try from lsl
-		try {
-			ret = susynclib().GetSides(gamename);
-			LSL::Cache::Set(cachefile, ret); //store into cachefile
-		} catch (Exceptions::unitsync& u) {
-			LslWarning("Error in GetSides: %s %s", gamename.c_str(), u.what());
-			return ret;
-		}
+		PrefetchGame(gamename);
+		LSL::Cache::Get(cachefile, ret);
 	}
 	m_sides_cache.Add(cachefile, ret); //store into mru
 	return ret;
@@ -486,17 +473,8 @@ UnitsyncImage Unitsync::GetSidePicture(const std::string& gamename, const std::s
 	if (Util::FileExists(cachepath) && img.Load(cachepath)) {
 		return img;
 	}
-	const std::string ImgName = "sidepics/" + boost::to_lower_copy(SideName);
-	try {
-		img = GetImage(gamename, ImgName + ".png", false);
-	} catch (Exceptions::unitsync& e) {
-	}
-	if (!img.isValid() || img.GetWidth() < 2 || img.GetHeight() < 2) { //fallback to .bmp when file doesn't exist / is to small
-		try {
-			img = GetImage(gamename, ImgName + ".bmp", true);
-		} catch (Exceptions::unitsync& e) {
-		}
-	}
+	PrefetchGame(gamename);
+	img.Load(cachepath);
 	if (img.isValid() && img.GetWidth() > 1 && img.GetWidth() > 1) {
 		img.Save(cachepath);
 	} else {
@@ -505,18 +483,16 @@ UnitsyncImage Unitsync::GetSidePicture(const std::string& gamename, const std::s
 	return img;
 }
 
-UnitsyncImage Unitsync::GetImage(const std::string& gamename, const std::string& image_path, bool useWhiteAsTransparent) const
+UnitsyncImage Unitsync::GetImage(const std::string& image_path, bool useWhiteAsTransparent) const
 {
-	assert(!gamename.empty());
-	susynclib().SetCurrentMod(gamename);
 	const int ini = susynclib().OpenFileVFS(image_path);
 	if (!ini) {
-		LSL_THROWF(unitsync, "%s: cannot find image %s\n", gamename.c_str(), image_path.c_str());
+		LSL_THROWF(unitsync, "cannot find image %s\n", image_path.c_str());
 	}
 	const int FileSize = susynclib().FileSizeVFS(ini);
 	if (FileSize == 0) {
 		susynclib().CloseFileVFS(ini);
-		LSL_THROWF(unitsync, "%s: image has size 0 %s\n", gamename.c_str(), image_path.c_str());
+		LSL_THROWF(unitsync, "image has size 0 %s\n", image_path.c_str());
 	}
 	Util::uninitialized_array<char> FileContent(FileSize);
 	susynclib().ReadFileVFS(ini, FileContent, FileSize);
@@ -587,14 +563,8 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 	TRY_LOCK(cache)
 
 	if (!LSL::Cache::Get(cachefile, cache)) { //cache read failed
-		susynclib().SetCurrentMod(gamename);
-		while (susynclib().ProcessUnits() > 0) {
-		}
-		const int unitcount = susynclib().GetUnitCount();
-		for (int i = 0; i < unitcount; i++) {
-			cache.push_back(susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")");
-		}
-		LSL::Cache::Set(cachefile, cache);
+		PrefetchGame(gamename);
+		LSL::Cache::Get(cachefile, cache);
 	}
 	return cache;
 }
@@ -641,6 +611,38 @@ bool Unitsync::GetImageFromCache(const std::string& cachefile, UnitsyncImage& im
 	return false;
 }
 
+UnitsyncImage Unitsync::GetImageFromUS(const std::string& mapname, ImageType imgtype)
+{
+	try {
+		UnitsyncImage img;
+		//convert and save
+		switch (imgtype) {
+			case IMAGE_MAP:
+			case IMAGE_MAP_THUMB:
+				img = susynclib().GetMinimap(mapname);
+				break;
+			case IMAGE_METALMAP:
+				img = susynclib().GetMetalmap(mapname);
+				break;
+			case IMAGE_HEIGHTMAP:
+				img = susynclib().GetHeightmap(mapname);
+				break;
+		}
+		const MapInfo info = _GetMapInfoEx(mapname);
+		if ((info.width <= 0) || (info.height <= 0)) {
+			LslWarning("Couldn't load mapimage from %s, missing dependencies?", mapname.c_str());
+			return UnitsyncImage(1, 1);
+		}
+		lslSize image_size = lslSize(info.width, info.height).MakeFit(lslSize(img.GetWidth(), img.GetHeight()));
+		img.Rescale(image_size.GetWidth(), image_size.GetHeight()); //rescale to keep aspect ratio
+		img.Save(GetMapImagePath(mapname, imgtype));
+		return img;
+	} catch (...) { //we failed horrible, use dummy image
+		LslWarning("Couldn't rescale map image from %s, missing dependencies?", mapname.c_str());
+		return UnitsyncImage(1, 1);
+	}
+}
+
 UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType imgtype, int width, int height)
 {
 	assert(imgtype != IMAGE_MAP_THUMB || width == 98); //FIXME: allow to set by config
@@ -650,40 +652,10 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 
 	const std::string cachefile = GetMapImagePath(mapname, imgtype);
 
-	const bool loaded = GetImageFromCache(cachefile, img, imgtype);
-
-	if (!loaded) { //image seems invalid, recreate
-		try {
-			//convert and save
-			switch (imgtype) {
-				case IMAGE_MAP:
-				case IMAGE_MAP_THUMB:
-					img = susynclib().GetMinimap(mapname);
-					break;
-				case IMAGE_METALMAP:
-					img = susynclib().GetMetalmap(mapname);
-					break;
-				case IMAGE_HEIGHTMAP:
-					img = susynclib().GetHeightmap(mapname);
-					break;
-			}
-			const MapInfo info = _GetMapInfoEx(mapname);
-			if ((info.width <= 0) || (info.height <= 0)) {
-				LslWarning("Couldn't load mapimage from %s, missing dependencies?", mapname.c_str());
-				return UnitsyncImage(1, 1);
-			}
-			lslSize image_size = lslSize(info.width, info.height).MakeFit(lslSize(img.GetWidth(), img.GetHeight()));
-			img.Rescale(image_size.GetWidth(), image_size.GetHeight()); //rescale to keep aspect ratio
-		} catch (...) { //we failed horrible, use dummy image
-			LslWarning("Couldn't rescale map image from %s, missing dependencies?", mapname.c_str());
-			return UnitsyncImage(1, 1);
-		}
-	}
-
-	if (imgtype != IMAGE_MAP_THUMB) {
+	if (!GetImageFromCache(cachefile, img, imgtype)) {
+		PrefetchMap(mapname);
+		GetImageFromCache(cachefile, img, imgtype);
 		m_map_image_cache.Add(cachefile, img); //cache before rescale
-		if (!loaded)
-			img.Save(cachefile);
 	}
 
 	const bool rescale = (width > 0) && (height > 0);
@@ -697,8 +669,6 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	if (imgtype == IMAGE_MAP_THUMB) { //cache thumb after rescaling (size is exact!)
 		assert(img.GetWidth() == 98 || img.GetHeight() == 98);
 		m_tiny_minimap_cache.Add(cachefile, img);
-		if (!loaded)
-			img.Save(cachefile);
 	}
 
 	return img;
@@ -972,11 +942,29 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 
 	GetMap(mapname);
 	FetchUnitsyncErrors(mapname);
-	GetMapOptions(mapname);
-	GetScaledMapImage(mapname, IMAGE_MAP);
-	GetScaledMapImage(mapname, IMAGE_MAP_THUMB, 98, 98);
-	GetScaledMapImage(mapname, IMAGE_METALMAP);
-	GetScaledMapImage(mapname, IMAGE_HEIGHTMAP);
+	{
+		GameOptions opt;
+		const int count = susynclib().GetMapOptionCount(mapname);
+		for (int i = 0; i < count; ++i) {
+			GetOptionEntry(i, opt);
+		}
+		LSL::Cache::Set(GetMapOptionsPath(mapname), opt);
+	}
+	{
+		UnitsyncImage img;
+		img = GetImageFromUS(mapname, IMAGE_MAP);
+		img.Save(GetMapImagePath(mapname, IMAGE_MAP));
+
+		img.RescaleIfBigger(98, 98);
+		img.Save(GetMapImagePath(mapname, IMAGE_MAP_THUMB));
+
+		img = GetImageFromUS(mapname, IMAGE_METALMAP);
+		img.Save(GetMapImagePath(mapname, IMAGE_METALMAP));
+
+		img = GetImageFromUS(mapname, IMAGE_HEIGHTMAP);
+		img.Save(GetMapImagePath(mapname, IMAGE_HEIGHTMAP));
+	}
+
 	if (supportsManualUnLoad) {
 		susynclib().RemoveAllArchives();
 	}
@@ -985,12 +973,50 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 void Unitsync::PrefetchGame(const std::string& gamename)
 {
 	assert(!gamename.empty());
-	GetGameOptions(gamename);
-	StringVector sides = GetSides(gamename);
-	for (const std::string& side : sides) {
-		GetSidePicture(gamename, side);
+	susynclib().SetCurrentMod(gamename);
+	{
+		int count = susynclib().GetModOptionCount(gamename);
+		GameOptions opt;
+		for (int i = 0; i < count; ++i) {
+			GetOptionEntry(i, opt);
+		}
+		LSL::Cache::Set(GetGameOptionsPath(gamename), opt);
 	}
-	GetUnitsList(gamename);
+	{
+		StringVector sides;
+		try {
+			sides = susynclib().GetSides(gamename);
+			LSL::Cache::Set(GetSidesCachePath(gamename), sides); //store into cachefile
+		} catch (Exceptions::unitsync& u) {
+			LslWarning("Error in GetSides: %s %s", gamename.c_str(), u.what());
+		}
+		for (const std::string& side : sides) {
+			UnitsyncImage img;
+			const std::string ImgName = "sidepics/" + boost::to_lower_copy(side);
+			try {
+				img = GetImage(ImgName + ".png", false);
+			} catch (Exceptions::unitsync& e) {
+			}
+			if (!img.isValid() || img.GetWidth() < 2 || img.GetHeight() < 2) { //fallback to .bmp when file doesn't exist / is to small
+				try {
+					img = GetImage(ImgName + ".bmp", true);
+				} catch (Exceptions::unitsync& e) {
+				}
+			}
+			img.Save(GetSideImageCachePath(gamename, side));
+		}
+	}
+	{
+		while (susynclib().ProcessUnits() > 0) {
+		}
+		StringVector units;
+		const int unitcount = susynclib().GetUnitCount();
+		for (int i = 0; i < unitcount; i++) {
+			units.push_back(susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")");
+		}
+		LSL::Cache::Set(GetUnitsCacheFilePath(gamename), units);
+	}
+	susynclib().UnSetCurrentMod();
 }
 
 boost::signals2::connection Unitsync::RegisterEvtHandler(const StringSignalSlotType& handler)
