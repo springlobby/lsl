@@ -611,8 +611,12 @@ bool Unitsync::GetImageFromCache(const std::string& cachefile, UnitsyncImage& im
 	return false;
 }
 
-UnitsyncImage Unitsync::GetImageFromUS(const std::string& mapname, ImageType imgtype)
+UnitsyncImage Unitsync::GetImageFromUS(const std::string& mapname, const MapInfo& info, ImageType imgtype)
 {
+	if ((info.width <= 0) || (info.height <= 0)) {
+		LslWarning("Couldn't load mapimage from %s, missing dependencies?", mapname.c_str());
+		return UnitsyncImage(1, 1);
+	}
 	try {
 		UnitsyncImage img;
 		//convert and save
@@ -627,11 +631,6 @@ UnitsyncImage Unitsync::GetImageFromUS(const std::string& mapname, ImageType img
 			case IMAGE_HEIGHTMAP:
 				img = susynclib().GetHeightmap(mapname);
 				break;
-		}
-		const MapInfo info = _GetMapInfoEx(mapname);
-		if ((info.width <= 0) || (info.height <= 0)) {
-			LslWarning("Couldn't load mapimage from %s, missing dependencies?", mapname.c_str());
-			return UnitsyncImage(1, 1);
 		}
 		lslSize image_size = lslSize(info.width, info.height).MakeFit(lslSize(img.GetWidth(), img.GetHeight()));
 		img.Rescale(image_size.GetWidth(), image_size.GetHeight()); //rescale to keep aspect ratio
@@ -684,10 +683,8 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 	const std::string cachefile = GetMapInfoPath(mapname);
 	StringVector cache;
 	if (!LSL::Cache::Get(cachefile, info)) { //cache file failed
-		const int index = Util::IndexInSequence(m_unsorted_map_array, mapname);
-		ASSERT_EXCEPTION(index >= 0, "Map not found");
-		info = susynclib().GetMapInfoEx(index);
-		LSL::Cache::Set(cachefile, info);
+		PrefetchMap(mapname);
+		LSL::Cache::Get(cachefile, info);
 	}
 
 	m_mapinfo_cache.Add(mapname, info);
@@ -940,8 +937,13 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	}
 
 
-	GetMap(mapname);
 	FetchUnitsyncErrors(mapname);
+
+	const int index = Util::IndexInSequence(m_unsorted_map_array, mapname);
+	ASSERT_EXCEPTION(index >= 0, "Map not found");
+	MapInfo info = susynclib().GetMapInfoEx(index);
+	LSL::Cache::Set(GetMapInfoPath(mapname), info);
+
 	{
 		GameOptions opt;
 		const int count = susynclib().GetMapOptionCount(mapname);
@@ -952,16 +954,16 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	}
 	{
 		UnitsyncImage img;
-		img = GetImageFromUS(mapname, IMAGE_MAP);
+		img = GetImageFromUS(mapname, info, IMAGE_MAP);
 		img.Save(GetMapImagePath(mapname, IMAGE_MAP));
 
 		img.RescaleIfBigger(98, 98);
 		img.Save(GetMapImagePath(mapname, IMAGE_MAP_THUMB));
 
-		img = GetImageFromUS(mapname, IMAGE_METALMAP);
+		img = GetImageFromUS(mapname, info, IMAGE_METALMAP);
 		img.Save(GetMapImagePath(mapname, IMAGE_METALMAP));
 
-		img = GetImageFromUS(mapname, IMAGE_HEIGHTMAP);
+		img = GetImageFromUS(mapname, info, IMAGE_HEIGHTMAP);
 		img.Save(GetMapImagePath(mapname, IMAGE_HEIGHTMAP));
 	}
 

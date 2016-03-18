@@ -132,7 +132,7 @@ private:
 	std::string GetSideImageCachePath(const std::string& gamename, const std::string sidename) const;
 	std::string GetUnitsCacheFilePath(const std::string& gamename) const;
 	bool GetImageFromCache(const std::string& cachefile, UnitsyncImage& img, ImageType imgtype);
-	UnitsyncImage GetImageFromUS(const std::string& mapname, ImageType imgtype);
+	UnitsyncImage GetImageFromUS(const std::string& mapname, const MapInfo& info, ImageType imgtype);
 
 	void ClearCache();
 	void GetSpringDataPaths();
