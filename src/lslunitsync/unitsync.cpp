@@ -455,19 +455,15 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 UnitsyncImage Unitsync::GetSidePicture(const std::string& gamename, const std::string& SideName)
 {
 	assert(!gamename.empty());
-	const std::string cachepath = GetSideImageCachePath(gamename, SideName);
+	const std::string cachefile = GetSideImageCachePath(gamename, SideName);
 	UnitsyncImage img;
 	TRY_LOCK(img);
-	if (Util::FileExists(cachepath) && img.Load(cachepath)) {
-		return img;
+
+	if (!lslcache.Get(cachefile, img) && (GameExists(gamename))) { // cache file failed, try from lsl
+		PrefetchGame(gamename);
+		lslcache.Get(cachefile, img);
 	}
-	PrefetchGame(gamename);
-	img.Load(cachepath);
-	if (img.isValid() && img.GetWidth() > 1 && img.GetWidth() > 1) {
-		img.Save(cachepath);
-	} else {
-		LslWarning("Couldn't extract side picture %s %s", gamename.c_str(), SideName.c_str());
-	}
+
 	return img;
 }
 
