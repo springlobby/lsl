@@ -5,7 +5,6 @@
 
 #include "mmoptionmodel.h"
 #include "data.h"
-#include "mru_cache.h"
 #include <lslutils/type_forwards.h>
 #include "image.h"
 
@@ -171,17 +170,6 @@ private:
 	mutable boost::mutex m_lock;
 	WorkerThread* m_cache_thread;
 	StringSignalType m_async_ops_complete_sig;
-
-	/// this cache facilitates async image fetching (image is stored in cache
-	/// in background thread, then main thread gets it from cache)
-	MostRecentlyUsedImageCache m_map_image_cache;
-	/// this cache is a real cache, it stores minimaps with max size 100x100
-	MostRecentlyUsedImageCache m_tiny_minimap_cache;
-
-	/// this caches MapInfo to facilitate GetMapExAsync
-	MostRecentlyUsedMapInfoCache m_mapinfo_cache;
-
-	MostRecentlyUsedArrayStringCache m_sides_cache;
 
 	//! this function returns only the cache path without the file extension,
 	//! the extension itself would be added in the function as needed

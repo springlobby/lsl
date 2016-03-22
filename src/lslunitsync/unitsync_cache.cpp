@@ -14,8 +14,6 @@
 
 namespace LSL
 {
-namespace Cache
-{
 
 const static int CACHE_VERSION = 1;
 
@@ -65,7 +63,15 @@ static bool writeJsonFile(const std::string& path, const Json::Value& root)
 	return true;
 }
 
-bool Get(const std::string& path, MapInfo& info)
+Cache::Cache()
+    : m_map_image_cache(30, "m_map_image_cache")
+    , m_mapinfo_cache(1000000, "m_mapinfo_cache") // takes at most 30k per image (   100x100 24 bpp minimap )
+    , m_sides_cache(200, "m_sides_cache")
+{
+
+}
+
+bool Cache::Get(const std::string& path, MapInfo& info)
 {
 	Json::Value root;
 	try {
@@ -96,7 +102,7 @@ bool Get(const std::string& path, MapInfo& info)
 	return true;
 }
 
-void Set(const std::string& path, const MapInfo& info)
+void Cache::Set(const std::string& path, const MapInfo& info)
 {
 	Json::Value root;
 	root["author"] = info.author;
@@ -118,7 +124,7 @@ void Set(const std::string& path, const MapInfo& info)
 	writeJsonFile(path, root);
 }
 
-void Set(const std::string& path, const GameOptions& opt)
+void Cache::Set(const std::string& path, const GameOptions& opt)
 {
 	Json::Value root;
 
@@ -194,7 +200,7 @@ void Set(const std::string& path, const GameOptions& opt)
 	writeJsonFile(path, root);
 }
 
-bool Get(const std::string& path, GameOptions& opt)
+bool Cache::Get(const std::string& path, GameOptions& opt)
 {
 	Json::Value root;
 	if (!ParseJsonFile(path, root)) {
@@ -248,13 +254,17 @@ bool Get(const std::string& path, GameOptions& opt)
 	return true;
 }
 
-bool Get(const std::string& path, StringVector& opt)
+bool Cache::Get(const std::string& path, StringVector& opt)
 {
+	if (m_sides_cache.TryGet(path, opt)) { //first return from mru cache
+		return true;
+	}
 	Json::Value root;
 	if (!ParseJsonFile(path, root)) {
 		return false;
 	}
 	try {
+		opt.clear();
 		for (Json::ArrayIndex i = 0; i < root.size(); i++) {
 			opt.push_back(root[i].asString());
 		}
@@ -262,10 +272,11 @@ bool Get(const std::string& path, StringVector& opt)
 		LslWarning("Exception when parsing %s %s", path.c_str(), e.what());
 		return false;
 	}
+	m_sides_cache.Add(path, opt); //store into mru
 	return true;
 }
 
-void Set(const std::string& path, const StringVector& opt)
+void Cache::Set(const std::string& path, const StringVector& opt)
 {
 	Json::Value root;
 	for (const std::string& item : opt) {
@@ -274,6 +285,60 @@ void Set(const std::string& path, const StringVector& opt)
 	writeJsonFile(path, root);
 }
 
+void Cache::clear()
+{
+	m_map_image_cache.Clear();
+	m_mapinfo_cache.Clear();
+	m_sides_cache.Clear();
 
-} // namespace CAche
+}
+
+bool Cache::Get(const std::string& path, UnitsyncImage& img)
+{
+	if (m_map_image_cache.TryGet(path, img) && img.isValid()) {
+		LslDebug("Loaded from m_map_image_cache: %s", path.c_str());
+		return true;
+	}
+	if (Util::FileExists(path)) {
+		LslDebug("Loading from %s", path.c_str());
+		img = UnitsyncImage(path);
+		if (img.isValid()) {
+			m_map_image_cache.Add(path, img);
+			return true;
+		}
+	}
+	return false;
+}
+
+void Cache::Set(const std::string& path, const UnitsyncImage& img)
+{
+	if (img.isValid()) {
+		img.Save(path);
+		m_map_image_cache.Add(path, img);
+	}
+}
+
+Cache::~Cache()
+{
+	clear();
+}
+
+static Cache* cach = nullptr;
+
+Cache& Cache::GetInstance()
+{
+	if (cach == nullptr) {
+		cach = new Cache();
+	}
+	return *cach;
+}
+
+void Cache::FreeInstance()
+{
+	assert(cach != nullptr); //no doublefree!
+	delete cach;
+	cach = nullptr;
+}
+
+
 } // namespace LSL

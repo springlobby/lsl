@@ -53,13 +53,6 @@ namespace LSL
 
 Unitsync::Unitsync()
     : m_cache_thread(new WorkerThread)
-    , m_map_image_cache(30, "m_map_image_cache")
-    , // may take about 300k per image ( 512x512 24 bpp minimap )
-    m_tiny_minimap_cache(200, "m_tiny_minimap_cache")
-    , // takes at most 30k per image (   100x100 24 bpp minimap )
-    m_mapinfo_cache(1000000, "m_mapinfo_cache")
-    ,					// this one is just misused as thread safe std::map ...
-    m_sides_cache(200, "m_sides_cache") // another misuse
     , supportsManualUnLoad(false)       //new style fetching (>= spring 101.0)
 {
 }
@@ -77,6 +70,7 @@ Unitsync::~Unitsync()
 	ClearCache();
 	delete m_cache_thread;
 	m_cache_thread = NULL;
+	Cache::FreeInstance();
 }
 
 bool CompareStringNoCase(const std::string& first, const std::string& second)
@@ -123,9 +117,7 @@ void Unitsync::ClearCache()
 	m_map_array.clear();
 	m_unsorted_mod_array.clear();
 	m_unsorted_map_array.clear();
-	m_map_image_cache.Clear();
-	m_mapinfo_cache.Clear();
-	m_sides_cache.Clear();
+	lslcache.clear();
 	m_map_gameoptions.clear();
 	m_game_gameoptions.clear();
 	m_datapaths.clear();
@@ -380,9 +372,9 @@ GameOptions Unitsync::GetMapOptions(const std::string& name)
 
 	if (MapExists(name)) {
 		const std::string filename = GetMapOptionsPath(name);
-		if (!LSL::Cache::Get(filename, ret)) {
+		if (!lslcache.Get(filename, ret)) {
 			PrefetchMap(name);
-			LSL::Cache::Get(filename, ret);
+			lslcache.Get(filename, ret);
 		}
 	}
 	m_map_gameoptions[name] = ret;
@@ -425,9 +417,9 @@ GameOptions Unitsync::GetGameOptions(const std::string& name)
 		return m_game_gameoptions[name];
 	}
 	const std::string filename = GetGameOptionsPath(name);
-	if (!LSL::Cache::Get(filename, ret)) {
+	if (!lslcache.Get(filename, ret)) {
 		PrefetchGame(name);
-		LSL::Cache::Get(filename, ret);
+		lslcache.Get(filename, ret);
 	}
 	m_game_gameoptions[name] = ret;
 	return ret;
@@ -451,15 +443,11 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 	StringVector ret;
 	TRY_LOCK(ret);
 	const std::string cachefile = GetSidesCachePath(gamename);
-	if (m_sides_cache.TryGet(cachefile, ret)) { //first return from mru cache
-		return ret;
-	}
 
-	if (!LSL::Cache::Get(cachefile, ret) && (GameExists(gamename))) { // cache file failed, try from lsl
+	if (!lslcache.Get(cachefile, ret) && (GameExists(gamename))) { // cache file failed, try from lsl
 		PrefetchGame(gamename);
-		LSL::Cache::Get(cachefile, ret);
+		lslcache.Get(cachefile, ret);
 	}
-	m_sides_cache.Add(cachefile, ret); //store into mru
 	return ret;
 }
 
@@ -562,9 +550,9 @@ StringVector Unitsync::GetUnitsList(const std::string& gamename)
 	StringVector cache;
 	TRY_LOCK(cache)
 
-	if (!LSL::Cache::Get(cachefile, cache)) { //cache read failed
+	if (!lslcache.Get(cachefile, cache)) { //cache read failed
 		PrefetchGame(gamename);
-		LSL::Cache::Get(cachefile, cache);
+		lslcache.Get(cachefile, cache);
 	}
 	return cache;
 }
@@ -584,31 +572,6 @@ static std::string GetImageName(ImageType imgtype)
 			assert(false);
 			return "";
 	}
-}
-
-bool Unitsync::GetImageFromCache(const std::string& cachefile, UnitsyncImage& img, ImageType imgtype)
-{
-
-	if (imgtype == IMAGE_MAP_THUMB) {
-		if (m_tiny_minimap_cache.TryGet(cachefile, img) && img.isValid()) {
-			LslDebug("Loaded from m_tiny_minimap_cache: %s", cachefile.c_str());
-			return true;
-		}
-		return false;
-	}
-
-	if (m_map_image_cache.TryGet(cachefile, img) && img.isValid()) {
-		LslDebug("Loaded from m_map_image_cache: %s", cachefile.c_str());
-		return true;
-	}
-
-	if (Util::FileExists(cachefile)) {
-		LslDebug("Loading from %s", cachefile.c_str());
-		img = UnitsyncImage(cachefile);
-		if (img.isValid())
-			return true;
-	}
-	return false;
 }
 
 UnitsyncImage Unitsync::GetImageFromUS(const std::string& mapname, const MapInfo& info, ImageType imgtype)
@@ -650,11 +613,9 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 	UnitsyncImage img;
 
 	const std::string cachefile = GetMapImagePath(mapname, imgtype);
-
-	if (!GetImageFromCache(cachefile, img, imgtype)) {
+	if (!lslcache.Get(cachefile, img)) {
 		PrefetchMap(mapname);
-		GetImageFromCache(cachefile, img, imgtype);
-		m_map_image_cache.Add(cachefile, img); //cache before rescale
+		lslcache.Get(cachefile, img);
 	}
 
 	const bool rescale = (width > 0) && (height > 0);
@@ -664,12 +625,6 @@ UnitsyncImage Unitsync::GetScaledMapImage(const std::string& mapname, ImageType 
 			img.Rescale(image_size.GetWidth(), image_size.GetHeight());
 		}
 	}
-
-	if (imgtype == IMAGE_MAP_THUMB) { //cache thumb after rescaling (size is exact!)
-		assert(img.GetWidth() == 98 || img.GetHeight() == 98);
-		m_tiny_minimap_cache.Add(cachefile, img);
-	}
-
 	return img;
 }
 
@@ -678,16 +633,13 @@ MapInfo Unitsync::_GetMapInfoEx(const std::string& mapname)
 	MapInfo info;
 	info.width = 1;
 	info.height = 1;
-	if (m_mapinfo_cache.TryGet(mapname, info))
-		return info;
 	const std::string cachefile = GetMapInfoPath(mapname);
 	StringVector cache;
-	if (!LSL::Cache::Get(cachefile, info)) { //cache file failed
+	if (!lslcache.Get(cachefile, info)) { //cache file failed
 		PrefetchMap(mapname);
-		LSL::Cache::Get(cachefile, info);
+		lslcache.Get(cachefile, info);
 	}
 
-	m_mapinfo_cache.Add(mapname, info);
 	return info;
 }
 
@@ -942,7 +894,7 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 	const int index = Util::IndexInSequence(m_unsorted_map_array, mapname);
 	ASSERT_EXCEPTION(index >= 0, "Map not found");
 	MapInfo info = susynclib().GetMapInfoEx(index);
-	LSL::Cache::Set(GetMapInfoPath(mapname), info);
+	lslcache.Set(GetMapInfoPath(mapname), info);
 
 	{
 		GameOptions opt;
@@ -950,21 +902,21 @@ void Unitsync::PrefetchMap(const std::string& mapname)
 		for (int i = 0; i < count; ++i) {
 			GetOptionEntry(i, opt);
 		}
-		LSL::Cache::Set(GetMapOptionsPath(mapname), opt);
+		lslcache.Set(GetMapOptionsPath(mapname), opt);
 	}
 	{
 		UnitsyncImage img;
 		img = GetImageFromUS(mapname, info, IMAGE_MAP);
-		img.Save(GetMapImagePath(mapname, IMAGE_MAP));
+		lslcache.Set(GetMapImagePath(mapname, IMAGE_MAP), img);
 
 		img.RescaleIfBigger(98, 98);
-		img.Save(GetMapImagePath(mapname, IMAGE_MAP_THUMB));
+		lslcache.Set(GetMapImagePath(mapname, IMAGE_MAP_THUMB), img);
 
 		img = GetImageFromUS(mapname, info, IMAGE_METALMAP);
-		img.Save(GetMapImagePath(mapname, IMAGE_METALMAP));
+		lslcache.Set(GetMapImagePath(mapname, IMAGE_METALMAP), img);
 
 		img = GetImageFromUS(mapname, info, IMAGE_HEIGHTMAP);
-		img.Save(GetMapImagePath(mapname, IMAGE_HEIGHTMAP));
+		lslcache.Set(GetMapImagePath(mapname, IMAGE_HEIGHTMAP), img);
 	}
 
 	if (supportsManualUnLoad) {
@@ -982,13 +934,13 @@ void Unitsync::PrefetchGame(const std::string& gamename)
 		for (int i = 0; i < count; ++i) {
 			GetOptionEntry(i, opt);
 		}
-		LSL::Cache::Set(GetGameOptionsPath(gamename), opt);
+		lslcache.Set(GetGameOptionsPath(gamename), opt);
 	}
 	{
 		StringVector sides;
 		try {
 			sides = susynclib().GetSides(gamename);
-			LSL::Cache::Set(GetSidesCachePath(gamename), sides); //store into cachefile
+			lslcache.Set(GetSidesCachePath(gamename), sides); //store into cachefile
 		} catch (Exceptions::unitsync& u) {
 			LslWarning("Error in GetSides: %s %s", gamename.c_str(), u.what());
 		}
@@ -1016,7 +968,7 @@ void Unitsync::PrefetchGame(const std::string& gamename)
 		for (int i = 0; i < unitcount; i++) {
 			units.push_back(susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")");
 		}
-		LSL::Cache::Set(GetUnitsCacheFilePath(gamename), units);
+		lslcache.Set(GetUnitsCacheFilePath(gamename), units);
 	}
 	susynclib().UnSetCurrentMod();
 }
