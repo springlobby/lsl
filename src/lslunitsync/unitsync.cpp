@@ -966,9 +966,10 @@ void Unitsync::PrefetchGame(const std::string& gamename)
 		while (susynclib().ProcessUnits() > 0) {
 		}
 		StringVector units;
-		const int unitcount = susynclib().GetUnitCount();
+		const int unitcount = std::max(0, susynclib().GetUnitCount());
+		units.resize(unitcount);
 		for (int i = 0; i < unitcount; i++) {
-			units.push_back(susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")");
+			units[i] = susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")";
 		}
 		lslcache.Set(GetUnitsCacheFilePath(gamename), units);
 	}
