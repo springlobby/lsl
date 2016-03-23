@@ -248,7 +248,7 @@ bool Unitsync::GameExists(const std::string& gamename, const std::string& hash) 
 
 	assert(!itor->second.empty()); //empty hashes are invalid
 
-	if (hash.empty() || hash == "0")
+	if (hash.empty())
 		return true;
 	return itor->second == hash;
 }
@@ -299,7 +299,7 @@ bool Unitsync::MapExists(const std::string& mapname, const std::string& hash) co
 	if (itor == m_maps_list.end())
 		return false;
 	assert(!itor->second.empty()); //empty hashes are invalid
-	if (hash.empty() || hash == "0")
+	if (hash.empty())
 		return true;
 	return itor->second == hash;
 }
