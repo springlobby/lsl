@@ -412,6 +412,8 @@ GameOptions Unitsync::GetGameOptions(const std::string& name)
 {
 	assert(!name.empty());
 	GameOptions ret;
+	if (!GameExists(name))
+		return ret;
 	TRY_LOCK(ret)
 	if (m_game_gameoptions.find(name) != m_game_gameoptions.end()) {
 		return m_game_gameoptions[name];
@@ -441,6 +443,8 @@ StringVector Unitsync::GetSides(const std::string& gamename)
 {
 	assert(!gamename.empty());
 	StringVector ret;
+	if (!GameExists(gamename))
+		return ret;
 	TRY_LOCK(ret);
 	const std::string cachefile = GetSidesCachePath(gamename);
 
@@ -542,8 +546,10 @@ GameOptions Unitsync::GetAIOptions(const std::string& gamename, int index)
 StringVector Unitsync::GetUnitsList(const std::string& gamename)
 {
 	assert(!gamename.empty());
-	const std::string cachefile = GetUnitsCacheFilePath(gamename);
 	StringVector cache;
+	if (!GameExists(gamename))
+		return cache;
+	const std::string cachefile = GetUnitsCacheFilePath(gamename);
 	TRY_LOCK(cache)
 
 	if (!lslcache.Get(cachefile, cache)) { //cache read failed
