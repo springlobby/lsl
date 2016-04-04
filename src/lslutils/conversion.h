@@ -11,7 +11,7 @@ namespace LSL
 namespace Util
 {
 
-long FromLongString(const std::string& s);
+int64_t FromLongString(const std::string& s);
 int32_t FromIntString(const std::string& s);
 float FromFloatString(const std::string& s);
 std::string ToIntString(int i);

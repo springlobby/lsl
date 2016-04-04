@@ -18,10 +18,10 @@ namespace LSL
 namespace Util
 {
 
-long FromLongString(const std::string& s)
+int64_t FromLongString(const std::string& s)
 {
-	long n = 0;
-	long sign = 1;
+	int64_t n = 0;
+	int64_t sign = 1;
 	const char* str = s.c_str();
 
 	if (*str == '-') {
