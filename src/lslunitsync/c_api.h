@@ -347,11 +347,6 @@ private:
 	 */
 	void _Unload();
 
-	/**
-	 * Returns true if the library is loaded. Internal.
-	 */
-	bool _IsLoaded() const;
-
 	void _ConvertSpringMapInfo(const SpringMapInfo& in, MapInfo& out);
 
 	void _SetCurrentMod(const std::string& gamename);

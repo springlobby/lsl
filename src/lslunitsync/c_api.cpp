@@ -112,7 +112,7 @@ bool UnitsyncLib::Load(const std::string& path)
 void UnitsyncLib::_Load(const std::string& path)
 {
 	assert(!path.empty());
-	if (_IsLoaded() && path == m_path)
+	if (IsLoaded() && path == m_path)
 		return;
 
 	_Unload();
@@ -122,6 +122,8 @@ void UnitsyncLib::_Load(const std::string& path)
 	// Load the library.
 	LslDebug("Loading from: %s", path.c_str());
 	m_libhandle = _LoadLibrary(path);
+	if (m_libhandle == nullptr)
+		return;
 
 	// Load all function from library.
 
@@ -135,7 +137,7 @@ void UnitsyncLib::_Load(const std::string& path)
 
 void UnitsyncLib::_Init()
 {
-	if (_IsLoaded() && m_init != NULL) {
+	if (IsLoaded() && m_init != NULL) {
 		m_current_mod.clear();
 		m_init(true, 1);
 		auto errors = GetUnitsyncErrors();
@@ -161,7 +163,7 @@ void UnitsyncLib::RemoveAllArchives()
 
 void UnitsyncLib::Unload()
 {
-	if (!_IsLoaded())
+	if (!IsLoaded())
 		return; // dont even lock anything if unloaded.
 	LOCK_UNITSYNC;
 	_Unload();
@@ -187,11 +189,6 @@ void UnitsyncLib::_Unload()
 }
 
 bool UnitsyncLib::IsLoaded() const
-{
-	return m_loaded;
-}
-
-bool UnitsyncLib::_IsLoaded() const
 {
 	return m_loaded;
 }
