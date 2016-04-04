@@ -655,10 +655,10 @@ bool Unitsync::ReloadUnitSyncLib()
 		return false;
 #if ASYNC_LOAD
 	LoadUnitSyncLibAsync(path);
+	return true; //FIXME: needs event when successfully loaded
 #else
-	LoadUnitSyncLib(path);
+	return LoadUnitSyncLib(path);
 #endif
-	return true;
 }
 
 
