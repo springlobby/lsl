@@ -15,7 +15,7 @@
 namespace LSL
 {
 
-const static int CACHE_VERSION = 1;
+const static int CACHE_VERSION = 2;
 
 static bool ParseJsonFile(const std::string& path, Json::Value& root)
 {

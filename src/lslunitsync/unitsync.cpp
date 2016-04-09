@@ -936,6 +936,7 @@ void Unitsync::PrefetchGame(const std::string& gamename)
 		for (int i = 0; i < count; ++i) {
 			GetOptionEntry(i, opt);
 		}
+		FetchUnitsyncErrors(gamename);
 		lslcache.Set(GetGameOptionsPath(gamename), opt);
 	}
 	{
@@ -961,6 +962,7 @@ void Unitsync::PrefetchGame(const std::string& gamename)
 			}
 			img.Save(GetSideImageCachePath(gamename, side));
 		}
+		FetchUnitsyncErrors(gamename);
 	}
 	{
 		while (susynclib().ProcessUnits() > 0) {
@@ -971,6 +973,7 @@ void Unitsync::PrefetchGame(const std::string& gamename)
 		for (int i = 0; i < unitcount; i++) {
 			units[i] = susynclib().GetFullUnitName(i) + " (" + susynclib().GetUnitName(i) + ")";
 		}
+		FetchUnitsyncErrors(gamename);
 		lslcache.Set(GetUnitsCacheFilePath(gamename), units);
 	}
 	susynclib().UnSetCurrentMod();
