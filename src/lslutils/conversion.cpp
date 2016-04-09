@@ -64,9 +64,16 @@ int32_t FromIntString(const std::string& s)
 
 float FromFloatString(const std::string& s)
 {
-	float ret = 0.f;
-	const int num = sscanf(s.c_str(), "%f", &ret);
-	assert(num == 1);
+	std::stringstream ss;
+	ss.imbue(std::locale("C"));
+	for(size_t i = 0; i < s.size(); i++) {
+		if (s[i] == ',')
+			ss << '.';
+		else
+			ss << s[i];
+	}
+	float ret = 0.0f;
+	ss >> ret;
 	return ret;
 }
 
