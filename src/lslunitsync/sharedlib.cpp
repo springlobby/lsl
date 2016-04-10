@@ -38,14 +38,14 @@ void* _LoadLibrary(const std::string& libpath)
 	res = LoadLibrary(wlibpath.c_str());
 	if (res == nullptr) {
 		const std::string errmsg = Util::geterrormsg().c_str();
-		LslError("Couldn't load the unitsync library: %s", errmsg.c_str());
+		LslError("Couldn't load the library %s: %s", libpath.c_str(), errmsg.c_str());
 		return res;
 	}
 #else
 	res = dlopen(libpath.c_str(), RTLD_NOW | RTLD_LOCAL);
 	if (res == nullptr) {
 		const char* errmsg = dlerror();
-		LslError("Couldn't load the unitsync library '%s': %s", libpath.c_str(), errmsg);
+		LslError("Couldn't load the library %s: %s", libpath.c_str(), errmsg);
 		return nullptr;
 	}
 #endif
