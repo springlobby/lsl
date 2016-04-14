@@ -21,7 +21,7 @@
 #include <stdio.h> //fmemopen
 
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(__APPLE__)
 //! we need our own fmemopen implementation since its posix only
 FILE* fmemopen(void* data, size_t size, const char* mode)
 {
