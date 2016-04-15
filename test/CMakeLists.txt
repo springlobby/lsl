@@ -12,7 +12,7 @@ ADD_EXECUTABLE(libSpringLobby_test WIN32 MACOSX_BUNDLE ${basic_testSrc} )
 add_test(NAME libSpringLobbyTest COMMAND libSpringLobby_test)
 
 
-TARGET_LINK_LIBRARIES(libSpringLobby_test dl lsl-server lsl-unitsync dl)
+TARGET_LINK_LIBRARIES(libSpringLobby_test dl lsl-unitsync dl)
 target_include_directories(libSpringLobby_test
 		PRIVATE ${libSpringLobby_SOURCE_DIR}/src
 	)

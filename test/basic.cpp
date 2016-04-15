@@ -39,6 +39,7 @@ int main(int argc, char** argv)
 	//    TESTLIST(UserList)
 	//    TESTLIST(Battle::BattleList)
 	//    TESTLIST(ChannelList)
+/*
 	LSL::Server* tas = new LSL::Server();
 
 	tas->Connect("lobby.springrts.com", "lobby.springrts.com", 8200);
@@ -48,6 +49,7 @@ int main(int argc, char** argv)
 		tas->Login("dummy", "password");
 	//    sleep(5);
 	tas->JoinChannel("springlobby", "");
+*/
 	dummySync();
 
 	//	std::string sequence("/root/path/jijij.png");
