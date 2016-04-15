@@ -45,6 +45,8 @@ if(NOT DEFINED LIBSPRINGLOBBY_REV)
 endif(NOT DEFINED LIBSPRINGLOBBY_REV)
 
 
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 if(springlobby_SOURCE_DIR)
 	message(STATUS "springlobby build, disabling cpack config")
 else()
@@ -127,7 +129,8 @@ if(LSLSERVER)
 	ENDIF (WIN32)
 endif()
 
-OPTION(LSL_JSONCPP_INTERNAL "use bundled JsonCpp" ON)
+find_package(Jsoncpp)
+OPTION(LSL_JSONCPP_INTERNAL "use bundled JsonCpp" ${Jsoncpp_FOUND})
 if (LSL_JSONCPP_INTERNAL)
         # use bundled JsonCpp
         set(Jsoncpp_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/include)
