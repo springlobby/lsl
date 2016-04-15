@@ -38,4 +38,3 @@ target_include_directories(lsl-unitsync
 		PRIVATE ${libSpringLobby_SOURCE_DIR}/lib
 		PRIVATE ${LSL_JSONCPP_INCLUDE_DIR}
 	)
-message(STATUS  ${LSL_JSONCPP_INCLUDE_DIR})

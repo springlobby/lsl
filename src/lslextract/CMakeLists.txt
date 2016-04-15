@@ -1,4 +1,3 @@
-message(STATUS ${libUnitsyncSrc})
 
 add_executable(lslextract
 	lslextract.cpp
