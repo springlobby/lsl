@@ -119,7 +119,7 @@ INCLUDE(cmake/compat_flags.cmake)
 # add_dependencies( lsl-server version )
 
 OPTION(LSLSERVER
-	"Compile and install lsl-server" ON)
+	"Compile and install lsl-server (broken)" OFF)
 
 if(LSLSERVER)
 	IF (WIN32)
