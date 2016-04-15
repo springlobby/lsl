@@ -21,11 +21,11 @@ TARGET_LINK_LIBRARIES(lslextract
 	${PNG_LIBRARY}
 	${X11_LIBRARIES}
 	${CMAKE_DL_LIBS}
-	${LIB_JSON_CPP}
+	${LSL_JSONCPP_LIBRARIES}
 )
 
 target_include_directories(lslextract
 	PRIVATE ${libSpringLobby_SOURCE_DIR}/src
-	PRIVATE ${Jsoncpp_INCLUDE_DIR}
+	PRIVATE ${LSL_JSONCPP_INCLUDE_DIR}
 )
 

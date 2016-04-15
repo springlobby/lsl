@@ -70,7 +70,7 @@ static bool serve_file(reply& rep, const std::string& path, const std::string& m
 	// Open the file to send back.
 	std::ifstream is(path.c_str(), std::ios::in | std::ios::binary);
 	if (!is) {
-		LslError("Couldn't open file %s", path.c_str());
+		//LslError("Couldn't open file %s", path.c_str());
 		rep = reply::stock_reply(reply::not_found);
 		return false;
 	}
