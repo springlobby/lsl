@@ -140,8 +140,8 @@ void UnitsyncLib::_Init()
 	if (IsLoaded() && m_init != NULL) {
 		m_current_mod.clear();
 		m_init(true, 1);
-		auto errors = GetUnitsyncErrors();
-		for (const std::string error : errors) {
+		const std::vector<std::string> errors = GetUnitsyncErrors();
+		for (const std::string& error : errors) {
 			LslError("%s", error.c_str());
 		}
 	}
