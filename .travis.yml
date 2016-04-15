@@ -7,7 +7,7 @@ sudo: required
 dist: trusty
 
 install:
-  - sudo apt-get install -y libboost-thread1.55-dev libboost-system1.55-dev libboost-filesystem1.55-dev spring
+  - sudo apt-get install -y libboost-thread1.55-dev libboost-system1.55-dev libboost-filesystem1.55-dev spring libjsoncpp-dev
   - cmake -DBUILD_TESTS=ON .
 script:
   - make && make check
