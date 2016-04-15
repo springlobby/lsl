@@ -130,17 +130,25 @@ if(LSLSERVER)
 endif()
 
 find_package(Jsoncpp)
-OPTION(LSL_JSONCPP_INTERNAL "use bundled JsonCpp" ${Jsoncpp_FOUND})
+if (${Jsoncpp_FOUND})
+        OPTION(LSL_JSONCPP_INTERNAL "use bundled JsonCpp" FALSE)
+else()
+        OPTION(LSL_JSONCPP_INTERNAL "use bundled JsonCpp" TRUE)
+endif()
+
 if (LSL_JSONCPP_INTERNAL)
         # use bundled JsonCpp
-        set(Jsoncpp_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/include)
-	set(libjsonsrc
+	set(LSL_JSONCPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/include)
+	set(LSL_libjsonsrc
 		${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/src/lib_json/json_value.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/src/lib_json/json_reader.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/lib/jsoncpp/src/lib_json/json_writer.cpp
 	)
 else()
         find_package(Jsoncpp REQUIRED)
+	set(LSL_libjsonsrc "")
+	set(LSL_JSONCPP_INCLUDE_DIR ${Jsoncpp_INCLUDE_DIR})
+	set(LSL_JSONCPP_LIBRARIES ${Jsoncpp_LIBRARY})
 endif()
 
 add_subdirectory( src )
