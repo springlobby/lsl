@@ -26,6 +26,10 @@
 std::FILE* fmemopen(void* data, size_t size, const char* mode)
 {
 	FILE* f = std::tmpfile();
+	if (f == nullptr) {
+		LslError("fmemopen(): couldn't create tmpfile!");
+		return nullptr;
+	}
 	fwrite(data, size, 1, f);
 	return f;
 }
@@ -41,6 +45,10 @@ void load_mem(LSL::Util::uninitialized_array<char>& data, size_t size, const std
 	const char* filename = fn.c_str();
 
 	std::FILE* file = fmemopen((void*)data, size, "rb");
+	if (file == nullptr) {
+		LslError("fmemopen(): couldn't create tmpfile for %s!", fn.c_str());
+		return;
+	}
 
 	const char* const ext = cimg::split_filename(filename);
 	cimg::exception_mode() = 0;
