@@ -31,6 +31,7 @@ std::FILE* fmemopen(void* data, size_t size, const char* mode)
 		return nullptr;
 	}
 	fwrite(data, size, 1, f);
+	rewind(f);
 	return f;
 }
 #endif // !defined(HAVE_FMEMOPEN)
