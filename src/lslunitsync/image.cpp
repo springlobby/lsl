@@ -23,11 +23,10 @@
 
 #if defined(WIN32) || defined(__APPLE__)
 //! we need our own fmemopen implementation since its posix only
-std::FILE* fmemopen(void* data, size_t size, const char* mode)
+std::FILE* fmemopen(void* data, size_t size, const char* /*mode*/)
 {
 	FILE* f = std::tmpfile();
 	if (f == nullptr) {
-		LslError("fmemopen(): couldn't create tmpfile!");
 		return nullptr;
 	}
 	fwrite(data, size, 1, f);
