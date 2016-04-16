@@ -18,10 +18,32 @@
 #include <cimg/CImg.h>
 #include <lslutils/misc.h>
 #include <lslutils/logging.h>
+#include <lslutils/conversion.h>
 #include <stdio.h> //fmemopen
 
 
-#if defined(WIN32) || defined(__APPLE__)
+#if defined(WIN32)
+
+std::FILE* fmemopen(void* data, size_t size, const char* mode)
+{
+	wchar_t buf[MAX_PATH];
+	const size_t len = GetTempPathW(MAX_PATH, buf);
+	if (len <= 0) {
+		return nullptr;
+	}
+
+	std::wstring tempFile(buf, len);
+	tempFile += L"tempFile-fmemopen";
+
+	FILE* f = _wfopen(tempFile.c_str(), L"wb+");
+	if (f == nullptr)
+		return nullptr;
+	fwrite(data, size, 1, f);
+	rewind(f);
+	return f;
+}
+
+#elif defined(__APPLE__)
 //! we need our own fmemopen implementation since its posix only
 std::FILE* fmemopen(void* data, size_t size, const char* /*mode*/)
 {
