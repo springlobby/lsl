@@ -23,23 +23,11 @@
 
 #if defined(WIN32) || defined(__APPLE__)
 //! we need our own fmemopen implementation since its posix only
-FILE* fmemopen(void* data, size_t size, const char* mode)
+std::FILE* fmemopen(void* data, size_t size, const char* mode)
 {
-	wchar_t buf[MAX_PATH];
-	if (GetTempPathW(MAX_PATH, buf) == 0) {
-		return nullptr;
-	}
-
-	std::wstring tempFile(buf);
-	tempFile += L"tempFile" + std::to_wstring((unsigned long)data);
-	FILE* f = _wfopen(tempFile.c_str(), L"wb");
-	if (NULL == f)
-		return nullptr;
+	FILE* f = std::tmpfile();
 	fwrite(data, size, 1, f);
-	fclose(f);
-
-	std::string modeString(mode);
-	return _wfopen(tempFile.c_str(), std::wstring(modeString.begin(), modeString.end()).c_str());
+	return f;
 }
 #endif // !defined(HAVE_FMEMOPEN)
 
