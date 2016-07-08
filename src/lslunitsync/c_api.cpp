@@ -55,7 +55,7 @@ public:
 		clock_gettime(CLOCK_REALTIME, &stop);
 		const int diff = diff_ms(stop, start);
 		if (diff > 10) {
-			printf("Slow Unitsync call (%s():%d) took: %dms\n", func.c_str(), line, diff);
+			LslWarning("Slow Unitsync call (%s():%d) took: %dms", func.c_str(), line, diff);
 		}
 	}
 
