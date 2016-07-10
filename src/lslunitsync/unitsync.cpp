@@ -704,6 +704,10 @@ void Unitsync::GetSpringDataPaths()
 {
 	m_datapaths.clear();
 	const int dirs = susynclib().GetSpringDataDirCount();
+	if (dirs < 0) {
+		LslWarning("Couldn't get GetSpringDataDirCount(): %d", dirs);
+		return;
+	}
 	m_datapaths.resize(dirs + 1);
 	for (int i = 1; i <= dirs; i++) {
 		const std::string datadir = susynclib().GetSpringDataDirByIndex(i-1);
