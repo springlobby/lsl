@@ -195,9 +195,6 @@ void Tokenizer::ReportError(const Token& t, const std::string& err)
 	errors++;
 }
 
-//#define ReportError(a) {std::cerr<<"error "<<(a);}
-//#define ReportError(a) {slLogMessage(\1;}
-
 void Tokenizer::EnterStream(std::istream& stream_, const std::string& name)
 {
 	skip_eol = false;
@@ -252,7 +249,7 @@ char Tokenizer::GetNextChar()
 bool Tokenizer::Good()
 {
 	UnwindStack();
-	return !include_stack.empty();
+	return (errors == 0) && !include_stack.empty();
 }
 
 void Tokenizer::ReadToken(Token& token)
@@ -311,6 +308,7 @@ start:
 				}
 			}
 			ReportError(token, "Quotes not closed before end of file");
+			return;
 		}
 		case '{':
 			token.type = Token::type_enter_section;
