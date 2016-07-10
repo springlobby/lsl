@@ -167,26 +167,6 @@ public:
 	virtual void Load(Tokenizer& f);
 };
 
-inline bool IsLetter(char c)
-{
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_');
-}
-inline bool IsNum(char c)
-{
-	return c >= '0' && c <= '9';
-}
-inline bool IsNumDot(char c)
-{
-	return (c >= '0' && c <= '9') || c == '.';
-}
-inline bool IsAlphaNum(char c)
-{
-	return IsLetter(c) || IsNum(c);
-}
-inline bool IsWhitespace(char c)
-{
-	return (c == ' ') || (c == 10) || (c == 13) || (c == '\t');
-}
 struct Token {
 	enum TokenType {
 		type_none,
@@ -212,105 +192,6 @@ struct Token {
 	{
 	}
 };
-
-/** \brief Tokenizer used in TDF parsing
- * \todo clean up, move to CPP file
- **/
-class Tokenizer
-{
-
-	/// simple reference counted pointer to stream.
-	struct IncludeCacheEntry {
-		std::string name; ///< used for error reporting
-		int line;
-		int column;
-		std::istream* stream;
-		//bool must_delete;
-		int* refcount;
-
-		IncludeCacheEntry(std::istream* stream_, bool must_delete_ = false)
-		    : line(1)
-		    , column(1)
-		    , stream(stream_)
-		    , refcount(NULL)
-		{
-			if (must_delete_) {
-				refcount = new int;
-				(*refcount) = 1;
-			}
-		}
-		IncludeCacheEntry(const IncludeCacheEntry& other)
-		    : line(other.line)
-		    , column(other.column)
-		    , stream(other.stream)
-		    , refcount(other.refcount)
-		{
-			stream = other.stream;
-			refcount = other.refcount;
-			if (refcount)
-				(*refcount) += 1;
-		}
-		~IncludeCacheEntry()
-		{
-			if (refcount) {
-				(*refcount)--;
-				if ((*refcount) <= 0) {
-					delete stream;
-					delete refcount;
-				}
-			}
-		}
-	};
-	std::vector<IncludeCacheEntry> include_stack;
-	void UnwindStack();
-
-	std::deque<Token> token_buffer;
-	//size_t max_buffer_size;
-	size_t buffer_pos;
-
-	bool skip_eol;
-	char GetNextChar();
-	char PeekNextChar();
-
-	void ReadToken(Token& token);
-	void SkipSpaces();
-
-	int errors;
-
-public:
-	Tokenizer()
-	    : buffer_pos(0)
-	    , skip_eol(false)
-	    , errors(0)
-	{
-	}
-
-	void EnterStream(std::istream& stream_, const std::string& name = "");
-
-	Token GetToken(int i = 0);
-	void Step(int i = 1);
-	inline Token TakeToken()
-	{
-		Token result = GetToken();
-		Step();
-		return result;
-	}
-
-	bool Good();
-
-	void ReportError(const Token& t, const std::string& err);
-
-	int NumErrors() const
-	{
-		return errors;
-	}
-};
-
-inline Tokenizer& operator>>(Tokenizer& tokenizer, Token& token)
-{
-	token = tokenizer.TakeToken();
-	return tokenizer;
-}
 
 PDataList ParseTDF(std::istream& s, int* error_count = NULL);
 }

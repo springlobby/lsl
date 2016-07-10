@@ -35,7 +35,6 @@ class RefcountedPointer;
 
 namespace TDF
 {
-class Tokenizer;
 class Node;
 typedef RefcountedPointer<Node, true> PNode;
 class DataList;
