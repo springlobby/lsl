@@ -234,6 +234,7 @@ public:
 	void SetSpringConfigString(const std::string& key, const std::string& value);
 	void SetSpringConfigInt(const std::string& key, int value);
 	void SetSpringConfigFloat(const std::string& key, const float value);
+	void DeleteSpringConfigKey(const std::string& key);
 
 	/// AI info
 	int GetSkirmishAICount(const std::string& gamename);
@@ -465,6 +466,7 @@ private:
 	GetSpringConfigStringPtr m_get_spring_config_string;
 	SetSpringConfigStringPtr m_set_spring_config_string;
 	SetSpringConfigIntPtr m_set_spring_config_int;
+	DeleteSpringConfigKeyPtr m_delete_spring_config_key;
 
 	GetSkirmishAICountPtr m_get_skirmish_ai_count;
 	GetSkirmishAIInfoCountPtr m_get_skirmish_ai_info_count;

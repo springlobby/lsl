@@ -91,6 +91,7 @@ FUNC(float, GetSpringConfigFloatPtr, const char*, float);
 FUNC(void, SetSpringConfigStringPtr, const char*, const char*);
 FUNC(void, SetSpringConfigIntPtr, const char*, int);
 FUNC(void, SetSpringConfigFloatPtr, const char*, float);
+FUNC(void, DeleteSpringConfigKeyPtr, const char*);
 
 FUNC(int, ProcessUnitsPtr, void);
 FUNC(void, AddArchivePtr, const char*);

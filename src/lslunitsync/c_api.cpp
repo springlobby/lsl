@@ -1212,6 +1212,13 @@ bool UnitsyncLib::GetInfoValueBool(int index)
 	return m_get_info_value_bool(index);
 }
 
+void UnitsyncLib::DeleteSpringConfigKey(const std::string& key)
+{
+	InitLib(m_delete_spring_config_key);
+	m_delete_spring_config_key(key.c_str());
+}
+
+
 
 UnitsyncLib& susynclib()
 {

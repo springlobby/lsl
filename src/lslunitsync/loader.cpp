@@ -187,6 +187,7 @@ bool UnitsyncFunctionLoader::BindFunctions(UnitsyncLib* s)
 	BIND(GetSpringConfigStringPtr, "GetSpringConfigString", m_get_spring_config_string);
 	BIND(SetSpringConfigStringPtr, "SetSpringConfigString", m_set_spring_config_string);
 	BIND(SetSpringConfigIntPtr, "SetSpringConfigInt", m_set_spring_config_int);
+	BIND(DeleteSpringConfigKeyPtr, "DeleteSpringConfigKey", m_delete_spring_config_key);
 
 	// Game
 	BIND(GetPrimaryModIndexPtr, "GetPrimaryModIndex", m_get_mod_index);
@@ -373,6 +374,7 @@ void UnitsyncFunctionLoader::UnbindFunctions(UnitsyncLib* s)
 	s->m_get_spring_config_string = nullptr;
 	s->m_set_spring_config_string = nullptr;
 	s->m_set_spring_config_int = nullptr;
+	s->m_delete_spring_config_key = nullptr;
 
 	// Game
 	s->m_get_mod_index = nullptr;

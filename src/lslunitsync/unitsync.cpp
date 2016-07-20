@@ -1132,4 +1132,15 @@ std::string Unitsync::GetUnitsCacheFilePath(const std::string& gamename) const
 	return GetFileCachePath(gamename, true) + ".units.json";
 }
 
+bool Unitsync::SetDataDir(const std::string& dir)
+{
+	if (dir.empty()) {
+		susynclib().DeleteSpringConfigKey("SpringData");
+	} else {
+		susynclib().SetSpringConfigString("SpringData", dir);
+	}
+}
+
+
+
 } // namespace LSL
