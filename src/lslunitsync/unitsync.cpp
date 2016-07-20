@@ -670,8 +670,11 @@ void Unitsync::SetSpringDataPath(const std::string& path)
 #if ASYNC_LOAD
 	LOCK_UNITSYNC;
 #endif
-
-	susynclib().SetSpringConfigString("SpringData", path);
+	if (path.empty()) {
+		susynclib().DeleteSpringConfigKey("SpringData");
+	} else {
+		susynclib().SetSpringConfigString("SpringData", path);
+	}
 }
 
 bool Unitsync::GetSpringDataPath(std::string& path)
@@ -1131,16 +1134,6 @@ std::string Unitsync::GetUnitsCacheFilePath(const std::string& gamename) const
 {
 	return GetFileCachePath(gamename, true) + ".units.json";
 }
-
-bool Unitsync::SetDataDir(const std::string& dir)
-{
-	if (dir.empty()) {
-		susynclib().DeleteSpringConfigKey("SpringData");
-	} else {
-		susynclib().SetSpringConfigString("SpringData", dir);
-	}
-}
-
 
 
 } // namespace LSL
