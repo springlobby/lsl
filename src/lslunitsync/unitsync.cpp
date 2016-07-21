@@ -97,6 +97,13 @@ bool Unitsync::LoadUnitSyncLib(const std::string& unitsyncloc)
 	if (!ret) {
 		return false;
 	}
+	const std::string datadir = LSL::Util::config().GetDataDir();
+	const std::string curdatadir = susynclib().GetSpringDataDir();
+	if (datadir != curdatadir) {
+		LslWarning("Reloading unitsync due to datadir change: %s -> %s", curdatadir.c_str(), datadir.c_str());
+		SetSpringDataPath(datadir);
+		susynclib().Load(unitsyncloc);
+	}
 	supportsManualUnLoad = LSL::susynclib().GetSpringConfigInt("UnitsyncAutoUnLoadMapsIsSupported", 0) != 0;
 	if (supportsManualUnLoad) {
 		LslDebug("Unitsync supports manual loading of archives (faster, yey!)");
@@ -104,6 +111,9 @@ bool Unitsync::LoadUnitSyncLib(const std::string& unitsyncloc)
 	} else {
 		LslDebug("Unitsync doesn't support manual loading of archives :-/");
 	}
+
+
+
 	m_cache_path = LSL::Util::config().GetCachePath();
 	PopulateArchiveList();
 	return true;

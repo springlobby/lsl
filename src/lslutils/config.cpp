@@ -49,11 +49,17 @@ std::string Config::GetCurrentUsedSpringBinary() const
 	return CurrentUsedSpringBinary;
 }
 
-void Config::ConfigurePaths(const std::string& Cache, const std::string& CurrentUsedUnitSync, const std::string& CurrentUsedSpringBinary)
+std::string Config::GetDataDir() const
+{
+	return DataDir;
+}
+
+void Config::ConfigurePaths(const std::string& Cache, const std::string& CurrentUsedUnitSync, const std::string& CurrentUsedSpringBinary, const std::string& DataDir)
 {
 	this->Cache = Cache;
 	this->CurrentUsedUnitSync = CurrentUsedUnitSync;
 	this->CurrentUsedSpringBinary = CurrentUsedSpringBinary;
+	this->DataDir = DataDir;
 }
 
 } // namespace Util

@@ -41,12 +41,14 @@ private:
 	std::string Cache;
 	std::string CurrentUsedUnitSync;
 	std::string CurrentUsedSpringBinary;
+	std::string DataDir;
 
 public:
 	std::string GetCachePath() const;
 	std::string GetCurrentUsedUnitSync() const;
 	std::string GetCurrentUsedSpringBinary() const;
-	void ConfigurePaths(const std::string& Cache, const std::string& CurrentUsedUnitSync, const std::string& CurrentUsedSpringBinary);
+	std::string GetDataDir() const;
+	void ConfigurePaths(const std::string& Cache, const std::string& CurrentUsedUnitSync, const std::string& CurrentUsedSpringBinary, const std::string& DataDir);
 	STR_DUMMY(GetMyInternalUdpSourcePort)
 	INT_DUMMY(GetClientPort)
 
