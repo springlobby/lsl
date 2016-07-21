@@ -54,12 +54,26 @@ std::string Config::GetDataDir() const
 	return DataDir;
 }
 
+#ifdef WIN32
+int setenv(const char *name, const char *value, int overwrite)
+{
+    int errcode = 0;
+    if(!overwrite) {
+        size_t envsize = 0;
+        errcode = getenv_s(&envsize, NULL, 0, name);
+        if(errcode || envsize) return errcode;
+    }
+    return _putenv_s(name, value);
+}
+#endif
+
 void Config::ConfigurePaths(const std::string& Cache, const std::string& CurrentUsedUnitSync, const std::string& CurrentUsedSpringBinary, const std::string& DataDir)
 {
 	this->Cache = Cache;
 	this->CurrentUsedUnitSync = CurrentUsedUnitSync;
 	this->CurrentUsedSpringBinary = CurrentUsedSpringBinary;
 	this->DataDir = DataDir;
+	setenv("SPRING_WRITEDIR", DataDir.c_str(), 1);
 }
 
 } // namespace Util
