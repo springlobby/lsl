@@ -20,9 +20,11 @@ LIST( APPEND libSpringLobbyUtilsHeader ${templatesources} )
 set_source_files_properties(  ${libSpringLobbyUtilsHeader} PROPERTIES HEADER_FILE_ONLY 1 )
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 if(WIN32)
+	#see https://github.com/mxe/mxe/issues/1448
 	add_definitions(
 			-D_WIN32_WINNT=0x0501
 			-DBOOST_THREAD_USE_LIB
+			-DMINGW_HAS_SECURE_API=1
 		)
 endif()
 ADD_LIBRARY(lsl-utils STATIC ${libSpringLobbyHeader} ${libSpringLobbyUtilsSrc} )
