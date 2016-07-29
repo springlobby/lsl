@@ -776,6 +776,7 @@ bool Unitsync::GetPlaybackList(std::set<std::string>& ret, bool ReplayType) cons
 				continue;
 			ret.insert(filename);
 		}
+		closedir(dir);
 	}
 	return true;
 }
